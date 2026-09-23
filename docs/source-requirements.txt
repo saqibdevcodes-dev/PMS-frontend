@@ -1,0 +1,2218 @@
+
+PROJECT: ENTERPRISE PROPERTY MANAGEMENT SYSTEM (PMS)
+FRONTEND DEVELOPMENT MASTER PROMPT
+
+ROLE
+
+You are a Principal Frontend Architect, Senior Next.js Developer, Enterprise UX Designer, and UI Engineering Specialist.
+
+Your task is to build a professional, futuristic, production-ready frontend for a comprehensive Property Management System.
+
+The application will be used by real estate management, sales teams, finance departments, recovery officers, customer service, project managers, and administrators.
+
+The frontend must be beautiful, highly responsive, reliable, accessible, and optimized for complex business operations.
+
+Design an actual working enterprise application, not a generic admin dashboard or static UI demonstration.
+
+Every implemented form, button, action, filter, and workflow must perform its intended operation.
+
+Integrate with the existing Node.js, Express.js, TypeScript, PostgreSQL, and Prisma backend through its REST API.
+
+==================================================
+1. MANDATORY TECHNOLOGY STACK
+==================================================
+
+Framework:
+- Next.js using the App Router.
+- React.
+- TypeScript in strict mode.
+
+State management:
+- Zustand for client-side application state.
+
+UI and styling:
+- Tailwind CSS.
+- shadcn/ui.
+- Radix UI primitives.
+- Lucide React icons.
+
+Server-state management:
+- TanStack Query.
+
+Forms and validation:
+- React Hook Form.
+- Zod.
+- @hookform/resolvers.
+
+Data tables:
+- TanStack Table.
+- TanStack Virtual where large datasets justify virtualization.
+
+Charts:
+- Recharts.
+- Use Apache ECharts where more advanced visualizations are required.
+
+Notifications:
+- Sonner for toast notifications.
+
+Additional recommended libraries:
+- next-themes for dark/light theme management.
+- Motion for subtle interface animations.
+- date-fns or another maintained date utility.
+- react-dropzone for document uploads.
+- react-pdf or an equivalent PDF viewing solution.
+- cmdk for a command palette.
+- A maintained drag-and-drop library when genuinely necessary.
+
+Use maintained, mutually compatible library versions.
+
+Avoid adding libraries that duplicate existing functionality without a clear reason.
+
+==================================================
+2. FRONTEND ARCHITECTURE
+==================================================
+
+Use a feature-based, maintainable application structure.
+
+Suggested structure:
+
+src/
+  app/
+    (auth)/
+      login/
+      forgot-password/
+      reset-password/
+
+    (dashboard)/
+      dashboard/
+      projects/
+      inventory/
+      crm/
+      customers/
+      reservations/
+      bookings/
+      installments/
+      collections/
+      recovery/
+      dealers/
+      ndc/
+      transfers/
+      cancellations/
+      refunds/
+      finance/
+      documents/
+      possession/
+      approvals/
+      reports/
+      users/
+      settings/
+      profile/
+
+    layout.tsx
+    loading.tsx
+    error.tsx
+    not-found.tsx
+
+  components/
+    ui/
+    layout/
+    navigation/
+    dashboard/
+    tables/
+    forms/
+    dialogs/
+    charts/
+    feedback/
+    documents/
+    shared/
+
+  features/
+    auth/
+    projects/
+    inventory/
+    crm/
+    customers/
+    bookings/
+    payments/
+    recovery/
+    dealers/
+    approvals/
+    transfers/
+    finance/
+    reports/
+
+  stores/
+  hooks/
+  lib/
+    api/
+    auth/
+    validations/
+    permissions/
+    formatters/
+    constants/
+    utils/
+
+  providers/
+  types/
+  styles/
+  tests/
+
+Use reusable components and feature-level separation.
+
+Do not put an entire module into one extremely large page.tsx file.
+
+Separate:
+
+- Page and route components.
+- Feature components.
+- API functions.
+- Query hooks.
+- Zustand stores.
+- Form validation.
+- Types.
+- Utility functions.
+
+Use server components where they provide a meaningful benefit.
+
+Use client components for interactive dashboards, tables, forms, and Zustand-driven features.
+
+Do not make the entire application a client component unnecessarily.
+
+==================================================
+3. API INTEGRATION
+==================================================
+
+The backend API base path is:
+
+/api/v1
+
+Use the backend OpenAPI 3.1 specification as the authoritative integration contract.
+
+Prefer generating TypeScript API types and a typed API client from OpenAPI.
+
+Do not invent alternative endpoint names or response fields.
+
+Do not maintain duplicate, manually inconsistent versions of backend and frontend data types.
+
+Create a centralized API client.
+
+It must support:
+
+- API base URL configuration.
+- Bearer access-token injection.
+- Refresh-token handling.
+- Request cancellation.
+- Standardized error handling.
+- Validation error mapping.
+- Request IDs for debugging.
+- File uploads.
+- File downloads.
+- Pagination.
+- Filtering.
+- Sorting.
+- Network timeouts.
+- Retry policies appropriate to the operation.
+
+Use TanStack Query for:
+
+- Fetching backend data.
+- Query caching.
+- Loading state.
+- Background refetching.
+- Cache invalidation.
+- Mutation state.
+- Optimistic updates only when safe.
+
+Do not use Zustand as a replacement for TanStack Query's server-state cache.
+
+For sensitive business operations, prefer confirmed server responses rather than optimistic updates.
+
+Examples include:
+
+- Booking confirmation.
+- Unit reservation.
+- Payment verification.
+- Refund approval.
+- Financial posting.
+- Ownership transfer.
+
+For these actions, wait for backend confirmation before displaying the new final state.
+
+==================================================
+4. AUTHENTICATION AND SESSION MANAGEMENT
+==================================================
+
+Implement authentication that follows the backend contract.
+
+The backend issues:
+
+- A short-lived JWT access token in the login and refresh response.
+- A rotating refresh token in an HttpOnly, Secure cookie.
+
+FRONTEND RULES:
+
+1. Never store access tokens in localStorage or sessionStorage.
+
+2. Never attempt to read or manually handle the HttpOnly refresh-token cookie.
+
+3. Keep the access token in memory.
+
+4. Implement session initialization and recovery using the refresh endpoint.
+
+5. Use a centralized request client that attaches the access token.
+
+6. When the access token expires, coordinate a single refresh request and retry the original request once when appropriate.
+
+7. Prevent simultaneous failed requests from triggering multiple independent refresh-token rotations.
+
+8. Do not retry a failed refresh indefinitely.
+
+9. If the session is invalid or revoked, clear the in-memory authentication state and redirect the user to login.
+
+10. On logout, call the backend logout endpoint and clear authentication-related client state and caches.
+
+11. Never expose JWTs, customer identification details, or financial data in browser logs.
+
+12. Do not rely on client-side route protection as a substitute for backend authorization.
+
+DEPLOYMENT CONTRACT:
+
+Prefer a same-origin deployment:
+
+/          → Next.js frontend
+/api/v1    → Express backend through a trusted reverse proxy
+
+The browser should call relative /api/v1 endpoints.
+
+The refresh cookie must be configured consistently with the backend and reverse-proxy path.
+
+Ensure login, refresh, and logout work correctly in both development and production.
+
+If a separate-origin deployment is required, document and implement its cookie, CORS, credentials, and CSRF strategy explicitly.
+
+AUTHENTICATION UI:
+
+Create:
+
+- Professional login page.
+- Forgot-password page.
+- Reset-password page.
+- Change-password interface.
+- User profile.
+- Session-expired state.
+- Unauthorized access page.
+- Appropriate session initialization loading state.
+
+Avoid showing the login page briefly to an already authenticated user while session recovery is underway.
+
+==================================================
+5. ZUSTAND STATE MANAGEMENT
+==================================================
+
+Use Zustand for suitable client-side state.
+
+Create focused stores such as:
+
+useAuthStore
+useAppStore
+useProjectStore
+useNavigationStore
+useNotificationStore
+useFilterPreferencesStore
+
+AUTH STORE:
+
+Manage:
+
+- Current authenticated user.
+- In-memory access token.
+- Authentication initialization state.
+- Authentication status.
+- Relevant permission and project-access information.
+
+Do not persist access tokens, refresh tokens, or sensitive customer data.
+
+APP STORE:
+
+Manage:
+
+- Selected project.
+- Global search state.
+- Relevant application preferences.
+
+NAVIGATION STORE:
+
+Manage:
+
+- Sidebar expanded/collapsed state.
+- Mobile navigation.
+- Active navigation group.
+- Recently visited pages where appropriate.
+
+PROJECT STORE:
+
+Manage the currently selected project and local project-selection preferences.
+
+NOTIFICATION STORE:
+
+Manage UI-level notification preferences and temporary application notifications.
+
+Use TanStack Query for backend notifications and other server-backed records.
+
+Keep Zustand stores small and modular.
+
+Avoid duplicating all backend records inside Zustand.
+
+==================================================
+6. VISUAL DESIGN DIRECTION
+==================================================
+
+Design a premium, futuristic enterprise interface.
+
+The application should feel comparable in quality to modern SaaS, CRM, and financial management products.
+
+Visual direction:
+
+- Clean.
+- Sophisticated.
+- Minimal.
+- Modern.
+- Data-centric.
+- Professional.
+- High-end.
+- Fast and responsive.
+- Consistent across every module.
+
+Avoid excessive neon effects, heavy gradients, oversized decorative elements, and animations that interfere with business workflows.
+
+DESIGN SYSTEM:
+
+Use a consistent system of:
+
+- Colors.
+- Typography.
+- Spacing.
+- Border radii.
+- Shadows.
+- Component states.
+- Icons.
+- Table styles.
+- Form styles.
+- Chart styles.
+- Status badges.
+
+Suggested palette:
+
+Primary:
+Deep navy / slate.
+
+Accent:
+Refined blue or indigo.
+
+Success:
+Emerald green.
+
+Warning:
+Amber.
+
+Danger:
+Red.
+
+Background:
+Soft off-white in light mode and restrained charcoal/slate in dark mode.
+
+Use color primarily to convey hierarchy, actions, and business status.
+
+Do not rely on color alone to communicate important information.
+
+TYPOGRAPHY:
+
+Use a modern, readable font such as Inter or Geist.
+
+Create a clear typography hierarchy.
+
+Use tabular numerals for financial figures, percentages, dates, and dashboard statistics where appropriate.
+
+Ensure high readability in data-dense interfaces.
+
+THEME SUPPORT:
+
+Implement:
+
+- Light mode.
+- Dark mode.
+- System theme preference.
+- Consistent chart and component styling across themes.
+
+Ensure adequate color contrast in both modes.
+
+==================================================
+7. APPLICATION LAYOUT
+==================================================
+
+Create a professional application shell.
+
+DESKTOP LAYOUT:
+
+Left sidebar:
+- Application logo.
+- Project selector.
+- Module navigation.
+- Collapsible navigation groups.
+- Active page indicators.
+- Sidebar collapse control.
+
+Top navigation:
+- Breadcrumbs.
+- Global search.
+- Quick actions.
+- Pending approvals indicator.
+- Notifications.
+- Theme toggle.
+- User profile menu.
+
+Main workspace:
+- Page title.
+- Contextual actions.
+- Filter toolbar.
+- Main content.
+- Relevant summary cards.
+- Responsive tables or detail panels.
+
+MOBILE AND TABLET:
+
+- Responsive sidebar drawer.
+- Compact navigation.
+- Touch-friendly controls.
+- Responsive forms.
+- Appropriate alternatives to wide tables.
+
+Do not simply shrink desktop tables until they become unreadable.
+
+Use mobile-friendly record cards or horizontal table scrolling when appropriate.
+
+Implement a reusable layout system so all modules follow the same visual language.
+
+==================================================
+8. MANAGEMENT DASHBOARD
+==================================================
+
+Create an advanced executive dashboard.
+
+Include:
+
+- Total units.
+- Available units.
+- Reserved units.
+- Booked units.
+- Sold units.
+- Total sales value.
+- Verified collections.
+- Outstanding dues.
+- Overdue dues.
+- Defaulters.
+- Upcoming installments.
+- Pending approvals.
+
+Dashboard components:
+
+1. KPI cards.
+2. Sales trend chart.
+3. Collection trend chart.
+4. Inventory status visualization.
+5. Project performance comparison.
+6. Outstanding dues ageing chart.
+7. Recovery performance summary.
+8. Recent bookings.
+9. Recent payment activity.
+10. Pending approvals.
+11. My Work panel.
+
+Create filters for:
+
+- Project.
+- Date range.
+- Phase.
+- Relevant departments or assignments.
+
+All figures must come from backend APIs.
+
+Do not generate random dashboard values.
+
+Use backend-defined KPI definitions.
+
+For example, never label reserved units as sold units or unverified payments as collected cash.
+
+Use professional visualizations with clear labels, readable axes, and meaningful tooltips.
+
+Dashboard cards should link to corresponding filtered detail pages where applicable.
+
+==================================================
+9. PROJECT AND INVENTORY MANAGEMENT
+==================================================
+
+Create a complete inventory management interface.
+
+PROJECT MANAGEMENT:
+
+- Project list.
+- Project creation.
+- Project details.
+- Project editing.
+- Project hierarchy configuration.
+- Phase/block/tower/sector management.
+
+INVENTORY:
+
+Create multiple inventory views:
+
+1. Table view.
+2. Grid/card view.
+3. Project or block inventory matrix.
+4. Property detail view.
+
+Show relevant fields such as:
+
+- Unit number.
+- Project.
+- Phase.
+- Block/tower.
+- Floor/sector.
+- Property type.
+- Size.
+- Base price.
+- Current status.
+- Booking reference.
+- Assigned customer where applicable.
+
+Use clearly differentiated property status badges.
+
+Enable:
+
+- Search.
+- Advanced filtering.
+- Sorting.
+- Column visibility.
+- Pagination.
+- Bulk operations where supported.
+- Excel export.
+- Unit history display.
+
+UNIT DETAILS:
+
+Create a detailed property page showing:
+
+- Property information.
+- Pricing.
+- Features.
+- Current status.
+- Reservation details.
+- Booking information.
+- Ownership history.
+- Payment summary.
+- Related documents.
+- Timeline of important events.
+
+Do not allow unauthorized users to change sensitive information.
+
+Disable invalid actions based on both backend-provided state and permission rules.
+
+==================================================
+10. CRM AND CUSTOMER MANAGEMENT
+==================================================
+
+CRM INTERFACE:
+
+Create:
+
+- Leads dashboard.
+- Lead table.
+- Lead detail page.
+- Lead creation/editing forms.
+- Sales pipeline view.
+- Follow-up calendar or task list.
+- Site visit scheduling.
+- Quotation generation.
+- Lead activity timeline.
+
+Use a Kanban-style pipeline where helpful.
+
+Allow sales executives to see assigned leads and pending follow-ups.
+
+CUSTOMER MANAGEMENT:
+
+Create:
+
+- Customer directory.
+- Customer registration.
+- Customer detail page.
+- Customer profile editing.
+- Document upload.
+- Nominee and joint-owner information.
+- Property ownership history.
+- Customer financial summary.
+- Customer communications.
+- Customer activity timeline.
+
+CUSTOMER PROFILE TABS:
+
+Overview
+Properties
+Bookings
+Installments
+Payments
+Documents
+Transfers
+Communication
+Activity History
+
+Support quick search by customer name, phone number, CNIC where authorized, and customer reference.
+
+Mask sensitive customer fields based on permissions.
+
+==================================================
+11. RESERVATION AND BOOKING INTERFACE
+==================================================
+
+Create a guided booking wizard.
+
+Suggested steps:
+
+STEP 1:
+Select customer.
+
+STEP 2:
+Select project and available unit.
+
+STEP 3:
+Create or validate reservation.
+
+STEP 4:
+Review price and additional charges.
+
+STEP 5:
+Apply discount request if necessary.
+
+STEP 6:
+Select payment plan.
+
+STEP 7:
+Review down payment and installment schedule.
+
+STEP 8:
+Submit booking for approval.
+
+STEP 9:
+Display booking confirmation after backend approval.
+
+Display a clear progress indicator.
+
+Preserve valid draft information when navigating between wizard steps.
+
+Show clear field-level and business-rule validation errors.
+
+If inventory availability changes while a user is completing a booking, show the backend conflict response and guide the user to select another unit.
+
+Do not assume that a unit remains available merely because it was available when the wizard opened.
+
+BOOKING DETAIL PAGE:
+
+Include:
+
+- Booking reference.
+- Customer.
+- Property.
+- Price breakdown.
+- Approved discounts.
+- Payment plan.
+- Installment schedule.
+- Verified payments.
+- Outstanding balance.
+- Approval status.
+- Booking documents.
+- Booking activity timeline.
+
+Use confirmation dialogs for sensitive operations.
+
+==================================================
+12. INSTALLMENTS AND COLLECTIONS
+==================================================
+
+Create an installment management interface.
+
+Features:
+
+- Installment schedule table.
+- Due date.
+- Scheduled amount.
+- Paid amount.
+- Outstanding amount.
+- Payment status.
+- Overdue days.
+- Payment history.
+- Approved schedule changes.
+
+Use status badges for:
+
+Upcoming
+Due
+Partially Paid
+Paid
+Overdue
+Rescheduled
+
+COLLECTIONS:
+
+Create a payment-entry form supporting:
+
+- Customer selection.
+- Booking selection.
+- Payment amount.
+- Payment method.
+- Receiving account.
+- Transaction reference.
+- Payment date.
+- Supporting document upload.
+- Installment allocation where authorized.
+
+Create payment verification and receipt interfaces.
+
+After payment submission:
+
+- Show the actual backend status.
+- Do not mark an unverified payment as cleared.
+- Provide a receipt download only when the backend has issued the appropriate receipt.
+- Refresh relevant booking, installment, and customer account queries.
+
+Create a customer statement page with:
+
+- Opening position.
+- Scheduled charges.
+- Payments.
+- Adjustments.
+- Outstanding balance.
+- Relevant transaction references.
+
+FINANCIAL VALUE HANDLING:
+
+The backend returns monetary amounts as decimal strings.
+
+Preserve monetary precision.
+
+Do not use ordinary JavaScript floating-point arithmetic to calculate balances, installment totals, refunds, or financial statements.
+
+All authoritative financial calculations must happen on the backend.
+
+The frontend may format backend-calculated monetary values for display.
+
+==================================================
+13. RECOVERY AND DEFAULTER MANAGEMENT
+==================================================
+
+Create a recovery dashboard showing:
+
+- Total overdue amount.
+- Total overdue customers.
+- Ageing buckets.
+- Assigned recovery cases.
+- Promises to pay.
+- Follow-ups due today.
+- Recovery progress.
+
+Provide an advanced defaulter table.
+
+Filters:
+
+- Project.
+- Recovery officer.
+- Ageing bucket.
+- Outstanding amount.
+- Last payment date.
+- Promise-to-pay status.
+
+RECOVERY CASE DETAILS:
+
+Show:
+
+- Customer profile.
+- Property and booking.
+- Outstanding installments.
+- Previous payments.
+- Recovery activity timeline.
+- Contact attempts.
+- Follow-up notes.
+- Promise-to-pay records.
+- Escalation status.
+- Communication history.
+
+Allow authorized officers to create follow-ups, record promises to pay, and initiate reminders through supported backend actions.
+
+==================================================
+14. DEALER AND AGENT MANAGEMENT
+==================================================
+
+Create:
+
+- Dealer directory.
+- Dealer registration.
+- Dealer profile.
+- Project assignments.
+- Inventory allocations.
+- Dealer sales dashboard.
+- Commission tracking.
+- Commission settlement records.
+- Dealer statements.
+
+Display commission statuses clearly:
+
+Pending
+Eligible
+Approved
+Paid
+Reversed
+
+Provide relevant filters and downloadable reports.
+
+==================================================
+15. NDC, TRANSFER, CANCELLATION, AND REFUND
+==================================================
+
+Create workflow-based screens rather than simple CRUD forms.
+
+NDC WORKFLOW:
+
+- New request.
+- Customer and property verification.
+- Dues verification.
+- Required document checklist.
+- Approval status.
+- NDC issuance and download.
+
+TRANSFER WORKFLOW:
+
+- Select existing property and seller.
+- Verify current ownership.
+- Register or select buyer.
+- Verify outstanding dues and NDC.
+- Display transfer charges.
+- Record payment status.
+- Submit for approval.
+- Confirm ownership change through backend API.
+
+Display the full transfer history.
+
+CANCELLATION:
+
+- Initiate cancellation.
+- Display original booking details.
+- Show calculated deductions.
+- Show proposed refund.
+- Display approval stages.
+- Record final cancellation status.
+
+REFUNDS:
+
+- Refund request.
+- Approval status.
+- Approved amount.
+- Payment reference.
+- Settlement status.
+- Refund history.
+
+Use clear warning dialogs for irreversible or financially sensitive operations.
+
+Never calculate the final authorized refund amount exclusively in frontend code.
+
+==================================================
+16. FINANCE AND ACCOUNTING INTERFACE
+==================================================
+
+Create accounting screens for:
+
+- Chart of accounts.
+- Journal entries.
+- Journal approval and posting.
+- Cash book.
+- Bank book.
+- Customer ledger.
+- Dealer ledger.
+- Vendor ledger.
+- Bank reconciliation.
+- Trial balance.
+- Income statement.
+- Balance sheet.
+- Accounting periods.
+
+Design a professional financial data-entry interface.
+
+Journal entry forms should support:
+
+- Multiple debit and credit lines.
+- Account selection.
+- Description.
+- Reference number.
+- Transaction date.
+- Attachments.
+- Draft saving.
+- Submission for approval.
+
+Display the debit and credit totals and any difference.
+
+The backend remains responsible for enforcing balanced journal entries.
+
+Use readable financial tables with aligned amounts, appropriate negative-number formatting, subtotals, and totals.
+
+Clearly distinguish draft, approved, posted, reversed, and locked records.
+
+==================================================
+17. DOCUMENTS AND COMMUNICATION
+==================================================
+
+Create a document management interface.
+
+Support:
+
+- Drag-and-drop uploads.
+- File selection.
+- Upload progress.
+- File-size and type validation.
+- Document category selection.
+- Document preview.
+- Secure download.
+- Document history.
+- Document permissions.
+
+Show useful previews for PDFs and supported images.
+
+Use backend-controlled signed download URLs or authenticated document endpoints.
+
+Never expose private storage credentials or permanent public links to sensitive documents.
+
+Create a communication history view for:
+
+- Email.
+- SMS.
+- System notifications.
+- Future WhatsApp integration.
+
+Show delivery status and failure information where available.
+
+==================================================
+18. POSSESSION AND HANDOVER
+==================================================
+
+Create a guided possession workflow.
+
+Show:
+
+- Eligibility checklist.
+- Final dues status.
+- Outstanding requirements.
+- Inspection scheduling.
+- Inspection checklist.
+- Snag list.
+- Snag resolution progress.
+- Handover approval.
+- Possession certificate.
+
+Use visual progress indicators so management can identify the current handover stage.
+
+==================================================
+19. APPROVALS AND MY WORK
+==================================================
+
+Create a unified approvals center.
+
+Display:
+
+- Pending discount approvals.
+- Booking approvals.
+- Payment approvals.
+- Transfer approvals.
+- Cancellation approvals.
+- Refund approvals.
+- Financial voucher approvals.
+
+Approval cards and tables should show:
+
+- Request type.
+- Reference number.
+- Project.
+- Requested by.
+- Request date.
+- Amount where relevant.
+- Approval level.
+- Current status.
+
+Support approval, rejection, and viewing request details when permitted.
+
+Require appropriate confirmation and comments where necessary.
+
+Provide a dedicated My Work page showing:
+
+- Assigned leads.
+- Upcoming follow-ups.
+- Pending recovery tasks.
+- Pending verifications.
+- Pending approvals.
+- Relevant notifications.
+
+Actions must be based on the authenticated user's actual permissions and project assignments.
+
+==================================================
+20. REPORTING CENTER
+==================================================
+
+Create a centralized reporting module.
+
+Organize reports into categories:
+
+Sales Reports
+Inventory Reports
+Collection Reports
+Recovery Reports
+Customer Reports
+Dealer Reports
+Transfer Reports
+Possession Reports
+Financial Reports
+
+Each report should support relevant:
+
+- Project selection.
+- Date range.
+- Status filters.
+- Customer or dealer filters.
+- Sorting.
+- Pagination.
+- Excel export.
+- PDF export.
+
+For large reports, support asynchronous export jobs.
+
+Display the actual report-generation progress or job status supplied by the backend.
+
+Provide download links only after the backend has completed the export.
+
+Do not create fake reports using randomly generated information.
+
+==================================================
+21. PROFESSIONAL DATA TABLE SYSTEM
+==================================================
+
+Build a reusable enterprise data table component.
+
+Support:
+
+- Server-side pagination.
+- Server-side sorting.
+- Server-side filtering.
+- Global search.
+- Column-specific filters.
+- Column visibility.
+- Column resizing where useful.
+- Row selection.
+- Bulk actions when authorized.
+- Sticky headers where appropriate.
+- Loading states.
+- Empty states.
+- Error states.
+- Export actions.
+- Responsive presentation.
+
+Use TanStack Table.
+
+Use TanStack Virtual for very large datasets where necessary.
+
+Do not load every customer, payment, or booking into browser memory just to display a paginated table.
+
+Create reusable table toolbars and pagination controls.
+
+Preserve useful filter settings where appropriate.
+
+When a user returns to a list after viewing a record, restore relevant pagination and filters.
+
+Use URL search parameters for shareable or bookmarkable filter states where useful.
+
+==================================================
+22. FORMS AND VALIDATION
+==================================================
+
+Use React Hook Form and Zod.
+
+Create reusable components for:
+
+- Text input.
+- Numeric input.
+- Decimal monetary input.
+- Date picker.
+- Date-range picker.
+- Searchable select.
+- Customer selector.
+- Project selector.
+- Property selector.
+- Multi-select.
+- File upload.
+- Textarea.
+- Checkbox.
+- Radio group.
+- Status selector.
+
+Use the backend API schemas as the basis for frontend validation where feasible.
+
+Display clear field-level errors.
+
+Show backend validation errors against the relevant fields.
+
+Provide:
+
+- Required field indicators.
+- Helpful descriptions.
+- Correct input formatting.
+- Appropriate default values.
+- Unsaved-change warnings where necessary.
+- Submit-button loading state.
+- Double-submission protection.
+
+Use confirmation dialogs for destructive or sensitive actions.
+
+Do not allow users to accidentally submit the same payment or booking multiple times.
+
+==================================================
+23. TOASTS AND USER FEEDBACK
+==================================================
+
+Use Sonner for a consistent toast notification system.
+
+Implement:
+
+SUCCESS TOASTS:
+- Record successfully created.
+- Changes successfully saved.
+- Booking successfully confirmed.
+- Payment successfully verified.
+- Document successfully uploaded.
+
+ERROR TOASTS:
+- Network request failed.
+- Record could not be saved.
+- Permission denied.
+- Booking conflict.
+- Payment verification failed.
+
+WARNING TOASTS:
+- Unsaved changes.
+- Session expiration.
+- Property no longer available.
+- Outstanding requirements.
+
+INFORMATION TOASTS:
+- Report generation started.
+- Export completed.
+- New approval assigned.
+
+Keep notifications short and informative.
+
+Avoid exposing sensitive financial or customer information in toast messages.
+
+Use consistent placement, duration, and visual styling.
+
+Do not show a success toast before receiving a successful backend response.
+
+For field validation errors, display inline messages instead of generating a separate toast for every invalid field.
+
+==================================================
+24. LOADING EXPERIENCE
+==================================================
+
+Create a polished loading system.
+
+Use appropriate loading indicators depending on the context.
+
+GLOBAL LOADING:
+Use a branded, minimal initial application loader only when necessary.
+
+PAGE LOADING:
+Use skeleton layouts matching the expected page structure.
+
+DASHBOARD LOADING:
+Use KPI card skeletons and chart placeholders.
+
+TABLE LOADING:
+Use table-row skeletons or well-designed in-table loading states.
+
+FORM SUBMISSION:
+Use button-level loading states with disabled duplicate submission.
+
+DOCUMENT UPLOAD:
+Use an actual upload-progress indicator where progress information is available.
+
+REPORT GENERATION:
+Use backend job status and progress indicators.
+
+BACKGROUND REFRESH:
+Keep existing content visible and show a subtle refreshing indicator.
+
+Use Suspense boundaries where appropriate.
+
+Avoid blank pages, repeated full-screen spinners, artificial loading delays, and disruptive layout shifts.
+
+Include meaningful empty states and error-recovery actions.
+
+Respect reduced-motion accessibility settings.
+
+==================================================
+25. SEARCH AND QUICK ACTIONS
+==================================================
+
+Create a global command palette using cmdk or an equivalent library.
+
+Suggested keyboard shortcut:
+
+Ctrl + K / Cmd + K
+
+Support:
+
+- Search customers.
+- Search properties.
+- Search bookings.
+- Search receipts.
+- Navigate to modules.
+- Open recent records.
+- Start authorized quick actions.
+
+Search results must follow backend permission and project-access rules.
+
+Include keyboard navigation and accessible focus handling.
+
+==================================================
+26. ROLE-BASED USER EXPERIENCE
+==================================================
+
+The interface should dynamically reflect the user's permissions.
+
+Examples:
+
+Sales users:
+- CRM.
+- Inventory.
+- Reservations.
+- Bookings.
+
+Finance users:
+- Collections.
+- Payment verification.
+- Finance.
+- Financial reporting.
+
+Recovery users:
+- Defaulters.
+- Recovery cases.
+- Payment follow-ups.
+
+Management users:
+- Dashboards.
+- Reports.
+- Approvals.
+
+Administrators:
+- Users.
+- Roles.
+- Permissions.
+- Projects.
+- System settings.
+
+Hide or disable inaccessible actions as appropriate.
+
+Provide a clear unauthorized state when a user attempts to access an unavailable page.
+
+Client-side permission checks improve usability, but backend authorization must remain authoritative.
+
+Do not allow UI route parameters to bypass project access restrictions.
+
+==================================================
+27. RESPONSIVENESS AND ACCESSIBILITY
+==================================================
+
+Support desktop, laptop, tablet, and mobile browser use.
+
+Prioritize efficient desktop operation because staff will frequently work with large tables and detailed forms.
+
+Implement:
+
+- Accessible labels.
+- Keyboard navigation.
+- Proper focus management.
+- Accessible dialogs.
+- Screen reader support where practical.
+- Sufficient contrast.
+- Clear validation messages.
+- Touch-friendly controls.
+- Reduced-motion preferences.
+- Correct semantic HTML.
+
+Avoid relying on hover-only interactions.
+
+Ensure critical functions remain accessible without a mouse.
+
+==================================================
+28. PERFORMANCE OPTIMIZATION
+==================================================
+
+Implement:
+
+- Route-based code splitting.
+- Dynamic imports for heavy charts and document viewers.
+- Appropriate server/client component boundaries.
+- TanStack Query caching.
+- Request cancellation.
+- Debounced search.
+- Memoization where useful.
+- Paginated backend data fetching.
+- Optimized image loading.
+- Prevention of unnecessary component rerenders.
+
+Do not fetch the entire customer or inventory database when only one page of records is required.
+
+Avoid duplicating the same backend data across multiple global stores.
+
+Use lightweight skeletons and retain useful cached information during navigation.
+
+==================================================
+29. ERROR HANDLING
+==================================================
+
+Create consistent handling for:
+
+- Network errors.
+- Authentication expiration.
+- Permission failures.
+- Form validation failures.
+- Booking conflicts.
+- Payment conflicts.
+- Missing records.
+- Backend unavailability.
+- Document upload failures.
+- Report-generation failures.
+
+Provide:
+
+- Route-level error boundaries.
+- Retry options where appropriate.
+- Friendly error messages.
+- Stable recovery behavior.
+- Request IDs where useful for support.
+
+Never display raw stack traces or sensitive backend error information.
+
+Do not automatically retry non-idempotent financial mutations.
+
+==================================================
+30. TESTING AND QUALITY ASSURANCE
+==================================================
+
+Implement tests using:
+
+- Vitest or Jest.
+- React Testing Library.
+- Playwright for end-to-end browser testing.
+
+Test:
+
+1. Login and session restoration.
+
+2. Refresh-token recovery and simultaneous API requests.
+
+3. Logout and unauthorized navigation.
+
+4. Role-based menus and actions.
+
+5. Project selection and project-scoped data.
+
+6. Inventory search and filtering.
+
+7. Reservation conflicts.
+
+8. Booking wizard validation.
+
+9. Payment submission and verification status.
+
+10. Form submission protection.
+
+11. Customer statement presentation.
+
+12. Approval workflows.
+
+13. File upload and document access.
+
+14. Report filters and exports.
+
+15. Table pagination and sorting.
+
+16. Dark and light themes.
+
+17. Responsive layouts.
+
+18. Keyboard accessibility.
+
+19. Loading, empty, and error states.
+
+20. Backend validation error mapping.
+
+Use a controlled test environment for integration and end-to-end testing.
+
+Do not present mock API tests as evidence that the production backend integration works.
+
+==================================================
+31. WINDOWS APPLICATION READINESS
+==================================================
+
+The primary frontend is a Next.js web application.
+
+Design the frontend so the same backend REST API can also support a Windows desktop application.
+
+Maintain clear separation between:
+
+- User interface.
+- Business logic.
+- API client.
+- Authentication.
+- Device-specific integrations.
+
+Prepare for a future Electron or Tauri-based Windows client where necessary.
+
+Desktop-specific requirements may include:
+
+- Barcode/QR scanning.
+- Document scanning.
+- Printer integration.
+- Biometric device integration.
+
+Do not assume that all hardware integrations available in a desktop wrapper will automatically work in a normal web browser.
+
+Do not build or claim completed Windows hardware functionality unless separately implemented and tested.
+
+==================================================
+32. DEVELOPMENT AND DELIVERY PROCESS
+==================================================
+
+First inspect the existing frontend repository, if provided.
+
+Obtain and inspect the backend OpenAPI specification.
+
+Do not create fake endpoints when the backend contract is available.
+
+Before implementation, deliver:
+
+1. Frontend architecture.
+2. Complete route map.
+3. Design system.
+4. Component hierarchy.
+5. Authentication integration strategy.
+6. Zustand store design.
+7. API client architecture.
+8. Permission-aware navigation structure.
+9. Module-wise screen inventory.
+10. Implementation plan.
+
+Implement in logical phases.
+
+PHASE 1:
+Next.js setup, design system, authentication, application shell, navigation, theme management, API client, and Zustand stores.
+
+PHASE 2:
+Management dashboard, projects, inventory, CRM, and customer management.
+
+PHASE 3:
+Reservations, booking wizard, installment schedules, payment collections, and recovery.
+
+PHASE 4:
+Dealer management, NDCs, transfers, cancellations, refunds, approvals, and possession.
+
+PHASE 5:
+Finance, reporting, documents, communication, and administrative settings.
+
+PHASE 6:
+Responsive optimization, accessibility, end-to-end testing, performance optimization, and production deployment.
+
+After each phase:
+
+- Implement functioning pages and components.
+- Integrate completed backend endpoints.
+- Add relevant tests.
+- Run TypeScript type checking.
+- Run linting.
+- Test the production build.
+- Resolve detected errors.
+- Identify missing backend dependencies and incomplete functionality.
+
+Do not label mock data, decorative buttons, or unconnected forms as completed features.
+
+Do not claim end-to-end integration is successful unless it has actually been tested.
+
+FINAL DELIVERABLES:
+
+- Complete Next.js frontend source code.
+- Professional enterprise design system.
+- Fully responsive application layout.
+- Working REST API integration.
+- Secure authentication experience.
+- Zustand client-state architecture.
+- TanStack Query server-state integration.
+- Permission-aware user experience.
+- Management dashboards.
+- Complete operational module interfaces.
+- Professional forms and advanced tables.
+- Toast notification system.
+- Skeleton loaders and loading indicators.
+- Dark and light modes.
+- Accessible reusable components.
+- Automated tests.
+- Environment configuration.
+- Production build and deployment instructions.
+- Frontend technical documentation.
+
+The final application must feel like a premium enterprise SaaS product while providing the accuracy, reliability, and operational efficiency required for a real estate property management business.
+
+ADDITIONAL FRONTEND REQUIREMENT:
+NEXT.JS + ELECTRON + CAPACITOR
+
+ROLE
+
+You are an expert in Next.js, React, TypeScript, Electron, Capacitor, desktop application development, mobile application development, and cross-platform software architecture.
+
+The Property Management System must be delivered as:
+
+1. A browser-based web application.
+2. An installable Windows desktop application using Electron.
+3. An Android application using Capacitor.
+4. An iOS application using Capacitor.
+
+Use one shared Next.js frontend codebase.
+
+Do not develop completely separate React applications for desktop and mobile.
+
+Do not replace Next.js with another frontend framework.
+
+Maintain the existing frontend technology stack:
+
+- Next.js App Router.
+- React.
+- TypeScript.
+- Zustand.
+- TanStack Query.
+- Tailwind CSS.
+- shadcn/ui.
+- Radix UI.
+- React Hook Form.
+- Zod.
+- Sonner.
+- Recharts.
+- TanStack Table.
+- Lucide React.
+
+Add:
+
+- Electron.
+- Electron Forge or another maintained Electron packaging solution.
+- Capacitor Core.
+- Capacitor CLI.
+- Capacitor Android.
+- Capacitor iOS.
+- Appropriate native plugins and secure storage adapters.
+
+==================================================
+1. SHARED APPLICATION ARCHITECTURE
+==================================================
+
+Use a shared frontend codebase that supports multiple platform-specific builds.
+
+Suggested structure:
+
+property-management-system/
+│
+├── backend/
+│
+├── frontend/
+│   ├── src/
+│   │   ├── app/
+│   │   ├── components/
+│   │   ├── features/
+│   │   ├── stores/
+│   │   ├── hooks/
+│   │   ├── lib/
+│   │   └── providers/
+│   │
+│   ├── electron/
+│   │   ├── main.ts
+│   │   ├── preload.ts
+│   │   ├── ipc/
+│   │   ├── services/
+│   │   └── platform/
+│   │
+│   ├── native/
+│   │   ├── capacitor/
+│   │   ├── plugins/
+│   │   └── platform/
+│   │
+│   ├── src/platform/
+│   │   ├── adapter.ts
+│   │   ├── web.ts
+│   │   ├── electron.ts
+│   │   └── capacitor.ts
+│   │
+│   ├── android/
+│   ├── ios/
+│   │
+│   ├── capacitor.config.ts
+│   ├── next.config.ts
+│   ├── forge.config.ts
+│   └── package.json
+│
+└── contracts/
+    └── openapi.json
+
+Adjust the directory structure where necessary to meet build-tool requirements.
+
+The application must share:
+
+- Business module interfaces.
+- Forms.
+- Tables.
+- Dashboards.
+- Zustand stores.
+- TanStack Query hooks.
+- API client.
+- Validation schemas.
+- Business-related UI logic.
+- Design system.
+- Permission-aware navigation.
+
+Separate only platform-specific functionality.
+
+==================================================
+2. NEXT.JS BUILD COMPATIBILITY
+==================================================
+
+The frontend must support packaging through both Electron and Capacitor.
+
+Prefer a static-export-compatible Next.js architecture for the shared application shell.
+
+Use the current supported Next.js static export configuration.
+
+The frontend should load business data from the centralized Express REST API.
+
+Do not rely on a running Next.js server inside the installed Electron or Capacitor application.
+
+Avoid requiring the following in the shared packaged application:
+
+- Next.js Server Actions.
+- Runtime server-side rendering.
+- Request-dependent Next.js route handlers.
+- Next.js middleware or proxy features requiring a server.
+- Runtime server-side cookies.
+- Dynamic server routes that cannot be statically exported.
+
+Handle dynamic customer, unit, booking, and payment records through compatible client-side routing and API fetching.
+
+For example, use statically defined record-detail pages with query parameters or another static-export-compatible routing strategy.
+
+Do not attempt to statically generate one page for every customer, property, payment, or booking.
+
+Implement a route and navigation strategy that works in:
+
+- Standard web browsers.
+- Packaged Electron applications.
+- Capacitor Android WebView.
+- Capacitor iOS WebView.
+
+Test direct navigation, refresh, browser history, deep links, and back-button behavior on all target platforms.
+
+All authoritative backend operations must remain in Express.
+
+==================================================
+3. PLATFORM DETECTION AND ADAPTERS
+==================================================
+
+Implement a centralized platform abstraction.
+
+Supported platforms:
+
+WEB
+ELECTRON
+ANDROID
+IOS
+
+Provide capabilities such as:
+
+getPlatform()
+isDesktop()
+isMobile()
+isNative()
+isElectron()
+
+Create a platform adapter interface for:
+
+- Authentication.
+- Secure storage.
+- Notifications.
+- File selection.
+- File saving.
+- Printing.
+- QR/barcode scanning.
+- Document scanning.
+- External links.
+- Application version.
+- Application update handling.
+- Connectivity state.
+
+Create separate implementations for:
+
+WebPlatformAdapter
+ElectronPlatformAdapter
+CapacitorPlatformAdapter
+
+The shared UI must call the platform adapter rather than importing Electron or Capacitor APIs throughout individual business components.
+
+Load native dependencies only where supported.
+
+Do not execute Electron APIs in the browser or Capacitor-only code during Next.js build-time rendering.
+
+==================================================
+4. ELECTRON DESKTOP APPLICATION
+==================================================
+
+Create a complete Windows desktop application using Electron.
+
+The Electron application must include:
+
+- A working main process.
+- A secure preload script.
+- A restricted IPC bridge.
+- Application window management.
+- Native application menus where useful.
+- Native file dialogs.
+- Printing support.
+- Download handling.
+- Application notifications.
+- Application settings.
+- Secure session storage.
+- Windows installer generation.
+- Application version management.
+- Update mechanism.
+
+ELECTRON SECURITY:
+
+Use:
+
+contextIsolation: true
+nodeIntegration: false
+sandbox: true
+
+Use an appropriate Content Security Policy.
+
+Use a secure custom application protocol for locally packaged frontend assets.
+
+Do not rely on unrestricted file:// access.
+
+Do not disable web security to make API requests work.
+
+Use HTTPS for communication with the centralized backend.
+
+Restrict navigation and external window creation.
+
+Validate the origin and sender of IPC requests.
+
+Expose only specific approved desktop functions through contextBridge.
+
+Never expose unrestricted Node.js, filesystem, child-process, or operating-system access to the React renderer.
+
+DESKTOP FEATURES:
+
+Implement appropriate native interfaces for:
+
+1. Opening and saving PDF documents.
+
+2. Printing receipts, booking forms, statements, and letters.
+
+3. Selecting and uploading customer documents.
+
+4. Configuring and selecting available printers.
+
+5. QR/barcode scanning through supported scanner hardware.
+
+6. Optional document scanning through supported devices and native integrations.
+
+7. Optional biometric integration through compatible device SDKs.
+
+8. Desktop notifications.
+
+9. Native application update notifications.
+
+10. Windows application shortcuts.
+
+For specialized biometric or scanner devices, implement hardware-specific adapters only after the actual device SDK and compatibility requirements are confirmed.
+
+ELECTRON AUTHENTICATION:
+
+Keep the JWT access token in memory.
+
+Protect native refresh-token handling through the Electron main process and suitable operating-system-backed secure storage.
+
+Use a narrowly scoped IPC contract for authentication-related native operations.
+
+Never expose stored refresh tokens through a general-purpose JavaScript bridge.
+
+Do not store refresh tokens in localStorage.
+
+Use the documented native authentication contract provided by the backend.
+
+ELECTRON PACKAGING:
+
+Create a distributable Windows installer.
+
+Use a maintained packaging tool such as Electron Forge.
+
+Include:
+
+- Application name.
+- Application icon.
+- Version information.
+- Installer metadata.
+- Application signing configuration.
+- Update configuration.
+- Production API configuration.
+
+The installed application must not require a separately installed Node.js runtime or locally running PostgreSQL database.
+
+The Windows application must connect securely to the centralized backend.
+
+==================================================
+5. CAPACITOR MOBILE APPLICATION
+==================================================
+
+Integrate Capacitor into the existing Next.js frontend.
+
+Create native Android and iOS projects using Capacitor.
+
+The applications must contain a packaged, compatible build of the shared web interface.
+
+Configure Capacitor to use the generated frontend web asset directory.
+
+Use supported Capacitor plugins for appropriate device features.
+
+MOBILE FEATURES:
+
+Implement:
+
+- Native splash screen.
+- Native application icon.
+- Native status-bar integration.
+- Safe-area support.
+- Mobile keyboard handling.
+- Android back-button behavior.
+- Application foreground/background lifecycle handling.
+- Network connectivity detection.
+- Camera access.
+- Document selection and capture.
+- QR/barcode scanning.
+- Secure native session storage.
+- Native push notifications.
+- File downloads and sharing.
+- External browser opening.
+
+Provide appropriate platform permission handling for camera access, file access, notifications, and other native capabilities.
+
+Avoid requesting unnecessary permissions.
+
+Use a responsive mobile-specific layout where the desktop interface would be difficult to operate on a small screen.
+
+For example:
+
+Desktop:
+Full sidebar, large data tables, multiple dashboard columns.
+
+Mobile:
+Bottom navigation or compact drawer, summary cards, simplified tables, touch-friendly forms, and contextual action menus.
+
+Do not create an entirely separate business application.
+
+Reuse the same components and business logic wherever practical.
+
+==================================================
+6. CAPACITOR AUTHENTICATION
+==================================================
+
+Implement native-aware authentication.
+
+The Android and iOS applications must use the backend's documented native-client authentication contract.
+
+Use a maintained native secure-storage implementation backed by the relevant operating-system facilities.
+
+Do not store refresh tokens in ordinary WebView localStorage, Capacitor Preferences, or unencrypted application files.
+
+Keep access tokens short-lived and in memory.
+
+Use the native authentication adapter to manage refresh-token persistence and rotation.
+
+Protect native token operations from untrusted WebView content.
+
+Implement:
+
+- Secure login.
+- Session restoration.
+- Automatic access-token refresh.
+- Refresh-token rotation.
+- Logout.
+- Session revocation.
+- Session-expired handling.
+
+Optional biometric authentication:
+
+Allow users to unlock an existing valid application session using supported device biometrics.
+
+Biometric verification must not be treated as a substitute for backend authorization.
+
+Do not automatically retain an expired or revoked server session merely because the device biometric check succeeded.
+
+==================================================
+7. API CONFIGURATION FOR ALL PLATFORMS
+==================================================
+
+Create an API configuration layer.
+
+WEB:
+
+Use the same-origin API path where available:
+
+/api/v1
+
+ELECTRON:
+
+Use the configured production HTTPS API endpoint or an appropriately designed secure application-origin proxy.
+
+CAPACITOR:
+
+Use the configured production HTTPS API endpoint.
+
+Do not assume that relative /api/v1 requests resolve to the Express backend when the application is loaded from an Electron custom protocol or a Capacitor local WebView origin.
+
+Use the same OpenAPI-generated TypeScript types and API client behavior across all platforms.
+
+Handle platform-specific authentication transport through adapters.
+
+Ensure the backend explicitly supports the selected production origins and native-client authentication flow.
+
+Never place backend database credentials or confidential server API keys inside the frontend, Electron package, or mobile application.
+
+==================================================
+8. DESKTOP AND MOBILE NOTIFICATIONS
+==================================================
+
+Create a shared notification service.
+
+WEB:
+
+Use in-app notifications and browser notifications where supported and authorized.
+
+ELECTRON:
+
+Support native desktop notifications.
+
+CAPACITOR:
+
+Support Android and iOS push notifications through appropriate platform providers.
+
+Handle:
+
+- Notification permission requests.
+- Device registration.
+- Device token updates.
+- Notification delivery.
+- Notification navigation.
+- Logout and device-token removal.
+
+Display the appropriate application screen when a notification is opened.
+
+Verify user permissions before retrieving the associated record.
+
+==================================================
+9. PRINTING AND DOCUMENT HANDLING
+==================================================
+
+Implement platform-aware document handling.
+
+WEB:
+
+Support browser-based printing, secure downloads, and document previews.
+
+ELECTRON:
+
+Support native print dialogs, printer selection, receipt printing, and file save dialogs.
+
+CAPACITOR:
+
+Support native document preview, download, saving, and sharing.
+
+Implement printing or external print-service integration only where supported by the actual mobile platform and selected plugin.
+
+The same booking receipt or customer statement should contain consistent financial data and formatting on every platform.
+
+Keep document generation authoritative on the backend.
+
+==================================================
+10. CONNECTIVITY AND SESSION RECOVERY
+==================================================
+
+The application is online-first.
+
+Implement:
+
+- Network connectivity detection.
+- Offline status indicators.
+- Controlled API retry behavior.
+- Session restoration after application restart.
+- Recovery from interrupted requests.
+- Safe resumption after application backgrounding.
+- Clear timeout and network-error messages.
+
+Do not confirm a booking, payment, refund, transfer, or other financial operation locally when the backend has not confirmed it.
+
+When connectivity is interrupted during a financial mutation, reconcile the operation using its server reference or idempotency key before allowing the user to repeat it.
+
+Do not blindly retry non-idempotent operations.
+
+==================================================
+11. APPLICATION UPDATES
+==================================================
+
+WEB:
+
+Support standard web deployment and versioned assets.
+
+ELECTRON:
+
+Implement a controlled desktop update mechanism.
+
+Use signed releases and an authenticated or otherwise trusted update distribution process.
+
+Support:
+
+- Update availability notification.
+- Secure update download.
+- Update installation.
+- Application restart when required.
+- Appropriate rollback or recovery planning.
+
+CAPACITOR:
+
+Support normal Android and iOS application release processes.
+
+Provide build configurations for:
+
+- Android APK/AAB.
+- iOS application builds.
+
+Support version detection and backend-enforced minimum compatible application versions.
+
+Do not assume that arbitrary over-the-air replacement of packaged native application code is permitted or safe.
+
+==================================================
+12. PLATFORM-SPECIFIC TESTING
+==================================================
+
+Test the shared business workflows on all supported platforms.
+
+WEB:
+
+- Supported desktop browsers.
+- Supported mobile browsers.
+
+ELECTRON:
+
+- Windows installation.
+- First launch.
+- Login and session restoration.
+- API communication.
+- Printing.
+- File downloads.
+- Document uploads.
+- Window resizing.
+- Application updates.
+- Logout.
+
+ANDROID:
+
+- First launch.
+- Login.
+- Session restoration.
+- API communication.
+- Camera and QR scanning.
+- Document uploads.
+- Push notifications.
+- Background/foreground handling.
+- Back-button behavior.
+- Network interruption.
+- Release APK/AAB.
+
+IOS:
+
+- First launch.
+- Login.
+- Session restoration.
+- API communication.
+- Camera and QR scanning.
+- Document uploads.
+- Push notifications.
+- Safe-area and keyboard behavior.
+- Background/foreground handling.
+- Release application build.
+
+Test the same customer, booking, payment, inventory, and reporting workflows through the centralized backend.
+
+==================================================
+13. CROSS-PLATFORM DELIVERY REQUIREMENTS
+==================================================
+
+Deliver:
+
+1. Complete Next.js web application.
+
+2. Shared frontend source code.
+
+3. Electron main process and preload implementation.
+
+4. Electron Windows installer configuration.
+
+5. Installable Windows desktop application build.
+
+6. Capacitor configuration.
+
+7. Android native project and release configuration.
+
+8. iOS native project and release configuration.
+
+9. Platform-specific authentication adapters.
+
+10. Secure session management.
+
+11. Shared REST API integration.
+
+12. Shared Zustand stores.
+13. Shared design system.
+
+14. Responsive desktop and mobile user interfaces.
+
+15. Native device integrations where implemented.
+
+16. Platform-specific environment configuration.
+
+17. Automated and manual testing instructions.
+
+18. Build and deployment documentation.
+
+19. Application version and update strategy.
+
+20. Clear identification of any platform-specific features that require external hardware, native SDKs, signing credentials, or store accounts.
+
+The final Property Management System must operate as one integrated application ecosystem across web, Windows, Android, and iOS while using one centralized backend and database.

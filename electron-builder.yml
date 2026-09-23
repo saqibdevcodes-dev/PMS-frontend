@@ -1,0 +1,25 @@
+appId: com.estate.pms
+productName: Estate PMS
+copyright: Copyright © 2026 Estate PMS
+asar: true
+electronDist: node_modules/electron/dist
+directories:
+  output: release
+files:
+  - dist/**/*
+  - electron/**/*
+  - public/icon.png
+  - package.json
+win:
+  target:
+    - target: nsis
+      arch: [x64]
+  icon: public/icon.ico
+  signAndEditExecutable: true
+  signExecutable: false
+nsis:
+  oneClick: false
+  perMachine: false
+  allowToChangeInstallationDirectory: true
+  createDesktopShortcut: true
+  artifactName: Estate-PMS-Setup-${version}.${ext}

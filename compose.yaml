@@ -1,0 +1,10 @@
+services:
+  frontend:
+    build: .
+    restart: unless-stopped
+    ports: ['127.0.0.1:3000:80']
+    networks: [backend]
+networks:
+  backend:
+    external: true
+    name: ${PMS_DOCKER_NETWORK:-pms_default}
