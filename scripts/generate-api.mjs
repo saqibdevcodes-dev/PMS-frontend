@@ -1,6 +1,6 @@
 import { readFile, writeFile, mkdir } from 'node:fs/promises';
 import openapiTS, { astToString } from 'openapi-typescript';
-const source = new URL('../../BE/docs/openapi.json', import.meta.url);
+const source = new URL('../../PMS-BE/docs/openapi.json', import.meta.url);
 const spec = JSON.parse(await readFile(source, 'utf8'));
 await mkdir(new URL('../src/generated/', import.meta.url), { recursive: true });
 const operations = [];

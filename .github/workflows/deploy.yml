@@ -1,0 +1,96 @@
+name: Frontend CI/CD
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      ELECTRON_SKIP_BINARY_DOWNLOAD: '1'
+      VITE_API_BASE_URL: https://api.etihadrealestate.tech/api/v1
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm run lint
+      - run: npm test
+      - run: npm run build
+      - name: Identify this release
+        run: printf '{"commit":"%s"}\n' "$GITHUB_SHA" > dist/version.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: frontend-dist
+          path: dist/
+          if-no-files-found: error
+          retention-days: 14
+
+  deploy:
+    needs: build
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment:
+      name: production
+      url: https://etihadrealestate.tech
+    concurrency:
+      group: frontend-production
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/download-artifact@v4
+        with:
+          name: frontend-dist
+          path: dist/
+      - name: Configure SSH
+        env:
+          SSH_KEY: ${{ secrets.VPS_SSH_KEY }}
+          KNOWN_HOSTS: ${{ secrets.VPS_KNOWN_HOSTS }}
+        run: |
+          set -euo pipefail
+          test -n "$SSH_KEY"
+          test -n "$KNOWN_HOSTS"
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "$SSH_KEY" > ~/.ssh/id_ed25519
+          printf '%s\n' "$KNOWN_HOSTS" > ~/.ssh/known_hosts
+          chmod 600 ~/.ssh/id_ed25519 ~/.ssh/known_hosts
+      - name: Upload and activate release
+        env:
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+          VPS_USER: ${{ secrets.VPS_USER }}
+          VPS_PORT: ${{ vars.VPS_PORT || '22' }}
+        run: |
+          set -euo pipefail
+          [[ "$VPS_HOST" =~ ^[a-zA-Z0-9][a-zA-Z0-9.-]*$ ]]
+          [[ "$VPS_USER" =~ ^[a-zA-Z_][a-zA-Z0-9_-]*$ ]]
+          [[ "$VPS_PORT" =~ ^[0-9]+$ ]]
+          target="$VPS_USER@$VPS_HOST"
+          base=/var/www/pms-frontend
+          release="$base/releases/$GITHUB_SHA"
+          ssh_options=(-p "$VPS_PORT" -o BatchMode=yes -o StrictHostKeyChecking=yes -o ConnectTimeout=15)
+          ssh "${ssh_options[@]}" "$target" "mkdir -p '$release' '$base/assets'"
+          export RSYNC_RSH="ssh -p $VPS_PORT -o BatchMode=yes -o StrictHostKeyChecking=yes -o ConnectTimeout=15"
+          rsync -az --chmod=D755,F644 dist/ "$target:$release/"
+          # Retain content-hashed files needed by tabs opened before this deployment.
+          rsync -az --chmod=D755,F644 dist/assets/ "$target:$base/assets/"
+          ssh "${ssh_options[@]}" "$target" bash -s -- "$GITHUB_SHA" < deployment/activate-release.sh
+      - name: Check public routes
+        run: |
+          curl --fail --silent --show-error --max-time 30 https://etihadrealestate.tech/ > /dev/null
+          curl --fail --silent --show-error --max-time 30 \
+            -H 'Origin: https://etihadrealestate.tech' \
+            https://api.etihadrealestate.tech/api/v1/openapi.json > /dev/null
+      - name: Remove runner SSH key
+        if: always()
+        run: rm -f ~/.ssh/id_ed25519

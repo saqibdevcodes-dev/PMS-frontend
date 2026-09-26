@@ -11,8 +11,8 @@ try {
 } catch (error) {
   if (error.message === 'FRONTEND_TEST_SERVER_RUNNING') throw error;
 }
-const backend = fileURLToPath(new URL('../../BE/', import.meta.url));
-const requireBE = createRequire(new URL('../../BE/package.json', import.meta.url));
+const backend = fileURLToPath(new URL('../../PMS-BE/', import.meta.url));
+const requireBE = createRequire(new URL('../../PMS-BE/package.json', import.meta.url));
 requireBE('dotenv').config({ path: backend + '.env', quiet: true });
 const { Client } = requireBE('pg');
 const dbUrl = new URL(process.env.DATABASE_URL);
@@ -61,14 +61,14 @@ if (tables.rows.length)
       ' CASCADE',
   );
 await client.end();
-const { createApp } = await import('../../BE/dist/src/app.js');
-const { db } = await import('../../BE/dist/src/database/client.js');
-const { redis } = await import('../../BE/dist/src/integrations/redis.js');
+const { createApp } = await import('../../PMS-BE/dist/src/app.js');
+const { db } = await import('../../PMS-BE/dist/src/database/client.js');
+const { redis } = await import('../../PMS-BE/dist/src/integrations/redis.js');
 await redis.flushdb(); // Dedicated Redis database 5, selected above.
-const { ensureStorage } = await import('../../BE/dist/src/integrations/storage.js');
+const { ensureStorage } = await import('../../PMS-BE/dist/src/integrations/storage.js');
 await ensureStorage();
-const { permissions } = await import('../../BE/dist/src/common/permissions.js');
-const { passwordHash } = await import('../../BE/dist/src/modules/auth/service.js');
+const { permissions } = await import('../../PMS-BE/dist/src/common/permissions.js');
+const { passwordHash } = await import('../../PMS-BE/dist/src/modules/auth/service.js');
 const password = 'Frontend-Test-Only-94!';
 await db.permission.createMany({ data: permissions.map((key) => ({ key })) });
 const role = await db.role.create({
