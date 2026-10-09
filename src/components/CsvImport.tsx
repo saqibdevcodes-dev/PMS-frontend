@@ -1,3 +1,4 @@
+import { t, useLocale } from '../lib/i18n';
 import { useState } from 'react';
 import { Upload, Download } from 'lucide-react';
 import { parseCsv } from '../lib/csv';
@@ -11,12 +12,13 @@ export function CsvImport({
   schema: JsonSchema;
   onReady: (body: Row) => void;
 }) {
+  useLocale();
   const [error, setError] = useState<unknown>();
   return (
     <div className="csv-import">
       <div>
-        <strong>Import from a CSV file</strong>
-        <p className="muted">Up to 500 units. You can review the records before saving.</p>
+        <strong>{t('Import from a CSV file')}</strong>
+        <p className="muted">{t('Up to 500 units. You can review the records before saving.')}</p>
       </div>
       <Button
         type="button"
@@ -38,11 +40,11 @@ export function CsvImport({
         }}
       >
         <Download size={15} />
-        CSV template
+        {t('CSV template')}
       </Button>
       <label className="btn btn-secondary">
         <Upload size={15} />
-        Choose CSV
+        {t('Choose CSV')}
         <input
           type="file"
           accept=".csv,text/csv"
@@ -53,7 +55,7 @@ export function CsvImport({
               const file = e.target.files?.[0];
               if (!file) return;
               if (file.size > 2 * 1024 * 1024)
-                throw new Error('Use a CSV file smaller than 2 MiB.');
+                throw new Error(t('Use a CSV file smaller than 2 MiB.'));
               const rows = parseCsv(await file.text());
               const allowed = new Set(
                 Object.keys(schema.properties?.units?.items?.properties ?? {}),

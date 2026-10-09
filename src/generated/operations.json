@@ -345,6 +345,691 @@
     "multipart": false
   },
   {
+    "id": "get__portal_bookings__id_statement_download",
+    "path": "/portal/bookings/{id}/statement/download",
+    "method": "get",
+    "summary": "Download a scoped PDF statement of your booking and own payments",
+    "public": false,
+    "parameters": [
+      {
+        "name": "id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        }
+      }
+    ],
+    "multipart": false
+  },
+  {
+    "id": "post__portal_activate",
+    "path": "/portal/activate",
+    "method": "post",
+    "summary": "Accept a one-time customer invitation; existing customers must enter their current password",
+    "public": true,
+    "body": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "properties": {
+        "token": {
+          "type": "string",
+          "minLength": 32,
+          "maxLength": 200
+        },
+        "password": {
+          "type": "string",
+          "minLength": 12,
+          "maxLength": 128,
+          "allOf": [
+            {
+              "pattern": "[a-z]"
+            },
+            {
+              "pattern": "[A-Z]"
+            },
+            {
+              "pattern": "[0-9]"
+            }
+          ]
+        }
+      },
+      "required": [
+        "token",
+        "password"
+      ],
+      "additionalProperties": false
+    },
+    "parameters": [],
+    "multipart": false
+  },
+  {
+    "id": "get__projects__projectId_customers__id_portal",
+    "path": "/projects/{projectId}/customers/{id}/portal",
+    "method": "get",
+    "summary": "View customer portal invitation and access status",
+    "permission": "customers.portal.manage",
+    "public": false,
+    "parameters": [
+      {
+        "name": "projectId",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        }
+      },
+      {
+        "name": "id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        }
+      }
+    ],
+    "multipart": false
+  },
+  {
+    "id": "delete__projects__projectId_customers__id_portal",
+    "path": "/projects/{projectId}/customers/{id}/portal",
+    "method": "delete",
+    "summary": "Revoke customer portal access and pending invitations",
+    "permission": "customers.portal.manage",
+    "public": false,
+    "parameters": [
+      {
+        "name": "projectId",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        }
+      },
+      {
+        "name": "id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        }
+      }
+    ],
+    "multipart": false
+  },
+  {
+    "id": "post__projects__projectId_customers__id_portal_invite",
+    "path": "/projects/{projectId}/customers/{id}/portal/invite",
+    "method": "post",
+    "summary": "Email a 48-hour customer portal invitation",
+    "permission": "customers.portal.manage",
+    "public": false,
+    "parameters": [
+      {
+        "name": "projectId",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        }
+      },
+      {
+        "name": "id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        }
+      }
+    ],
+    "multipart": false
+  },
+  {
+    "id": "get__portal_profile",
+    "path": "/portal/profile",
+    "method": "get",
+    "summary": "Your linked customer profiles",
+    "public": false,
+    "parameters": [
+      {
+        "name": "page",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "default": 1,
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9007199254740991
+        }
+      },
+      {
+        "name": "limit",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "default": 25,
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100
+        }
+      },
+      {
+        "name": "sort",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "default": "desc",
+          "type": "string",
+          "enum": [
+            "asc",
+            "desc"
+          ]
+        }
+      }
+    ],
+    "multipart": false
+  },
+  {
+    "id": "get__portal_dashboard",
+    "path": "/portal/dashboard",
+    "method": "get",
+    "summary": "Your confirmed-booking balances by project and next unpaid installments",
+    "public": false,
+    "parameters": [],
+    "multipart": false
+  },
+  {
+    "id": "get__portal_bookings",
+    "path": "/portal/bookings",
+    "method": "get",
+    "summary": "List only bookings you own",
+    "public": false,
+    "parameters": [
+      {
+        "name": "page",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "default": 1,
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9007199254740991
+        }
+      },
+      {
+        "name": "limit",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "default": 25,
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100
+        }
+      },
+      {
+        "name": "sort",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "default": "desc",
+          "type": "string",
+          "enum": [
+            "asc",
+            "desc"
+          ]
+        }
+      }
+    ],
+    "multipart": false
+  },
+  {
+    "id": "get__portal_bookings__id",
+    "path": "/portal/bookings/{id}",
+    "method": "get",
+    "summary": "Your booking detail and exact payment position",
+    "public": false,
+    "parameters": [
+      {
+        "name": "id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        }
+      }
+    ],
+    "multipart": false
+  },
+  {
+    "id": "get__portal_installments",
+    "path": "/portal/installments",
+    "method": "get",
+    "summary": "Your active-booking installments and allocated balances",
+    "public": false,
+    "parameters": [
+      {
+        "name": "page",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "default": 1,
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9007199254740991
+        }
+      },
+      {
+        "name": "limit",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "default": 25,
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100
+        }
+      },
+      {
+        "name": "sort",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "default": "desc",
+          "type": "string",
+          "enum": [
+            "asc",
+            "desc"
+          ]
+        }
+      },
+      {
+        "name": "bookingId",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "string",
+          "format": "uuid",
+          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+        }
+      }
+    ],
+    "multipart": false
+  },
+  {
+    "id": "get__portal_payments",
+    "path": "/portal/payments",
+    "method": "get",
+    "summary": "Your own payment receipts on accessible bookings",
+    "public": false,
+    "parameters": [
+      {
+        "name": "page",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "default": 1,
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9007199254740991
+        }
+      },
+      {
+        "name": "limit",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "default": 25,
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100
+        }
+      },
+      {
+        "name": "sort",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "default": "desc",
+          "type": "string",
+          "enum": [
+            "asc",
+            "desc"
+          ]
+        }
+      },
+      {
+        "name": "bookingId",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "string",
+          "format": "uuid",
+          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+        }
+      }
+    ],
+    "multipart": false
+  },
+  {
+    "id": "get__portal_documents",
+    "path": "/portal/documents",
+    "method": "get",
+    "summary": "Documents explicitly shared with you",
+    "public": false,
+    "parameters": [
+      {
+        "name": "page",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "default": 1,
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9007199254740991
+        }
+      },
+      {
+        "name": "limit",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "default": 25,
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100
+        }
+      },
+      {
+        "name": "sort",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "default": "desc",
+          "type": "string",
+          "enum": [
+            "asc",
+            "desc"
+          ]
+        }
+      },
+      {
+        "name": "bookingId",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "string",
+          "format": "uuid",
+          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+        }
+      }
+    ],
+    "multipart": false
+  },
+  {
+    "id": "get__portal_documents__id_download",
+    "path": "/portal/documents/{id}/download",
+    "method": "get",
+    "summary": "Download your shared document after a fresh access check",
+    "public": false,
+    "parameters": [
+      {
+        "name": "id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        }
+      }
+    ],
+    "multipart": false
+  },
+  {
+    "id": "patch__projects__projectId_documents__id_portal_visibility",
+    "path": "/projects/{projectId}/documents/{id}/portal-visibility",
+    "method": "patch",
+    "summary": "Explicitly share or withdraw a document from the customer portal",
+    "permission": "documents.manage",
+    "public": false,
+    "body": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "properties": {
+        "portalVisible": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "portalVisible"
+      ],
+      "additionalProperties": false
+    },
+    "parameters": [
+      {
+        "name": "projectId",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        }
+      },
+      {
+        "name": "id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        }
+      }
+    ],
+    "multipart": false
+  },
+  {
+    "id": "get__portal_requests",
+    "path": "/portal/requests",
+    "method": "get",
+    "summary": "Your booking workflow statuses without internal approval notes",
+    "public": false,
+    "parameters": [
+      {
+        "name": "page",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "default": 1,
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9007199254740991
+        }
+      },
+      {
+        "name": "limit",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "default": 25,
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100
+        }
+      },
+      {
+        "name": "sort",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "default": "desc",
+          "type": "string",
+          "enum": [
+            "asc",
+            "desc"
+          ]
+        }
+      },
+      {
+        "name": "bookingId",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "string",
+          "format": "uuid",
+          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+        }
+      },
+      {
+        "name": "kind",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "default": "ndcs",
+          "type": "string",
+          "enum": [
+            "ndcs",
+            "transfers",
+            "refunds",
+            "possessions"
+          ]
+        }
+      }
+    ],
+    "multipart": false
+  },
+  {
+    "id": "get__portal_notifications",
+    "path": "/portal/notifications",
+    "method": "get",
+    "summary": "Your customer account notifications",
+    "public": false,
+    "parameters": [
+      {
+        "name": "page",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "default": 1,
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9007199254740991
+        }
+      },
+      {
+        "name": "limit",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "default": 25,
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100
+        }
+      },
+      {
+        "name": "sort",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "default": "desc",
+          "type": "string",
+          "enum": [
+            "asc",
+            "desc"
+          ]
+        }
+      }
+    ],
+    "multipart": false
+  },
+  {
+    "id": "post__portal_notifications__id_read",
+    "path": "/portal/notifications/{id}/read",
+    "method": "post",
+    "summary": "Mark your customer notification read",
+    "public": false,
+    "parameters": [
+      {
+        "name": "id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        }
+      }
+    ],
+    "multipart": false
+  },
+  {
+    "id": "post__images",
+    "path": "/images",
+    "method": "post",
+    "summary": "Upload a private record image; JPEG, PNG or WebP up to 5 MiB",
+    "public": false,
+    "body": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "properties": {
+        "purpose": {
+          "type": "string",
+          "enum": [
+            "PROJECT",
+            "UNIT",
+            "FEATURE",
+            "CUSTOMER",
+            "DEALER",
+            "USER",
+            "PAYMENT"
+          ]
+        },
+        "projectId": {
+          "type": "string",
+          "format": "uuid",
+          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+        },
+        "file": {
+          "type": "string",
+          "format": "binary"
+        }
+      },
+      "required": [
+        "purpose",
+        "file"
+      ],
+      "additionalProperties": false
+    },
+    "parameters": [],
+    "multipart": true
+  },
+  {
+    "id": "get__images__id",
+    "path": "/images/{id}",
+    "method": "get",
+    "summary": "Get a short-lived image URL after checking record access",
+    "public": false,
+    "parameters": [
+      {
+        "name": "id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        }
+      }
+    ],
+    "multipart": false
+  },
+  {
     "id": "get__projects",
     "path": "/projects",
     "method": "get",
@@ -450,6 +1135,11 @@
           "minLength": 2,
           "maxLength": 200
         },
+        "photoId": {
+          "type": "string",
+          "format": "uuid",
+          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+        },
         "currency": {
           "default": "PKR",
           "type": "string",
@@ -507,6 +1197,18 @@
           "type": "string",
           "minLength": 2,
           "maxLength": 200
+        },
+        "photoId": {
+          "anyOf": [
+            {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+            },
+            {
+              "type": "null"
+            }
+          ]
         },
         "currency": {
           "default": "PKR",
@@ -677,6 +1379,11 @@
             }
           ]
         },
+        "photoId": {
+          "type": "string",
+          "format": "uuid",
+          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+        },
         "roleIds": {
           "maxItems": 20,
           "type": "array",
@@ -700,6 +1407,7 @@
         "name",
         "email",
         "password",
+        "photoId",
         "roleIds",
         "projectIds"
       ],
@@ -893,6 +1601,7 @@
               "customers.read",
               "customers.create",
               "customers.update",
+              "customers.portal.manage",
               "customers.view_sensitive",
               "crm.read",
               "crm.manage",
@@ -975,6 +1684,7 @@
               "customers.read",
               "customers.create",
               "customers.update",
+              "customers.portal.manage",
               "customers.view_sensitive",
               "crm.read",
               "crm.manage",
@@ -1061,8 +1771,44 @@
             "COMMERCIAL_PLOT",
             "APARTMENT",
             "SHOP",
-            "OFFICE"
+            "OFFICE",
+            "OTHER"
           ]
+        },
+        "typeDetails": {
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 100
+        },
+        "photoId": {
+          "type": "string",
+          "format": "uuid",
+          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+        },
+        "featureImages": {
+          "default": [],
+          "maxItems": 30,
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "feature": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 100
+              },
+              "imageId": {
+                "type": "string",
+                "format": "uuid",
+                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+              }
+            },
+            "required": [
+              "feature",
+              "imageId"
+            ],
+            "additionalProperties": false
+          }
         },
         "phase": {
           "type": "string",
@@ -1090,8 +1836,15 @@
         },
         "measurementUnit": {
           "type": "string",
-          "minLength": 1,
-          "maxLength": 30
+          "enum": [
+            "marla",
+            "kanal",
+            "sq ft",
+            "sq yd",
+            "sq m",
+            "acre",
+            "hectare"
+          ]
         },
         "features": {
           "default": [],
@@ -1282,8 +2035,44 @@
                   "COMMERCIAL_PLOT",
                   "APARTMENT",
                   "SHOP",
-                  "OFFICE"
+                  "OFFICE",
+                  "OTHER"
                 ]
+              },
+              "typeDetails": {
+                "type": "string",
+                "minLength": 2,
+                "maxLength": 100
+              },
+              "photoId": {
+                "type": "string",
+                "format": "uuid",
+                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+              },
+              "featureImages": {
+                "default": [],
+                "maxItems": 30,
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "feature": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 100
+                    },
+                    "imageId": {
+                      "type": "string",
+                      "format": "uuid",
+                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                    }
+                  },
+                  "required": [
+                    "feature",
+                    "imageId"
+                  ],
+                  "additionalProperties": false
+                }
               },
               "phase": {
                 "type": "string",
@@ -1311,8 +2100,15 @@
               },
               "measurementUnit": {
                 "type": "string",
-                "minLength": 1,
-                "maxLength": 30
+                "enum": [
+                  "marla",
+                  "kanal",
+                  "sq ft",
+                  "sq yd",
+                  "sq m",
+                  "acre",
+                  "hectare"
+                ]
               },
               "features": {
                 "default": [],
@@ -1549,7 +2345,7 @@
     "id": "post__projects__projectId_customers",
     "path": "/projects/{projectId}/customers",
     "method": "post",
-    "summary": "Create customer with encrypted identity and duplicate detection",
+    "summary": "Create customer with an optional photo and portal password; portal permission required for a password",
     "permission": "customers.create",
     "public": false,
     "body": {
@@ -1575,6 +2371,11 @@
           "type": "string",
           "maxLength": 1000
         },
+        "photoId": {
+          "type": "string",
+          "format": "uuid",
+          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+        },
         "identity": {
           "type": "string",
           "minLength": 5,
@@ -1584,6 +2385,22 @@
         "communicationConsent": {
           "default": false,
           "type": "boolean"
+        },
+        "password": {
+          "type": "string",
+          "minLength": 12,
+          "maxLength": 128,
+          "allOf": [
+            {
+              "pattern": "[a-z]"
+            },
+            {
+              "pattern": "[A-Z]"
+            },
+            {
+              "pattern": "[0-9]"
+            }
+          ]
         }
       },
       "required": [
@@ -1766,6 +2583,18 @@
         "address": {
           "type": "string",
           "maxLength": 1000
+        },
+        "photoId": {
+          "anyOf": [
+            {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+            },
+            {
+              "type": "null"
+            }
+          ]
         },
         "communicationConsent": {
           "default": false,
@@ -2752,6 +3581,16 @@
           "type": "string",
           "maxLength": 200
         },
+        "proofImageId": {
+          "type": "string",
+          "format": "uuid",
+          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+        },
+        "methodDetails": {
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 200
+        },
         "receivingAccountId": {
           "type": "string",
           "format": "uuid",
@@ -3323,6 +4162,7 @@
               "customers.read",
               "customers.create",
               "customers.update",
+              "customers.portal.manage",
               "customers.view_sensitive",
               "crm.read",
               "crm.manage",
@@ -5048,6 +5888,11 @@
           "minLength": 6,
           "maxLength": 30
         },
+        "photoId": {
+          "type": "string",
+          "format": "uuid",
+          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+        },
         "commissionPercent": {
           "default": "0",
           "type": "string",
@@ -5056,7 +5901,8 @@
       },
       "required": [
         "name",
-        "phone"
+        "phone",
+        "photoId"
       ],
       "additionalProperties": false
     },
@@ -6125,6 +6971,12 @@
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
       "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 180,
+          "pattern": "^[^\\\\/\\x00-\\x1f]+$"
+        },
         "customerId": {
           "type": "string",
           "format": "uuid",
@@ -6140,10 +6992,11 @@
           "format": "binary"
         }
       },
-      "additionalProperties": false,
       "required": [
+        "name",
         "file"
-      ]
+      ],
+      "additionalProperties": false
     },
     "parameters": [
       {

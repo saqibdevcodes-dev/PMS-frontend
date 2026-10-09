@@ -1,3 +1,4 @@
+import { t, useLocale } from '../lib/i18n';
 import { useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { AlertTriangle, CheckCircle2 } from 'lucide-react';
@@ -29,6 +30,7 @@ export function OperationDialog({
   onClose: () => void;
   onSuccess?: (value: unknown) => void;
 }) {
+  useLocale();
   const [review, setReview] = useState<Row | null>(null);
   const [draft, setDraft] = useState<Row>();
   function prepare(values: Row) {
@@ -37,6 +39,8 @@ export function OperationDialog({
   }
   const [key] = useState(() => crypto.randomUUID());
   const [done, setDone] = useState<unknown>();
+  const [customerLoginEnabled, setCustomerLoginEnabled] = useState(false);
+  const customerCreate = operation.method === 'post' && operation.path.endsWith('/customers');
   useUnsavedChanges(Boolean(review) && !done);
   const hasIdempotency = operation.parameters.some((p) => p.name === 'Idempotency-Key');
   const mutation = useMutation({
@@ -54,9 +58,12 @@ export function OperationDialog({
           idempotencyKey: hasIdempotency ? key : undefined,
         },
       ),
-    onSuccess: (data) => {
+    onSuccess: (data, body) => {
       setDone(data ?? {});
-      toast.success('Saved successfully');
+      setCustomerLoginEnabled(customerCreate && Boolean(body.password));
+      setDraft(undefined);
+      setReview(null);
+      toast.success(t('Saved successfully'));
       void queryClient.invalidateQueries();
       onSuccess?.(data);
     },
@@ -75,19 +82,30 @@ export function OperationDialog({
   return (
     <Modal
       open
-      onOpenChange={(open) => {
-        if (!open && !mutation.isPending && (done || confirmDiscard())) onClose();
+      onOpenChange={async (open) => {
+        if (!open && !mutation.isPending && (done || (await confirmDiscard()))) onClose();
       }}
-      title={done ? 'Request completed' : title}
-      description={operation.summary}
+      title={done ? t('Request completed') : title}
+      description={t('Complete the fields below, then review before saving.')}
       wide
     >
       <div className="modal-body">
         {done ? (
           <div className="success-panel">
             <CheckCircle2 size={40} />
-            <h3>Saved to your project</h3>
-            <p>Your records now reflect the server-confirmed result.</p>
+            <h3>{t('Saved to your project')}</h3>
+            <p>{t('Your records now reflect the server-confirmed result.')}</p>
+            {customerCreate && (
+              <p>
+                {customerLoginEnabled
+                  ? t(
+                      'Customer portal access is active. The customer can sign in with their email and the password you set.',
+                    )
+                  : t(
+                      'Customer record saved. Send an invitation from Customer portal access when you want to enable login.',
+                    )}
+              </p>
+            )}
             {Boolean(row(done).status) && <Badge value={row(done).status} />}
             <div className="result-references">
               {Object.entries(row(done))
@@ -109,17 +127,18 @@ export function OperationDialog({
             {operation.path.endsWith('/generate') && row(done).id ? (
               <JobStatus id={String(row(done).id)} />
             ) : null}
-            <Button onClick={onClose}>Done</Button>
+            <Button onClick={onClose}>{t('Done')}</Button>
           </div>
         ) : review ? (
           <>
             <div className="review-notice">
               <AlertTriangle size={20} />
               <div>
-                <strong>Confirm this action</strong>
+                <strong>{t('Confirm this action')}</strong>
                 <p>
-                  Review the details before continuing. Permissions, approvals, and current state
-                  will be checked by the server.
+                  {t(
+                    'Review the details before continuing. Permissions, approvals, and current state will be checked by the server.',
+                  )}
                 </p>
               </div>
             </div>
@@ -138,9 +157,9 @@ export function OperationDialog({
                     {/password|identity/i.test(k)
                       ? '••••••••'
                       : Array.isArray(v)
-                        ? `${v.length} entries`
+                        ? t('{0} entries', { '0': v.length })
                         : typeof v === 'object'
-                          ? 'Configured'
+                          ? t('Configured')
                           : String(v)}
                   </dd>
                 </div>
@@ -153,7 +172,7 @@ export function OperationDialog({
                 disabled={mutation.isPending || uncertain}
                 onClick={() => setReview(null)}
               >
-                Back to details
+                {t('Back to details')}
               </Button>
               <Button
                 busy={mutation.isPending}
@@ -165,14 +184,18 @@ export function OperationDialog({
                 disabled={uncertain && !hasIdempotency}
                 onClick={() => mutation.mutate(review)}
               >
-                {uncertain ? 'Retry the same request' : 'Confirm & submit'}
+                {uncertain ? t('Retry the same request') : t('Confirm & submit')}
               </Button>
             </div>
             {uncertain && (
               <p className="muted">
                 {hasIdempotency
-                  ? 'The original request key is retained. Retrying cannot create a duplicate payment.'
-                  : 'Close this dialog and check the latest records before starting another request.'}
+                  ? t(
+                      'The original request key is retained. Retrying cannot create a duplicate payment.',
+                    )
+                  : t(
+                      'Close this dialog and check the latest records before starting another request.',
+                    )}
               </p>
             )}
           </>
@@ -186,6 +209,7 @@ export function OperationDialog({
               initial={draft ?? values}
               onSubmit={prepare}
               entityId={record?.id}
+              operationPath={operation.path}
             />
           </>
         )}

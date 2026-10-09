@@ -1,16 +1,7 @@
 import { useAuth } from '../stores/auth';
 import { authTransport, apiBase } from '../platform/adapter';
-export class ApiError extends Error {
-  constructor(
-    public status: number,
-    public code: string,
-    message: string,
-    public requestId?: string,
-    public details?: { path: (string | number)[]; message: string }[],
-  ) {
-    super(message);
-  }
-}
+import { ApiError } from './errors';
+export { ApiError } from './errors';
 type Envelope<T> = {
   success: boolean;
   data: T;

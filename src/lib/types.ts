@@ -2,6 +2,7 @@ import type { components } from '../generated/api';
 export type Row = Record<string, unknown> & { id?: string };
 export type User = Required<Pick<components['schemas']['User'], 'id' | 'name' | 'email'>> & {
   permissions: string[];
+  accountType?: 'STAFF' | 'CUSTOMER';
   projects: { projectId: string }[];
 };
 export type Page<T = Row> = {

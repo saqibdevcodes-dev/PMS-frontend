@@ -1,3 +1,4 @@
+import { t, useLocale } from '../../lib/i18n';
 import { useState } from 'react';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { Monitor, ShieldCheck, LogOut, KeyRound } from 'lucide-react';
@@ -19,6 +20,7 @@ import {
   print,
 } from '../../platform/adapter';
 export default function Profile() {
+  useLocale();
   const user = useAuth((s) => s.user)!;
   const preferences = usePreferences();
   const [action, setAction] = useState<{
@@ -49,7 +51,7 @@ export default function Profile() {
         });
         localStorage.setItem('estate-device-' + user.id, device.id);
       }),
-    onSuccess: () => toast.success('Push notifications enabled'),
+    onSuccess: () => toast.success(t('Push notifications enabled')),
     onError: (e) => toast.error(e.message),
   });
   const updateApp = useMutation({
@@ -60,13 +62,13 @@ export default function Profile() {
   return (
     <>
       <PageHeading
-        eyebrow="Your account"
-        title="Profile & security"
-        description="Personal preferences and control over your active sessions."
+        eyebrow={t('Your account')}
+        title={t('Profile & security')}
+        description={t('Personal preferences and control over your active sessions.')}
         actions={
           <Button variant="secondary" busy={signout.isPending} onClick={() => signout.mutate()}>
             <LogOut size={16} />
-            Sign out
+            {t('Sign out')}
           </Button>
         }
       />
@@ -77,13 +79,19 @@ export default function Profile() {
           <p>{user.email}</p>
           <span className="profile-access">
             <ShieldCheck size={16} />
-            {user.permissions.length} granted permissions
+            {user.accountType === 'CUSTOMER'
+              ? t('Customer account')
+              : t('{0} granted permissions', { '0': user.permissions.length })}
           </span>
-          <div className="profile-projects">{user.projects.length} assigned projects</div>
+          <div className="profile-projects">
+            {user.accountType === 'CUSTOMER'
+              ? t('Access is limited to your linked customer records.')
+              : t('{0} assigned projects', { '0': user.projects.length })}
+          </div>
         </section>
         <section className="panel preferences-card">
-          <h2>Make yourself at home</h2>
-          <p>Choose how your workspace looks on this device.</p>
+          <h2>{t('Make yourself at home')}</h2>
+          <p>{t('Choose how your workspace looks on this device.')}</p>
           <div className="theme-options">
             {(['light', 'dark', 'system'] as const).map((theme) => (
               <button
@@ -92,7 +100,7 @@ export default function Profile() {
                 onClick={() => preferences.setTheme(theme)}
               >
                 <span className={'theme-preview ' + theme} />
-                <strong>{theme.charAt(0).toUpperCase() + theme.slice(1)}</strong>
+                <strong>{t(theme.charAt(0).toUpperCase() + theme.slice(1))}</strong>
               </button>
             ))}
           </div>
@@ -107,7 +115,7 @@ export default function Profile() {
               }
             >
               <KeyRound size={16} />
-              Change password
+              {t('Change password')}
             </Button>
             <Button
               variant="secondary"
@@ -119,31 +127,33 @@ export default function Profile() {
               }
             >
               <ShieldCheck size={16} />
-              Revoke all sessions
+              {t('Revoke all sessions')}
             </Button>
           </div>
         </section>
       </div>
       {platform.mobile && (
         <section className="panel preferences-card">
-          <h2>Device notifications</h2>
-          <p>Receive project reminders and approval notifications on this device.</p>
+          <h2>{t('Device notifications')}</h2>
+          <p>{t('Receive project reminders and approval notifications on this device.')}</p>
           <Button busy={push.isPending} onClick={() => push.mutate()}>
-            Enable push notifications
+            {t('Enable push notifications')}
           </Button>
         </section>
       )}
       {platform.desktop && (
         <section className="panel preferences-card">
-          <h2>Desktop application</h2>
-          <p>Estate PMS · Version {updates.data?.version ?? '1.0.0'}</p>
+          <h2>{t('Desktop application')}</h2>
+          <p>
+            {t('Estate PMS · Version')} {updates.data?.version ?? '1.0.0'}
+          </p>
           <Button
             variant="secondary"
             onClick={() =>
               void Promise.resolve(print()).catch((e: Error) => toast.error(e.message))
             }
           >
-            Print this view
+            {t('Print this view')}
           </Button>
           {updates.data?.status !== 'unconfigured' && (
             <Button
@@ -155,15 +165,17 @@ export default function Profile() {
               }
             >
               {updates.data?.status === 'ready'
-                ? 'Restart to install update'
+                ? t('Restart to install update')
                 : updates.data?.status === 'available'
-                  ? 'Download update'
-                  : 'Check for updates'}
+                  ? t('Download update')
+                  : t('Check for updates')}
             </Button>
           )}
           {updates.data?.status === 'unconfigured' && (
             <p className="muted">
-              Automatic updates are available after your administrator connects a release channel.
+              {t(
+                'Automatic updates are available after your administrator connects a release channel.',
+              )}
             </p>
           )}
         </section>
@@ -171,8 +183,8 @@ export default function Profile() {
       <section className="panel">
         <div className="panel-heading">
           <div>
-            <h2>Active & recent sessions</h2>
-            <p>Recognize every device with access to your account.</p>
+            <h2>{t('Active & recent sessions')}</h2>
+            <p>{t('Recognize every device with access to your account.')}</p>
           </div>
           <Monitor size={20} />
         </div>
@@ -197,7 +209,7 @@ export default function Profile() {
                     })
                   }
                 >
-                  Revoke
+                  {t('Revoke')}
                 </Button>
               )
             }

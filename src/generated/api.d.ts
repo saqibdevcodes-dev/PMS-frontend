@@ -271,6 +271,313 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/portal/bookings/{id}/statement/download": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Download a scoped PDF statement of your booking and own payments */
+        get: operations["get__portal_bookings__id_statement_download"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/portal/activate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Accept a one-time customer invitation; existing customers must enter their current password */
+        post: operations["post__portal_activate"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/projects/{projectId}/customers/{id}/portal": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** View customer portal invitation and access status */
+        get: operations["get__projects__projectId_customers__id_portal"];
+        put?: never;
+        post?: never;
+        /** Revoke customer portal access and pending invitations */
+        delete: operations["delete__projects__projectId_customers__id_portal"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/projects/{projectId}/customers/{id}/portal/invite": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Email a 48-hour customer portal invitation */
+        post: operations["post__projects__projectId_customers__id_portal_invite"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/portal/profile": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Your linked customer profiles */
+        get: operations["get__portal_profile"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/portal/dashboard": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Your confirmed-booking balances by project and next unpaid installments */
+        get: operations["get__portal_dashboard"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/portal/bookings": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List only bookings you own */
+        get: operations["get__portal_bookings"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/portal/bookings/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Your booking detail and exact payment position */
+        get: operations["get__portal_bookings__id"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/portal/installments": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Your active-booking installments and allocated balances */
+        get: operations["get__portal_installments"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/portal/payments": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Your own payment receipts on accessible bookings */
+        get: operations["get__portal_payments"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/portal/documents": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Documents explicitly shared with you */
+        get: operations["get__portal_documents"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/portal/documents/{id}/download": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Download your shared document after a fresh access check */
+        get: operations["get__portal_documents__id_download"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/projects/{projectId}/documents/{id}/portal-visibility": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Explicitly share or withdraw a document from the customer portal */
+        patch: operations["patch__projects__projectId_documents__id_portal_visibility"];
+        trace?: never;
+    };
+    "/portal/requests": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Your booking workflow statuses without internal approval notes */
+        get: operations["get__portal_requests"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/portal/notifications": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Your customer account notifications */
+        get: operations["get__portal_notifications"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/portal/notifications/{id}/read": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Mark your customer notification read */
+        post: operations["post__portal_notifications__id_read"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/images": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Upload a private record image; JPEG, PNG or WebP up to 5 MiB */
+        post: operations["post__images"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/images/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get a short-lived image URL after checking record access */
+        get: operations["get__images__id"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/projects": {
         parameters: {
             query?: never;
@@ -557,7 +864,7 @@ export interface paths {
         /** Search customers by name, phone or authorized identity */
         get: operations["get__projects__projectId_customers"];
         put?: never;
-        /** Create customer with encrypted identity and duplicate detection */
+        /** Create customer with an optional photo and portal password; portal permission required for a password */
         post: operations["post__projects__projectId_customers"];
         delete?: never;
         options?: never;
@@ -1847,9 +2154,14 @@ export interface components {
             };
         };
         User: {
+            photoId?: string | null;
+            photo?: components["schemas"]["ImageAsset"] | null;
             id?: string;
             email?: string;
             name?: string;
+            /** @enum {string} */
+            accountType?: "STAFF" | "CUSTOMER";
+            portalCustomers?: components["schemas"]["Customer"][];
             active?: boolean;
             /** Format: date-time */
             createdAt?: string;
@@ -1933,6 +2245,8 @@ export interface components {
             user?: components["schemas"]["User"];
         };
         Project: {
+            photoId?: string | null;
+            photo?: components["schemas"]["ImageAsset"] | null;
             id?: string;
             code?: string;
             name?: string;
@@ -1971,6 +2285,10 @@ export interface components {
             project?: components["schemas"]["Project"];
         };
         Unit: {
+            photoId?: string | null;
+            photo?: components["schemas"]["ImageAsset"] | null;
+            typeDetails?: string | null;
+            featureImages?: unknown;
             id?: string;
             projectId?: string;
             number?: string;
@@ -2011,6 +2329,11 @@ export interface components {
             unit?: components["schemas"]["Unit"];
         };
         Customer: {
+            photoId?: string | null;
+            photo?: components["schemas"]["ImageAsset"] | null;
+            portalUserId?: string | null;
+            portalUser?: components["schemas"]["User"] | null;
+            portalInvitations?: components["schemas"]["CustomerInvitation"][];
             payments?: components["schemas"]["Payment"][];
             notifications?: components["schemas"]["Notification"][];
             id?: string;
@@ -2035,6 +2358,19 @@ export interface components {
             leads?: components["schemas"]["Lead"][];
             transfers?: components["schemas"]["Transfer"][];
             documents?: components["schemas"]["Document"][];
+        };
+        CustomerInvitation: {
+            id?: string;
+            customerId?: string;
+            email?: string;
+            /** Format: date-time */
+            expiresAt?: string;
+            usedAt?: string | null;
+            revokedAt?: string | null;
+            createdBy?: string;
+            /** Format: date-time */
+            createdAt?: string;
+            customer?: components["schemas"]["Customer"];
         };
         CustomerContact: {
             id?: string;
@@ -2193,6 +2529,9 @@ export interface components {
             booking?: components["schemas"]["Booking"];
         };
         Payment: {
+            proofImageId?: string | null;
+            proofImage?: components["schemas"]["ImageAsset"] | null;
+            methodDetails?: string | null;
             payerId?: string;
             payer?: components["schemas"]["Customer"];
             id?: string;
@@ -2268,6 +2607,8 @@ export interface components {
             recoveryCase?: components["schemas"]["RecoveryCase"];
         };
         Dealer: {
+            photoId?: string | null;
+            photo?: components["schemas"]["ImageAsset"] | null;
             id?: string;
             projectId?: string;
             name?: string;
@@ -2498,6 +2839,7 @@ export interface components {
             project?: components["schemas"]["Project"];
         };
         Document: {
+            portalVisible?: boolean;
             id?: string;
             projectId?: string;
             customerId?: string | null;
@@ -2594,6 +2936,24 @@ export interface components {
         ReferenceCounter: {
             prefix?: string;
             value?: number;
+        };
+        ImageAsset: {
+            id?: string;
+            projectId?: string | null;
+            uploadedBy?: string;
+            purpose?: string;
+            key?: string;
+            name?: string;
+            mime?: string;
+            size?: number;
+            /** Format: date-time */
+            createdAt?: string;
+            users?: components["schemas"]["User"][];
+            projects?: components["schemas"]["Project"][];
+            units?: components["schemas"]["Unit"][];
+            dealers?: components["schemas"]["Dealer"][];
+            customers?: components["schemas"]["Customer"][];
+            payments?: components["schemas"]["Payment"][];
         };
         BookingPosition: {
             installments: (components["schemas"]["Installment"] & {
@@ -3484,6 +3844,8 @@ export interface operations {
                             id: string;
                             name: string;
                             email: string;
+                            /** @enum {string} */
+                            accountType: "STAFF" | "CUSTOMER";
                             projects: {
                                 projectId: string;
                             }[];
@@ -4306,6 +4668,2275 @@ export interface operations {
             };
         };
     };
+    get__portal_bookings__id_statement_download: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful operation. Monetary model fields are decimal strings. Lists with pagination return items and pagination inside data. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @constant */
+                        success: true;
+                        data: {
+                            url: string;
+                            expiresIn: number;
+                        };
+                        meta: {
+                            requestId: string;
+                        };
+                    };
+                };
+            };
+            /** @description Malformed request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Invalid, expired or revoked session */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Permission, origin or separation-of-duties denial */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Record missing or outside project scope */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Workflow, uniqueness or concurrency conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Validation or business rule failure */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Distributed rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Unexpected server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    post__portal_activate: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    token: string;
+                    password: string & (unknown & unknown & unknown);
+                };
+            };
+        };
+        responses: {
+            /** @description Successful operation. Monetary model fields are decimal strings. Lists with pagination return items and pagination inside data. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @constant */
+                        success: true;
+                        data: {
+                            activated: boolean;
+                            email: string;
+                        };
+                        meta: {
+                            requestId: string;
+                        };
+                    };
+                };
+            };
+            /** @description Malformed request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Invalid, expired or revoked session */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Permission, origin or separation-of-duties denial */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Record missing or outside project scope */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Workflow, uniqueness or concurrency conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Validation or business rule failure */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Distributed rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Unexpected server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    get__projects__projectId_customers__id_portal: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                projectId: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful operation. Monetary model fields are decimal strings. Lists with pagination return items and pagination inside data. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @constant */
+                        success: true;
+                        data: {
+                            status: string;
+                            email: string | null;
+                            expiresAt: string | null;
+                        };
+                        meta: {
+                            requestId: string;
+                        };
+                    };
+                };
+            };
+            /** @description Malformed request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Invalid, expired or revoked session */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Permission, origin or separation-of-duties denial */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Record missing or outside project scope */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Workflow, uniqueness or concurrency conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Validation or business rule failure */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Distributed rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Unexpected server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    delete__projects__projectId_customers__id_portal: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                projectId: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful operation. Monetary model fields are decimal strings. Lists with pagination return items and pagination inside data. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @constant */
+                        success: true;
+                        data: {
+                            revoked: boolean;
+                        };
+                        meta: {
+                            requestId: string;
+                        };
+                    };
+                };
+            };
+            /** @description Malformed request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Invalid, expired or revoked session */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Permission, origin or separation-of-duties denial */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Record missing or outside project scope */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Workflow, uniqueness or concurrency conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Validation or business rule failure */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Distributed rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Unexpected server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    post__projects__projectId_customers__id_portal_invite: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                projectId: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful operation. Monetary model fields are decimal strings. Lists with pagination return items and pagination inside data. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @constant */
+                        success: true;
+                        data: {
+                            status: string;
+                            email: string;
+                            expiresAt: string;
+                        };
+                        meta: {
+                            requestId: string;
+                        };
+                    };
+                };
+            };
+            /** @description Malformed request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Invalid, expired or revoked session */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Permission, origin or separation-of-duties denial */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Record missing or outside project scope */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Workflow, uniqueness or concurrency conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Validation or business rule failure */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Distributed rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Unexpected server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    get__portal_profile: {
+        parameters: {
+            query?: {
+                page?: number;
+                limit?: number;
+                sort?: "asc" | "desc";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful operation. Monetary model fields are decimal strings. Lists with pagination return items and pagination inside data. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @constant */
+                        success: true;
+                        data: {
+                            items: {
+                                id: string;
+                                reference: string;
+                                name: string;
+                                phone: string;
+                                email: string | null;
+                                address: string | null;
+                                project: {
+                                    id: string;
+                                    name: string;
+                                    currency: string;
+                                    timezone: string;
+                                };
+                            }[];
+                            pagination: {
+                                page: number;
+                                limit: number;
+                                total: number;
+                                totalPages: number;
+                            };
+                        };
+                        meta: {
+                            requestId: string;
+                        };
+                    };
+                };
+            };
+            /** @description Malformed request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Invalid, expired or revoked session */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Permission, origin or separation-of-duties denial */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Record missing or outside project scope */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Workflow, uniqueness or concurrency conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Validation or business rule failure */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Distributed rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Unexpected server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    get__portal_dashboard: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful operation. Monetary model fields are decimal strings. Lists with pagination return items and pagination inside data. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @constant */
+                        success: true;
+                        data: {
+                            accounts: {
+                                bookings: number;
+                                total: string;
+                                paid: string;
+                                outstanding: string;
+                                overdue: string;
+                                advanceCredit: string;
+                                project: {
+                                    id: string;
+                                    name: string;
+                                    currency: string;
+                                    timezone: string;
+                                };
+                            }[];
+                            asOf: string;
+                            upcoming: {
+                                id: string;
+                                reference: string;
+                                bookingId: string;
+                                label: string;
+                                dueDate: string;
+                                outstanding: string;
+                                currency: string;
+                                projectName: string;
+                            }[];
+                        };
+                        meta: {
+                            requestId: string;
+                        };
+                    };
+                };
+            };
+            /** @description Malformed request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Invalid, expired or revoked session */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Permission, origin or separation-of-duties denial */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Record missing or outside project scope */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Workflow, uniqueness or concurrency conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Validation or business rule failure */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Distributed rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Unexpected server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    get__portal_bookings: {
+        parameters: {
+            query?: {
+                page?: number;
+                limit?: number;
+                sort?: "asc" | "desc";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful operation. Monetary model fields are decimal strings. Lists with pagination return items and pagination inside data. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @constant */
+                        success: true;
+                        data: {
+                            items: {
+                                id: string;
+                                reference: string;
+                                status: string;
+                                total: string;
+                                downPayment: string;
+                                createdAt: string;
+                                confirmedAt: string | null;
+                                unit: {
+                                    number: string;
+                                    type: string;
+                                    phase: string | null;
+                                    block: string | null;
+                                    floor: string | null;
+                                    size: string;
+                                    measurementUnit: string;
+                                    status: string;
+                                    project: {
+                                        id: string;
+                                        name: string;
+                                        currency: string;
+                                        timezone: string;
+                                    };
+                                };
+                            }[];
+                            pagination: {
+                                page: number;
+                                limit: number;
+                                total: number;
+                                totalPages: number;
+                            };
+                        };
+                        meta: {
+                            requestId: string;
+                        };
+                    };
+                };
+            };
+            /** @description Malformed request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Invalid, expired or revoked session */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Permission, origin or separation-of-duties denial */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Record missing or outside project scope */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Workflow, uniqueness or concurrency conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Validation or business rule failure */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Distributed rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Unexpected server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    get__portal_bookings__id: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful operation. Monetary model fields are decimal strings. Lists with pagination return items and pagination inside data. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @constant */
+                        success: true;
+                        data: {
+                            id: string;
+                            reference: string;
+                            status: string;
+                            total: string;
+                            downPayment: string;
+                            createdAt: string;
+                            confirmedAt: string | null;
+                            unit: {
+                                number: string;
+                                type: string;
+                                phase: string | null;
+                                block: string | null;
+                                floor: string | null;
+                                size: string;
+                                measurementUnit: string;
+                                status: string;
+                                project: {
+                                    id: string;
+                                    name: string;
+                                    currency: string;
+                                    timezone: string;
+                                };
+                            };
+                            position: {
+                                bookings: number;
+                                total: string;
+                                paid: string;
+                                outstanding: string;
+                                overdue: string;
+                                advanceCredit: string;
+                            };
+                        };
+                        meta: {
+                            requestId: string;
+                        };
+                    };
+                };
+            };
+            /** @description Malformed request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Invalid, expired or revoked session */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Permission, origin or separation-of-duties denial */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Record missing or outside project scope */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Workflow, uniqueness or concurrency conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Validation or business rule failure */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Distributed rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Unexpected server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    get__portal_installments: {
+        parameters: {
+            query?: {
+                page?: number;
+                limit?: number;
+                sort?: "asc" | "desc";
+                bookingId?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful operation. Monetary model fields are decimal strings. Lists with pagination return items and pagination inside data. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @constant */
+                        success: true;
+                        data: {
+                            items: {
+                                id: string;
+                                label: string;
+                                dueDate: string;
+                                amount: string;
+                                paid: string;
+                                outstanding: string;
+                                booking: {
+                                    id: string;
+                                    reference: string;
+                                    status: string;
+                                    total: string;
+                                    downPayment: string;
+                                    createdAt: string;
+                                    confirmedAt: string | null;
+                                    unit: {
+                                        number: string;
+                                        type: string;
+                                        phase: string | null;
+                                        block: string | null;
+                                        floor: string | null;
+                                        size: string;
+                                        measurementUnit: string;
+                                        status: string;
+                                        project: {
+                                            id: string;
+                                            name: string;
+                                            currency: string;
+                                            timezone: string;
+                                        };
+                                    };
+                                };
+                            }[];
+                            pagination: {
+                                page: number;
+                                limit: number;
+                                total: number;
+                                totalPages: number;
+                            };
+                        };
+                        meta: {
+                            requestId: string;
+                        };
+                    };
+                };
+            };
+            /** @description Malformed request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Invalid, expired or revoked session */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Permission, origin or separation-of-duties denial */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Record missing or outside project scope */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Workflow, uniqueness or concurrency conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Validation or business rule failure */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Distributed rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Unexpected server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    get__portal_payments: {
+        parameters: {
+            query?: {
+                page?: number;
+                limit?: number;
+                sort?: "asc" | "desc";
+                bookingId?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful operation. Monetary model fields are decimal strings. Lists with pagination return items and pagination inside data. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @constant */
+                        success: true;
+                        data: {
+                            items: {
+                                id: string;
+                                amount: string;
+                                method: string;
+                                paidAt: string;
+                                status: string;
+                                booking: {
+                                    id: string;
+                                    reference: string;
+                                    status: string;
+                                    total: string;
+                                    downPayment: string;
+                                    createdAt: string;
+                                    confirmedAt: string | null;
+                                    unit: {
+                                        number: string;
+                                        type: string;
+                                        phase: string | null;
+                                        block: string | null;
+                                        floor: string | null;
+                                        size: string;
+                                        measurementUnit: string;
+                                        status: string;
+                                        project: {
+                                            id: string;
+                                            name: string;
+                                            currency: string;
+                                            timezone: string;
+                                        };
+                                    };
+                                };
+                                receipt: {
+                                    reference: string;
+                                    createdAt: string;
+                                    reversedAt: string | null;
+                                } | null;
+                            }[];
+                            pagination: {
+                                page: number;
+                                limit: number;
+                                total: number;
+                                totalPages: number;
+                            };
+                        };
+                        meta: {
+                            requestId: string;
+                        };
+                    };
+                };
+            };
+            /** @description Malformed request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Invalid, expired or revoked session */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Permission, origin or separation-of-duties denial */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Record missing or outside project scope */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Workflow, uniqueness or concurrency conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Validation or business rule failure */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Distributed rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Unexpected server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    get__portal_documents: {
+        parameters: {
+            query?: {
+                page?: number;
+                limit?: number;
+                sort?: "asc" | "desc";
+                bookingId?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful operation. Monetary model fields are decimal strings. Lists with pagination return items and pagination inside data. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @constant */
+                        success: true;
+                        data: {
+                            items: {
+                                id: string;
+                                name: string;
+                                mime: string;
+                                size: number;
+                                createdAt: string;
+                                bookingId: string | null;
+                                project: {
+                                    id: string;
+                                    name: string;
+                                    currency: string;
+                                    timezone: string;
+                                };
+                            }[];
+                            pagination: {
+                                page: number;
+                                limit: number;
+                                total: number;
+                                totalPages: number;
+                            };
+                        };
+                        meta: {
+                            requestId: string;
+                        };
+                    };
+                };
+            };
+            /** @description Malformed request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Invalid, expired or revoked session */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Permission, origin or separation-of-duties denial */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Record missing or outside project scope */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Workflow, uniqueness or concurrency conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Validation or business rule failure */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Distributed rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Unexpected server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    get__portal_documents__id_download: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful operation. Monetary model fields are decimal strings. Lists with pagination return items and pagination inside data. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @constant */
+                        success: true;
+                        data: {
+                            url: string;
+                            expiresIn: number;
+                        };
+                        meta: {
+                            requestId: string;
+                        };
+                    };
+                };
+            };
+            /** @description Malformed request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Invalid, expired or revoked session */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Permission, origin or separation-of-duties denial */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Record missing or outside project scope */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Workflow, uniqueness or concurrency conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Validation or business rule failure */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Distributed rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Unexpected server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    patch__projects__projectId_documents__id_portal_visibility: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                projectId: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    portalVisible: boolean;
+                };
+            };
+        };
+        responses: {
+            /** @description Successful operation. Monetary model fields are decimal strings. Lists with pagination return items and pagination inside data. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @constant */
+                        success: true;
+                        data: {
+                            updated: boolean;
+                        };
+                        meta: {
+                            requestId: string;
+                        };
+                    };
+                };
+            };
+            /** @description Malformed request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Invalid, expired or revoked session */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Permission, origin or separation-of-duties denial */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Record missing or outside project scope */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Workflow, uniqueness or concurrency conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Validation or business rule failure */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Distributed rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Unexpected server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    get__portal_requests: {
+        parameters: {
+            query?: {
+                page?: number;
+                limit?: number;
+                sort?: "asc" | "desc";
+                bookingId?: string;
+                kind?: "ndcs" | "transfers" | "refunds" | "possessions";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful operation. Monetary model fields are decimal strings. Lists with pagination return items and pagination inside data. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @constant */
+                        success: true;
+                        data: {
+                            items: {
+                                id: string;
+                                reference?: string;
+                                status: string;
+                                booking: {
+                                    id: string;
+                                    reference: string;
+                                    status: string;
+                                    total: string;
+                                    downPayment: string;
+                                    createdAt: string;
+                                    confirmedAt: string | null;
+                                    unit: {
+                                        number: string;
+                                        type: string;
+                                        phase: string | null;
+                                        block: string | null;
+                                        floor: string | null;
+                                        size: string;
+                                        measurementUnit: string;
+                                        status: string;
+                                        project: {
+                                            id: string;
+                                            name: string;
+                                            currency: string;
+                                            timezone: string;
+                                        };
+                                    };
+                                };
+                                issuedAt?: string | null;
+                                expiresAt?: string | null;
+                                completedAt?: string | null;
+                                paidAt?: string | null;
+                                inspectionAt?: string | null;
+                                handoverAt?: string | null;
+                                amount?: string;
+                                charges?: string;
+                            }[];
+                            pagination: {
+                                page: number;
+                                limit: number;
+                                total: number;
+                                totalPages: number;
+                            };
+                        };
+                        meta: {
+                            requestId: string;
+                        };
+                    };
+                };
+            };
+            /** @description Malformed request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Invalid, expired or revoked session */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Permission, origin or separation-of-duties denial */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Record missing or outside project scope */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Workflow, uniqueness or concurrency conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Validation or business rule failure */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Distributed rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Unexpected server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    get__portal_notifications: {
+        parameters: {
+            query?: {
+                page?: number;
+                limit?: number;
+                sort?: "asc" | "desc";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful operation. Monetary model fields are decimal strings. Lists with pagination return items and pagination inside data. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @constant */
+                        success: true;
+                        data: {
+                            items: {
+                                id: string;
+                                title: string;
+                                body: string;
+                                createdAt: string;
+                                readAt: string | null;
+                            }[];
+                            pagination: {
+                                page: number;
+                                limit: number;
+                                total: number;
+                                totalPages: number;
+                            };
+                        };
+                        meta: {
+                            requestId: string;
+                        };
+                    };
+                };
+            };
+            /** @description Malformed request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Invalid, expired or revoked session */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Permission, origin or separation-of-duties denial */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Record missing or outside project scope */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Workflow, uniqueness or concurrency conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Validation or business rule failure */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Distributed rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Unexpected server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    post__portal_notifications__id_read: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful operation. Monetary model fields are decimal strings. Lists with pagination return items and pagination inside data. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @constant */
+                        success: true;
+                        data: {
+                            read: boolean;
+                        };
+                        meta: {
+                            requestId: string;
+                        };
+                    };
+                };
+            };
+            /** @description Malformed request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Invalid, expired or revoked session */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Permission, origin or separation-of-duties denial */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Record missing or outside project scope */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Workflow, uniqueness or concurrency conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Validation or business rule failure */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Distributed rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Unexpected server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    post__images: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": {
+                    /** @enum {string} */
+                    purpose: "PROJECT" | "UNIT" | "FEATURE" | "CUSTOMER" | "DEALER" | "USER" | "PAYMENT";
+                    /** Format: uuid */
+                    projectId?: string;
+                    /** Format: binary */
+                    file: string;
+                };
+            };
+        };
+        responses: {
+            /** @description Successful operation. Monetary model fields are decimal strings. Lists with pagination return items and pagination inside data. */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @constant */
+                        success: true;
+                        data: {
+                            /** Format: uuid */
+                            id: string;
+                            name: string;
+                            mime: string;
+                            size: number;
+                        };
+                        meta: {
+                            requestId: string;
+                        };
+                    };
+                };
+            };
+            /** @description Malformed request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Invalid, expired or revoked session */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Permission, origin or separation-of-duties denial */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Record missing or outside project scope */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Workflow, uniqueness or concurrency conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Validation or business rule failure */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Distributed rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Unexpected server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    get__images__id: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful operation. Monetary model fields are decimal strings. Lists with pagination return items and pagination inside data. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @constant */
+                        success: true;
+                        data: {
+                            /** Format: uri */
+                            url: string;
+                            expiresIn: number;
+                            name: string;
+                        };
+                        meta: {
+                            requestId: string;
+                        };
+                    };
+                };
+            };
+            /** @description Malformed request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Invalid, expired or revoked session */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Permission, origin or separation-of-duties denial */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Record missing or outside project scope */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Workflow, uniqueness or concurrency conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Validation or business rule failure */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Distributed rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Unexpected server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
     get__projects: {
         parameters: {
             query?: {
@@ -4433,6 +7064,8 @@ export interface operations {
                 "application/json": {
                     code: string;
                     name: string;
+                    /** Format: uuid */
+                    photoId?: string;
                     /** @default PKR */
                     currency?: string;
                     /** @default Asia/Karachi */
@@ -4552,6 +7185,7 @@ export interface operations {
             content: {
                 "application/json": {
                     name?: string;
+                    photoId?: string | null;
                     /** @default PKR */
                     currency?: string;
                     /** @default Asia/Karachi */
@@ -4787,6 +7421,8 @@ export interface operations {
                     /** Format: email */
                     email: string;
                     password: string & (unknown & unknown & unknown);
+                    /** Format: uuid */
+                    photoId: string;
                     roleIds: string[];
                     projectIds: string[];
                 };
@@ -5520,7 +8156,7 @@ export interface operations {
             content: {
                 "application/json": {
                     name: string;
-                    permissions: ("projects.read" | "projects.create" | "projects.update" | "inventory.read" | "inventory.create" | "inventory.update" | "inventory.change_status" | "inventory.change_price" | "customers.read" | "customers.create" | "customers.update" | "customers.view_sensitive" | "crm.read" | "crm.manage" | "reservations.create" | "reservations.cancel" | "bookings.read" | "bookings.create" | "bookings.approve" | "bookings.cancel" | "plans.manage" | "payments.read" | "payments.create" | "payments.verify" | "payments.reverse" | "discounts.request" | "discounts.approve" | "recovery.manage" | "dealers.read" | "dealers.manage" | "commissions.approve" | "transfers.request" | "transfers.approve" | "ndc.request" | "ndc.approve" | "refunds.request" | "refunds.approve" | "possession.manage" | "possession.approve" | "finance.read" | "finance.post" | "finance.reverse" | "reports.read" | "reports.export" | "documents.read" | "documents.manage" | "approvals.read" | "approvals.manage" | "users.manage" | "roles.manage" | "settings.manage" | "audit.read")[];
+                    permissions: ("projects.read" | "projects.create" | "projects.update" | "inventory.read" | "inventory.create" | "inventory.update" | "inventory.change_status" | "inventory.change_price" | "customers.read" | "customers.create" | "customers.update" | "customers.portal.manage" | "customers.view_sensitive" | "crm.read" | "crm.manage" | "reservations.create" | "reservations.cancel" | "bookings.read" | "bookings.create" | "bookings.approve" | "bookings.cancel" | "plans.manage" | "payments.read" | "payments.create" | "payments.verify" | "payments.reverse" | "discounts.request" | "discounts.approve" | "recovery.manage" | "dealers.read" | "dealers.manage" | "commissions.approve" | "transfers.request" | "transfers.approve" | "ndc.request" | "ndc.approve" | "refunds.request" | "refunds.approve" | "possession.manage" | "possession.approve" | "finance.read" | "finance.post" | "finance.reverse" | "reports.read" | "reports.export" | "documents.read" | "documents.manage" | "approvals.read" | "approvals.manage" | "users.manage" | "roles.manage" | "settings.manage" | "audit.read")[];
                 };
             };
         };
@@ -5627,7 +8263,7 @@ export interface operations {
         requestBody: {
             content: {
                 "application/json": {
-                    permissions: ("projects.read" | "projects.create" | "projects.update" | "inventory.read" | "inventory.create" | "inventory.update" | "inventory.change_status" | "inventory.change_price" | "customers.read" | "customers.create" | "customers.update" | "customers.view_sensitive" | "crm.read" | "crm.manage" | "reservations.create" | "reservations.cancel" | "bookings.read" | "bookings.create" | "bookings.approve" | "bookings.cancel" | "plans.manage" | "payments.read" | "payments.create" | "payments.verify" | "payments.reverse" | "discounts.request" | "discounts.approve" | "recovery.manage" | "dealers.read" | "dealers.manage" | "commissions.approve" | "transfers.request" | "transfers.approve" | "ndc.request" | "ndc.approve" | "refunds.request" | "refunds.approve" | "possession.manage" | "possession.approve" | "finance.read" | "finance.post" | "finance.reverse" | "reports.read" | "reports.export" | "documents.read" | "documents.manage" | "approvals.read" | "approvals.manage" | "users.manage" | "roles.manage" | "settings.manage" | "audit.read")[];
+                    permissions: ("projects.read" | "projects.create" | "projects.update" | "inventory.read" | "inventory.create" | "inventory.update" | "inventory.change_status" | "inventory.change_price" | "customers.read" | "customers.create" | "customers.update" | "customers.portal.manage" | "customers.view_sensitive" | "crm.read" | "crm.manage" | "reservations.create" | "reservations.cancel" | "bookings.read" | "bookings.create" | "bookings.approve" | "bookings.cancel" | "plans.manage" | "payments.read" | "payments.create" | "payments.verify" | "payments.reverse" | "discounts.request" | "discounts.approve" | "recovery.manage" | "dealers.read" | "dealers.manage" | "commissions.approve" | "transfers.request" | "transfers.approve" | "ndc.request" | "ndc.approve" | "refunds.request" | "refunds.approve" | "possession.manage" | "possession.approve" | "finance.read" | "finance.post" | "finance.reverse" | "reports.read" | "reports.export" | "documents.read" | "documents.manage" | "approvals.read" | "approvals.manage" | "users.manage" | "roles.manage" | "settings.manage" | "audit.read")[];
                 };
             };
         };
@@ -5857,14 +8493,24 @@ export interface operations {
                 "application/json": {
                     number: string;
                     /** @enum {string} */
-                    type: "RESIDENTIAL_PLOT" | "COMMERCIAL_PLOT" | "APARTMENT" | "SHOP" | "OFFICE";
+                    type: "RESIDENTIAL_PLOT" | "COMMERCIAL_PLOT" | "APARTMENT" | "SHOP" | "OFFICE" | "OTHER";
+                    typeDetails?: string;
+                    /** Format: uuid */
+                    photoId?: string;
+                    /** @default [] */
+                    featureImages?: {
+                        feature: string;
+                        /** Format: uuid */
+                        imageId: string;
+                    }[];
                     phase?: string;
                     block?: string;
                     tower?: string;
                     sector?: string;
                     floor?: string;
                     size: string;
-                    measurementUnit: string;
+                    /** @enum {string} */
+                    measurementUnit: "marla" | "kanal" | "sq ft" | "sq yd" | "sq m" | "acre" | "hectare";
                     /** @default [] */
                     features?: string[];
                     price: string;
@@ -5979,14 +8625,24 @@ export interface operations {
                     units: {
                         number: string;
                         /** @enum {string} */
-                        type: "RESIDENTIAL_PLOT" | "COMMERCIAL_PLOT" | "APARTMENT" | "SHOP" | "OFFICE";
+                        type: "RESIDENTIAL_PLOT" | "COMMERCIAL_PLOT" | "APARTMENT" | "SHOP" | "OFFICE" | "OTHER";
+                        typeDetails?: string;
+                        /** Format: uuid */
+                        photoId?: string;
+                        /** @default [] */
+                        featureImages?: {
+                            feature: string;
+                            /** Format: uuid */
+                            imageId: string;
+                        }[];
                         phase?: string;
                         block?: string;
                         tower?: string;
                         sector?: string;
                         floor?: string;
                         size: string;
-                        measurementUnit: string;
+                        /** @enum {string} */
+                        measurementUnit: "marla" | "kanal" | "sq ft" | "sq yd" | "sq m" | "acre" | "hectare";
                         /** @default [] */
                         features?: string[];
                         price: string;
@@ -6656,9 +9312,12 @@ export interface operations {
                     /** Format: email */
                     email?: string;
                     address?: string;
+                    /** Format: uuid */
+                    photoId?: string;
                     identity: string;
                     /** @default false */
                     communicationConsent?: boolean;
+                    password?: string & (unknown & unknown & unknown);
                 };
             };
         };
@@ -6873,6 +9532,7 @@ export interface operations {
                     /** Format: email */
                     email?: string;
                     address?: string;
+                    photoId?: string | null;
                     /** @default false */
                     communicationConsent?: boolean;
                 };
@@ -8795,6 +11455,9 @@ export interface operations {
                     paidAt: string;
                     transactionReference?: string;
                     /** Format: uuid */
+                    proofImageId?: string;
+                    methodDetails?: string;
+                    /** Format: uuid */
                     receivingAccountId: string;
                 };
             };
@@ -9762,7 +12425,7 @@ export interface operations {
                     /** @enum {string} */
                     operation: "DISCOUNT" | "BOOKING" | "PRICE" | "RESCHEDULE" | "PAYMENT_REVERSAL" | "NDC" | "TRANSFER" | "CANCELLATION" | "REFUND" | "COMMISSION" | "POSSESSION" | "JOURNAL";
                     minimumAmount: string;
-                    permissions: ("projects.read" | "projects.create" | "projects.update" | "inventory.read" | "inventory.create" | "inventory.update" | "inventory.change_status" | "inventory.change_price" | "customers.read" | "customers.create" | "customers.update" | "customers.view_sensitive" | "crm.read" | "crm.manage" | "reservations.create" | "reservations.cancel" | "bookings.read" | "bookings.create" | "bookings.approve" | "bookings.cancel" | "plans.manage" | "payments.read" | "payments.create" | "payments.verify" | "payments.reverse" | "discounts.request" | "discounts.approve" | "recovery.manage" | "dealers.read" | "dealers.manage" | "commissions.approve" | "transfers.request" | "transfers.approve" | "ndc.request" | "ndc.approve" | "refunds.request" | "refunds.approve" | "possession.manage" | "possession.approve" | "finance.read" | "finance.post" | "finance.reverse" | "reports.read" | "reports.export" | "documents.read" | "documents.manage" | "approvals.read" | "approvals.manage" | "users.manage" | "roles.manage" | "settings.manage" | "audit.read")[];
+                    permissions: ("projects.read" | "projects.create" | "projects.update" | "inventory.read" | "inventory.create" | "inventory.update" | "inventory.change_status" | "inventory.change_price" | "customers.read" | "customers.create" | "customers.update" | "customers.portal.manage" | "customers.view_sensitive" | "crm.read" | "crm.manage" | "reservations.create" | "reservations.cancel" | "bookings.read" | "bookings.create" | "bookings.approve" | "bookings.cancel" | "plans.manage" | "payments.read" | "payments.create" | "payments.verify" | "payments.reverse" | "discounts.request" | "discounts.approve" | "recovery.manage" | "dealers.read" | "dealers.manage" | "commissions.approve" | "transfers.request" | "transfers.approve" | "ndc.request" | "ndc.approve" | "refunds.request" | "refunds.approve" | "possession.manage" | "possession.approve" | "finance.read" | "finance.post" | "finance.reverse" | "reports.read" | "reports.export" | "documents.read" | "documents.manage" | "approvals.read" | "approvals.manage" | "users.manage" | "roles.manage" | "settings.manage" | "audit.read")[];
                 };
             };
         };
@@ -13328,6 +15991,8 @@ export interface operations {
                 "application/json": {
                     name: string;
                     phone: string;
+                    /** Format: uuid */
+                    photoId: string;
                     /** @default 0 */
                     commissionPercent?: string;
                 };
@@ -15636,6 +18301,7 @@ export interface operations {
         requestBody: {
             content: {
                 "multipart/form-data": {
+                    name: string;
                     /** Format: uuid */
                     customerId?: string;
                     /** Format: uuid */

@@ -6,6 +6,8 @@ type Preferences = {
   currency: string;
   timezone: string;
   theme: 'light' | 'dark' | 'system';
+  language: 'en' | 'ur' | 'ar';
+  setLanguage: (language: Preferences['language']) => void;
   collapsed: boolean;
   setProject: (id: string, name: string, currency?: string, timezone?: string) => void;
   setTheme: (theme: Preferences['theme']) => void;
@@ -19,6 +21,8 @@ export const usePreferences = create<Preferences>()(
       currency: 'PKR',
       timezone: 'Asia/Karachi',
       theme: 'light',
+      language: 'en',
+      setLanguage: (language) => set({ language }),
       collapsed: false,
       setProject: (projectId, projectName, currency = 'PKR', timezone = 'Asia/Karachi') =>
         set({ projectId, projectName, currency, timezone }),

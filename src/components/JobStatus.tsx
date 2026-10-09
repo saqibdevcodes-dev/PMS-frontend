@@ -1,3 +1,4 @@
+import { t, useLocale } from '../lib/i18n';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { FileText, Download } from 'lucide-react';
 import { toast } from 'sonner';
@@ -13,6 +14,7 @@ export function JobStatus({
   id: string;
   filename?: string;
 }) {
+  useLocale();
   const projectId = usePreferences((s) => s.projectId);
   const query = useQuery({
     queryKey: ['job', projectId, id],
@@ -29,13 +31,13 @@ export function JobStatus({
     <div className="job-status" role="status">
       <FileText size={19} />
       <span>
-        <strong>Document generation</strong>
+        <strong>{t('Document generation')}</strong>
         <small>
           {query.data?.status === 'FAILED'
             ? String(query.data.error ?? 'Generation failed.')
             : query.data?.status === 'COMPLETED'
-              ? 'Your private document is ready.'
-              : 'The server is preparing your document.'}
+              ? t('Your private document is ready.')
+              : t('The server is preparing your document.')}
         </small>
       </span>
       {query.isError ? (
@@ -51,7 +53,7 @@ export function JobStatus({
         onClick={() => download.mutate()}
       >
         <Download size={15} />
-        Download
+        {t('Download')}
       </Button>
     </div>
   );

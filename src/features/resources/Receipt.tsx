@@ -1,3 +1,4 @@
+import { t, useLocale } from '../../lib/i18n';
 import { useQuery } from '@tanstack/react-query';
 import { Printer, ShieldCheck } from 'lucide-react';
 import { toast } from 'sonner';
@@ -8,6 +9,7 @@ import { usePreferences } from '../../stores/preferences';
 import { print } from '../../platform/adapter';
 import { Modal, Button, Badge, ErrorState, Skeleton } from '../../components/ui';
 export function Receipt({ id, onClose }: { id: string; onClose: () => void }) {
+  useLocale();
   const { projectId, projectName } = usePreferences();
   const receipt = useQuery({
     queryKey: ['receipt', projectId, id],
@@ -18,8 +20,8 @@ export function Receipt({ id, onClose }: { id: string; onClose: () => void }) {
     <Modal
       open
       onOpenChange={(v) => !v && onClose()}
-      title="Payment receipt"
-      description="An authoritative record of the server-issued receipt."
+      title={t('Payment receipt')}
+      description={t('An authoritative record of the server-issued receipt.')}
     >
       <div className="modal-body printable-receipt">
         {receipt.isLoading ? (
@@ -41,29 +43,31 @@ export function Receipt({ id, onClose }: { id: string; onClose: () => void }) {
             <div className="receipt-amount">{money(payment.amount)}</div>
             <dl className="detail-grid">
               <div>
-                <dt>Payment method</dt>
+                <dt>{t('Payment method')}</dt>
                 <dd>{humanize(String(payment.method))}</dd>
               </div>
               <div>
-                <dt>Paid on</dt>
+                <dt>{t('Paid on')}</dt>
                 <dd>{date(payment.paidAt)}</dd>
               </div>
               <div>
-                <dt>Booking reference ID</dt>
+                <dt>{t('Booking reference ID')}</dt>
                 <dd className="record-id">{String(payment.bookingId)}</dd>
               </div>
               <div>
-                <dt>Payment reference ID</dt>
+                <dt>{t('Payment reference ID')}</dt>
                 <dd className="record-id">{String(payment.id)}</dd>
               </div>
               <div>
-                <dt>Issued on</dt>
+                <dt>{t('Issued on')}</dt>
                 <dd>{date(receipt.data?.issuedAt ?? receipt.data?.createdAt)}</dd>
               </div>
             </dl>
             {Boolean(receipt.data?.reversedAt) && (
               <p className="field-error">
-                This receipt has been reversed and is no longer evidence of a cleared collection.
+                {t(
+                  'This receipt has been reversed and is no longer evidence of a cleared collection.',
+                )}
               </p>
             )}
             <Button
@@ -72,7 +76,7 @@ export function Receipt({ id, onClose }: { id: string; onClose: () => void }) {
               }
             >
               <Printer size={16} />
-              Print receipt
+              {t('Print receipt')}
             </Button>
           </>
         )}

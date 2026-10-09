@@ -1,3 +1,4 @@
+import { t, useLocale } from '../../lib/i18n';
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
@@ -14,6 +15,8 @@ import { Button, Modal, Skeleton, ErrorState } from '../../components/ui';
 import { DataTable, DisplayValue } from '../../components/DataTable';
 import { Receipt } from './Receipt';
 import { OperationDialog } from '../../components/OperationDialog';
+import CustomerAccess from '../portal/CustomerAccess';
+import '../portal/portal.css';
 const hidden = new Set([
   'projectId',
   'passwordHash',
@@ -34,6 +37,7 @@ export default function RecordDetail({
   record: Row;
   onClose: () => void;
 }) {
+  useLocale();
   const projectId = usePreferences((s) => s.projectId);
   const [tab, setTab] = useState('overview');
   const [receipt, setReceipt] = useState(false);
@@ -61,7 +65,7 @@ export default function RecordDetail({
         open
         onOpenChange={(v) => !v && onClose()}
         title={labelOf(detail)}
-        description={resource.label + ' / Record details'}
+        description={t('{resource} / Record details', { resource: t(resource.label) })}
         wide
       >
         <div className="record-detail">
@@ -76,10 +80,10 @@ export default function RecordDetail({
             <Button
               size="icon"
               variant="ghost"
-              aria-label="Copy record ID"
+              aria-label={t('Copy record ID')}
               onClick={async () => {
                 await navigator.clipboard.writeText(record.id ?? '');
-                toast.success('Record ID copied');
+                toast.success(t('Record ID copied'));
               }}
             >
               <Copy size={16} />
@@ -94,7 +98,7 @@ export default function RecordDetail({
                     setAction({ operation: op, title: actionTitle(op, resource), record: detail })
                   }
                 >
-                  {actionTitle(op, resource)}
+                  {t(actionTitle(op, resource))}
                 </Button>
               ))}
             </div>
@@ -105,7 +109,7 @@ export default function RecordDetail({
               aria-selected={tab === 'overview'}
               onClick={() => setTab('overview')}
             >
-              Overview
+              {t('Overview')}
             </button>
             {Object.keys(position).length > 0 && (
               <button
@@ -113,7 +117,7 @@ export default function RecordDetail({
                 aria-selected={tab === 'position'}
                 onClick={() => setTab('position')}
               >
-                Payment position
+                {t('Payment position')}
               </button>
             )}
             {collections.map(([key]) => (
@@ -128,6 +132,10 @@ export default function RecordDetail({
             <Skeleton />
           ) : tab === 'overview' ? (
             <>
+              {resource.slug === 'customers' &&
+                can('customers.portal.manage') &&
+                record.id &&
+                projectId && <CustomerAccess projectId={projectId} customerId={record.id} />}
               <dl className="detail-grid">
                 {Object.entries(detail)
                   .filter(([k, v]) => !hidden.has(k) && v !== null && typeof v !== 'object')
@@ -155,11 +163,13 @@ export default function RecordDetail({
                           );
                           setIdentity(r.identity);
                         } catch (e) {
-                          toast.error(e instanceof Error ? e.message : 'Unable to reveal identity');
+                          toast.error(
+                            e instanceof Error ? e.message : t('Unable to reveal identity'),
+                          );
                         }
                       }}
                     >
-                      {identity ?? 'Reveal identity'}
+                      {identity ?? t('Reveal identity')}
                     </Button>
                   )}
                   {can('reports.read') && (
@@ -169,7 +179,7 @@ export default function RecordDetail({
                       onClick={onClose}
                     >
                       <FileText size={15} />
-                      Customer statement
+                      {t('Customer statement')}
                       <ArrowUpRight size={13} />
                     </Link>
                   )}
@@ -179,14 +189,14 @@ export default function RecordDetail({
                       to={'/documents?customerId=' + record.id}
                       onClick={onClose}
                     >
-                      Customer documents
+                      {t('Customer documents')}
                     </Link>
                   )}
                 </div>
               )}
               {resource.slug === 'collections' && row(detail.receipt).id && can('payments.read') ? (
                 <Button variant="secondary" onClick={() => setReceipt(true)}>
-                  View receipt
+                  {t('View receipt')}
                 </Button>
               ) : null}
               {resource.slug === 'bookings' && (
@@ -196,7 +206,7 @@ export default function RecordDetail({
                     to={'/collections?bookingId=' + record.id}
                     onClick={onClose}
                   >
-                    View payments
+                    {t('View payments')}
                     <ArrowUpRight size={13} />
                   </Link>
                   <Link
@@ -204,13 +214,13 @@ export default function RecordDetail({
                     to={'/documents?bookingId=' + record.id}
                     onClick={onClose}
                   >
-                    Booking documents
+                    {t('Booking documents')}
                   </Link>
                 </div>
               )}
               {detail.payload && typeof detail.payload === 'object' && (
                 <div className="payload-details">
-                  <h4>Requested terms</h4>
+                  <h4>{t('Requested terms')}</h4>
                   <dl className="detail-grid">
                     {Object.entries(row(detail.payload))
                       .filter(([, v]) => typeof v !== 'object')
@@ -289,7 +299,7 @@ export default function RecordDetail({
                                 })
                               }
                             >
-                              Resolve
+                              {t('Resolve')}
                             </Button>
                           )
                       : undefined

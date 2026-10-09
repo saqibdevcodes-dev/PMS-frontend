@@ -1,3 +1,4 @@
+import { t, useLocale } from '../../lib/i18n';
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { SlidersHorizontal, ShieldCheck, Landmark } from 'lucide-react';
@@ -10,6 +11,7 @@ import { Button, PageHeading, ErrorState } from '../../components/ui';
 import { OperationDialog } from '../../components/OperationDialog';
 import { ProjectRequired, Unauthorized } from '../resources/ResourcePage';
 export default function Settings() {
+  useLocale();
   const projectId = usePreferences((s) => s.projectId);
   const projectName = usePreferences((s) => s.projectName);
   const [action, setAction] = useState<{ operation: Operation; title: string } | null>(null);
@@ -27,7 +29,7 @@ export default function Settings() {
       });
       const found = asRows(result).find((item) => item.id === projectId);
       if (!found)
-        throw new Error('Reload the project list to retrieve the current business rules.');
+        throw new Error(t('Reload the project list to retrieve the current business rules.'));
       return found;
     },
   });
@@ -56,26 +58,26 @@ export default function Settings() {
   return (
     <>
       <PageHeading
-        eyebrow="Administration"
-        title="Project settings"
-        description="Configure the rules that keep your project running consistently."
+        eyebrow={t('Administration')}
+        title={t('Project settings')}
+        description={t('Configure the rules that keep your project running consistently.')}
       />
       <div className="finance-modules">
         {choices
           .filter((c) => can(c.op.permission))
           .map((choice) => (
-            <section className="panel" key={choice.title}>
+            <section className="panel" key={t(choice.title)}>
               <span className="finance-icon">
                 <choice.icon size={23} />
               </span>
-              <h2>{choice.title}</h2>
-              <p>{choice.description}</p>
+              <h2>{t(choice.title)}</h2>
+              <p>{t(choice.description)}</p>
               <Button
                 variant="secondary"
                 disabled={choice.op.method === 'patch' && !project.data}
                 onClick={() => setAction({ operation: choice.op, title: choice.title })}
               >
-                Configure
+                {t('Configure')}
               </Button>
             </section>
           ))}
@@ -85,8 +87,8 @@ export default function Settings() {
       <section className="panel settings-current">
         <div className="panel-heading">
           <div>
-            <h2>Current settings</h2>
-            <p>Recorded configuration for the selected project</p>
+            <h2>{t('Current settings')}</h2>
+            <p>{t('Recorded configuration for the selected project')}</p>
           </div>
         </div>
         {asRows(query.data).map((r) => (

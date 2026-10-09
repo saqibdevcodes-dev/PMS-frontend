@@ -1,5 +1,9 @@
+import { t } from './i18n';
 import { z } from 'zod';
 import type { JsonSchema } from './types';
+export const nullable = (schema: JsonSchema) =>
+  schema.anyOf?.some((s) => s.type === 'null') ||
+  (Array.isArray(schema.type) && schema.type.includes('null'));
 export function schemaType(schema: JsonSchema): string {
   return typeof schema.type === 'string'
     ? schema.type
@@ -10,6 +14,8 @@ export function schemaType(schema: JsonSchema): string {
         : 'string';
 }
 export function validator(schema: JsonSchema): z.ZodType {
+  if (nullable(schema) && schema.anyOf)
+    return validator(schema.anyOf.find((s) => s.type !== 'null') ?? { type: 'string' }).nullable();
   let result: z.ZodType;
   const type = schemaType(schema);
   if (type === 'object')
@@ -40,27 +46,27 @@ export function validator(schema: JsonSchema): z.ZodType {
     if (schema.minLength !== undefined) text = text.min(schema.minLength);
     if (schema.maxLength !== undefined) text = text.max(schema.maxLength);
     if (schema.pattern)
-      text = text.regex(new RegExp(schema.pattern), 'Check the format of this value.');
+      text = text.regex(new RegExp(schema.pattern), t('Check the format of this value.'));
     if (schema.format === 'uuid')
-      text = text.regex(/^[0-9a-f]{8}-[0-9a-f-]{27}$/i, 'Select a valid record.');
-    if (schema.format === 'email') text = text.email('Enter a valid email address.');
-    if (schema.format === 'date') text = text.regex(/^\d{4}-\d{2}-\d{2}$/, 'Choose a date.');
+      text = text.regex(/^[0-9a-f]{8}-[0-9a-f-]{27}$/i, t('Select a valid record.'));
+    if (schema.format === 'email') text = text.email(t('Enter a valid email address.'));
+    if (schema.format === 'date') text = text.regex(/^\d{4}-\d{2}-\d{2}$/, t('Choose a date.'));
     if (schema.format === 'date-time') text = text.datetime({ offset: true });
     result = text;
   }
   if (schema.enum)
     result = result.refine(
       (v) => schema.enum!.includes(v as string),
-      'Choose one of the available values.',
+      t('Choose one of the available values.'),
     );
   for (const clause of schema.allOf ?? []) {
     if (clause.pattern)
       result = result.refine(
         (v) => typeof v === 'string' && new RegExp(clause.pattern!).test(v),
-        'This value does not meet the required format.',
+        t('This value does not meet the required format.'),
       );
   }
-  return result;
+  return nullable(schema) ? result.nullable() : result;
 }
 export function defaults(schema: JsonSchema): unknown {
   if (schema.default !== undefined) return schema.default;
@@ -76,6 +82,7 @@ export function defaults(schema: JsonSchema): unknown {
   return '';
 }
 export function normalize(schema: JsonSchema, value: unknown): unknown {
+  if (nullable(schema) && (value === null || value === '')) return null;
   if (schemaType(schema) === 'object') {
     const record = value && typeof value === 'object' ? (value as Record<string, unknown>) : {};
     return Object.fromEntries(
@@ -83,7 +90,9 @@ export function normalize(schema: JsonSchema, value: unknown): unknown {
         const input = record[key];
         if (
           !schema.required?.includes(key) &&
-          (input === undefined || input === '' || (Array.isArray(input) && !input.length))
+          (input === undefined ||
+            ((input === '' || input === null) && !nullable(field)) ||
+            (Array.isArray(input) && !input.length))
         )
           return [];
         return [[key, normalize(field, input)]];

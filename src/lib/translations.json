@@ -1,0 +1,1767 @@
+{
+  "Customer photo": ["گاہک کی تصویر", "صورة العميل"],
+  "Customer portal login": ["کسٹمر پورٹل میں لاگ اِن", "تسجيل الدخول إلى بوابة العميل"],
+  "Portal password": ["پورٹل کا پاس ورڈ", "كلمة مرور البوابة"],
+  "Confirm portal password": ["پورٹل کے پاس ورڈ کی تصدیق", "تأكيد كلمة مرور البوابة"],
+  "Set a password to let this customer sign in immediately. Leave both password fields blank to send an invitation later.": [
+    "گاہک کو فوراً لاگ اِن کرنے کی سہولت دینے کے لیے پاس ورڈ مقرر کریں۔ بعد میں دعوت بھیجنے کے لیے پاس ورڈ کے دونوں خانے خالی چھوڑ دیں۔",
+    "عيّن كلمة مرور ليتمكن هذا العميل من تسجيل الدخول فورًا. اترك حقلي كلمة المرور فارغين لإرسال دعوة لاحقًا."
+  ],
+  "Portal access can be set up by a team member with permission to manage customer portal access.": [
+    "کسٹمر پورٹل کی رسائی کا انتظام کرنے کی اجازت رکھنے والا ٹیم ممبر پورٹل کی رسائی فعال کر سکتا ہے۔",
+    "يمكن لعضو فريق لديه صلاحية إدارة الوصول إلى بوابة العميل إعداد الوصول إلى البوابة."
+  ],
+  "Enter an email address to enable customer login.": [
+    "گاہک کا لاگ اِن فعال کرنے کے لیے ای میل پتہ درج کریں۔",
+    "أدخل عنوان بريد إلكتروني لتفعيل تسجيل دخول العميل."
+  ],
+  "Confirm the portal password.": ["پورٹل کے پاس ورڈ کی تصدیق کریں۔", "أكّد كلمة مرور البوابة."],
+  "Customer portal access is active. The customer can sign in with their email and the password you set.": [
+    "کسٹمر پورٹل کی رسائی فعال ہے۔ گاہک اپنی ای میل اور آپ کے مقرر کردہ پاس ورڈ سے لاگ اِن کر سکتا ہے۔",
+    "الوصول إلى بوابة العميل مفعّل. يمكن للعميل تسجيل الدخول باستخدام بريده الإلكتروني وكلمة المرور التي عيّنتها."
+  ],
+  "Customer record saved. Send an invitation from Customer portal access when you want to enable login.": [
+    "گاہک کا ریکارڈ محفوظ ہو گیا ہے۔ لاگ اِن فعال کرنے کے لیے کسٹمر پورٹل کی رسائی کے حصے سے دعوت بھیجیں۔",
+    "تم حفظ سجل العميل. أرسل دعوة من قسم الوصول إلى بوابة العميل عندما تريد تفعيل تسجيل الدخول."
+  ],
+  "Manage customer photos, contact details and portal access.": [
+    "گاہکوں کی تصاویر، رابطے کی تفصیلات اور پورٹل کی رسائی کا انتظام کریں۔",
+    "إدارة صور العملاء وبيانات الاتصال والوصول إلى البوابة."
+  ],
+  "Overdue amount": ["تاخیر شدہ بقایا رقم", "المبلغ المتأخر"],
+  "Hello, {name}. Here is your project summary.": [
+    "السلام علیکم، {name}۔ آپ کے منصوبے کا خلاصہ یہ ہے۔",
+    "مرحباً، {name}. إليك ملخص مشروعك."
+  ],
+  "Sales & inventory": ["فروخت اور جائیدادیں", "المبيعات والعقارات"],
+  "Customers & recovery": ["صارفین اور بقایا وصولیاں", "العملاء وتحصيل المستحقات"],
+  ". Pending payments appear in payment history and count toward your balance after verification.": [
+    "۔ زیرِ تصدیق ادائیگیاں ادائیگیوں کی تاریخ میں نظر آتی ہیں اور تصدیق کے بعد بقایا میں شامل ہوتی ہیں۔",
+    ". تظهر الدفعات قيد التحقق في سجل المدفوعات وتُحتسب في رصيدك بعد التحقق."
+  ],
+  "A clear view of your properties, payments, and what comes next.": [
+    "اپنی جائیدادوں، ادائیگیوں اور اگلے مراحل کی تفصیل دیکھیں۔",
+    "اطّلع على عقاراتك ومدفوعاتك والخطوات القادمة."
+  ],
+  "A clearer way to manage properties, build customer relationships, and keep your business moving.": [
+    "جائیدادیں، گاہکوں کی معلومات اور کاروباری کام ایک جگہ سنبھالیں۔",
+    "أدر العقارات وبيانات العملاء وأعمالك من مكان واحد."
+  ],
+  "AT HOME WITH YOUR ACCOUNT": ["آپ کا پراپرٹی اکاؤنٹ", "حسابك العقاري"],
+  "Access is limited to your linked customer records.": [
+    "آپ صرف اپنے اکاؤنٹ سے منسلک ریکارڈ دیکھ سکتے ہیں۔",
+    "يمكنك الوصول إلى سجلات العملاء المرتبطة بحسابك فقط."
+  ],
+  "Access restricted": ["رسائی کی اجازت نہیں", "الوصول مقيّد"],
+  "Account": ["اکاؤنٹ", "الحساب"],
+  "Accounts & money": ["حسابات اور رقوم", "الحسابات والأموال"],
+  "Actions available to you in this workspace.": [
+    "آپ کو ان کاموں کی اجازت ہے۔",
+    "الإجراءات المتاحة لك في مساحة العمل."
+  ],
+  "Actions for {0}": ["{0} کے لیے کارروائیاں", "إجراءات {0}"],
+  "Activate customer access": ["کسٹمر اکاؤنٹ فعال کریں", "تفعيل حساب العميل"],
+  "Active & recent sessions": ["فعال اور حالیہ لاگ اِن", "الجلسات النشطة والأخيرة"],
+  "Add": ["شامل کریں", "إضافة"],
+  "Add a customer email address first.": [
+    "پہلے گاہک کا ای میل پتہ شامل کریں۔",
+    "أضف البريد الإلكتروني للعميل أولاً."
+  ],
+  "Add a document": ["دستاویز شامل کریں", "إضافة مستند"],
+  "Add a new customer": ["نیا گاہک شامل کریں", "إضافة عميل جديد"],
+  "Add customer": ["گاہک شامل کریں", "إضافة العميل"],
+  "Add feature": ["سہولت شامل کریں", "إضافة ميزة"],
+  "Add joint owners": ["شریک مالکان شامل کریں", "إضافة ملاك مشتركين"],
+  "Additional property fees": ["جائیداد کی اضافی فیس", "رسوم العقار الإضافية"],
+  "Address": ["پتہ", "العنوان"],
+  "Administration": ["انتظامیہ", "الإدارة"],
+  "All bookings": ["تمام بکنگ", "كل الحجوزات"],
+  "All phases": ["تمام مراحل", "كل المراحل"],
+  "All posted journal lines, including reversals": [
+    "تمام درج شدہ حسابی اندراجات، بشمول واپس کیے گئے اندراجات",
+    "كل القيود المحاسبية المُرحّلة، بما فيها القيود العكسية"
+  ],
+  "All statuses": ["تمام حالتیں", "كل الحالات"],
+  "Amount": ["رقم", "المبلغ"],
+  "Amounts allocated to your confirmed bookings. Reversed payments are excluded.": [
+    "آپ کی تصدیق شدہ بکنگ کو مختص رقوم۔ واپس کی گئی ادائیگیاں شامل نہیں۔",
+    "المبالغ المخصصة لحجوزاتك المؤكدة، باستثناء الدفعات المعكوسة."
+  ],
+  "Amounts describe the complete booking. Contact the office for payment instructions or account corrections.": [
+    "یہ رقوم پوری بکنگ کی ہیں۔ ادائیگی کی ہدایات یا اکاؤنٹ کی درستگی کے لیے دفتر سے رابطہ کریں۔",
+    "المبالغ تخص الحجز بالكامل. تواصل مع المكتب لتعليمات الدفع أو تصحيح الحساب."
+  ],
+  "An administrator can assign the project permissions you need.": [
+    "منتظم آپ کو منصوبے کی ضروری اجازتیں دے سکتا ہے۔",
+    "يمكن للمسؤول منحك صلاحيات المشروع اللازمة."
+  ],
+  "An authoritative record of the server-issued receipt.": [
+    "نظام کی جاری کردہ رسید کا مستند ریکارڈ۔",
+    "السجل الرسمي للإيصال الصادر من النظام."
+  ],
+  "Apply filters": ["فلٹر لگائیں", "تطبيق الفلاتر"],
+  "Approval ID": ["منظوری کا شناختی نمبر", "معرّف الموافقة"],
+  "Approval and cleared down payment are required before confirmation.": [
+    "بکنگ کی تصدیق سے پہلے منظوری اور ابتدائی ادائیگی کی تصدیق ضروری ہے۔",
+    "تلزم الموافقة والتحقق من الدفعة المقدمة قبل تأكيد الحجز."
+  ],
+  "Approved discount": ["منظور شدہ رعایت", "الخصم المعتمد"],
+  "Area": ["رقبہ", "المساحة"],
+  "Ascending": ["چھوٹے سے بڑے کی ترتیب", "تصاعدي"],
+  "Assigned records and decisions that need your attention.": [
+    "آپ کو تفویض کردہ کام اور زیرِ غور فیصلے۔",
+    "السجلات والقرارات المسندة إليك والتي تحتاج إلى اهتمامك."
+  ],
+  "At least 12 characters, including uppercase, lowercase, and a number.": [
+    "کم از کم 12 حروف، جن میں بڑا حرف، چھوٹا حرف اور عدد شامل ہوں۔",
+    "12 حرفاً على الأقل، تتضمن حرفاً كبيراً وحرفاً صغيراً ورقماً."
+  ],
+  "At least 12 characters, with uppercase, lowercase, and a number.": [
+    "کم از کم 12 حروف، جن میں بڑا حرف، چھوٹا حرف اور عدد شامل ہوں۔",
+    "12 حرفاً على الأقل، تتضمن حرفاً كبيراً وحرفاً صغيراً ورقماً."
+  ],
+  "Automatic updates are available after your administrator connects a release channel.": [
+    "منتظم کی جانب سے اپ ڈیٹ سروس جوڑنے کے بعد خودکار اپ ڈیٹس دستیاب ہوں گی۔",
+    "تتوفر التحديثات التلقائية بعد أن يربط المسؤول قناة الإصدارات."
+  ],
+  "Awaiting clearance": ["تصدیق کا منتظر", "بانتظار التحقق"],
+  "BOOKING SUMMARY": ["بکنگ کا خلاصہ", "ملخص الحجز"],
+  "Back": ["واپس", "رجوع"],
+  "Back to details": ["تفصیل پر واپس", "العودة إلى التفاصيل"],
+  "Back to overview": ["خلاصے پر واپس", "العودة إلى النظرة العامة"],
+  "Back to sign in": ["لاگ اِن پر واپس", "العودة إلى تسجيل الدخول"],
+  "Balanced": ["حساب برابر ہے", "الحساب متوازن"],
+  "Balances cover the full confirmed bookings, including joint ownership. Advance credit awaiting allocation:": [
+    "بقایا میں پوری تصدیق شدہ بکنگ اور مشترکہ ملکیت شامل ہیں۔ مختص ہونے کی منتظر پیشگی رقم:",
+    "تشمل الأرصدة الحجوزات المؤكدة كاملةً بما فيها الملكية المشتركة. الرصيد المقدم بانتظار التخصيص:"
+  ],
+  "Base price": ["بنیادی قیمت", "السعر الأساسي"],
+  "Big picture.": ["مجموعی صورتحال", "النظرة العامة"],
+  "Booked on": ["بکنگ کی تاریخ", "تاريخ الحجز"],
+  "Booking": ["بکنگ", "الحجز"],
+  "Booking (optional)": ["بکنگ (اختیاری)", "الحجز (اختياري)"],
+  "Booking / installment": ["بکنگ / قسط", "الحجز / القسط"],
+  "Booking ID": ["بکنگ کا شناختی نمبر", "معرّف الحجز"],
+  "Booking created": ["بکنگ بن گئی", "تم إنشاء الحجز"],
+  "Booking details for the properties linked to your account.": [
+    "آپ کے اکاؤنٹ سے منسلک جائیدادوں کی بکنگ کی تفصیل۔",
+    "تفاصيل حجوزات العقارات المرتبطة بحسابك."
+  ],
+  "Booking documents": ["بکنگ کی دستاویزات", "مستندات الحجز"],
+  "Booking information": ["بکنگ کی معلومات", "معلومات الحجز"],
+  "Booking reference ID": ["بکنگ کا حوالہ نمبر", "الرقم المرجعي للحجز"],
+  "Booking submitted for approval": ["بکنگ منظوری کے لیے بھیج دی گئی", "أُرسل الحجز للموافقة"],
+  "Booking summary": ["بکنگ کا خلاصہ", "ملخص الحجز"],
+  "Booking value": ["بکنگ کی مالیت", "قيمة الحجز"],
+  "Bookings will appear here once a reservation is converted.": [
+    "عارضی ریزرویشن بکنگ میں تبدیل ہونے پر یہاں نظر آئے گی۔",
+    "تظهر الحجوزات هنا بعد تحويل الحجز المؤقت."
+  ],
+  "Build your report": ["رپورٹ تیار کریں", "إعداد تقريرك"],
+  "Built for the way property teams work.": [
+    "پراپرٹی ٹیم کے روزمرہ کاموں کے لیے۔",
+    "لأعمال فرق العقارات اليومية."
+  ],
+  "CSV template": ["CSV نمونہ", "قالب CSV"],
+  "CURRENT PROJECT": ["موجودہ منصوبہ", "المشروع الحالي"],
+  "CUSTOMER PORTAL": ["کسٹمر پورٹل", "بوابة العميل"],
+  "Capture document": ["دستاویز کی تصویر لیں", "تصوير المستند"],
+  "Card view": ["کارڈ کی صورت میں دیکھیں", "عرض البطاقات"],
+  "Change password": ["پاس ورڈ بدلیں", "تغيير كلمة المرور"],
+  "Changes are saved after server confirmation.": [
+    "نظام کی تصدیق کے بعد تبدیلیاں محفوظ ہوتی ہیں۔",
+    "تُحفظ التغييرات بعد تأكيد النظام."
+  ],
+  "Check for updates": ["اپ ڈیٹس دیکھیں", "البحث عن تحديثات"],
+  "Check the address, or return to your overview.": [
+    "پتہ چیک کریں یا خلاصے پر واپس جائیں۔",
+    "تحقق من العنوان أو عُد إلى النظرة العامة."
+  ],
+  "Choose": ["منتخب کریں", "اختيار"],
+  "Choose CSV": ["CSV فائل منتخب کریں", "اختيار ملف CSV"],
+  "Choose a JPEG, PNG or WebP image up to 5 MiB.": [
+    "زیادہ سے زیادہ 5 MiB کی JPEG، PNG یا WebP تصویر منتخب کریں۔",
+    "اختر صورة JPEG أو PNG أو WebP بحجم لا يتجاوز 5 MiB."
+  ],
+  "Choose a PDF, JPEG, or PNG up to 10 MiB.": [
+    "زیادہ سے زیادہ 10 MiB کی PDF، JPEG یا PNG فائل منتخب کریں۔",
+    "اختر ملف PDF أو JPEG أو PNG بحجم لا يتجاوز 10 MiB."
+  ],
+  "Choose a customer and property, select a payment schedule, then review your booking.": [
+    "گاہک اور جائیداد منتخب کریں، ادائیگی کا شیڈول چنیں، پھر بکنگ کا جائزہ لیں۔",
+    "اختر العميل والعقار وجدول السداد، ثم راجع الحجز."
+  ],
+  "Choose a feature": ["سہولت منتخب کریں", "اختيار ميزة"],
+  "Choose a project": ["منصوبہ منتخب کریں", "اختيار مشروع"],
+  "Choose a project from the sidebar, or create your first development to bring your workspace to life.": [
+    "سائیڈ مینو سے منصوبہ منتخب کریں یا نیا منصوبہ بنائیں۔",
+    "اختر مشروعاً من القائمة الجانبية أو أنشئ مشروعك الأول."
+  ],
+  "Choose a unit to get started": ["شروع کرنے کے لیے جائیداد منتخب کریں", "اختر عقاراً للبدء"],
+  "Choose an existing customer and an available property. The property is temporarily held when you continue.": [
+    "موجودہ گاہک اور دستیاب جائیداد منتخب کریں۔ آگے بڑھنے پر جائیداد عارضی طور پر محفوظ ہو جائے گی۔",
+    "اختر عميلاً وعقاراً متاحاً. يُحجز العقار مؤقتاً عند المتابعة."
+  ],
+  "Choose document": ["دستاویز منتخب کریں", "اختيار مستند"],
+  "Choose each feature and optionally add its photo.": [
+    "ہر سہولت منتخب کریں اور چاہیں تو اس کی تصویر شامل کریں۔",
+    "اختر كل ميزة وأضف صورتها اختيارياً."
+  ],
+  "Choose how the customer will pay. The schedule below shows each payment amount.": [
+    "گاہک کی ادائیگی کا طریقہ منتخب کریں۔ نیچے شیڈول میں ہر ادائیگی کی رقم ہے۔",
+    "اختر طريقة سداد العميل. يوضح الجدول أدناه مبلغ كل دفعة."
+  ],
+  "Choose how your workspace looks on this device.": [
+    "اس ڈیوائس پر ایپ کی ظاہری شکل منتخب کریں۔",
+    "اختر مظهر مساحة العمل على هذا الجهاز."
+  ],
+  "Choose photo": ["تصویر منتخب کریں", "اختيار صورة"],
+  "Choose the workspace you want to work in.": [
+    "کام کرنے کے لیے منصوبہ منتخب کریں۔",
+    "اختر مساحة العمل التي تريد العمل فيها."
+  ],
+  "Cleared collections": ["تصدیق شدہ وصولیاں", "المبالغ المحصلة المؤكدة"],
+  "Click to choose another file": ["دوسری فائل منتخب کرنے کے لیے کلک کریں", "اضغط لاختيار ملف آخر"],
+  "Close dialog": ["ونڈو بند کریں", "إغلاق النافذة"],
+  "Close navigation": ["مینو بند کریں", "إغلاق القائمة"],
+  "Close this dialog and check the latest records before starting another request.": [
+    "دوسری درخواست سے پہلے یہ ونڈو بند کر کے تازہ ریکارڈ دیکھیں۔",
+    "أغلق النافذة وتحقق من أحدث السجلات قبل بدء طلب آخر."
+  ],
+  "Collection activity": ["وصولیوں کی سرگرمی", "حركة التحصيل"],
+  "Collection chart period": ["وصولیوں کے چارٹ کی مدت", "فترة مخطط التحصيل"],
+  "Columns": ["کالم", "الأعمدة"],
+  "Configure": ["ترتیب دیں", "إعداد"],
+  "Configure the rules that keep your project running consistently.": [
+    "منصوبے کے قواعد اور ترتیبات مقرر کریں۔",
+    "اضبط قواعد المشروع وإعداداته."
+  ],
+  "Configured": ["ترتیب مکمل", "تم الإعداد"],
+  "Confirm & submit": ["تصدیق کر کے بھیجیں", "تأكيد وإرسال"],
+  "Confirm password": ["پاس ورڈ دوبارہ لکھیں", "تأكيد كلمة المرور"],
+  "Confirm revoke": ["رسائی ختم کرنے کی تصدیق", "تأكيد إلغاء الوصول"],
+  "Confirm this action": ["اس کارروائی کی تصدیق کریں", "تأكيد هذا الإجراء"],
+  "Connected to your portfolio": ["آپ کے منصوبوں سے منسلک", "متصل بمشاريعك"],
+  "Contact your property office to correct customer details or link another property.": [
+    "معلومات کی درستگی یا دوسری جائیداد شامل کرنے کے لیے دفتر سے رابطہ کریں۔",
+    "تواصل مع مكتب العقارات لتصحيح بياناتك أو ربط عقار آخر."
+  ],
+  "Continue": ["آگے بڑھیں", "متابعة"],
+  "Copy record ID": ["ریکارڈ کا شناختی نمبر کاپی کریں", "نسخ معرّف السجل"],
+  "Copy selected references": ["منتخب حوالہ نمبر کاپی کریں", "نسخ المراجع المحددة"],
+  "Could not load records. Retry your search.": [
+    "ریکارڈ لوڈ نہیں ہو سکے۔ دوبارہ تلاش کریں۔",
+    "تعذر تحميل السجلات. حاول البحث مجدداً."
+  ],
+  "Create": ["نیا بنائیں", "إنشاء"],
+  "Create a booking": ["بکنگ بنائیں", "إنشاء حجز"],
+  "Current portfolio position": ["منصوبوں کی موجودہ صورتحال", "الوضع الحالي للمشاريع"],
+  "Current settings": ["موجودہ ترتیبات", "الإعدادات الحالية"],
+  "Current unpaid obligations": ["موجودہ واجب الادا رقوم", "المبالغ المستحقة حالياً"],
+  "Custom role. Review its current permissions below.": [
+    "مخصوص کردار۔ نیچے اس کی موجودہ اجازتیں دیکھیں۔",
+    "دور مخصص. راجع صلاحياته الحالية أدناه."
+  ],
+  "Customer": ["گاہک", "العميل"],
+  "Customer (optional)": ["گاہک (اختیاری)", "العميل (اختياري)"],
+  "Customer *": ["گاہک *", "العميل *"],
+  "Customer account": ["کسٹمر اکاؤنٹ", "حساب العميل"],
+  "Customer documents": ["گاہک کی دستاویزات", "مستندات العميل"],
+  "Customer portal": ["کسٹمر پورٹل", "بوابة العميل"],
+  "Customer portal access": ["کسٹمر پورٹل کی رسائی", "الوصول إلى بوابة العميل"],
+  "Customer portal sign in": ["کسٹمر پورٹل میں لاگ اِن", "تسجيل دخول العميل"],
+  "Customer sharing updated": [
+    "گاہک کے ساتھ شیئر کرنے کی ترتیب بدل دی گئی",
+    "تم تحديث المشاركة مع العميل"
+  ],
+  "Customer statement": ["گاہک کے حساب کی تفصیل", "كشف حساب العميل"],
+  "Customers overdue": ["بقایا والے گاہک", "العملاء المتأخرون في السداد"],
+  "Dealer (optional)": ["ڈیلر (اختیاری)", "الوسيط (اختياري)"],
+  "Descending": ["بڑے سے چھوٹے کی ترتیب", "تنازلي"],
+  "Desktop application": ["ڈیسک ٹاپ ایپ", "تطبيق سطح المكتب"],
+  "Device notifications": ["ڈیوائس کی اطلاعات", "إشعارات الجهاز"],
+  "Discard changes": ["تبدیلیاں چھوڑ دیں", "تجاهل التغييرات"],
+  "Discount": ["رعایت", "الخصم"],
+  "Discount amount": ["رعایت کی رقم", "مبلغ الخصم"],
+  "Document generation": ["دستاویز کی تیاری", "إنشاء المستند"],
+  "Document library": ["دستاویزات", "مكتبة المستندات"],
+  "Document name *": ["دستاویز کا نام *", "اسم المستند *"],
+  "Document uploaded": ["دستاویز اپ لوڈ ہو گئی", "تم رفع المستند"],
+  "Documents the property office has approved for your portal.": [
+    "وہ دستاویزات جو دفتر نے آپ کے پورٹل کے لیے منظور کی ہیں۔",
+    "المستندات التي وافق المكتب على عرضها في بوابتك."
+  ],
+  "Done": ["مکمل", "تم"],
+  "Download": ["ڈاؤن لوڈ", "تنزيل"],
+  "Download update": ["اپ ڈیٹ ڈاؤن لوڈ کریں", "تنزيل التحديث"],
+  "Drop a document here": ["دستاویز یہاں ڈالیں", "اسحب المستند هنا"],
+  "Due": ["واجب الادا", "مستحق"],
+  "Due date": ["آخری تاریخ", "تاريخ الاستحقاق"],
+  "Email": ["ای میل", "البريد الإلكتروني"],
+  "Email address": ["ای میل پتہ", "عنوان البريد الإلكتروني"],
+  "Enable push notifications": ["ڈیوائس کی اطلاعات فعال کریں", "تفعيل الإشعارات الفورية"],
+  "Enter a document name.": ["دستاویز کا نام لکھیں۔", "أدخل اسم المستند."],
+  "Enter a valid discount and select its approval, or use zero.": [
+    "درست رعایت اور اس کی منظوری منتخب کریں، یا صفر لکھیں۔",
+    "أدخل خصماً صحيحاً واختر موافقته، أو أدخل صفراً."
+  ],
+  "Enter time in this device’s local timezone.": [
+    "اس ڈیوائس کے مقامی وقت کے مطابق وقت درج کریں۔",
+    "أدخل الوقت حسب المنطقة الزمنية لهذا الجهاز."
+  ],
+  "Enter your password": ["اپنا پاس ورڈ لکھیں", "أدخل كلمة المرور"],
+  "Enter your recovery token and choose a strong password.": [
+    "بحالی کا کوڈ درج کریں اور مضبوط پاس ورڈ بنائیں۔",
+    "أدخل رمز الاستعادة واختر كلمة مرور قوية."
+  ],
+  "Estate": ["Estate", "Estate"],
+  "Estate PMS · Version": ["Estate PMS · ورژن", "Estate PMS · الإصدار"],
+  "Estate Workspace": ["Estate ورک اسپیس", "مساحة عمل Estate"],
+  "Every detail.": ["مکمل تفصیل", "كل التفاصيل"],
+  "Every unit, accounted for": ["ہر جائیداد کا ریکارڈ", "سجل كل عقار"],
+  "Explore collections": ["وصولیاں دیکھیں", "عرض التحصيلات"],
+  "Explore projects": ["منصوبے دیکھیں", "عرض المشاريع"],
+  "Export Excel": ["Excel میں نکالیں", "تصدير Excel"],
+  "Export PDF": ["PDF میں نکالیں", "تصدير PDF"],
+  "Feature photo": ["سہولت کی تصویر", "صورة الميزة"],
+  "Filter by phase": ["مرحلے کے لحاظ سے فلٹر", "تصفية حسب المرحلة"],
+  "Filter by status": ["حالت کے لحاظ سے فلٹر", "تصفية حسب الحالة"],
+  "Filter dashboard by phase": [
+    "ڈیش بورڈ کو مرحلے کے لحاظ سے فلٹر کریں",
+    "تصفية لوحة المعلومات حسب المرحلة"
+  ],
+  "Final amounts and schedule are validated by the server.": [
+    "حتمی رقوم اور شیڈول کی تصدیق نظام کرتا ہے۔",
+    "يتحقق النظام من المبالغ النهائية وجدول السداد."
+  ],
+  "Finance & accounting": ["حسابات اور رقوم", "الحسابات والأموال"],
+  "Financial statements": ["مالی گوشوارے", "القوائم المالية"],
+  "Find your next move": ["اگلا کام منتخب کریں", "اختر خطوتك التالية"],
+  "Follow up with your recovery team": ["وصولی کی ٹیم سے رابطہ کریں", "تابع مع فريق التحصيل"],
+  "Forgot password?": ["پاس ورڈ بھول گئے؟", "نسيت كلمة المرور؟"],
+  "Forgot your existing password?": ["موجودہ پاس ورڈ بھول گئے؟", "نسيت كلمة مرورك الحالية؟"],
+  "Forgot your password?": ["پاس ورڈ بھول گئے؟", "نسيت كلمة المرور؟"],
+  "From date": ["اس تاریخ سے", "من تاريخ"],
+  "Full schedule": ["مکمل شیڈول", "الجدول الكامل"],
+  "Go to customer sign in": ["کسٹمر لاگ اِن پر جائیں", "الذهاب إلى تسجيل دخول العميل"],
+  "Good {0}, {1}. Here’s where things stand.": [
+    "{1}، خوش آمدید۔ موجودہ صورتحال دیکھیں۔",
+    "مرحباً {1}. إليك الوضع الحالي."
+  ],
+  "Hello,": ["خوش آمدید،", "مرحباً،"],
+  "Hide password": ["پاس ورڈ چھپائیں", "إخفاء كلمة المرور"],
+  "Hold property & continue": ["جائیداد محفوظ کر کے آگے بڑھیں", "حجز العقار مؤقتاً والمتابعة"],
+  "I already have a recovery token": ["میرے پاس بحالی کا کوڈ ہے", "لدي رمز استعادة بالفعل"],
+  "I have reviewed the customer, property, price, and payment plan.": [
+    "میں نے گاہک، جائیداد، قیمت اور ادائیگی کے شیڈول کا جائزہ لے لیا ہے۔",
+    "راجعت العميل والعقار والسعر وجدول السداد."
+  ],
+  "IMAGE": ["تصویر", "صورة"],
+  "Import from a CSV file": ["CSV فائل سے ریکارڈ شامل کریں", "استيراد من ملف CSV"],
+  "Important paperwork, securely connected to the right records.": [
+    "ضروری دستاویزات متعلقہ ریکارڈ کے ساتھ محفوظ رکھیں۔",
+    "احفظ المستندات المهمة بأمان مع السجلات المرتبطة بها."
+  ],
+  "Insights & analysis": ["رپورٹس اور تجزیہ", "التقارير والتحليل"],
+  "Installment schedule": ["اقساط کا شیڈول", "جدول الأقساط"],
+  "Inventory mix": ["جائیدادوں کی اقسام", "توزيع العقارات"],
+  "Invitation code": ["دعوت کا کوڈ", "رمز الدعوة"],
+  "Invitation expires": ["دعوت کی آخری تاریخ", "انتهاء الدعوة"],
+  "Invite customer": ["گاہک کو دعوت دیں", "دعوة العميل"],
+  "Issued on": ["اجرا کی تاریخ", "تاريخ الإصدار"],
+  "JPEG, PNG or WebP. Maximum 5 MiB.": [
+    "JPEG، PNG یا WebP۔ زیادہ سے زیادہ 5 MiB۔",
+    "JPEG أو PNG أو WebP. الحد الأقصى 5 MiB."
+  ],
+  "KB": ["KB", "KB"],
+  "KB ·": ["KB ·", "KB ·"],
+  "Keep access": ["رسائی برقرار رکھیں", "الإبقاء على الوصول"],
+  "Keep editing": ["ترمیم جاری رکھیں", "متابعة التعديل"],
+  "Keep your records close": ["اپنے ریکارڈ دیکھیں", "سجلاتك في متناولك"],
+  "Keep your team's work moving": ["ٹیم کے کام جاری رکھیں", "تابع أعمال فريقك"],
+  "Last 30 days": ["گزشتہ 30 دن", "آخر 30 يوماً"],
+  "Last 7 days": ["گزشتہ 7 دن", "آخر 7 أيام"],
+  "Last 90 days": ["گزشتہ 90 دن", "آخر 90 يوماً"],
+  "Latest milestone": ["تازہ ترین مرحلہ", "أحدث مرحلة"],
+  "Linked customer files require sensitive-data permission.": [
+    "گاہک سے منسلک فائلوں کے لیے حساس معلومات کی اجازت ضروری ہے۔",
+    "تتطلب ملفات العملاء المرتبطة صلاحية الاطّلاع على البيانات الحساسة."
+  ],
+  "Loading photo…": ["تصویر لوڈ ہو رہی ہے…", "جارٍ تحميل الصورة…"],
+  "Loading records": ["ریکارڈ لوڈ ہو رہے ہیں", "جارٍ تحميل السجلات"],
+  "Loading…": ["لوڈ ہو رہا ہے…", "جارٍ التحميل…"],
+  "Location": ["مقام", "الموقع"],
+  "Main navigation": ["مرکزی مینو", "القائمة الرئيسية"],
+  "Make yourself at home": ["اپنے اکاؤنٹ میں خوش آمدید", "مرحباً بك في حسابك"],
+  "Manage bank accounts, business expenses and accounting records. Use Payments received to record customer payments.": [
+    "بینک اکاؤنٹ، کاروباری اخراجات اور حسابی ریکارڈ سنبھالیں۔ گاہک کی ادائیگی درج کرنے کے لیے وصول شدہ ادائیگیاں کھولیں۔",
+    "أدر الحسابات البنكية والمصروفات والقيود المحاسبية. استخدم المدفوعات المستلمة لتسجيل دفعات العملاء."
+  ],
+  "Manage projects": ["منصوبے سنبھالیں", "إدارة المشاريع"],
+  "Mark read": ["پڑھا ہوا نشان لگائیں", "تحديد كمقروء"],
+  "Matrix view": ["خانے کی صورت میں دیکھیں", "عرض الشبكة"],
+  "Method": ["طریقہ", "الطريقة"],
+  "Most recent records in this project": [
+    "اس منصوبے کے تازہ ترین ریکارڈ",
+    "أحدث سجلات هذا المشروع"
+  ],
+  "My account & sessions": ["میرا اکاؤنٹ اور لاگ اِن", "حسابي وجلساتي"],
+  "My customer profiles": ["میری کسٹمر معلومات", "ملفاتي كعميل"],
+  "My documents": ["میری دستاویزات", "مستنداتي"],
+  "My properties": ["میری جائیدادیں", "عقاراتي"],
+  "My work": ["میرے کام", "مهامي"],
+  "Needs attention": ["توجہ درکار ہے", "يحتاج إلى متابعة"],
+  "New assignments and requests will appear as they arrive.": [
+    "نئے کام اور درخواستیں موصول ہونے پر یہاں نظر آئیں گی۔",
+    "تظهر المهام والطلبات الجديدة هنا عند وصولها."
+  ],
+  "New booking": ["نئی بکنگ", "حجز جديد"],
+  "New password": ["نیا پاس ورڈ", "كلمة المرور الجديدة"],
+  "New records will appear here. Try adjusting your filters or create your first record.": [
+    "نئے ریکارڈ یہاں آئیں گے۔ فلٹر بدلیں یا پہلا ریکارڈ بنائیں۔",
+    "تظهر السجلات الجديدة هنا. عدّل الفلاتر أو أنشئ أول سجل."
+  ],
+  "Next": ["اگلا", "التالي"],
+  "Next page": ["اگلا صفحہ", "الصفحة التالية"],
+  "Next unpaid installments": ["اگلی واجب الادا اقساط", "الأقساط القادمة غير المسددة"],
+  "No documents have been shared with you yet. Contact the office if you need a copy.": [
+    "ابھی کوئی دستاویز آپ کے ساتھ شیئر نہیں ہوئی۔ نقل کے لیے دفتر سے رابطہ کریں۔",
+    "لم تُشارك معك مستندات بعد. تواصل مع المكتب إذا كنت تحتاج إلى نسخة."
+  ],
+  "No matching assigned projects.": [
+    "کوئی متعلقہ تفویض شدہ منصوبہ نہیں ملا۔",
+    "لا توجد مشاريع مسندة مطابقة."
+  ],
+  "No matching records or pages.": [
+    "کوئی متعلقہ ریکارڈ یا صفحہ نہیں ملا۔",
+    "لا توجد سجلات أو صفحات مطابقة."
+  ],
+  "No records yet": ["ابھی کوئی ریکارڈ نہیں", "لا توجد سجلات بعد"],
+  "No roles": ["کوئی کردار نہیں", "لا توجد أدوار"],
+  "No unpaid installments": ["کوئی غیر ادا شدہ قسط نہیں", "لا توجد أقساط غير مسددة"],
+  "Nothing here yet": ["ابھی یہاں کچھ نہیں", "لا يوجد شيء هنا بعد"],
+  "Nothing waiting here": ["یہاں کوئی کام زیرِ انتظار نہیں", "لا يوجد شيء قيد الانتظار"],
+  "Notifications": ["اطلاعات", "الإشعارات"],
+  "Notifications, {0} unread": ["اطلاعات، {0} اَن پڑھی", "الإشعارات، {0} غير مقروءة"],
+  "OF 3": ["از 3", "من 3"],
+  "Offline": ["آف لائن", "غير متصل"],
+  "One connected workspace": ["تمام کام ایک جگہ", "مساحة عمل موحدة"],
+  "Online workspace": ["آن لائن ورک اسپیس", "مساحة عمل متصلة"],
+  "Online-first. Always in sync.": [
+    "آن لائن کام، تازہ معلومات کے ساتھ۔",
+    "عمل متصل ومعلومات محدثة."
+  ],
+  "Only your linked records appear here. For account corrections or new requests, contact your property office.": [
+    "یہاں صرف آپ کے منسلک ریکارڈ ہیں۔ درستگی یا نئی درخواست کے لیے دفتر سے رابطہ کریں۔",
+    "تظهر سجلاتك المرتبطة فقط. للتصحيح أو الطلبات الجديدة، تواصل مع مكتب العقارات."
+  ],
+  "Open inventory": ["جائیدادیں کھولیں", "فتح العقارات"],
+  "Open module": ["حصہ کھولیں", "فتح القسم"],
+  "Open my work": ["میرے کام کھولیں", "فتح مهامي"],
+  "Open navigation": ["مینو کھولیں", "فتح القائمة"],
+  "Open workspace": ["ورک اسپیس کھولیں", "فتح مساحة العمل"],
+  "Other": ["دیگر", "أخرى"],
+  "Other feature": ["دوسری سہولت", "ميزة أخرى"],
+  "Out of balance": ["حساب برابر نہیں", "الحساب غير متوازن"],
+  "Outstanding": ["بقایا", "المتبقي"],
+  "Outstanding dues ageing": ["بقایا رقوم کی تاخیر کی مدت", "أعمار المبالغ المستحقة"],
+  "Overdue balances by project-local due date": [
+    "منصوبے کی مقامی تاریخ کے مطابق تاخیر شدہ بقایا",
+    "الأرصدة المتأخرة حسب تاريخ الاستحقاق المحلي للمشروع"
+  ],
+  "Overview": ["خلاصہ", "نظرة عامة"],
+  "Owner": ["مالک", "المالك"],
+  "Ownership": ["ملکیت", "الملكية"],
+  "PDF": ["PDF", "PDF"],
+  "PDF, JPEG, or PNG files up to 10 MiB.": [
+    "PDF، JPEG یا PNG فائل، زیادہ سے زیادہ 10 MiB۔",
+    "ملفات PDF أو JPEG أو PNG حتى 10 MiB."
+  ],
+  "PROPERTY MANAGEMENT SYSTEM": ["جائیدادوں کے انتظام کا نظام", "نظام إدارة العقارات"],
+  "Page": ["صفحہ", "صفحة"],
+  "Paid": ["ادا شدہ", "مدفوع"],
+  "Paid on": ["ادائیگی کی تاریخ", "تاريخ الدفع"],
+  "Password": ["پاس ورڈ", "كلمة المرور"],
+  "Passwords do not match.": ["دونوں پاس ورڈ ایک جیسے نہیں۔", "كلمتا المرور غير متطابقتين."],
+  "Payment date": ["ادائیگی کی تاریخ", "تاريخ الدفع"],
+  "Payment method": ["ادائیگی کا طریقہ", "طريقة الدفع"],
+  "Payment plan": ["ادائیگی کا شیڈول", "خطة السداد"],
+  "Payment position": ["ادائیگیوں کی صورتحال", "حالة السداد"],
+  "Payment receipt": ["ادائیگی کی رسید", "إيصال الدفع"],
+  "Payment reference ID": ["ادائیگی کا حوالہ نمبر", "الرقم المرجعي للدفع"],
+  "Payment schedule *": ["ادائیگی کا شیڈول *", "جدول السداد *"],
+  "Payments & receipts": ["ادائیگیاں اور رسیدیں", "المدفوعات والإيصالات"],
+  "Payments recorded under your linked customer profiles. Pending amounts await verification.": [
+    "آپ کے منسلک کسٹمر اکاؤنٹس کی ادائیگیاں۔ زیرِ انتظار رقوم کی تصدیق باقی ہے۔",
+    "الدفعات المسجلة لملفاتك المرتبطة. المبالغ المعلقة بانتظار التحقق."
+  ],
+  "Pending approvals": ["زیرِ انتظار منظوریاں", "الموافقات المعلقة"],
+  "Personal preferences and control over your active sessions.": [
+    "اپنی ترجیحات اور فعال لاگ اِن سنبھالیں۔",
+    "إدارة تفضيلاتك وجلساتك النشطة."
+  ],
+  "Phase": ["مرحلہ", "المرحلة"],
+  "Phone": ["فون", "الهاتف"],
+  "Photo unavailable": ["تصویر دستیاب نہیں", "الصورة غير متاحة"],
+  "Pipeline view": ["لیڈز کے مراحل دیکھیں", "عرض مراحل العملاء المحتملين"],
+  "Portfolio overview": ["منصوبوں کا خلاصہ", "نظرة عامة على المشاريع"],
+  "Preparing your workspace": ["ورک اسپیس تیار ہو رہی ہے", "جارٍ تجهيز مساحة العمل"],
+  "Previous": ["پچھلا", "السابق"],
+  "Previous page": ["پچھلا صفحہ", "الصفحة السابقة"],
+  "Print / save PDF": ["پرنٹ / PDF محفوظ کریں", "طباعة / حفظ PDF"],
+  "Print receipt": ["رسید پرنٹ کریں", "طباعة الإيصال"],
+  "Print this view": ["یہ صفحہ پرنٹ کریں", "طباعة هذا العرض"],
+  "Private files · Permission-checked downloads · Links expire in 120 seconds": [
+    "نجی فائلیں · اجازت کے ساتھ ڈاؤن لوڈ · لنک 120 سیکنڈ میں ختم",
+    "ملفات خاصة · تنزيل حسب الصلاحيات · تنتهي الروابط خلال 120 ثانية"
+  ],
+  "Profile & security": ["پروفائل اور حفاظت", "الملف الشخصي والأمان"],
+  "Project currency": ["منصوبے کی کرنسی", "عملة المشروع"],
+  "Project records": ["منصوبے کے ریکارڈ", "سجلات المشروع"],
+  "Project settings": ["منصوبے کی ترتیبات", "إعدادات المشروع"],
+  "Property": ["جائیداد", "العقار"],
+  "Property *": ["جائیداد *", "العقار *"],
+  "Property features": ["جائیداد کی سہولیات", "ميزات العقار"],
+  "Property type": ["جائیداد کی قسم", "نوع العقار"],
+  "Push notifications enabled": ["ڈیوائس کی اطلاعات فعال ہو گئیں", "تم تفعيل الإشعارات الفورية"],
+  "Ready for your final review": ["حتمی جائزے کے لیے تیار", "جاهز للمراجعة النهائية"],
+  "Receipt": ["رسید", "الإيصال"],
+  "Receipt issued": ["رسید جاری ہوئی", "تم إصدار الإيصال"],
+  "Receive project reminders and approval notifications on this device.": [
+    "اس ڈیوائس پر منصوبے کی یاد دہانیاں اور منظوری کی اطلاعات حاصل کریں۔",
+    "استقبل تذكيرات المشروع وإشعارات الموافقة على هذا الجهاز."
+  ],
+  "Recent bookings": ["حالیہ بکنگ", "الحجوزات الأخيرة"],
+  "Recognize every device with access to your account.": [
+    "اپنے اکاؤنٹ تک رسائی رکھنے والی ہر ڈیوائس دیکھیں۔",
+    "تعرّف على كل جهاز يمكنه الوصول إلى حسابك."
+  ],
+  "Record ID (lookup permission required)": [
+    "ریکارڈ کا شناختی نمبر (تلاش کی اجازت ضروری)",
+    "معرّف السجل (يتطلب صلاحية البحث)"
+  ],
+  "Record ID copied": ["ریکارڈ کا شناختی نمبر کاپی ہو گیا", "تم نسخ معرّف السجل"],
+  "Recorded configuration for the selected project": [
+    "منتخب منصوبے کی محفوظ ترتیبات",
+    "الإعدادات المحفوظة للمشروع المحدد"
+  ],
+  "Recovery token": ["بحالی کا کوڈ", "رمز الاستعادة"],
+  "Reference": ["حوالہ", "المرجع"],
+  "Refresh dashboard": ["ڈیش بورڈ تازہ کریں", "تحديث لوحة المعلومات"],
+  "Refresh records": ["ریکارڈ تازہ کریں", "تحديث السجلات"],
+  "Reload the project list to retrieve the current business rules.": [
+    "موجودہ قواعد حاصل کرنے کے لیے منصوبوں کی فہرست دوبارہ لوڈ کریں۔",
+    "أعد تحميل قائمة المشاريع للحصول على القواعد الحالية."
+  ],
+  "Reload the workspace to recover. Your saved records remain on the server.": [
+    "ورک اسپیس دوبارہ لوڈ کریں۔ محفوظ ریکارڈ نظام میں موجود ہیں۔",
+    "أعد تحميل مساحة العمل. تبقى سجلاتك المحفوظة في النظام."
+  ],
+  "Reload workspace": ["ورک اسپیس دوبارہ لوڈ کریں", "إعادة تحميل مساحة العمل"],
+  "Remove feature": ["سہولت ہٹائیں", "إزالة الميزة"],
+  "Remove owner": ["مالک ہٹائیں", "إزالة المالك"],
+  "Remove photo": ["تصویر ہٹائیں", "إزالة الصورة"],
+  "Remove {0} {1}": ["{0} {1} ہٹائیں", "إزالة {0} {1}"],
+  "Report": ["رپورٹ", "التقرير"],
+  "Report generation started": ["رپورٹ کی تیاری شروع ہو گئی", "بدأ إنشاء التقرير"],
+  "Reporting center": ["رپورٹس", "مركز التقارير"],
+  "Reports that show income, expenses, bank balances and amounts owed": [
+    "آمدنی، اخراجات، بینک بیلنس اور بقایا رقوم کی رپورٹس",
+    "تقارير الإيرادات والمصروفات والأرصدة البنكية والمبالغ المستحقة"
+  ],
+  "Request completed": ["درخواست مکمل ہو گئی", "اكتمل الطلب"],
+  "Request status": ["درخواست کی حالت", "حالة الطلب"],
+  "Request type": ["درخواست کی قسم", "نوع الطلب"],
+  "Requested terms": ["درخواست کردہ شرائط", "الشروط المطلوبة"],
+  "Resend invitation": ["دعوت دوبارہ بھیجیں", "إعادة إرسال الدعوة"],
+  "Reservation": ["عارضی ریزرویشن", "الحجز المؤقت"],
+  "Reset password": ["پاس ورڈ دوبارہ مقرر کریں", "إعادة تعيين كلمة المرور"],
+  "Resolve": ["حل کریں", "حل"],
+  "Restart to install update": [
+    "اپ ڈیٹ لگانے کے لیے دوبارہ شروع کریں",
+    "إعادة التشغيل لتثبيت التحديث"
+  ],
+  "Retry the same request": ["یہی درخواست دوبارہ بھیجیں", "إعادة محاولة الطلب نفسه"],
+  "Return to sign in": ["لاگ اِن پر واپس جائیں", "العودة إلى تسجيل الدخول"],
+  "Reveal identity": ["شناختی معلومات دکھائیں", "إظهار بيانات الهوية"],
+  "Review the details before continuing. Permissions, approvals, and current state will be checked by the server.": [
+    "آگے بڑھنے سے پہلے تفصیل دیکھیں۔ نظام اجازت، منظوری اور موجودہ حالت کی جانچ کرے گا۔",
+    "راجع التفاصيل قبل المتابعة. يتحقق النظام من الصلاحيات والموافقات والحالة الحالية."
+  ],
+  "Revoke": ["ختم کریں", "إلغاء"],
+  "Revoke access": ["رسائی ختم کریں", "إلغاء الوصول"],
+  "Revoke all sessions": ["تمام لاگ اِن ختم کریں", "إنهاء كل الجلسات"],
+  "STEP": ["مرحلہ", "الخطوة"],
+  "Sales & customers / Bookings": ["فروخت اور گاہک / بکنگ", "المبيعات والعملاء / الحجوزات"],
+  "Saved successfully": ["محفوظ ہو گیا", "تم الحفظ بنجاح"],
+  "Saved to your project": ["منصوبے میں محفوظ ہو گیا", "تم الحفظ في مشروعك"],
+  "Scan property reference": ["جائیداد کا حوالہ اسکین کریں", "مسح مرجع العقار"],
+  "Scheduled": ["طے شدہ", "مجدول"],
+  "Search anything…": ["تلاش کریں…", "ابحث…"],
+  "Search assigned projects…": ["تفویض شدہ منصوبے تلاش کریں…", "ابحث في المشاريع المسندة…"],
+  "Search customers, properties, bookings…": [
+    "گاہک، جائیداد یا بکنگ تلاش کریں…",
+    "ابحث عن العملاء والعقارات والحجوزات…"
+  ],
+  "Search projects": ["منصوبے تلاش کریں", "البحث عن المشاريع"],
+  "Search your current project's records or jump to a module.": [
+    "موجودہ منصوبے کے ریکارڈ تلاش کریں یا کوئی حصہ کھولیں۔",
+    "ابحث في سجلات مشروعك الحالي أو انتقل إلى قسم."
+  ],
+  "Search {0}": ["{0} تلاش کریں", "البحث عن {0}"],
+  "Search {0}…": ["{0} تلاش کریں…", "البحث عن {0}…"],
+  "Secure access. Your permissions follow you everywhere.": [
+    "محفوظ رسائی۔ ہر ڈیوائس پر آپ کی اجازتیں برقرار ہیں۔",
+    "وصول آمن، وصلاحياتك محفوظة على كل جهاز."
+  ],
+  "Secure download": ["محفوظ ڈاؤن لوڈ", "تنزيل آمن"],
+  "Select a file.": ["فائل منتخب کریں۔", "اختر ملفاً."],
+  "Select a record": ["ریکارڈ منتخب کریں", "اختيار سجل"],
+  "Select this page": ["یہ صفحہ منتخب کریں", "تحديد هذه الصفحة"],
+  "Select unique joint owners, include the primary customer, and make shares total 100%.": [
+    "مختلف شریک مالکان منتخب کریں، بنیادی گاہک شامل رکھیں، اور حصص کا مجموعہ 100% کریں۔",
+    "اختر ملاكاً مختلفين، وأدرج العميل الأساسي، واجعل مجموع الحصص 100%."
+  ],
+  "Select {0}": ["{0} منتخب کریں", "تحديد {0}"],
+  "Selected references copied": ["منتخب حوالہ نمبر کاپی ہو گئے", "تم نسخ المراجع المحددة"],
+  "Send access to the email saved on this customer. Verify the address belongs to them before inviting.": [
+    "دعوت گاہک کے محفوظ ای میل پر جائے گی۔ پہلے تصدیق کریں کہ یہ اسی کا پتہ ہے۔",
+    "ستُرسل الدعوة إلى بريد العميل المحفوظ. تحقق من ملكيته للعنوان أولاً."
+  ],
+  "Send recovery instructions": ["بحالی کی ہدایات بھیجیں", "إرسال تعليمات الاستعادة"],
+  "Set a new password.": ["نیا پاس ورڈ مقرر کریں۔", "عيّن كلمة مرور جديدة."],
+  "Set a password to activate your account. Already have a customer account? Enter its current password to link this property.": [
+    "اکاؤنٹ فعال کرنے کے لیے پاس ورڈ بنائیں۔ پہلے سے کسٹمر اکاؤنٹ ہے تو جائیداد جوڑنے کے لیے موجودہ پاس ورڈ لکھیں۔",
+    "عيّن كلمة مرور لتفعيل الحساب. إن كان لديك حساب عميل، أدخل كلمة مروره الحالية لربط هذا العقار."
+  ],
+  "Share %": ["حصہ %", "الحصة %"],
+  "Share with customer portal": ["کسٹمر پورٹل پر شیئر کریں", "مشاركة مع بوابة العميل"],
+  "Show password": ["پاس ورڈ دکھائیں", "إظهار كلمة المرور"],
+  "Showing": ["دکھائے جا رہے ہیں", "عرض"],
+  "Showing the current page of": ["موجودہ صفحے کے ریکارڈ", "عرض الصفحة الحالية من"],
+  "Sign in to bring your portfolio into focus.": [
+    "اپنے منصوبے دیکھنے کے لیے لاگ اِن کریں۔",
+    "سجّل الدخول لعرض مشاريعك."
+  ],
+  "Sign in to customer portal": ["کسٹمر پورٹل میں لاگ اِن کریں", "تسجيل الدخول إلى بوابة العميل"],
+  "Sign in to workspace": ["ورک اسپیس میں لاگ اِن کریں", "تسجيل الدخول إلى مساحة العمل"],
+  "Sign out": ["لاگ آؤٹ", "تسجيل الخروج"],
+  "Skip to content": ["مواد پر جائیں", "الانتقال إلى المحتوى"],
+  "Something needs your attention": ["ایک مسئلے پر توجہ درکار ہے", "هناك أمر يحتاج إلى اهتمامك"],
+  "Sort order": ["ترتیب", "ترتيب الفرز"],
+  "Staff sign in": ["عملے کا لاگ اِن", "تسجيل دخول الموظفين"],
+  "Start something new": ["نیا کام شروع کریں", "بدء عمل جديد"],
+  "Status": ["حالت", "الحالة"],
+  "Stay in the loop": ["تازہ اطلاعات دیکھیں", "تابع المستجدات"],
+  "Submit booking for approval": ["بکنگ منظوری کے لیے بھیجیں", "إرسال الحجز للموافقة"],
+  "Support reference:": ["مدد کے لیے حوالہ نمبر:", "مرجع الدعم:"],
+  "Switch project": ["منصوبہ بدلیں", "تبديل المشروع"],
+  "Table view": ["جدول کی صورت میں دیکھیں", "عرض الجدول"],
+  "Templates": ["نمونے", "القوالب"],
+  "The latest activity across your project": ["منصوبے کی تازہ ترین سرگرمی", "أحدث نشاط في مشروعك"],
+  "The original request key is retained. Retrying cannot create a duplicate payment.": [
+    "اصل درخواست کا حوالہ محفوظ ہے۔ دوبارہ کوشش سے اضافی ادائیگی نہیں بنے گی۔",
+    "يُحفظ مرجع الطلب الأصلي. لن تُنشئ إعادة المحاولة دفعة مكررة."
+  ],
+  "The selected customer owns 100% unless you specify joint owners. Shares must total 100% and include the primary customer.": [
+    "شریک مالکان شامل نہ ہوں تو منتخب گاہک کا حصہ 100% ہے۔ حصص کا مجموعہ 100% ہو اور بنیادی گاہک شامل ہو۔",
+    "يمتلك العميل المحدد 100% ما لم تضف ملاكاً مشتركين. يجب أن يكون مجموع الحصص 100% وأن تشمل العميل الأساسي."
+  ],
+  "The server is preparing your document.": [
+    "نظام آپ کی دستاویز تیار کر رہا ہے۔",
+    "يُجهز النظام مستندك."
+  ],
+  "This booking is cancelled. Historical amounts below do not represent a new payment demand. Contact the office about deductions or refunds.": [
+    "یہ بکنگ منسوخ ہے۔ نیچے پرانی رقوم نئی ادائیگی کا مطالبہ نہیں ہیں۔ کٹوتی یا رقم کی واپسی کے لیے دفتر سے رابطہ کریں۔",
+    "هذا الحجز ملغى. المبالغ السابقة أدناه ليست مطالبة جديدة بالدفع. تواصل مع المكتب بشأن الخصومات أو الاسترداد."
+  ],
+  "This creates a draft booking and approval request. It does not confirm a sale.": [
+    "اس سے ابتدائی بکنگ اور منظوری کی درخواست بنتی ہے۔ فروخت کی تصدیق ابھی باقی ہے۔",
+    "ينشئ هذا مسودة حجز وطلب موافقة. تأكيد البيع يتطلب خطوة لاحقة."
+  ],
+  "This name is shown in the library and used when downloading the file. Its file extension is added automatically.": [
+    "یہ نام فہرست میں اور ڈاؤن لوڈ کی گئی فائل پر آئے گا۔ فائل کی ایکسٹینشن خود شامل ہو گی۔",
+    "يظهر هذا الاسم في المكتبة وعند تنزيل الملف. يُضاف امتداد الملف تلقائياً."
+  ],
+  "This page isn't in your portfolio": ["یہ صفحہ موجود نہیں", "هذه الصفحة غير موجودة"],
+  "This property is not available. Choose another unit.": [
+    "یہ جائیداد دستیاب نہیں۔ دوسری منتخب کریں۔",
+    "هذا العقار غير متاح. اختر عقاراً آخر."
+  ],
+  "This receipt has been reversed and is no longer evidence of a cleared collection.": [
+    "یہ رسید واپس کی جا چکی ہے اور تصدیق شدہ وصولی کا ثبوت نہیں ہے۔",
+    "عُكس هذا الإيصال ولم يعد دليلاً على تحصيل مؤكد."
+  ],
+  "This receipt was reversed and is not evidence of a cleared payment.": [
+    "یہ رسید واپس کی جا چکی ہے اور تصدیق شدہ ادائیگی کا ثبوت نہیں ہے۔",
+    "عُكس هذا الإيصال ولا يُعد دليلاً على دفعة مؤكدة."
+  ],
+  "This screen needs a fresh start": [
+    "یہ صفحہ دوبارہ لوڈ کرنا ہوگا",
+    "يلزم إعادة تحميل هذه الصفحة"
+  ],
+  "This will unlink this customer, cancel pending invitations, and sign the customer out. Their business records will remain.": [
+    "اس سے گاہک کی رسائی، زیرِ انتظار دعوتیں اور لاگ اِن ختم ہو جائیں گے۔ کاروباری ریکارڈ محفوظ رہیں گے۔",
+    "سيُلغي هذا ربط العميل والدعوات المعلقة ويُخرجه من الحساب. تبقى سجلاته التجارية محفوظة."
+  ],
+  "Through date": ["اس تاریخ تک", "حتى تاريخ"],
+  "Toggle color theme": ["رنگوں کا انداز بدلیں", "تبديل المظهر"],
+  "Toggle sidebar": ["سائیڈ مینو چھوٹا یا بڑا کریں", "توسيع القائمة الجانبية أو طيّها"],
+  "Total credits": ["کل کریڈٹ", "إجمالي الدائن"],
+  "Total debits": ["کل ڈیبٹ", "إجمالي المدين"],
+  "Total units": ["کل جائیدادیں", "إجمالي العقارات"],
+  "Track requests handled by your property office. Contact them to start or amend a request.": [
+    "دفتر کی زیرِ کارروائی درخواستیں دیکھیں۔ نئی درخواست یا ترمیم کے لیے دفتر سے رابطہ کریں۔",
+    "تابع الطلبات التي يعالجها المكتب. تواصل معه لبدء طلب أو تعديله."
+  ],
+  "Try again": ["دوبارہ کوشش کریں", "المحاولة مجدداً"],
+  "Turn your project records into a clear, shared understanding.": [
+    "منصوبے کے ریکارڈ سے آسان رپورٹس بنائیں۔",
+    "أنشئ تقارير واضحة من سجلات مشروعك."
+  ],
+  "Unable to load this information.": ["یہ معلومات لوڈ نہیں ہو سکیں۔", "تعذر تحميل هذه المعلومات."],
+  "Unable to reveal identity": ["شناختی معلومات نہیں دکھائی جا سکیں", "تعذر إظهار بيانات الهوية"],
+  "Unit": ["جائیداد", "العقار"],
+  "Unit {0}": ["جائیداد {0}", "العقار {0}"],
+  "Up to 500 units. You can review the records before saving.": [
+    "زیادہ سے زیادہ 500 جائیدادیں۔ محفوظ کرنے سے پہلے ریکارڈ دیکھ سکتے ہیں۔",
+    "حتى 500 عقار. يمكنك مراجعة السجلات قبل الحفظ."
+  ],
+  "Upcoming installments": ["آنے والی اقساط", "الأقساط القادمة"],
+  "Updated": ["تازہ کیا گیا", "تم التحديث"],
+  "Updates from your property account.": [
+    "آپ کے پراپرٹی اکاؤنٹ کی اطلاعات۔",
+    "مستجدات حسابك العقاري."
+  ],
+  "Updates from your team and your project workflows.": [
+    "ٹیم اور منصوبے کے کاموں کی اطلاعات۔",
+    "مستجدات الفريق وإجراءات المشروع."
+  ],
+  "Upload a booking form, identity document, or property record to start your library.": [
+    "شروع کرنے کے لیے بکنگ فارم، شناختی دستاویز یا جائیداد کا ریکارڈ اپ لوڈ کریں۔",
+    "ارفع نموذج حجز أو مستند هوية أو سجل عقار لبدء مكتبتك."
+  ],
+  "Upload document": ["دستاویز اپ لوڈ کریں", "رفع مستند"],
+  "Uploading and validating your document…": [
+    "دستاویز اپ لوڈ اور جانچ ہو رہی ہے…",
+    "جارٍ رفع المستند والتحقق منه…"
+  ],
+  "Uploading photo…": ["تصویر اپ لوڈ ہو رہی ہے…", "جارٍ رفع الصورة…"],
+  "Use a CSV file smaller than 2 MiB.": [
+    "2 MiB سے چھوٹی CSV فائل استعمال کریں۔",
+    "استخدم ملف CSV أصغر من 2 MiB."
+  ],
+  "Vendor": ["فراہم کنندہ", "المورّد"],
+  "Verified funds received during the selected period": [
+    "منتخب مدت میں موصول اور تصدیق شدہ رقوم",
+    "المبالغ المستلمة والمؤكدة خلال الفترة المحددة"
+  ],
+  "View all": ["سب دیکھیں", "عرض الكل"],
+  "View booking": ["بکنگ دیکھیں", "عرض الحجز"],
+  "View current permissions": ["موجودہ اجازتیں دیکھیں", "عرض الصلاحيات الحالية"],
+  "View my properties": ["میری جائیدادیں دیکھیں", "عرض عقاراتي"],
+  "View payments": ["ادائیگیاں دیکھیں", "عرض المدفوعات"],
+  "View receipt": ["رسید دیکھیں", "عرض الإيصال"],
+  "View reports": ["رپورٹس دیکھیں", "عرض التقارير"],
+  "WEB · DESKTOP · MOBILE": ["ویب · ڈیسک ٹاپ · موبائل", "ويب · سطح المكتب · جوال"],
+  "WORKSPACE": ["ورک اسپیس", "مساحة العمل"],
+  "Welcome back.": ["واپس خوش آمدید۔", "مرحباً بعودتك."],
+  "Welcome to your property account.": [
+    "اپنے پراپرٹی اکاؤنٹ میں خوش آمدید۔",
+    "مرحباً بك في حسابك العقاري."
+  ],
+  "Welcome, {0}": ["خوش آمدید، {0}", "مرحباً، {0}"],
+  "We’ll send recovery instructions to your email.": [
+    "ہم آپ کے ای میل پر بحالی کی ہدایات بھیجیں گے۔",
+    "سنرسل تعليمات الاستعادة إلى بريدك الإلكتروني."
+  ],
+  "Withdraw from customer portal": ["کسٹمر پورٹل سے ہٹائیں", "إلغاء المشاركة مع بوابة العميل"],
+  "Workspace": ["ورک اسپیس", "مساحة العمل"],
+  "YOUR CUSTOMER PORTAL": ["آپ کا کسٹمر پورٹل", "بوابة العميل الخاصة بك"],
+  "YOUR PORTFOLIO": ["آپ کے منصوبے", "مشاريعك"],
+  "YOUR PROPERTY ACCOUNT": ["آپ کا پراپرٹی اکاؤنٹ", "حسابك العقاري"],
+  "YOUR PROPERTY ACCOUNT, CONNECTED": [
+    "آپ کا پراپرٹی اکاؤنٹ، ایک جگہ",
+    "حسابك العقاري في مكان واحد"
+  ],
+  "YOUR PROPERTY OPERATIONS, CONNECTED": [
+    "پراپرٹی کے تمام کام، ایک جگہ",
+    "إدارة عقاراتك في مكان واحد"
+  ],
+  "YOUR WORKSPACE AWAITS": ["آپ کی ورک اسپیس تیار ہے", "مساحة عملك بانتظارك"],
+  "You have no scheduled amount outstanding on your confirmed bookings.": [
+    "آپ کی تصدیق شدہ بکنگ پر کوئی طے شدہ رقم بقایا نہیں۔",
+    "لا توجد مبالغ مجدولة متبقية على حجوزاتك المؤكدة."
+  ],
+  "You're all caught up": ["تمام کام مکمل ہیں", "أنت مطّلع على كل المستجدات"],
+  "You're offline. Reconnect before making changes.": [
+    "آپ آف لائن ہیں۔ تبدیلی سے پہلے انٹرنیٹ سے جڑیں۔",
+    "أنت غير متصل. أعد الاتصال قبل إجراء تغييرات."
+  ],
+  "Your account": ["آپ کا اکاؤنٹ", "حسابك"],
+  "Your account is ready": ["آپ کا اکاؤنٹ تیار ہے", "حسابك جاهز"],
+  "Your accounting entries are balanced": [
+    "آپ کے حسابی اندراجات برابر ہیں",
+    "قيودك المحاسبية متوازنة"
+  ],
+  "Your accounting entries need review": [
+    "آپ کے حسابی اندراجات کا جائزہ درکار ہے",
+    "تحتاج قيودك المحاسبية إلى مراجعة"
+  ],
+  "Your booking is recorded and awaiting its required approvals.": [
+    "بکنگ محفوظ ہو گئی ہے اور ضروری منظوری کی منتظر ہے۔",
+    "سُجل حجزك وهو بانتظار الموافقات المطلوبة."
+  ],
+  "Your bookings will appear after the office links your customer record.": [
+    "دفتر کے ریکارڈ جوڑنے کے بعد بکنگ یہاں نظر آئے گی۔",
+    "تظهر حجوزاتك بعد ربط المكتب لسجل العميل."
+  ],
+  "Your daily focus": ["آج کے کام", "مهامك اليومية"],
+  "Your first booking is ahead": ["ابھی پہلی بکنگ باقی ہے", "بانتظار حجزك الأول"],
+  "Your invitation has been accepted. Sign in to see your properties and payments.": [
+    "دعوت قبول ہو گئی ہے۔ جائیدادیں اور ادائیگیاں دیکھنے کے لیے لاگ اِن کریں۔",
+    "قُبلت دعوتك. سجّل الدخول لعرض عقاراتك ومدفوعاتك."
+  ],
+  "Your next decisions, in one place": ["فیصلہ طلب کام، ایک جگہ", "قراراتك القادمة في مكان واحد"],
+  "Your next project starts here": ["نیا منصوبہ یہاں بنائیں", "ابدأ مشروعك الجديد هنا"],
+  "Your notifications will appear here as your team works.": [
+    "ٹیم کے کام کے ساتھ اطلاعات یہاں آئیں گی۔",
+    "تظهر إشعاراتك هنا أثناء عمل الفريق."
+  ],
+  "Your private document is ready.": ["آپ کی نجی دستاویز تیار ہے۔", "مستندك الخاص جاهز."],
+  "Your projects": ["آپ کے منصوبے", "مشاريعك"],
+  "Your properties, payment schedule, receipts, and important documents. All in one secure place.": [
+    "آپ کی جائیدادیں، ادائیگی کا شیڈول، رسیدیں اور ضروری دستاویزات ایک محفوظ جگہ پر۔",
+    "عقاراتك وجدول السداد والإيصالات والمستندات المهمة في مكان آمن واحد."
+  ],
+  "Your property account": ["آپ کا پراپرٹی اکاؤنٹ", "حسابك العقاري"],
+  "Your property office will link your customer records. Contact them if a property is missing.": [
+    "دفتر آپ کے کسٹمر ریکارڈ جوڑے گا۔ جائیداد نظر نہ آئے تو دفتر سے رابطہ کریں۔",
+    "سيربط المكتب سجلاتك. تواصل معه إذا كان أحد العقارات غير ظاهر."
+  ],
+  "Your property. Your progress. One place.": [
+    "جائیداد، ادائیگیاں اور پیش رفت ایک جگہ۔",
+    "عقارك ومدفوعاتك وتقدمك في مكان واحد."
+  ],
+  "Your records now reflect the server-confirmed result.": [
+    "آپ کے ریکارڈ میں تصدیق شدہ نتیجہ محفوظ ہو گیا ہے۔",
+    "حُدّثت سجلاتك بالنتيجة المؤكدة من النظام."
+  ],
+  "Your role does not have access to this workspace. Ask an administrator to update your permissions.": [
+    "آپ کے کردار کو اس حصے کی اجازت نہیں۔ منتظم سے اجازتیں بدلنے کو کہیں۔",
+    "لا يملك دورك صلاحية الوصول إلى هذا القسم. اطلب من المسؤول تحديث صلاحياتك."
+  ],
+  "Your selected property": ["آپ کی منتخب جائیداد", "العقار الذي اخترته"],
+  "Your server-issued payment record.": [
+    "نظام کا جاری کردہ ادائیگی ریکارڈ۔",
+    "سجل الدفع الصادر من النظام."
+  ],
+  "Your workspace is ready": ["آپ کی ورک اسپیس تیار ہے", "مساحة عملك جاهزة"],
+  "Your workspace is ready.": ["آپ کی ورک اسپیس تیار ہے۔", "مساحة عملك جاهزة."],
+  "You’re ready to sign in.": ["اب آپ لاگ اِن کر سکتے ہیں۔", "يمكنك تسجيل الدخول الآن."],
+  "days /": ["دن /", "أيام /"],
+  "e.g. Booking agreement – A-104": ["مثلاً بکنگ معاہدہ – A-104", "مثال: اتفاقية الحجز – A-104"],
+  "e.g. Rooftop garden": ["مثلاً چھت کا باغ", "مثال: حديقة السطح"],
+  "esc to close": ["بند کرنے کے لیے Esc", "Esc للإغلاق"],
+  "estate": ["estate", "estate"],
+  "months": ["ماہ", "أشهر"],
+  "of": ["از", "من"],
+  "or click to browse your files": ["یا فائل منتخب کرنے کے لیے کلک کریں", "أو اضغط لاختيار ملف"],
+  "owners ·": ["مالکان ·", "ملاك ·"],
+  "records": ["ریکارڈ", "سجلات"],
+  "records · Page": ["ریکارڈ · صفحہ", "سجلات · صفحة"],
+  "units. Filter by phase or status to narrow the matrix.": [
+    "جائیدادیں۔ فہرست مختصر کرنے کے لیے مرحلہ یا حالت منتخب کریں۔",
+    "عقارات. صفِّ حسب المرحلة أو الحالة لتضييق النتائج."
+  ],
+  "you@company.com": ["you@company.com", "you@company.com"],
+  "{0} / MANAGEMENT OVERVIEW": ["{0} / انتظامی خلاصہ", "{0} / نظرة إدارية عامة"],
+  "{0} assigned projects": ["{0} تفویض شدہ منصوبے", "{0} مشاريع مسندة"],
+  "{0} entries": ["{0} اندراجات", "{0} قيود"],
+  "{0} granted permissions": ["{0} اجازتیں", "{0} صلاحيات ممنوحة"],
+  "· Server-calculated report": ["· نظام کی تیار کردہ رپورٹ", "· تقرير محسوب بواسطة النظام"],
+  "· Unit": ["· جائیداد", "· عقار"],
+  "· selected record": ["· منتخب ریکارڈ", "· السجل المحدد"],
+  "← My properties": ["← میری جائیدادیں", "← عقاراتي"],
+  "↑ ↓ to navigate": ["منتخب کرنے کے لیے ↑ ↓", "↑ ↓ للتنقل"],
+  "↵ to open": ["کھولنے کے لیے ↵", "↵ للفتح"],
+  "Name": ["نام", "الاسم"],
+  "Project code": ["منصوبے کا کوڈ", "رمز المشروع"],
+  "Property number": ["جائیداد کا نمبر", "رقم العقار"],
+  "Other property type": ["جائیداد کی دوسری قسم", "نوع عقار آخر"],
+  "Property area": ["جائیداد کا رقبہ", "مساحة العقار"],
+  "Area unit": ["رقبے کی اکائی", "وحدة المساحة"],
+  "Feature photos": ["سہولیات کی تصاویر", "صور الميزات"],
+  "Photo": ["تصویر", "الصورة"],
+  "Record photo": ["ریکارڈ کی تصویر", "صورة السجل"],
+  "Property price": ["جائیداد کی قیمت", "سعر العقار"],
+  "Other payment method": ["ادائیگی کا دوسرا طریقہ", "طريقة دفع أخرى"],
+  "Payment proof image": ["ادائیگی کے ثبوت کی تصویر", "صورة إثبات الدفع"],
+  "Transaction or cheque number": ["ٹرانزیکشن یا چیک نمبر", "رقم العملية أو الشيك"],
+  "Account receiving the payment": ["رقم وصول کرنے والا اکاؤنٹ", "الحساب المستلم للدفعة"],
+  "Payment date and time": ["ادائیگی کی تاریخ اور وقت", "تاريخ الدفع ووقته"],
+  "Roles and responsibilities": ["کردار اور ذمہ داریاں", "الأدوار والمسؤوليات"],
+  "Projects this person can access": [
+    "اس شخص کے قابلِ رسائی منصوبے",
+    "المشاريع المتاحة لهذا الشخص"
+  ],
+  "How did the lead find us?": [
+    "رابطہ کرنے والے کو ہمارے بارے میں کیسے معلوم ہوا؟",
+    "كيف عرف العميل المحتمل عنا؟"
+  ],
+  "National ID or passport number": [
+    "قومی شناختی کارڈ یا پاسپورٹ نمبر",
+    "رقم الهوية الوطنية أو جواز السفر"
+  ],
+  "ID ending in": ["شناختی نمبر کے آخری ہندسے", "الأرقام الأخيرة للهوية"],
+  "Property hold duration (minutes)": [
+    "جائیداد محفوظ رکھنے کی مدت (منٹ)",
+    "مدة حجز العقار مؤقتاً (دقائق)"
+  ],
+  "Minimum down payment (%)": ["کم از کم ابتدائی ادائیگی (%)", "الحد الأدنى للدفعة المقدمة (%)"],
+  "Extra days allowed before overdue": ["تاخیر سے پہلے رعایتی دن", "أيام السماح قبل التأخر"],
+  "Clearance certificate validity (days)": [
+    "کلیئرنس سرٹیفکیٹ کی مدت (دن)",
+    "صلاحية شهادة إخلاء الطرف (أيام)"
+  ],
+  "New owner": ["نیا مالک", "المالك الجديد"],
+  "Payment schedule": ["ادائیگی کا شیڈول", "جدول السداد"],
+  "Dealer": ["ڈیلر", "الوسيط"],
+  "Responsible team member": ["ذمہ دار ٹیم ممبر", "عضو الفريق المسؤول"],
+  "Dealer commission (%)": ["ڈیلر کا کمیشن (%)", "عمولة الوسيط (%)"],
+  "Customer agrees to receive messages": [
+    "گاہک پیغامات وصول کرنے پر راضی ہے",
+    "يوافق العميل على استلام الرسائل"
+  ],
+  "Payment amount": ["ادائیگی کی رقم", "مبلغ الدفعة"],
+  "Phone number": ["فون نمبر", "رقم الهاتف"],
+  "e.g. Ahmed Ali": ["مثلاً احمد علی", "مثال: أحمد علي"],
+  "Enter the full name as it should appear on records.": [
+    "پورا نام لکھیں جیسا ریکارڈ میں دکھانا ہے۔",
+    "أدخل الاسم الكامل كما ينبغي أن يظهر في السجلات."
+  ],
+  "e.g. EG-01": ["مثلاً EG-01", "مثال: EG-01"],
+  "A short unique project code. Use capital letters, numbers and hyphens.": [
+    "منصوبے کا مختصر اور منفرد کوڈ۔ بڑے انگریزی حروف، اعداد اور ہائفن استعمال کریں۔",
+    "رمز قصير وفريد للمشروع. استخدم حروفاً إنجليزية كبيرة وأرقاماً وشرطات."
+  ],
+  "e.g. A-104": ["مثلاً A-104", "مثال: A-104"],
+  "The plot, apartment, shop or office number used in this project.": [
+    "اس منصوبے میں پلاٹ، فلیٹ، دکان یا دفتر کا نمبر۔",
+    "رقم القطعة أو الشقة أو المحل أو المكتب في المشروع."
+  ],
+  "e.g. 5": ["مثلاً 5", "مثال: 5"],
+  "Enter the area as a number, then choose its unit. For example: 5 marla or 1,200 square feet.": [
+    "رقبہ عدد میں لکھیں، پھر اکائی منتخب کریں۔ مثلاً 5 مرلہ یا 1,200 مربع فٹ۔",
+    "أدخل المساحة كرقم ثم اختر الوحدة. مثلاً: 5 مرلة أو 1,200 قدم مربع."
+  ],
+  "Choose an area unit": ["رقبے کی اکائی منتخب کریں", "اختر وحدة المساحة"],
+  "This describes how the property area is measured; it is not a price.": [
+    "یہ رقبہ ناپنے کی اکائی ہے، قیمت نہیں۔",
+    "هذه وحدة قياس مساحة العقار، وليست سعراً."
+  ],
+  "e.g. 3500000.00": ["مثلاً 3500000.00", "مثال: 3500000.00"],
+  "Enter the total price of this property, not the price per area unit.": [
+    "اس جائیداد کی پوری قیمت لکھیں، فی اکائی قیمت نہیں۔",
+    "أدخل السعر الإجمالي للعقار، وليس السعر لكل وحدة مساحة."
+  ],
+  "e.g. 0.00": ["مثلاً 0.00", "مثال: 0.00"],
+  "Extra property fees, such as development or utility connection fees, added once to the property price. Enter 0 if none.": [
+    "تعمیراتی کام یا پانی، بجلی کے کنکشن جیسی فیس جو جائیداد کی قیمت میں ایک بار شامل ہوتی ہے۔ نہ ہو تو 0 لکھیں۔",
+    "رسوم إضافية كالتطوير أو توصيل الخدمات، تُضاف مرة واحدة إلى السعر. أدخل 0 إن لم توجد."
+  ],
+  "e.g. +92 300 1234567": ["مثلاً +92 300 1234567", "مثال: +92 300 1234567"],
+  "Include the country code so the person can be contacted.": [
+    "رابطے کے لیے ملک کا کوڈ بھی لکھیں۔",
+    "أدرج رمز الدولة لتسهيل التواصل."
+  ],
+  "e.g. name@example.com": ["مثلاً name@example.com", "مثال: name@example.com"],
+  "Use an email address that belongs to this person.": [
+    "اسی شخص کا ای میل پتہ استعمال کریں۔",
+    "استخدم بريداً إلكترونياً يخص هذا الشخص."
+  ],
+  "e.g. House 12, Street 4, Lahore": [
+    "مثلاً مکان 12، گلی 4، لاہور",
+    "مثال: منزل 12، شارع 4، لاهور"
+  ],
+  "Enter the house, street, city and country.": [
+    "مکان، گلی، شہر اور ملک لکھیں۔",
+    "أدخل المنزل والشارع والمدينة والدولة."
+  ],
+  "e.g. Website, referral or site visit": [
+    "مثلاً ویب سائٹ، کسی کا حوالہ یا سائٹ کا دورہ",
+    "مثال: الموقع الإلكتروني أو توصية أو زيارة الموقع"
+  ],
+  "Tell us where this enquiry came from.": [
+    "بتائیں یہ رابطہ کس ذریعے سے آیا۔",
+    "اذكر مصدر هذا الاستفسار."
+  ],
+  "Add useful details about this enquiry": [
+    "اس رابطے کی مفید تفصیل لکھیں",
+    "أضف تفاصيل مفيدة عن الاستفسار"
+  ],
+  "Include the preferred property, budget, follow-up date or discussion notes.": [
+    "پسندیدہ جائیداد، بجٹ، دوبارہ رابطے کی تاریخ یا گفتگو کا خلاصہ لکھیں۔",
+    "اذكر العقار المطلوب والميزانية وموعد المتابعة أو ملاحظات النقاش."
+  ],
+  "e.g. 5000000.00": ["مثلاً 5000000.00", "مثال: 5000000.00"],
+  "The maximum amount the customer expects to spend.": [
+    "زیادہ سے زیادہ رقم جو گاہک خرچ کرنا چاہتا ہے۔",
+    "الحد الأقصى للمبلغ الذي يتوقع العميل إنفاقه."
+  ],
+  "Create a strong password": ["مضبوط پاس ورڈ بنائیں", "أنشئ كلمة مرور قوية"],
+  "Use at least 12 characters with uppercase, lowercase and a number.": [
+    "کم از کم 12 حروف، ایک بڑا حرف، ایک چھوٹا حرف اور ایک عدد استعمال کریں۔",
+    "استخدم 12 حرفاً على الأقل، مع حرف كبير وحرف صغير ورقم."
+  ],
+  "e.g. Warehouse": ["مثلاً گودام", "مثال: مستودع"],
+  "Describe the property type when you select Other.": [
+    "دیگر منتخب کرنے پر جائیداد کی قسم لکھیں۔",
+    "اذكر نوع العقار عند اختيار أخرى."
+  ],
+  "e.g. Mobile wallet transfer": [
+    "مثلاً موبائل والیٹ سے ادائیگی",
+    "مثال: تحويل من محفظة إلكترونية"
+  ],
+  "Describe the payment method when you select Other.": [
+    "دیگر منتخب کرنے پر ادائیگی کا طریقہ لکھیں۔",
+    "اذكر طريقة الدفع عند اختيار أخرى."
+  ],
+  "e.g. TXN-123456 or cheque number": [
+    "مثلاً TXN-123456 یا چیک نمبر",
+    "مثال: TXN-123456 أو رقم الشيك"
+  ],
+  "Enter the reference shown on the transfer receipt, cheque or payment slip.": [
+    "منتقلی کی رسید، چیک یا ادائیگی کی پرچی پر موجود حوالہ نمبر لکھیں۔",
+    "أدخل المرجع الموجود على إيصال التحويل أو الشيك أو قسيمة الدفع."
+  ],
+  "e.g. 50000.00": ["مثلاً 50000.00", "مثال: 50000.00"],
+  "Enter the amount actually received in the selected project currency.": [
+    "منصوبے کی منتخب کرنسی میں حقیقتاً وصول شدہ رقم لکھیں۔",
+    "أدخل المبلغ المستلم فعلياً بعملة المشروع المحددة."
+  ],
+  "Choose the receiving account": ["وصول کرنے والا اکاؤنٹ منتخب کریں", "اختر الحساب المستلم"],
+  "Select the cash or bank account where the money was received.": [
+    "وہ نقد یا بینک اکاؤنٹ منتخب کریں جس میں رقم آئی ہے۔",
+    "اختر الحساب النقدي أو البنكي الذي استلم المبلغ."
+  ],
+  "Choose a proof image": ["ثبوت کی تصویر منتخب کریں", "اختر صورة الإثبات"],
+  "A receipt, transfer screenshot, cheque or deposit slip is required for every payment method except cash.": [
+    "نقد کے علاوہ ہر ادائیگی کے لیے رسید، منتقلی کا اسکرین شاٹ، چیک یا جمع کی پرچی کی تصویر ضروری ہے۔",
+    "تلزم صورة إيصال أو تحويل أو شيك أو قسيمة إيداع لكل طريقة دفع باستثناء النقد."
+  ],
+  "e.g. 2.50": ["مثلاً 2.50", "مثال: 2.50"],
+  "The percentage of the booking value agreed with this dealer.": [
+    "بکنگ کی مالیت کا وہ فیصد جو اس ڈیلر کے ساتھ طے ہوا ہے۔",
+    "النسبة المتفق عليها مع الوسيط من قيمة الحجز."
+  ],
+  "e.g. Phase 1": ["مثلاً مرحلہ 1", "مثال: المرحلة 1"],
+  "The development phase, if this project uses phases.": [
+    "منصوبے کا تعمیراتی مرحلہ، اگر مراحل مقرر ہیں۔",
+    "مرحلة التطوير إن كان المشروع مقسماً إلى مراحل."
+  ],
+  "e.g. Block A": ["مثلاً بلاک A", "مثال: المجمع A"],
+  "The block or section containing this property.": [
+    "وہ بلاک یا حصہ جہاں جائیداد واقع ہے۔",
+    "المجمع أو القسم الذي يقع فيه العقار."
+  ],
+  "e.g. Ground floor or 3": ["مثلاً گراؤنڈ فلور یا 3", "مثال: الطابق الأرضي أو 3"],
+  "The floor of the building, if applicable.": [
+    "عمارت کی منزل، اگر متعلقہ ہو۔",
+    "طابق المبنى، إن وُجد."
+  ],
+  "e.g. Tower B": ["مثلاً ٹاور B", "مثال: البرج B"],
+  "The building or tower name, if applicable.": [
+    "عمارت یا ٹاور کا نام، اگر متعلقہ ہو۔",
+    "اسم المبنى أو البرج، إن وُجد."
+  ],
+  "e.g. Sector C": ["مثلاً سیکٹر C", "مثال: القطاع C"],
+  "The sector containing this property, if applicable.": [
+    "جائیداد کا سیکٹر، اگر متعلقہ ہو۔",
+    "القطاع الذي يقع فيه العقار، إن وُجد."
+  ],
+  "e.g. National ID or passport number": [
+    "مثلاً شناختی کارڈ یا پاسپورٹ نمبر",
+    "مثال: رقم الهوية أو جواز السفر"
+  ],
+  "Use the official identity number; access to it is restricted.": [
+    "سرکاری شناختی نمبر لکھیں؛ اس تک رسائی محدود ہے۔",
+    "استخدم رقم الهوية الرسمي؛ الوصول إليه مقيّد."
+  ],
+  "e.g. Follow-up call": ["مثلاً دوبارہ رابطے کی کال", "مثال: مكالمة متابعة"],
+  "Give this item a short, clear title.": [
+    "اس کے لیے مختصر اور واضح عنوان لکھیں۔",
+    "أدخل عنواناً قصيراً وواضحاً."
+  ],
+  "Explain why this change is needed": [
+    "بتائیں یہ تبدیلی کیوں ضروری ہے",
+    "اشرح سبب الحاجة إلى التغيير"
+  ],
+  "This explanation is saved with the request for review.": [
+    "یہ وجہ جائزے کے لیے درخواست کے ساتھ محفوظ ہوتی ہے۔",
+    "يُحفظ هذا التوضيح مع الطلب للمراجعة."
+  ],
+  "Add a helpful comment": ["مفید تبصرہ لکھیں", "أضف تعليقاً مفيداً"],
+  "Explain your decision clearly for the person reviewing this record.": [
+    "ریکارڈ کا جائزہ لینے والے کے لیے اپنا فیصلہ واضح کریں۔",
+    "وضّح قرارك لمن يراجع هذا السجل."
+  ],
+  "Corner plot": ["کونے کا پلاٹ", "قطعة زاوية"],
+  "Park facing": ["پارک کے سامنے", "مطل على حديقة"],
+  "Main road": ["مرکزی سڑک پر", "على الطريق الرئيسي"],
+  "Gated community": ["گیٹ والی رہائشی آبادی", "مجمع سكني مسوّر"],
+  "Parking": ["پارکنگ", "موقف سيارات"],
+  "Lift": ["لفٹ", "مصعد"],
+  "Balcony": ["بالکونی", "شرفة"],
+  "Security": ["حفاظتی انتظام", "حراسة"],
+  "Water supply": ["پانی کی فراہمی", "إمداد المياه"],
+  "Electricity": ["بجلی", "كهرباء"],
+  "Gas connection": ["گیس کا کنکشن", "توصيل الغاز"],
+  "Swimming pool": ["سوئمنگ پول", "مسبح"],
+  "Gym": ["جم", "نادي رياضي"],
+  "Super Admin": ["مرکزی منتظم", "المسؤول العام"],
+  "Management": ["انتظامیہ", "الإدارة"],
+  "Project Manager": ["منصوبے کا منتظم", "مدير المشروع"],
+  "Sales Manager": ["فروخت کا منتظم", "مدير المبيعات"],
+  "Sales Executive": ["فروخت کا نمائندہ", "موظف المبيعات"],
+  "Finance Manager": ["حسابات کا منتظم", "مدير الحسابات"],
+  "Finance Officer": ["حسابات کا افسر", "موظف الحسابات"],
+  "Recovery Officer": ["بقایا وصولی کا افسر", "موظف التحصيل"],
+  "Customer Service": ["کسٹمر سروس", "خدمة العملاء"],
+  "Dealer Coordinator": ["ڈیلرز کا رابطہ کار", "منسق الوسطاء"],
+  "Auditor": ["حسابات کا جائزہ لینے والا", "المدقق"],
+  "Full administration of users, roles, project records and settings. Assign only to trusted administrators.": [
+    "صارفین، کردار، منصوبوں کے ریکارڈ اور ترتیبات کا مکمل اختیار۔ صرف قابلِ اعتماد منتظم کو دیں۔",
+    "إدارة كاملة للمستخدمين والأدوار والسجلات والإعدادات. يُمنح للمسؤولين الموثوقين فقط."
+  ],
+  "Reviews project performance and approves bookings, discounts, ownership changes and refunds.": [
+    "منصوبے کی کارکردگی دیکھتا اور بکنگ، رعایت، ملکیت کی تبدیلی اور رقم کی واپسی منظور کرتا ہے۔",
+    "يراجع أداء المشروع ويوافق على الحجوزات والخصومات وتغيير الملكية والاسترداد."
+  ],
+  "Manages project settings and properties, and approves bookings and property handovers.": [
+    "منصوبے کی ترتیبات اور جائیدادیں سنبھالتا، بکنگ اور حوالگی منظور کرتا ہے۔",
+    "يدير إعدادات المشروع والعقارات ويوافق على الحجوزات وتسليم العقارات."
+  ],
+  "Manages leads, customers, property reservations, bookings and payment schedules.": [
+    "لیڈز، گاہکوں، ریزرویشن، بکنگ اور ادائیگی کے شیڈول سنبھالتا ہے۔",
+    "يدير العملاء المحتملين والعملاء والحجوزات المؤقتة والحجوزات وجداول السداد."
+  ],
+  "Follows up leads, adds customers, reserves properties and prepares bookings.": [
+    "لیڈز سے رابطہ، نئے گاہک شامل، جائیداد محفوظ اور بکنگ تیار کرتا ہے۔",
+    "يتابع العملاء المحتملين ويضيف العملاء ويحجز العقارات ويجهّز الحجوزات."
+  ],
+  "Records and verifies payments, manages accounting entries and reviews refunds.": [
+    "ادائیگیاں درج اور تصدیق، حسابی اندراجات کا انتظام اور رقم کی واپسی کا جائزہ لیتا ہے۔",
+    "يسجل المدفوعات ويتحقق منها ويدير القيود المحاسبية ويراجع الاسترداد."
+  ],
+  "Records incoming payments and views customer, booking and account information.": [
+    "وصول شدہ ادائیگیاں درج کرتا اور گاہک، بکنگ اور حسابات کی معلومات دیکھتا ہے۔",
+    "يسجل الدفعات الواردة ويعرض بيانات العملاء والحجوزات والحسابات."
+  ],
+  "Tracks overdue installments and follows up outstanding customer payments.": [
+    "تاخیر شدہ اقساط دیکھتا اور گاہکوں سے بقایا وصولی کے لیے رابطہ کرتا ہے۔",
+    "يتابع الأقساط المتأخرة والمبالغ المستحقة على العملاء."
+  ],
+  "Updates customer details, manages documents and prepares property handovers.": [
+    "گاہک کی تفصیل بدلتا، دستاویزات سنبھالتا اور جائیداد کی حوالگی تیار کرتا ہے۔",
+    "يحدّث بيانات العملاء ويدير المستندات ويجهّز تسليم العقارات."
+  ],
+  "Manages dealers, their property allocations and commission arrangements.": [
+    "ڈیلرز، ان کی مختص جائیدادیں اور کمیشن کے انتظامات سنبھالتا ہے۔",
+    "يدير الوسطاء والعقارات المخصصة لهم واتفاقات العمولة."
+  ],
+  "Views records and reports for review without changing them.": [
+    "تبدیلی کے بغیر ریکارڈ اور رپورٹس کا جائزہ لیتا ہے۔",
+    "يعرض السجلات والتقارير للمراجعة دون تعديلها."
+  ],
+  "Type": ["قسم", "النوع"],
+  "Fees": ["فیس", "الرسوم"],
+  "Enter {field}": ["{field} درج کریں", "أدخل {field}"],
+  "Describe the property type.": ["جائیداد کی قسم لکھیں۔", "اذكر نوع العقار."],
+  "Describe how this payment was made.": [
+    "لکھیں یہ ادائیگی کیسے ہوئی۔",
+    "اذكر كيفية إجراء هذه الدفعة."
+  ],
+  "Upload a payment proof image for non-cash payments.": [
+    "غیر نقد ادائیگی کے لیے ثبوت کی تصویر اپ لوڈ کریں۔",
+    "ارفع صورة إثبات للدفعات غير النقدية."
+  ],
+  "Check the format of this value.": ["اس معلومات کا فارمیٹ چیک کریں۔", "تحقق من تنسيق القيمة."],
+  "Select a valid record.": ["درست ریکارڈ منتخب کریں۔", "اختر سجلاً صحيحاً."],
+  "Enter a valid email address.": ["درست ای میل پتہ لکھیں۔", "أدخل بريداً إلكترونياً صحيحاً."],
+  "Choose a date.": ["تاریخ منتخب کریں۔", "اختر تاريخاً."],
+  "Choose one of the available values.": [
+    "دستیاب اختیارات میں سے ایک منتخب کریں۔",
+    "اختر إحدى القيم المتاحة."
+  ],
+  "This value does not meet the required format.": [
+    "یہ معلومات مطلوبہ فارمیٹ میں نہیں۔",
+    "هذه القيمة لا تطابق التنسيق المطلوب."
+  ],
+  "Choose customer & property": ["گاہک اور جائیداد منتخب کریں", "اختيار العميل والعقار"],
+  "Choose payment schedule": ["ادائیگی کا شیڈول منتخب کریں", "اختيار جدول السداد"],
+  "Review & submit": ["جائزہ لے کر بھیجیں", "المراجعة والإرسال"],
+  "Review changes": ["تبدیلیوں کا جائزہ لیں", "مراجعة التغييرات"],
+  "Discard unsaved changes?": ["غیر محفوظ تبدیلیاں چھوڑ دیں؟", "تجاهل التغييرات غير المحفوظة؟"],
+  "Your changes have not been saved. Any reserved property stays on hold until it is cancelled or expires.": [
+    "آپ کی تبدیلیاں محفوظ نہیں ہوئیں۔ محفوظ کی گئی جائیداد منسوخ ہونے یا مدت ختم ہونے تک محفوظ رہے گی۔",
+    "لم تُحفظ تغييراتك. يبقى العقار المحجوز مؤقتاً حتى إلغاء الحجز أو انتهاء مدته."
+  ],
+  "{resource} / Record details": ["{resource} / ریکارڈ کی تفصیل", "{resource} / تفاصيل السجل"],
+  "Complete the fields below, then review before saving.": [
+    "نیچے معلومات بھریں، پھر محفوظ کرنے سے پہلے جائزہ لیں۔",
+    "أكمل الحقول أدناه ثم راجعها قبل الحفظ."
+  ],
+  "Projects": ["منصوبے", "المشاريع"],
+  "project": ["منصوبہ", "مشروع"],
+  "Properties": ["جائیدادیں", "العقارات"],
+  "Inventory": ["جائیدادیں", "العقارات"],
+  "Units": ["جائیدادیں", "العقارات"],
+  "Leads & pipeline": ["ممکنہ گاہک اور رابطے", "العملاء المحتملون والمتابعة"],
+  "Leads": ["ممکنہ گاہک اور رابطے", "العملاء المحتملون والمتابعة"],
+  "Customers": ["گاہک", "العملاء"],
+  "Sales & customers": ["فروخت اور گاہک", "المبيعات والعملاء"],
+  "Payments & follow-ups": ["ادائیگیاں اور یاد دہانیاں", "المدفوعات والمتابعة"],
+  "Approvals & ownership": ["منظوری اور ملکیت", "الموافقات والملكية"],
+  "Accounts & administration": ["حسابات اور انتظام", "الحسابات والإدارة"],
+  "Personal": ["ذاتی", "شخصي"],
+  "Reservations": ["عارضی ریزرویشن", "الحجوزات المؤقتة"],
+  "Bookings": ["بکنگ", "الحجوزات"],
+  "Payment plans": ["ادائیگی کے شیڈول", "خطط السداد"],
+  "Installments": ["اقساط", "الأقساط"],
+  "Payments received": ["وصول شدہ ادائیگیاں", "المدفوعات المستلمة"],
+  "Collections": ["وصول شدہ ادائیگیاں", "المدفوعات المستلمة"],
+  "Overdue payments": ["تاخیر شدہ ادائیگیاں", "المدفوعات المتأخرة"],
+  "Dealers": ["ڈیلرز", "الوسطاء"],
+  "Commissions": ["کمیشن", "العمولات"],
+  "Clearance certificates": ["کلیئرنس سرٹیفکیٹ", "شهادات إخلاء الطرف"],
+  "NDCs": ["کلیئرنس سرٹیفکیٹ", "شهادات إخلاء الطرف"],
+  "Ndc": ["کلیئرنس سرٹیفکیٹ", "شهادات إخلاء الطرف"],
+  "Transfers": ["ملکیت کی تبدیلیاں", "نقل الملكية"],
+  "Cancellations": ["منسوخیاں", "الإلغاءات"],
+  "Refunds": ["رقم کی واپسی", "المبالغ المستردة"],
+  "Possession": ["جائیداد کی حوالگی", "تسليم العقارات"],
+  "Possessions": ["جائیداد کی حوالگی", "تسليم العقارات"],
+  "Approvals": ["منظوریاں", "الموافقات"],
+  "Account categories": ["حسابات کی اقسام", "فئات الحسابات"],
+  "Accounting entries": ["حسابی اندراجات", "القيود المحاسبية"],
+  "Journals": ["حسابی اندراجات", "القيود المحاسبية"],
+  "Bank accounts": ["بینک اکاؤنٹس", "الحسابات البنكية"],
+  "Vendors": ["فراہم کنندگان", "المورّدون"],
+  "Accounting periods": ["حسابی مدتیں", "الفترات المحاسبية"],
+  "Document templates": ["دستاویز کے نمونے", "قوالب المستندات"],
+  "Team members": ["ٹیم کے ارکان", "أعضاء الفريق"],
+  "Roles & permissions": ["کردار اور اجازتیں", "الأدوار والصلاحيات"],
+  "Audit trail": ["تبدیلیوں کا ریکارڈ", "سجل التغييرات"],
+  "Documents": ["دستاویزات", "المستندات"],
+  "Reports": ["رپورٹس", "التقارير"],
+  "My profile": ["میرا پروفائل", "ملفي الشخصي"],
+  "My account": ["میرا اکاؤنٹ", "حسابي"],
+  "Create and manage your property developments.": [
+    "پراپرٹی منصوبے بنائیں اور سنبھالیں۔",
+    "أنشئ المشاريع العقارية وأدرها."
+  ],
+  "View property availability, area, price and photos.": [
+    "جائیداد کی دستیابی، رقبہ، قیمت اور تصاویر دیکھیں۔",
+    "اطّلع على توفر العقارات ومساحاتها وأسعارها وصورها."
+  ],
+  "Record enquiries and plan the next follow-up.": [
+    "رابطے درج کریں اور اگلی یاد دہانی طے کریں۔",
+    "سجّل الاستفسارات وحدد المتابعة القادمة."
+  ],
+  "Manage customer contact details and linked bookings.": [
+    "گاہکوں کی رابطے کی تفصیل اور منسلک بکنگ سنبھالیں۔",
+    "أدر بيانات اتصال العملاء والحجوزات المرتبطة."
+  ],
+  "Hold a property for a customer until the expiry time.": [
+    "مقررہ وقت تک گاہک کے لیے جائیداد محفوظ رکھیں۔",
+    "احجز العقار مؤقتاً للعميل حتى انتهاء المدة."
+  ],
+  "Create bookings and track their approval and payment status.": [
+    "بکنگ بنائیں اور منظوری و ادائیگی کی حالت دیکھیں۔",
+    "أنشئ الحجوزات وتابع الموافقات وحالة الدفع."
+  ],
+  "Set installment amounts and dates for new bookings.": [
+    "نئی بکنگ کے لیے اقساط کی رقوم اور تاریخیں مقرر کریں۔",
+    "حدد مبالغ الأقساط ومواعيدها للحجوزات الجديدة."
+  ],
+  "View installment dates, amounts paid and balances due.": [
+    "اقساط کی تاریخیں، ادا شدہ اور بقایا رقوم دیکھیں۔",
+    "اعرض مواعيد الأقساط والمبالغ المدفوعة والمستحقة."
+  ],
+  "Record received payments, attach proof and verify receipts.": [
+    "وصول شدہ رقم درج کریں، ثبوت لگائیں اور رسیدیں تصدیق کریں۔",
+    "سجّل المدفوعات المستلمة وأرفق الإثبات وتحقق من الإيصالات."
+  ],
+  "Follow up overdue customer payments.": [
+    "گاہکوں سے تاخیر شدہ رقوم کے لیے رابطہ کریں۔",
+    "تابع دفعات العملاء المتأخرة."
+  ],
+  "Manage dealer contacts, photos, assigned properties and commissions.": [
+    "ڈیلرز کے رابطے، تصاویر، مختص جائیدادیں اور کمیشن سنبھالیں۔",
+    "أدر بيانات الوسطاء وصورهم وعقاراتهم المخصصة وعمولاتهم."
+  ],
+  "Review dealer commissions and payments.": [
+    "ڈیلرز کے کمیشن اور ادائیگیاں دیکھیں۔",
+    "راجع عمولات الوسطاء ومدفوعاتهم."
+  ],
+  "Check identity, documents and unpaid amounts before issuing clearance.": [
+    "کلیئرنس دینے سے پہلے شناخت، دستاویزات اور بقایا رقوم چیک کریں۔",
+    "تحقق من الهوية والمستندات والمبالغ المستحقة قبل إصدار إخلاء الطرف."
+  ],
+  "Change property ownership and keep its history.": [
+    "جائیداد کی ملکیت بدلیں اور سابقہ ریکارڈ محفوظ رکھیں۔",
+    "غيّر ملكية العقار واحتفظ بسجلها."
+  ],
+  "Review booking cancellations, deductions and refunds.": [
+    "بکنگ کی منسوخی، کٹوتیوں اور رقم کی واپسی کا جائزہ لیں۔",
+    "راجع إلغاء الحجوزات والخصومات والمبالغ المستردة."
+  ],
+  "Track approved refunds and their payments.": [
+    "منظور شدہ واپسیوں اور ان کی ادائیگیوں پر نظر رکھیں۔",
+    "تابع المبالغ المستردة المعتمدة ومدفوعاتها."
+  ],
+  "Record inspections, resolve issues and hand over properties.": [
+    "معائنہ درج کریں، مسائل حل کریں اور جائیداد حوالے کریں۔",
+    "سجّل المعاينات وعالج الملاحظات وسلّم العقارات."
+  ],
+  "Review requests that need your approval.": [
+    "اپنی منظوری کی منتظر درخواستیں دیکھیں۔",
+    "راجع الطلبات التي تحتاج إلى موافقتك."
+  ],
+  "Organize accounts used to record money received and spent.": [
+    "وصول اور خرچ ہونے والی رقوم کے حسابات ترتیب دیں۔",
+    "نظّم حسابات تسجيل الأموال المستلمة والمصروفة."
+  ],
+  "View and create balanced accounting entries.": [
+    "متوازن حسابی اندراجات دیکھیں اور بنائیں۔",
+    "اعرض القيود المحاسبية المتوازنة وأنشئها."
+  ],
+  "Manage bank accounts and match bank transactions.": [
+    "بینک اکاؤنٹس سنبھالیں اور ٹرانزیکشنز ملائیں۔",
+    "أدر الحسابات البنكية وطابق العمليات."
+  ],
+  "Manage suppliers and their contact details.": [
+    "فراہم کنندگان اور ان کے رابطے سنبھالیں۔",
+    "أدر المورّدين وبيانات الاتصال بهم."
+  ],
+  "Choose dates when accounting entries can be added.": [
+    "وہ تاریخیں منتخب کریں جن میں حسابی اندراجات ہو سکتے ہیں۔",
+    "حدد الفترات التي يُسمح فيها بإضافة القيود المحاسبية."
+  ],
+  "Create reusable templates for property documents.": [
+    "جائیداد کی دستاویزات کے دوبارہ استعمال ہونے والے نمونے بنائیں۔",
+    "أنشئ قوالب قابلة لإعادة الاستخدام لمستندات العقارات."
+  ],
+  "Manage team photos, roles and access.": [
+    "ٹیم کی تصاویر، کردار اور رسائی سنبھالیں۔",
+    "أدر صور الفريق وأدواره وصلاحيات الوصول."
+  ],
+  "Choose what each team member can view and change.": [
+    "منتخب کریں کہ ہر ٹیم ممبر کیا دیکھ اور بدل سکتا ہے۔",
+    "حدد ما يمكن لكل عضو في الفريق عرضه وتعديله."
+  ],
+  "See who changed each record and when.": [
+    "دیکھیں کس نے کب ریکارڈ بدلا۔",
+    "اعرف من غيّر كل سجل ومتى."
+  ],
+  "Edit {record}": ["{record} میں ترمیم کریں", "تعديل {record}"],
+  "Add {record}": ["{record} شامل کریں", "إضافة {record}"],
+  "record": ["ریکارڈ", "سجل"],
+  "property": ["جائیداد", "عقار"],
+  "lead": ["ممکنہ گاہک", "عميل محتمل"],
+  "payment": ["ادائیگی", "دفعة"],
+  "recovery case": ["بقایا وصولی کا معاملہ", "حالة تحصيل"],
+  "commission": ["کمیشن", "عمولة"],
+  "clearance request": ["کلیئرنس کی درخواست", "طلب إخلاء طرف"],
+  "transfer": ["ملکیت کی تبدیلی", "نقل ملكية"],
+  "cancellation": ["منسوخی", "إلغاء"],
+  "refund": ["رقم کی واپسی", "استرداد"],
+  "possession request": ["حوالگی کی درخواست", "طلب تسليم"],
+  "approval": ["منظوری", "موافقة"],
+  "journal": ["حسابی اندراج", "قيد محاسبي"],
+  "bank account": ["بینک اکاؤنٹ", "حساب بنكي"],
+  "accounting period": ["حسابی مدت", "فترة محاسبية"],
+  "template": ["نمونہ", "قالب"],
+  "team member": ["ٹیم ممبر", "عضو فريق"],
+  "role": ["کردار", "دور"],
+  "audit record": ["تبدیلی کا ریکارڈ", "سجل تغيير"],
+  "installment": ["قسط", "قسط"],
+  "Revoke session": ["لاگ اِن ختم کریں", "إنهاء الجلسة"],
+  "Review approval": ["منظوری کا جائزہ", "مراجعة الموافقة"],
+  "Verify payment": ["ادائیگی کی تصدیق", "التحقق من الدفعة"],
+  "Confirm booking": ["بکنگ کی تصدیق", "تأكيد الحجز"],
+  "Reverse entry": ["اندراج واپس کریں", "عكس القيد"],
+  "Allocate advance": ["پیشگی رقم مختص کریں", "تخصيص الدفعة المقدمة"],
+  "Request reversal": ["اندراج واپسی کی درخواست", "طلب عكس القيد"],
+  "Resubmit request": ["درخواست دوبارہ بھیجیں", "إعادة إرسال الطلب"],
+  "Issue clearance certificate": ["کلیئرنس سرٹیفکیٹ جاری کریں", "إصدار شهادة إخلاء طرف"],
+  "Complete workflow": ["کارروائی مکمل کریں", "إكمال الإجراء"],
+  "Withdraw request": ["درخواست واپس لیں", "سحب الطلب"],
+  "Complete handover": ["حوالگی مکمل کریں", "إكمال التسليم"],
+  "Record inspection": ["معائنہ درج کریں", "تسجيل المعاينة"],
+  "Add activity": ["سرگرمی شامل کریں", "إضافة نشاط"],
+  "Assign properties": ["جائیدادیں مختص کریں", "تخصيص العقارات"],
+  "Request price change": ["قیمت بدلنے کی درخواست", "طلب تغيير السعر"],
+  "Apply approved price": ["منظور شدہ قیمت لگائیں", "تطبيق السعر المعتمد"],
+  "Request discount": ["رعایت کی درخواست", "طلب خصم"],
+  "Change availability": ["دستیابی بدلیں", "تغيير التوفر"],
+  "Request reschedule": ["شیڈول بدلنے کی درخواست", "طلب إعادة الجدولة"],
+  "Apply reschedule": ["نیا شیڈول لگائیں", "تطبيق الجدول الجديد"],
+  "Add nominee": ["نامزد شخص شامل کریں", "إضافة مرشح"],
+  "Send password reset": ["پاس ورڈ بحالی بھیجیں", "إرسال إعادة تعيين كلمة المرور"],
+  "Change access": ["رسائی بدلیں", "تغيير الوصول"],
+  "Add plan version": ["شیڈول کا نیا ورژن شامل کریں", "إضافة إصدار للخطة"],
+  "Import properties from CSV": ["CSV سے جائیدادیں شامل کریں", "استيراد العقارات من CSV"],
+  "Settle commission": ["کمیشن ادا کریں", "تسوية العمولة"],
+  "Pay refund": ["واپسی کی رقم ادا کریں", "دفع المبلغ المسترد"],
+  "Recalculate refund": ["واپسی کی رقم دوبارہ نکالیں", "إعادة حساب المبلغ المسترد"],
+  "Lock period": ["حسابی مدت بند کریں", "قفل الفترة"],
+  "Request journal approval": ["حسابی اندراج کی منظوری مانگیں", "طلب اعتماد القيد"],
+  "Reconcile bank entry": ["بینک اندراج ملائیں", "مطابقة القيد البنكي"],
+  "Convert lead": ["رابطے کو گاہک بنائیں", "تحويل العميل المحتمل"],
+  "Generate document": ["دستاویز تیار کریں", "إنشاء مستند"],
+  "Business rules": ["کاروباری قواعد", "قواعد العمل"],
+  "Reservation expiry, down payments, grace periods, and project details.": [
+    "ریزرویشن کی مدت، ابتدائی ادائیگی، رعایتی دن اور منصوبے کی تفصیل۔",
+    "مدة الحجز المؤقت والدفعات المقدمة وفترات السماح وتفاصيل المشروع."
+  ],
+  "Accounting mappings": ["حسابات کی ترتیب", "ربط الحسابات"],
+  "Select the ledger accounts used by verified operational events.": [
+    "تصدیق شدہ کاروباری کارروائیوں کے لیے استعمال ہونے والے کھاتے منتخب کریں۔",
+    "اختر الحسابات المستخدمة للعمليات المؤكدة."
+  ],
+  "Approval policies": ["منظوری کے قواعد", "سياسات الموافقة"],
+  "Set amount thresholds and sequential permission levels for business decisions.": [
+    "رقوم کی حدیں اور منظوری کے مراحل مقرر کریں۔",
+    "حدد حدود المبالغ ومستويات الموافقة المتسلسلة."
+  ],
+  "Total inventory": ["کل جائیدادیں", "إجمالي العقارات"],
+  "Net sales value": ["خالص فروخت کی مالیت", "صافي قيمة المبيعات"],
+  "Verified collections": ["تصدیق شدہ وصولیاں", "التحصيلات المؤكدة"],
+  "Cleared payments · all time": ["تصدیق شدہ ادائیگیاں · تمام وقت", "الدفعات المؤكدة · كل الفترات"],
+  "Outstanding dues": ["بقایا رقوم", "المبالغ المستحقة"],
+  "{count} days": ["{count} دن", "{count} أيام"],
+  "Up to {count} days": ["{count} دن تک", "حتى {count} يوماً"],
+  "{count} properties available": ["{count} جائیدادیں دستیاب", "{count} عقارات متاحة"],
+  "{count} confirmed bookings": ["{count} تصدیق شدہ بکنگ", "{count} حجوزات مؤكدة"],
+  "{amount} overdue": ["{amount} تاخیر شدہ", "{amount} متأخرة"],
+  "Contract value": ["معاہدے کی مالیت", "قيمة العقد"],
+  "Cleared payments": ["تصدیق شدہ ادائیگیاں", "الدفعات المؤكدة"],
+  "Scheduled balance": ["شیڈول کے مطابق بقایا", "الرصيد المجدول"],
+  "Overdue": ["تاخیر شدہ", "متأخر"],
+  "There are no records to show yet.": [
+    "ابھی دکھانے کے لیے کوئی ریکارڈ نہیں۔",
+    "لا توجد سجلات لعرضها بعد."
+  ],
+  "Acre": ["ایکڑ", "فدان (أكر)"],
+  "Active": ["فعال", "نشط"],
+  "Advances": ["پیشگی رقوم", "الدفعات المقدمة"],
+  "Ageing": ["بقایا کی مدت", "أعمار الديون"],
+  "Apartment": ["فلیٹ", "شقة"],
+  "Approve": ["منظور کریں", "موافقة"],
+  "Approved": ["منظور شدہ", "معتمد"],
+  "Asc": ["بڑھتی ترتیب", "تصاعدي"],
+  "Asset": ["اثاثہ", "أصل"],
+  "Assigned to": ["ذمہ دار شخص", "المسند إليه"],
+  "Available": ["دستیاب", "متاح"],
+  "Balance sheet": ["اثاثوں اور واجبات کا گوشوارہ", "الميزانية العمومية"],
+  "Bank book": ["بینک کھاتہ", "سجل البنك"],
+  "Bank transfer": ["بینک منتقلی", "تحويل بنكي"],
+  "Block": ["بلاک", "المجمع"],
+  "Blocked": ["روکی گئی", "محظور"],
+  "Body": ["متن", "المحتوى"],
+  "Booked": ["بک شدہ", "محجوز"],
+  "Bounced": ["چیک واپس ہوا", "شيك مرتجع"],
+  "Call": ["کال", "مكالمة"],
+  "Cancelled": ["منسوخ", "ملغى"],
+  "Cash": ["نقد", "نقدي"],
+  "Cash book": ["نقد رقم کا کھاتہ", "سجل النقد"],
+  "Charges": ["اضافی فیس", "الرسوم الإضافية"],
+  "Cheque": ["چیک", "شيك"],
+  "Cleared": ["تصدیق شدہ", "مؤكد"],
+  "Closed": ["بند", "مغلق"],
+  "Code": ["کوڈ", "الرمز"],
+  "Comment": ["تبصرہ", "تعليق"],
+  "Commercial plot": ["تجارتی پلاٹ", "قطعة تجارية"],
+  "Commission expense": ["کمیشن کا خرچ", "مصروف العمولة"],
+  "Commission percent": ["کمیشن کا فیصد", "نسبة العمولة"],
+  "Communication consent": ["رابطے کی رضامندی", "الموافقة على التواصل"],
+  "Completed": ["مکمل", "مكتمل"],
+  "Confirmed": ["تصدیق شدہ", "مؤكد"],
+  "Contacted": ["رابطہ ہو چکا", "تم التواصل"],
+  "Converted": ["گاہک بنا دیا گیا", "تم التحويل"],
+  "Credit": ["کریڈٹ", "دائن"],
+  "Currency": ["کرنسی", "العملة"],
+  "Current password": ["موجودہ پاس ورڈ", "كلمة المرور الحالية"],
+  "Date": ["تاریخ", "التاريخ"],
+  "Days": ["دن", "الأيام"],
+  "Dealer payable": ["ڈیلر کو واجب الادا", "مستحق للوسيط"],
+  "Dealer recoverable": ["ڈیلر سے قابلِ وصول", "مستحق من الوسيط"],
+  "Debit": ["ڈیبٹ", "مدين"],
+  "Decision": ["فیصلہ", "القرار"],
+  "Deduction": ["کٹوتی", "الخصومات"],
+  "Deductions": ["کٹوتی", "الخصومات"],
+  "Desc": ["گھٹتی ترتیب", "تنازلي"],
+  "Description": ["تفصیل", "الوصف"],
+  "Documents verified": ["دستاویزات تصدیق شدہ", "المستندات موثّقة"],
+  "Down payment percent": ["ابتدائی ادائیگی کا فیصد", "نسبة الدفعة المقدمة"],
+  "Down payment": ["ابتدائی ادائیگی", "الدفعة المقدمة"],
+  "Draft": ["ابتدائی مسودہ", "مسودة"],
+  "End date": ["آخری تاریخ", "تاريخ النهاية"],
+  "Equity": ["مالک کا سرمایہ", "حقوق الملكية"],
+  "Escalation": ["اعلیٰ سطح پر بھیجنا", "تصعيد"],
+  "Expense": ["خرچ", "مصروف"],
+  "Expires at": ["ختم ہونے کا وقت", "وقت الانتهاء"],
+  "Feature": ["سہولت", "ميزة"],
+  "Feature images": ["سہولیات کی تصاویر", "صور الميزات"],
+  "Features": ["سہولیات", "الميزات"],
+  "File": ["فائل", "ملف"],
+  "Floor": ["منزل", "الطابق"],
+  "Follow up": ["دوبارہ رابطہ", "متابعة"],
+  "Format": ["فارمیٹ", "التنسيق"],
+  "From": ["سے", "من"],
+  "Grace days": ["رعایتی دن", "أيام السماح"],
+  "Hectare": ["ہیکٹر", "هكتار"],
+  "Iban": ["IBAN اکاؤنٹ نمبر", "رقم الحساب IBAN"],
+  "Identity": ["شناخت", "الهوية"],
+  "Identity verified": ["شناخت تصدیق شدہ", "الهوية موثّقة"],
+  "Income statement": ["آمدنی اور اخراجات کا گوشوارہ", "قائمة الدخل"],
+  "Kanal": ["کنال", "كنال"],
+  "Kind": ["قسم", "النوع"],
+  "Label": ["عنوان", "التسمية"],
+  "Ledger": ["حسابی کھاتہ", "دفتر الأستاذ"],
+  "Liability": ["واجب الادا رقم", "التزام"],
+  "Lines": ["اندراجات", "البنود"],
+  "Lost": ["رابطہ ختم", "غير ناجح"],
+  "Marla": ["مرلہ", "مرلة"],
+  "Measurement unit": ["رقبے کی اکائی", "وحدة المساحة"],
+  "Meeting": ["ملاقات", "اجتماع"],
+  "Method details": ["طریقے کی تفصیل", "تفاصيل الطريقة"],
+  "Minimum amount": ["کم از کم رقم", "الحد الأدنى للمبلغ"],
+  "New": ["نیا", "جديد"],
+  "Note": ["نوٹس", "ملاحظات"],
+  "Notes": ["نوٹس", "ملاحظات"],
+  "Notice": ["اطلاع", "إشعار"],
+  "Number": ["نمبر", "الرقم"],
+  "Office": ["دفتر", "مكتب"],
+  "Online": ["آن لائن", "متصل"],
+  "Open": ["کھلا", "مفتوح"],
+  "Operation": ["کارروائی", "العملية"],
+  "Owners": ["مالکان", "الملاك"],
+  "Paid at": ["ادائیگی کا وقت", "وقت الدفع"],
+  "Pay order": ["پے آرڈر", "أمر دفع"],
+  "Payment reference": ["ادائیگی کا حوالہ", "مرجع الدفع"],
+  "Payment reversal": ["ادائیگی کی واپسی", "عكس الدفعة"],
+  "Payments": ["ادائیگیاں", "المدفوعات"],
+  "Pending": ["زیرِ انتظار", "قيد الانتظار"],
+  "Percent": ["فیصد", "النسبة المئوية"],
+  "Permissions": ["اجازتیں", "الصلاحيات"],
+  "Platform": ["پلیٹ فارم", "المنصة"],
+  "Portal visible": ["کسٹمر پورٹل پر دکھائیں", "إظهار في بوابة العميل"],
+  "Possessed": ["حوالے کی گئی", "تم التسليم"],
+  "Possession ready": ["حوالگی کے لیے تیار", "جاهز للتسليم"],
+  "Posted at": ["درج ہونے کا وقت", "وقت الترحيل"],
+  "Price": ["قیمت", "السعر"],
+  "Project": ["منصوبہ", "المشروع"],
+  "Promise amount": ["وعدہ کردہ رقم", "المبلغ الموعود"],
+  "Promise date": ["وعدے کی تاریخ", "تاريخ الوعد"],
+  "Promise to pay": ["ادائیگی کا وعدہ", "وعد بالسداد"],
+  "Purpose": ["مقصد", "الغرض"],
+  "Qualified": ["اہل رابطہ", "مؤهل"],
+  "Quotation": ["قیمت کی پیشکش", "عرض سعر"],
+  "Reason": ["وجہ", "السبب"],
+  "Reject": ["رد کریں", "رفض"],
+  "Rejected": ["رد شدہ", "مرفوض"],
+  "Relationship": ["تعلق", "صلة القرابة"],
+  "Reschedule": ["شیڈول بدلیں", "إعادة الجدولة"],
+  "Reservation minutes": ["ریزرویشن کے منٹ", "دقائق الحجز المؤقت"],
+  "Reserved": ["عارضی محفوظ", "محجوز مؤقتاً"],
+  "Residential plot": ["رہائشی پلاٹ", "قطعة سكنية"],
+  "Revenue": ["آمدنی", "الإيرادات"],
+  "Reversed": ["واپس کیا گیا", "معكوس"],
+  "Sales": ["فروخت", "المبيعات"],
+  "Schedule": ["شیڈول", "الجدول"],
+  "Scheduled at": ["مقررہ وقت", "الوقت المجدول"],
+  "Sector": ["سیکٹر", "القطاع"],
+  "Share": ["حصہ", "الحصة"],
+  "Shop": ["دکان", "محل"],
+  "Site visit": ["سائٹ کا دورہ", "زيارة الموقع"],
+  "Size": ["رقبہ", "المساحة"],
+  "Snags": ["درست کیے جانے والے مسائل", "الملاحظات المطلوب إصلاحها"],
+  "Sold": ["فروخت شدہ", "مباع"],
+  "Source": ["ذریعہ", "المصدر"],
+  "Sq ft": ["مربع فٹ", "قدم مربع"],
+  "Sq m": ["مربع میٹر", "متر مربع"],
+  "Sq yd": ["مربع گز", "ياردة مربعة"],
+  "Start date": ["شروع کی تاریخ", "تاريخ البداية"],
+  "Statement date": ["گوشوارے کی تاریخ", "تاريخ الكشف"],
+  "Statement reference": ["گوشوارے کا حوالہ", "مرجع الكشف"],
+  "Timezone": ["ٹائم زون", "المنطقة الزمنية"],
+  "To": ["تک", "إلى"],
+  "Token": ["کوڈ", "الرمز"],
+  "Tower": ["ٹاور", "البرج"],
+  "Transaction reference": ["ٹرانزیکشن کا حوالہ", "مرجع العملية"],
+  "Transfer pending": ["ملکیت کی تبدیلی زیرِ انتظار", "نقل الملكية معلق"],
+  "Transfer revenue": ["ملکیت منتقلی کی آمدنی", "إيرادات نقل الملكية"],
+  "Trial balance": ["حسابات کا توازن", "ميزان المراجعة"],
+  "Type details": ["قسم کی تفصیل", "تفاصيل النوع"],
+  "User": ["صارف", "المستخدم"],
+  "Vendor ledger": ["فراہم کنندہ کا کھاتہ", "حساب المورّد"],
+  "True": ["ہاں", "نعم"],
+  "False": ["نہیں", "لا"],
+  "Unknown": ["نامعلوم", "غير معروف"],
+  "Created at": ["بنانے کی تاریخ", "تاريخ الإنشاء"],
+  "Updated at": ["ترمیم کی تاریخ", "تاريخ التحديث"],
+  "Total": ["کل", "الإجمالي"],
+  "Refunable": ["قابلِ واپسی رقم", "المبلغ القابل للاسترداد"],
+  "Refundable": ["قابلِ واپسی رقم", "المبلغ القابل للاسترداد"],
+  "Late days": ["تاخیر کے دن", "أيام التأخر"],
+  "Level": ["مرحلہ", "المستوى"],
+  "Action": ["کارروائی", "الإجراء"],
+  "Version": ["ورژن", "الإصدار"],
+  "Locked": ["بند ہے", "مقفل"],
+  "Position": ["مالی صورتحال", "الوضع المالي"],
+  "Activities": ["سرگرمیاں", "الأنشطة"],
+  "Allocations": ["مختص رقوم", "التخصيصات"],
+  "Sessions": ["لاگ اِن سیشن", "الجلسات"],
+  "Approvals history": ["منظوری کی تاریخ", "سجل الموافقات"],
+  "Balance": ["بیلنس", "الرصيد"],
+  "Read": ["دیکھنا", "العرض"],
+  "Manage": ["انتظام", "الإدارة"],
+  "Update": ["ترمیم", "التعديل"],
+  "Cancel": ["منسوخ کرنا", "الإلغاء"],
+  "Verify": ["تصدیق", "التحقق"],
+  "Reverse": ["واپس کرنا", "العكس"],
+  "Request": ["درخواست", "الطلب"],
+  "Export": ["برآمد کرنا", "التصدير"],
+  "Post": ["حساب میں درج کرنا", "ترحيل القيود"],
+  "Change status": ["حالت بدلنا", "تغيير الحالة"],
+  "Change price": ["قیمت بدلنا", "تغيير السعر"],
+  "View sensitive": ["حساس معلومات دیکھنا", "عرض البيانات الحساسة"],
+  "Manage customer portal access": [
+    "کسٹمر پورٹل کی رسائی کا انتظام",
+    "إدارة الوصول إلى بوابة العميل"
+  ],
+  "Users": ["صارفین", "المستخدمون"],
+  "Roles": ["کردار", "الأدوار"],
+  "Settings": ["ترتیبات", "الإعدادات"],
+  "Audit": ["تبدیلیوں کا ریکارڈ", "سجل التغييرات"],
+  "Plans": ["ادائیگی کے شیڈول", "خطط السداد"],
+  "Discounts": ["رعایتیں", "الخصومات"],
+  "Recovery": ["بقایا وصولی", "التحصيل"],
+  "Finance": ["حسابات اور رقوم", "الحسابات والأموال"],
+  "Crm": ["ممکنہ گاہک", "العملاء المحتملون"],
+  "Budget": ["بجٹ", "الميزانية"],
+  "Title": ["عنوان", "العنوان"],
+  "Expected at": ["متوقع وقت", "الوقت المتوقع"],
+  "All": ["سب", "الكل"],
+  "Requests": ["درخواستیں", "الطلبات"],
+  "Account statement": ["حساب کا گوشوارہ", "كشف الحساب"],
+  "Signed out": ["لاگ آؤٹ ہو گیا", "تم تسجيل الخروج"],
+  "A fresh start": ["نیا آغاز", "بداية جديدة"],
+  "Records will appear here as your team starts working.": [
+    "ٹیم کے کام شروع کرنے پر ریکارڈ یہاں آئیں گے۔",
+    "تظهر السجلات هنا عندما يبدأ فريقك العمل."
+  ],
+  "Paste the code from your recovery email": [
+    "بحالی کے ای میل سے کوڈ یہاں پیسٹ کریں",
+    "الصق الرمز من رسالة استعادة الحساب"
+  ],
+  "Paste the code from your invitation email": [
+    "دعوت کے ای میل سے کوڈ یہاں پیسٹ کریں",
+    "الصق الرمز من رسالة الدعوة"
+  ],
+  "Enter the same password again": ["وہی پاس ورڈ دوبارہ لکھیں", "أدخل كلمة المرور نفسها مرة أخرى"],
+  "Invitation queued for email delivery. The customer has 48 hours to activate access.": [
+    "دعوت ای میل کے لیے بھیج دی گئی۔ گاہک کے پاس اکاؤنٹ فعال کرنے کے لیے 48 گھنٹے ہیں۔",
+    "أُدرجت الدعوة للإرسال بالبريد. لدى العميل 48 ساعة لتفعيل الوصول."
+  ],
+  "Portal access and pending invitations revoked.": [
+    "پورٹل کی رسائی اور زیرِ انتظار دعوتیں ختم کر دی گئیں۔",
+    "أُلغي الوصول إلى البوابة والدعوات المعلقة."
+  ],
+  "e.g. Garden Homes": ["مثلاً گارڈن ہومز", "مثال: جاردن هومز"],
+  "Use the name customers and staff know this project by.": [
+    "منصوبے کا وہ نام لکھیں جس سے گاہک اور عملہ اسے جانتے ہیں۔",
+    "استخدم الاسم الذي يعرف به العملاء والموظفون هذا المشروع."
+  ],
+  "Enter a short, clear name": ["مختصر اور واضح نام لکھیں", "أدخل اسماً قصيراً وواضحاً"],
+  "This name appears in lists and selection menus.": [
+    "یہ نام فہرستوں اور انتخاب کے مینو میں نظر آئے گا۔",
+    "يظهر هذا الاسم في القوائم وخيارات التحديد."
+  ],
+  "e.g. 1010": ["مثلاً 1010", "مثال: 1010"],
+  "Enter the unique code used for this account.": [
+    "اس کھاتے کا منفرد کوڈ لکھیں۔",
+    "أدخل الرمز الفريد لهذا الحساب."
+  ],
+  "Enter the amount in the selected project currency.": [
+    "منتخب منصوبے کی کرنسی میں رقم لکھیں۔",
+    "أدخل المبلغ بعملة المشروع المحددة."
+  ],
+  "Add useful details": ["مفید تفصیل شامل کریں", "أضف تفاصيل مفيدة"],
+  "Include information needed by the person handling this record.": [
+    "ریکارڈ سنبھالنے والے کے لیے ضروری معلومات شامل کریں۔",
+    "أدرج المعلومات اللازمة لمن يتولى هذا السجل."
+  ],
+  "Light": ["روشن", "فاتح"],
+  "Dark": ["گہرا", "داكن"],
+  "System": ["ڈیوائس کے مطابق", "حسب الجهاز"],
+  "Sign out on every device": ["تمام ڈیوائسز سے لاگ آؤٹ کریں", "تسجيل الخروج من كل الأجهزة"],
+  "Add project": ["منصوبہ شامل کریں", "إضافة مشروع"],
+  "Edit project": ["منصوبہ میں ترمیم کریں", "تعديل مشروع"],
+  "Add property": ["جائیداد شامل کریں", "إضافة عقار"],
+  "Edit property": ["جائیداد میں ترمیم کریں", "تعديل عقار"],
+  "Add lead": ["ممکنہ گاہک شامل کریں", "إضافة عميل محتمل"],
+  "Edit lead": ["ممکنہ گاہک میں ترمیم کریں", "تعديل عميل محتمل"],
+  "Edit customer": ["گاہک میں ترمیم کریں", "تعديل العميل"],
+  "Add reservation": ["عارضی ریزرویشن شامل کریں", "إضافة الحجز المؤقت"],
+  "Edit reservation": ["عارضی ریزرویشن میں ترمیم کریں", "تعديل الحجز المؤقت"],
+  "Add booking": ["بکنگ شامل کریں", "إضافة الحجز"],
+  "Edit booking": ["بکنگ میں ترمیم کریں", "تعديل الحجز"],
+  "Add payment plan": ["ادائیگی کا شیڈول شامل کریں", "إضافة خطة السداد"],
+  "Edit payment plan": ["ادائیگی کا شیڈول میں ترمیم کریں", "تعديل خطة السداد"],
+  "Add installment": ["قسط شامل کریں", "إضافة قسط"],
+  "Edit installment": ["قسط میں ترمیم کریں", "تعديل قسط"],
+  "Add payment": ["ادائیگی شامل کریں", "إضافة دفعة"],
+  "Edit payment": ["ادائیگی میں ترمیم کریں", "تعديل دفعة"],
+  "Add recovery case": ["بقایا وصولی کا معاملہ شامل کریں", "إضافة حالة تحصيل"],
+  "Edit recovery case": ["بقایا وصولی کا معاملہ میں ترمیم کریں", "تعديل حالة تحصيل"],
+  "Add dealer": ["ڈیلر شامل کریں", "إضافة الوسيط"],
+  "Edit dealer": ["ڈیلر میں ترمیم کریں", "تعديل الوسيط"],
+  "Add commission": ["کمیشن شامل کریں", "إضافة عمولة"],
+  "Edit commission": ["کمیشن میں ترمیم کریں", "تعديل عمولة"],
+  "Add clearance request": ["کلیئرنس کی درخواست شامل کریں", "إضافة طلب إخلاء طرف"],
+  "Edit clearance request": ["کلیئرنس کی درخواست میں ترمیم کریں", "تعديل طلب إخلاء طرف"],
+  "Add transfer": ["ملکیت کی تبدیلی شامل کریں", "إضافة نقل ملكية"],
+  "Edit transfer": ["ملکیت کی تبدیلی میں ترمیم کریں", "تعديل نقل ملكية"],
+  "Add cancellation": ["منسوخی شامل کریں", "إضافة إلغاء"],
+  "Edit cancellation": ["منسوخی میں ترمیم کریں", "تعديل إلغاء"],
+  "Add refund": ["رقم کی واپسی شامل کریں", "إضافة استرداد"],
+  "Edit refund": ["رقم کی واپسی میں ترمیم کریں", "تعديل استرداد"],
+  "Add possession request": ["حوالگی کی درخواست شامل کریں", "إضافة طلب تسليم"],
+  "Edit possession request": ["حوالگی کی درخواست میں ترمیم کریں", "تعديل طلب تسليم"],
+  "Add approval": ["منظوری شامل کریں", "إضافة موافقة"],
+  "Edit approval": ["منظوری میں ترمیم کریں", "تعديل موافقة"],
+  "Add account": ["اکاؤنٹ شامل کریں", "إضافة الحساب"],
+  "Edit account": ["اکاؤنٹ میں ترمیم کریں", "تعديل الحساب"],
+  "Add journal": ["حسابی اندراج شامل کریں", "إضافة قيد محاسبي"],
+  "Edit journal": ["حسابی اندراج میں ترمیم کریں", "تعديل قيد محاسبي"],
+  "Add bank account": ["بینک اکاؤنٹ شامل کریں", "إضافة حساب بنكي"],
+  "Edit bank account": ["بینک اکاؤنٹ میں ترمیم کریں", "تعديل حساب بنكي"],
+  "Add vendor": ["فراہم کنندہ شامل کریں", "إضافة المورّد"],
+  "Edit vendor": ["فراہم کنندہ میں ترمیم کریں", "تعديل المورّد"],
+  "Add accounting period": ["حسابی مدت شامل کریں", "إضافة فترة محاسبية"],
+  "Edit accounting period": ["حسابی مدت میں ترمیم کریں", "تعديل فترة محاسبية"],
+  "Add template": ["نمونہ شامل کریں", "إضافة قالب"],
+  "Edit template": ["نمونہ میں ترمیم کریں", "تعديل قالب"],
+  "Add team member": ["ٹیم ممبر شامل کریں", "إضافة عضو فريق"],
+  "Edit team member": ["ٹیم ممبر میں ترمیم کریں", "تعديل عضو فريق"],
+  "Add role": ["کردار شامل کریں", "إضافة دور"],
+  "Edit role": ["کردار میں ترمیم کریں", "تعديل دور"],
+  "Add audit record": ["تبدیلی کا ریکارڈ شامل کریں", "إضافة سجل تغيير"],
+  "Edit audit record": ["تبدیلی کا ریکارڈ میں ترمیم کریں", "تعديل سجل تغيير"],
+  "Add record": ["ریکارڈ شامل کریں", "إضافة سجل"],
+  "Edit record": ["ریکارڈ میں ترمیم کریں", "تعديل سجل"]
+}

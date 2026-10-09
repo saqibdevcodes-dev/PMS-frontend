@@ -1,8 +1,9 @@
+import { t, useLocale } from '../../lib/i18n';
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useMutation } from '@tanstack/react-query';
 import Decimal from 'decimal.js';
-import { ArrowLeft, ArrowRight, Check, ShieldCheck, Clock3, Building2 } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Check, ShieldCheck, Building2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useUnsavedChanges } from '../../hooks/use-unsaved';
 import { api, ApiError } from '../../lib/api';
@@ -10,14 +11,18 @@ import { queryClient } from '../../lib/query';
 import { usePreferences } from '../../stores/preferences';
 import { can } from '../../stores/auth';
 import { row, asRows, type Row } from '../../lib/types';
-import { money, labelOf } from '../../lib/format';
+import { humanize, money, labelOf } from '../../lib/format';
 import { RelationSelect } from '../../components/RelationSelect';
 import { Button, PageHeading, ErrorState, Badge } from '../../components/ui';
+import { OperationDialog } from '../../components/OperationDialog';
+import { operations, projectRoot } from '../../lib/contract';
 import { ProjectRequired, Unauthorized } from '../resources/ResourcePage';
 export default function BookingWizard() {
+  useLocale();
   const projectId = usePreferences((s) => s.projectId);
   const projectName = usePreferences((s) => s.projectName);
   const navigate = useNavigate();
+  const [showCustomer, setShowCustomer] = useState(false);
   const [step, setStep] = useState(0);
   const [customer, setCustomer] = useState<Row>({});
   const [unit, setUnit] = useState<Row>({});
@@ -53,6 +58,7 @@ export default function BookingWizard() {
       }),
     onSuccess: (r) => {
       setReservation(r);
+      setStep(1);
       setError(undefined);
       void queryClient.invalidateQueries();
     },
@@ -74,7 +80,7 @@ export default function BookingWizard() {
     onSuccess: (r) => {
       setCreated(r);
       void queryClient.invalidateQueries();
-      toast.success('Booking submitted for approval');
+      toast.success(t('Booking submitted for approval'));
     },
     onError: setError,
   });
@@ -96,23 +102,38 @@ export default function BookingWizard() {
     assigned = assigned.plus(amount);
     return { ...part, amount: amount.toFixed(2) };
   });
-  const steps = ['Customer & property', 'Reservation', 'Payment plan', 'Review & submit'];
+  const steps = ['Choose customer & property', 'Choose payment schedule', 'Review & submit'];
   const uncertain = error instanceof ApiError && error.status === 0;
   return (
     <>
+      {showCustomer && (
+        <OperationDialog
+          operation={operations.find(
+            (o) => o.path === projectRoot + '/customers' && o.method === 'post',
+          )!}
+          title={t('Add customer')}
+          onClose={() => setShowCustomer(false)}
+          onSuccess={(data) => {
+            setCustomer(row(data));
+            setShowCustomer(false);
+          }}
+        />
+      )}
       <PageHeading
-        eyebrow="Sales & customers / Bookings"
-        title={created ? 'A new chapter, started.' : 'Create a booking'}
+        eyebrow={t('Sales & customers / Bookings')}
+        title={created ? t('Booking created') : t('Create a booking')}
         description={
           created
-            ? 'Your booking is recorded and awaiting its required approvals.'
-            : 'A guided path from the right property to a new agreement.'
+            ? t('Your booking is recorded and awaiting its required approvals.')
+            : t(
+                'Choose a customer and property, select a payment schedule, then review your booking.',
+              )
         }
         actions={
           <Button asChild variant="secondary">
             <Link to="/bookings">
               <ArrowLeft size={16} />
-              All bookings
+              {t('All bookings')}
             </Link>
           </Button>
         }
@@ -122,19 +143,19 @@ export default function BookingWizard() {
           <ShieldCheck size={46} />
           <h2>{String(row(created.booking).reference ?? 'Booking created')}</h2>
           <Badge value={row(created.booking).status} />
-          <p>Approval and cleared down payment are required before confirmation.</p>
+          <p>{t('Approval and cleared down payment are required before confirmation.')}</p>
           <div className="detail-grid">
             <div>
-              <span>Booking ID</span>
+              <span>{t('Booking ID')}</span>
               <code>{String(row(created.booking).id)}</code>
             </div>
             <div>
-              <span>Approval ID</span>
+              <span>{t('Approval ID')}</span>
               <code>{String(row(created.approval).id)}</code>
             </div>
           </div>
           <Button onClick={() => navigate('/bookings?record=' + row(created.booking).id)}>
-            View booking
+            {t('View booking')}
             <ArrowRight size={16} />
           </Button>
         </section>
@@ -145,22 +166,25 @@ export default function BookingWizard() {
               {steps.map((label, i) => (
                 <li key={label} className={step === i ? 'current' : step > i ? 'completed' : ''}>
                   <span>{step > i ? <Check size={16} /> : i + 1}</span>
-                  <strong>{label}</strong>
+                  <strong>{t(label)}</strong>
                 </li>
               ))}
             </ol>
             <div className="wizard-body">
-              <span className="eyebrow">STEP {step + 1} OF 4</span>
-              <h2>{steps[step]}</h2>
+              <span className="eyebrow">
+                {t('STEP')} {step + 1} {t('OF 3')}
+              </span>
+              <h2>{t(steps[step])}</h2>
               {step === 0 ? (
                 <>
                   <p className="muted">
-                    Choose an existing customer and an available property. Availability is rechecked
-                    when you reserve.
+                    {t(
+                      'Choose an existing customer and an available property. The property is temporarily held when you continue.',
+                    )}
                   </p>
                   <div className="form-grid">
                     <div className="form-field">
-                      <label htmlFor="wizard-customer">Customer *</label>
+                      <label htmlFor="wizard-customer">{t('Customer *')}</label>
                       <RelationSelect
                         id="wizard-customer"
                         name="customerId"
@@ -172,12 +196,18 @@ export default function BookingWizard() {
                         }}
                         onRecord={setCustomer}
                       />
+                      {can('customers.create') && !reservation && (
+                        <Button type="button" variant="ghost" onClick={() => setShowCustomer(true)}>
+                          {t('Add a new customer')}
+                        </Button>
+                      )}
                     </div>
                     <div className="form-field">
-                      <label htmlFor="wizard-unit">Property *</label>
+                      <label htmlFor="wizard-unit">{t('Property *')}</label>
                       <RelationSelect
                         id="wizard-unit"
                         name="unitId"
+                        statusFilter="AVAILABLE"
                         disabled={Boolean(reservation)}
                         value={String(unit.id ?? '')}
                         onChange={(id) => {
@@ -190,46 +220,20 @@ export default function BookingWizard() {
                   </div>
                   {Boolean(unit.status) && unit.status !== 'AVAILABLE' && (
                     <ErrorState
-                      error={new Error('This property is not available. Choose another unit.')}
+                      error={new Error(t('This property is not available. Choose another unit.'))}
                     />
                   )}
                 </>
               ) : step === 1 ? (
                 <>
                   <p className="muted">
-                    Hold this property for your customer while you prepare the booking.
-                  </p>
-                  <div className="reservation-card">
-                    <Clock3 size={26} />
-                    <div>
-                      <h3>{reservation ? 'Property reserved' : 'Ready to reserve'}</h3>
-                      <p>
-                        {reservation
-                          ? `Expires ${new Date(String(reservation.expiresAt)).toLocaleString()}`
-                          : 'The project’s reservation period starts when the server confirms the hold.'}
-                      </p>
-                      {reservation && <Badge value={reservation.status} />}
-                    </div>
-                  </div>
-                  {!reservation && (
-                    <Button
-                      busy={reserve.isPending}
-                      disabled={uncertain}
-                      onClick={() => reserve.mutate()}
-                    >
-                      Reserve this property
-                    </Button>
-                  )}
-                </>
-              ) : step === 2 ? (
-                <>
-                  <p className="muted">
-                    Choose a versioned payment schedule. Discount approval must match this property
-                    and amount.
+                    {t(
+                      'Choose how the customer will pay. The schedule below shows each payment amount.',
+                    )}
                   </p>
                   <div className="form-grid">
                     <div className="form-field form-full">
-                      <label htmlFor="wizard-plan">Payment plan version *</label>
+                      <label htmlFor="wizard-plan">{t('Payment schedule *')}</label>
                       <RelationSelect
                         id="wizard-plan"
                         name="planVersionId"
@@ -239,9 +243,10 @@ export default function BookingWizard() {
                       />
                     </div>
                     <div className="form-field">
-                      <label htmlFor="wizard-discount">Discount amount</label>
+                      <label htmlFor="wizard-discount">{t('Discount amount')}</label>
                       <input
                         id="wizard-discount"
+                        placeholder="0.00"
                         inputMode="decimal"
                         value={discount}
                         onChange={(e) => setDiscount(e.target.value)}
@@ -249,7 +254,7 @@ export default function BookingWizard() {
                     </div>
                     {discount !== '0' && (
                       <div className="form-field">
-                        <label htmlFor="wizard-discount-approval">Approved discount</label>
+                        <label htmlFor="wizard-discount-approval">{t('Approved discount')}</label>
                         <RelationSelect
                           id="wizard-discount-approval"
                           name="discountApprovalId"
@@ -260,7 +265,7 @@ export default function BookingWizard() {
                       </div>
                     )}
                     <div className="form-field">
-                      <label htmlFor="wizard-dealer">Dealer (optional)</label>
+                      <label htmlFor="wizard-dealer">{t('Dealer (optional)')}</label>
                       <RelationSelect
                         id="wizard-dealer"
                         name="dealerId"
@@ -275,8 +280,8 @@ export default function BookingWizard() {
                         <span>
                           {String(p.label)}
                           <small>
-                            {String(p.percent)}% · {Number(p.days ?? 0)} days /{' '}
-                            {Number(p.months ?? 0)} months
+                            {String(p.percent)}% · {Number(p.days ?? 0)} {t('days /')}{' '}
+                            {Number(p.months ?? 0)} {t('months')}
                           </small>
                         </span>
                         <strong>{money(p.amount)}</strong>
@@ -284,15 +289,18 @@ export default function BookingWizard() {
                     ))}
                   </div>
                   <fieldset className="form-section">
-                    <legend>Ownership</legend>
+                    <legend>{t('Ownership')}</legend>
                     <p className="muted">
-                      The selected customer owns 100% unless you specify joint owners. Shares must
-                      total 100% and include the primary customer.
+                      {t(
+                        'The selected customer owns 100% unless you specify joint owners. Shares must total 100% and include the primary customer.',
+                      )}
                     </p>
                     {owners.map((owner, index) => (
                       <div className="ownership-row" key={index}>
                         <div className="form-field">
-                          <label htmlFor={'owner-' + index}>Owner {index + 1}</label>
+                          <label htmlFor={'owner-' + index}>
+                            {t('Owner')} {index + 1}
+                          </label>
                           <RelationSelect
                             id={'owner-' + index}
                             name="customerId"
@@ -305,9 +313,10 @@ export default function BookingWizard() {
                           />
                         </div>
                         <div className="form-field">
-                          <label htmlFor={'share-' + index}>Share %</label>
+                          <label htmlFor={'share-' + index}>{t('Share %')}</label>
                           <input
                             id={'share-' + index}
+                            placeholder="100"
                             inputMode="decimal"
                             value={owner.share}
                             onChange={(e) =>
@@ -326,7 +335,7 @@ export default function BookingWizard() {
                             setOwners((current) => current.filter((_, i) => i !== index))
                           }
                         >
-                          Remove owner {index + 1}
+                          {t('Remove owner')} {index + 1}
                         </Button>
                       </div>
                     ))}
@@ -344,7 +353,7 @@ export default function BookingWizard() {
                         )
                       }
                     >
-                      Add joint owners
+                      {t('Add joint owners')}
                     </Button>
                   </fieldset>
                 </>
@@ -353,34 +362,35 @@ export default function BookingWizard() {
                   <div className="review-notice">
                     <ShieldCheck size={23} />
                     <div>
-                      <strong>Ready for your final review</strong>
+                      <strong>{t('Ready for your final review')}</strong>
                       <p>
-                        This creates a draft booking and approval request. It does not confirm a
-                        sale.
+                        {t(
+                          'This creates a draft booking and approval request. It does not confirm a sale.',
+                        )}
                       </p>
                     </div>
                   </div>
                   <dl className="detail-grid">
                     <div>
-                      <dt>Customer</dt>
+                      <dt>{t('Customer')}</dt>
                       <dd>{labelOf(customer)}</dd>
                     </div>
                     <div>
-                      <dt>Unit</dt>
+                      <dt>{t('Unit')}</dt>
                       <dd>{labelOf(unit)}</dd>
                     </div>
                     <div>
-                      <dt>Payment plan</dt>
+                      <dt>{t('Payment plan')}</dt>
                       <dd>{labelOf(plan)}</dd>
                     </div>
                     <div>
-                      <dt>Booking value</dt>
+                      <dt>{t('Booking value')}</dt>
                       <dd>{money(total.toFixed(2))}</dd>
                     </div>
                   </dl>
                   {owners.length > 0 && (
                     <p className="muted">
-                      {owners.length} owners · {owners.map((o) => o.share + '%').join(' / ')}
+                      {owners.length} {t('owners ·')} {owners.map((o) => o.share + '%').join(' / ')}
                     </p>
                   )}
                   <label className="confirmation-check">
@@ -389,7 +399,7 @@ export default function BookingWizard() {
                       checked={agreed}
                       onChange={(e) => setAgreed(e.target.checked)}
                     />
-                    I have reviewed the customer, property, price, and payment plan.
+                    {t('I have reviewed the customer, property, price, and payment plan.')}
                   </label>
                 </>
               )}
@@ -404,18 +414,23 @@ export default function BookingWizard() {
                   setStep(step - 1);
                 }}
               >
-                Back
+                {t('Back')}
               </Button>
-              {step < 3 ? (
+              {step < 2 ? (
                 <Button
                   disabled={
                     (step === 0 && (!customer.id || !unit.id || unit.status !== 'AVAILABLE')) ||
-                    (step === 1 && !reservation) ||
-                    (step === 2 && !plan.id)
+                    (step === 1 && (!reservation || !plan.id)) ||
+                    reserve.isPending ||
+                    uncertain
                   }
                   onClick={() => {
                     setError(undefined);
-                    if (step === 2) {
+                    if (step === 0 && !reservation) {
+                      reserve.mutate();
+                      return;
+                    }
+                    if (step === 1) {
                       try {
                         if (
                           owners.length &&
@@ -430,7 +445,9 @@ export default function BookingWizard() {
                             !owners.reduce((sum, o) => sum.plus(o.share), new Decimal(0)).eq(100))
                         )
                           throw new Error(
-                            'Select unique joint owners, include the primary customer, and make shares total 100%.',
+                            t(
+                              'Select unique joint owners, include the primary customer, and make shares total 100%.',
+                            ),
                           );
                         if (
                           !/^\d+(\.\d{1,2})?$/.test(discount) ||
@@ -438,7 +455,7 @@ export default function BookingWizard() {
                           (new Decimal(discount).gt(0) && !discountApproval)
                         )
                           throw new Error(
-                            'Enter a valid discount and select its approval, or use zero.',
+                            t('Enter a valid discount and select its approval, or use zero.'),
                           );
                       } catch (e) {
                         setError(e);
@@ -448,7 +465,7 @@ export default function BookingWizard() {
                     setStep(step + 1);
                   }}
                 >
-                  Continue
+                  {step === 0 && !reservation ? t('Hold property & continue') : t('Continue')}
                   <ArrowRight size={16} />
                 </Button>
               ) : (
@@ -457,7 +474,7 @@ export default function BookingWizard() {
                   busy={create.isPending}
                   onClick={() => create.mutate()}
                 >
-                  Submit booking for approval
+                  {t('Submit booking for approval')}
                   <ArrowRight size={16} />
                 </Button>
               )}
@@ -466,40 +483,42 @@ export default function BookingWizard() {
           <aside className="panel booking-summary">
             <div className="booking-summary-top">
               <Building2 size={25} />
-              <span>BOOKING SUMMARY</span>
+              <span>{t('BOOKING SUMMARY')}</span>
             </div>
             <h3>{projectName}</h3>
             <div className="summary-property">
-              {unit.id ? labelOf(unit) : 'Your selected property'}
+              {unit.id ? labelOf(unit) : t('Your selected property')}
               <small>
-                {unit.type
-                  ? String(unit.type).replaceAll('_', ' ')
-                  : 'Choose a unit to get started'}
+                {unit.type ? humanize(String(unit.type)) : t('Choose a unit to get started')}
               </small>
             </div>
             <dl>
               <div>
-                <dt>Base price</dt>
+                <dt>{t('Base price')}</dt>
                 <dd>{money(unit.price)}</dd>
               </div>
               <div>
-                <dt>Additional charges</dt>
+                <dt>{t('Additional property fees')}</dt>
                 <dd>{money(unit.charges)}</dd>
               </div>
               <div>
-                <dt>Discount</dt>
+                <dt>{t('Discount')}</dt>
                 <dd>{money(discount)}</dd>
               </div>
               <div className="summary-total">
-                <dt>Booking value</dt>
+                <dt>{t('Booking value')}</dt>
                 <dd>{money(total.toFixed(2))}</dd>
               </div>
             </dl>
             <p>
               <ShieldCheck size={15} />
-              Final amounts and schedule are validated by the server.
+              {t('Final amounts and schedule are validated by the server.')}
             </p>
-            {reservation && <small>Reservation {String(reservation.id).slice(0, 8)}</small>}
+            {reservation && (
+              <small>
+                {t('Reservation')} {String(reservation.id).slice(0, 8)}
+              </small>
+            )}
           </aside>
         </div>
       )}

@@ -1,0 +1,167 @@
+export const fieldLabels: Record<string, string> = {
+  name: 'Name',
+  code: 'Project code',
+  number: 'Property number',
+  type: 'Property type',
+  typeDetails: 'Other property type',
+  size: 'Property area',
+  measurementUnit: 'Area unit',
+  features: 'Property features',
+  featureImages: 'Feature photos',
+  photoId: 'Photo',
+  price: 'Property price',
+  charges: 'Additional property fees',
+  method: 'Payment method',
+  methodDetails: 'Other payment method',
+  proofImageId: 'Payment proof image',
+  transactionReference: 'Transaction or cheque number',
+  receivingAccountId: 'Account receiving the payment',
+  paidAt: 'Payment date and time',
+  roleIds: 'Roles and responsibilities',
+  projectIds: 'Projects this person can access',
+  source: 'How did the lead find us?',
+  identity: 'National ID or passport number',
+  identityLast4: 'ID ending in',
+  reservationMinutes: 'Property hold duration (minutes)',
+  downPaymentPercent: 'Minimum down payment (%)',
+  graceDays: 'Extra days allowed before overdue',
+  ndcValidityDays: 'Clearance certificate validity (days)',
+  customerId: 'Customer',
+  buyerId: 'New owner',
+  unitId: 'Property',
+  bookingId: 'Booking',
+  planVersionId: 'Payment schedule',
+  dealerId: 'Dealer',
+  assignedTo: 'Responsible team member',
+  commissionPercent: 'Dealer commission (%)',
+  communicationConsent: 'Customer agrees to receive messages',
+  amount: 'Payment amount',
+  phone: 'Phone number',
+  email: 'Email address',
+};
+export const fieldHelp: Record<string, [string, string]> = {
+  name: ['e.g. Ahmed Ali', 'Enter the full name as it should appear on records.'],
+  code: ['e.g. EG-01', 'A short unique project code. Use capital letters, numbers and hyphens.'],
+  number: ['e.g. A-104', 'The plot, apartment, shop or office number used in this project.'],
+  size: [
+    'e.g. 5',
+    'Enter the area as a number, then choose its unit. For example: 5 marla or 1,200 square feet.',
+  ],
+  measurementUnit: [
+    'Choose an area unit',
+    'This describes how the property area is measured; it is not a price.',
+  ],
+  price: [
+    'e.g. 3500000.00',
+    'Enter the total price of this property, not the price per area unit.',
+  ],
+  charges: [
+    'e.g. 0.00',
+    'Extra property fees, such as development or utility connection fees, added once to the property price. Enter 0 if none.',
+  ],
+  phone: ['e.g. +92 300 1234567', 'Include the country code so the person can be contacted.'],
+  email: ['e.g. name@example.com', 'Use an email address that belongs to this person.'],
+  address: ['e.g. House 12, Street 4, Lahore', 'Enter the house, street, city and country.'],
+  source: ['e.g. Website, referral or site visit', 'Tell us where this enquiry came from.'],
+  notes: [
+    'Add useful details about this enquiry',
+    'Include the preferred property, budget, follow-up date or discussion notes.',
+  ],
+  budget: ['e.g. 5000000.00', 'The maximum amount the customer expects to spend.'],
+  password: [
+    'Create a strong password',
+    'Use at least 12 characters with uppercase, lowercase and a number.',
+  ],
+  typeDetails: ['e.g. Warehouse', 'Describe the property type when you select Other.'],
+  methodDetails: [
+    'e.g. Mobile wallet transfer',
+    'Describe the payment method when you select Other.',
+  ],
+  transactionReference: [
+    'e.g. TXN-123456 or cheque number',
+    'Enter the reference shown on the transfer receipt, cheque or payment slip.',
+  ],
+  amount: ['e.g. 50000.00', 'Enter the amount actually received in the selected project currency.'],
+  receivingAccountId: [
+    'Choose the receiving account',
+    'Select the cash or bank account where the money was received.',
+  ],
+  proofImageId: [
+    'Choose a proof image',
+    'A receipt, transfer screenshot, cheque or deposit slip is required for every payment method except cash.',
+  ],
+  commissionPercent: ['e.g. 2.50', 'The percentage of the booking value agreed with this dealer.'],
+  phase: ['e.g. Phase 1', 'The development phase, if this project uses phases.'],
+  block: ['e.g. Block A', 'The block or section containing this property.'],
+  floor: ['e.g. Ground floor or 3', 'The floor of the building, if applicable.'],
+  tower: ['e.g. Tower B', 'The building or tower name, if applicable.'],
+  sector: ['e.g. Sector C', 'The sector containing this property, if applicable.'],
+  identity: [
+    'e.g. National ID or passport number',
+    'Use the official identity number; access to it is restricted.',
+  ],
+  title: ['e.g. Follow-up call', 'Give this item a short, clear title.'],
+  reason: [
+    'Explain why this change is needed',
+    'This explanation is saved with the request for review.',
+  ],
+  comment: [
+    'Add a helpful comment',
+    'Explain your decision clearly for the person reviewing this record.',
+  ],
+};
+export function guidanceFor(field: string, path: string): [string, string] | undefined {
+  if (field === 'name' && /^\/projects(?:\/\{projectId\})?$/.test(path))
+    return ['e.g. Garden Homes', 'Use the name customers and staff know this project by.'];
+  if (field === 'name' && /payment-plans|document-templates|accounts|roles/.test(path))
+    return ['Enter a short, clear name', 'This name appears in lists and selection menus.'];
+  if (field === 'code' && !/^\/projects(?:\/\{projectId\})?$/.test(path))
+    return ['e.g. 1010', 'Enter the unique code used for this account.'];
+  if (field === 'amount' && !path.endsWith('/payments'))
+    return ['e.g. 50000.00', 'Enter the amount in the selected project currency.'];
+  if (field === 'notes' && !/leads|recovery/.test(path))
+    return ['Add useful details', 'Include information needed by the person handling this record.'];
+  return fieldHelp[field];
+}
+export const featureOptions = [
+  'Corner plot',
+  'Park facing',
+  'Main road',
+  'Gated community',
+  'Parking',
+  'Lift',
+  'Balcony',
+  'Security',
+  'Water supply',
+  'Electricity',
+  'Gas connection',
+  'Swimming pool',
+  'Gym',
+];
+export function imagePurpose(path: string) {
+  if (/\/customers(?:\/|$)/.test(path)) return 'CUSTOMER';
+  if (path === '/users') return 'USER';
+  if (/\/dealers$/.test(path)) return 'DEALER';
+  if (/\/units$/.test(path)) return 'UNIT';
+  return 'PROJECT';
+}
+export const roleDescriptions: Record<string, string> = {
+  'Super Admin':
+    'Full administration of users, roles, project records and settings. Assign only to trusted administrators.',
+  Management:
+    'Reviews project performance and approves bookings, discounts, ownership changes and refunds.',
+  'Project Manager':
+    'Manages project settings and properties, and approves bookings and property handovers.',
+  'Sales Manager':
+    'Manages leads, customers, property reservations, bookings and payment schedules.',
+  'Sales Executive': 'Follows up leads, adds customers, reserves properties and prepares bookings.',
+  'Finance Manager':
+    'Records and verifies payments, manages accounting entries and reviews refunds.',
+  'Finance Officer':
+    'Records incoming payments and views customer, booking and account information.',
+  'Recovery Officer': 'Tracks overdue installments and follows up outstanding customer payments.',
+  'Customer Service':
+    'Updates customer details, manages documents and prepares property handovers.',
+  'Dealer Coordinator': 'Manages dealers, their property allocations and commission arrangements.',
+  Auditor: 'Views records and reports for review without changing them.',
+};

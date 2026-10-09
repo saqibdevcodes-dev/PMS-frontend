@@ -1,3 +1,4 @@
+import { t, useLocale } from '../../lib/i18n';
 import {
   AreaChart,
   Area,
@@ -30,6 +31,7 @@ export function CollectionChart({
   data: { label: string; amount: number }[];
   currency: string;
 }) {
+  useLocale();
   return (
     <ResponsiveContainer width="100%" height={220}>
       <AreaChart data={data} margin={{ top: 12, right: 8, left: 4, bottom: 0 }}>
@@ -68,7 +70,7 @@ export function CollectionChart({
         <Area
           type="monotone"
           dataKey="amount"
-          name="Verified collections"
+          name={t('Verified collections')}
           stroke="#4168e8"
           strokeWidth={2.5}
           fill="url(#collection-fill)"
@@ -78,6 +80,7 @@ export function CollectionChart({
   );
 }
 export function InventoryChart({ data }: { data: { name: string; value: number }[] }) {
+  useLocale();
   return (
     <ResponsiveContainer width="100%" height={170}>
       <PieChart>
@@ -112,6 +115,7 @@ export function AgeingChart({
   data: { label: string; amount: number }[];
   currency: string;
 }) {
+  useLocale();
   return (
     <ResponsiveContainer width="100%" height={180}>
       <BarChart data={data}>
@@ -131,7 +135,7 @@ export function AgeingChart({
             borderRadius: 10,
           }}
         />
-        <Bar dataKey="amount" name="Overdue amount" fill="#e8ad57" radius={[5, 5, 0, 0]} />
+        <Bar dataKey="amount" name={t('Overdue amount')} fill="#e8ad57" radius={[5, 5, 0, 0]} />
       </BarChart>
     </ResponsiveContainer>
   );

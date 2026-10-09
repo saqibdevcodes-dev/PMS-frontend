@@ -1,12 +1,20 @@
+import { t, localeCode } from './i18n';
+import { fieldLabels } from './form-guidance';
+import { permissionLabel } from './permission-label';
 import Decimal from 'decimal.js';
 import { usePreferences } from '../stores/preferences';
 export function humanize(value: string) {
-  return value
-    .replace(/([a-z])([A-Z])/g, '$1 $2')
-    .replace(/[-_]/g, ' ')
-    .replace(/\bId\b/g, 'ID')
-    .toLowerCase()
-    .replace(/^./, (s) => s.toUpperCase());
+  if (/^[a-z]+\.[a-z_.]+$/.test(value)) return permissionLabel(value);
+  if (fieldLabels[value] && !['name', 'type', 'amount', 'code'].includes(value))
+    return t(fieldLabels[value]);
+  return t(
+    value
+      .replace(/([a-z])([A-Z])/g, '$1 $2')
+      .replace(/[-_]/g, ' ')
+      .replace(/\bId\b/g, 'ID')
+      .toLowerCase()
+      .replace(/^./, (s) => s.toUpperCase()),
+  );
 }
 export function money(
   value: unknown,
@@ -28,7 +36,7 @@ export function date(value: unknown) {
   const d = new Date(String(value));
   return Number.isNaN(d.getTime())
     ? '—'
-    : new Intl.DateTimeFormat('en-GB', {
+    : new Intl.DateTimeFormat(localeCode(), {
         day: '2-digit',
         month: 'short',
         year: 'numeric',

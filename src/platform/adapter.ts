@@ -1,4 +1,5 @@
 import { Capacitor } from '@capacitor/core';
+import { ApiError } from '../lib/errors';
 type Tokens = { accessToken: string; refreshToken?: string };
 interface DesktopBridge {
   login: (email: string, password: string) => Promise<Tokens>;
@@ -56,9 +57,15 @@ const nativeRequest = async (path: string, body: unknown): Promise<Tokens> => {
     credentials: mobile ? 'omit' : 'include',
     signal: AbortSignal.timeout(30000),
   });
-  const data = await response.json();
-  if (!response.ok || !data.success)
-    throw new Error(data.error?.message ?? 'Your session has expired. Please sign in again.');
+  const data = await response.json().catch(() => null);
+  if (!response.ok || !data?.success)
+    throw new ApiError(
+      response.status,
+      data?.error?.code ?? 'AUTH_REQUEST_FAILED',
+      data?.error?.message ?? 'Unable to sign in. Please try again.',
+      data?.meta?.requestId ?? response.headers.get('X-Request-Id') ?? undefined,
+      data?.error?.details,
+    );
   return data.data as Tokens;
 };
 const storage = async () => (await import('@aparajita/capacitor-secure-storage')).SecureStorage;

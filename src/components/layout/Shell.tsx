@@ -1,3 +1,4 @@
+import { t, useLocale } from '../../lib/i18n';
 import { useState, useEffect } from 'react';
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
@@ -31,6 +32,7 @@ import { Button, Modal } from '../ui';
 import { CommandPalette } from './CommandPalette';
 import { OperationDialog } from '../OperationDialog';
 export default function Shell() {
+  useLocale();
   const user = useAuth((s) => s.user)!;
   const preferences = usePreferences();
   const location = useLocation();
@@ -99,8 +101,8 @@ export default function Shell() {
       navItems.filter((n) => can(n.permission) && n.group !== 'Personal').map((n) => n.group),
     ),
   ];
-  function selectProject(p: Row) {
-    if (p.id !== preferences.projectId && !confirmDiscard()) return;
+  async function selectProject(p: Row) {
+    if (p.id !== preferences.projectId && !(await confirmDiscard())) return;
     preferences.setProject(
       String(p.id),
       String(p.name),
@@ -114,12 +116,12 @@ export default function Shell() {
   return (
     <div className={'app-shell ' + (preferences.collapsed ? 'sidebar-collapsed' : '')}>
       <a className="skip-link" href="#main-content">
-        Skip to content
+        {t('Skip to content')}
       </a>
       {mobile && (
         <button
           className="sidebar-scrim"
-          aria-label="Close navigation"
+          aria-label={t('Close navigation')}
           onClick={() => setMobile(false)}
         />
       )}
@@ -129,28 +131,29 @@ export default function Shell() {
             <Building2 size={22} />
           </span>
           <span className="brand-word">
-            estate<span className="blue">.</span>
+            {t('estate')}
+            <span className="blue">.</span>
           </span>
-          <span className="workspace-badge">WORKSPACE</span>
+          <span className="workspace-badge">{t('WORKSPACE')}</span>
         </NavLink>
         <button
           className="project-switcher"
           onClick={() => setProjectPicker(true)}
-          title="Switch project"
+          title={t('Switch project')}
         >
           <span className="project-icon">
             <Building2 size={17} />
           </span>
           <span className="project-caption">
-            <small>CURRENT PROJECT</small>
-            <strong>{preferences.projectName || 'Choose a project'}</strong>
+            <small>{t('CURRENT PROJECT')}</small>
+            <strong>{preferences.projectName || t('Choose a project')}</strong>
           </span>
           <ChevronDown size={15} />
         </button>
-        <nav className="sidebar-nav" aria-label="Main navigation">
+        <nav className="sidebar-nav" aria-label={t('Main navigation')}>
           {groups.map((group) => (
-            <div className="nav-group" key={group}>
-              <div className="nav-label">{group}</div>
+            <div className="nav-group" key={t(group)}>
+              <div className="nav-label">{t(group)}</div>
               {navItems
                 .filter((n) => n.group === group && can(n.permission))
                 .map((n) => (
@@ -158,11 +161,11 @@ export default function Shell() {
                     key={n.slug}
                     to={'/' + n.slug}
                     onClick={() => setMobile(false)}
-                    title={n.label}
+                    title={t(n.label)}
                     className={({ isActive }) => 'nav-item ' + (isActive ? 'active' : '')}
                   >
                     <n.icon size={18} />
-                    <span>{n.label}</span>
+                    <span>{t(n.label)}</span>
                     {n.slug === 'approvals' && <span className="nav-small-dot" />}
                   </NavLink>
                 ))}
@@ -172,7 +175,7 @@ export default function Shell() {
         <div className="sidebar-bottom">
           <div className="workspace-note">
             <span className="live-dot" />
-            <span>Connected to your portfolio</span>
+            <span>{t('Connected to your portfolio')}</span>
             <ArrowUpRight size={14} />
           </div>
           <button
@@ -185,7 +188,7 @@ export default function Shell() {
             <span className="avatar">{user.name.slice(0, 1).toUpperCase()}</span>
             <span>
               <strong>{user.name}</strong>
-              <small>My account & sessions</small>
+              <small>{t('My account & sessions')}</small>
             </span>
             <ChevronDown size={14} />
           </button>
@@ -198,7 +201,7 @@ export default function Shell() {
               variant="ghost"
               size="icon"
               className="mobile-menu"
-              aria-label="Open navigation"
+              aria-label={t('Open navigation')}
               onClick={() => setMobile(true)}
             >
               <Menu size={20} />
@@ -207,25 +210,25 @@ export default function Shell() {
               variant="ghost"
               size="icon"
               className="desktop-collapse"
-              aria-label="Toggle sidebar"
+              aria-label={t('Toggle sidebar')}
               onClick={preferences.toggleSidebar}
             >
               <ChevronsLeft size={18} />
             </Button>
             <span className="breadcrumb">
-              Workspace <span>/</span> <strong>{current?.label ?? 'New booking'}</strong>
+              {t('Workspace')} <span>/</span> <strong>{t(current?.label ?? 'New booking')}</strong>
             </span>
           </div>
           <div className="topbar-actions">
             <button className="global-search" onClick={() => setSearch(true)}>
               <Search size={16} />
-              <span>Search anything…</span>
+              <span>{t('Search anything…')}</span>
               <kbd>⌘ K</kbd>
             </button>
             <Button
               variant="ghost"
               size="icon"
-              aria-label="Toggle color theme"
+              aria-label={t('Toggle color theme')}
               onClick={() => preferences.setTheme(preferences.theme === 'dark' ? 'light' : 'dark')}
             >
               {preferences.theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
@@ -234,7 +237,7 @@ export default function Shell() {
               variant="ghost"
               size="icon"
               className="notification-button"
-              aria-label={`Notifications, ${unread} unread`}
+              aria-label={t('Notifications, {0} unread', { '0': unread })}
               onClick={() => navigate('/notifications')}
             >
               <Bell size={18} />
@@ -242,14 +245,14 @@ export default function Shell() {
             </Button>
             <Button size="small" onClick={() => setQuick(true)}>
               <Plus size={16} />
-              <span className="create-label">Create</span>
+              <span className="create-label">{t('Create')}</span>
             </Button>
           </div>
         </header>
         {!online && (
           <div className="offline-banner" role="status">
             <WifiOff size={17} />
-            You're offline. Reconnect before making changes.
+            {t("You're offline. Reconnect before making changes.")}
           </div>
         )}
         <main id="main-content" className="workspace">
@@ -257,11 +260,11 @@ export default function Shell() {
         </main>
         <footer className="workspace-footer">
           <span>
-            Estate Workspace <span> / </span> v1.0
+            {t('Estate Workspace')} <span> / </span> v1.0
           </span>
           <span>
             <span className={online ? 'live-dot' : 'offline-dot'} />
-            {online ? 'Online workspace' : 'Offline'}
+            {online ? t('Online workspace') : t('Offline')}
           </span>
         </footer>
       </div>
@@ -269,15 +272,15 @@ export default function Shell() {
       <Modal
         open={projectPicker}
         onOpenChange={setProjectPicker}
-        title="Your projects"
-        description="Choose the workspace you want to work in."
+        title={t('Your projects')}
+        description={t('Choose the workspace you want to work in.')}
       >
         <div className="modal-body">
           <div className="input-icon">
             <Search size={17} />
             <input
-              aria-label="Search projects"
-              placeholder="Search assigned projects…"
+              aria-label={t('Search projects')}
+              placeholder={t('Search assigned projects…')}
               value={projectSearch}
               onChange={(e) => setProjectSearch(e.target.value)}
             />
@@ -300,7 +303,9 @@ export default function Shell() {
               </button>
             ))}
           </div>
-          {!projects.data?.items.length && <p className="muted">No matching assigned projects.</p>}
+          {!projects.data?.items.length && (
+            <p className="muted">{t('No matching assigned projects.')}</p>
+          )}
           <Button
             variant="secondary"
             onClick={() => {
@@ -308,15 +313,15 @@ export default function Shell() {
               setProjectPicker(false);
             }}
           >
-            Manage projects
+            {t('Manage projects')}
           </Button>
         </div>
       </Modal>
       <Modal
         open={quick}
         onOpenChange={setQuick}
-        title="Start something new"
-        description="Actions available to you in this workspace."
+        title={t('Start something new')}
+        description={t('Actions available to you in this workspace.')}
       >
         <div className="quick-grid">
           {resources
@@ -337,7 +342,7 @@ export default function Shell() {
                     }}
                   >
                     <r.icon size={22} />
-                    <strong>{actionTitle(op, r)}</strong>
+                    <strong>{t(actionTitle(op, r))}</strong>
                   </button>
                 )),
             )}
@@ -349,7 +354,7 @@ export default function Shell() {
               }}
             >
               <Plus size={22} />
-              <strong>New booking</strong>
+              <strong>{t('New booking')}</strong>
             </button>
           )}
         </div>

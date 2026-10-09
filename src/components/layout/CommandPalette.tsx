@@ -1,3 +1,4 @@
+import { t, useLocale } from '../../lib/i18n';
 import { useState, useEffect } from 'react';
 import { Command } from 'cmdk';
 import { useQueries } from '@tanstack/react-query';
@@ -12,6 +13,7 @@ import { asRows } from '../../lib/types';
 import { labelOf } from '../../lib/format';
 import { Modal } from '../ui';
 export function CommandPalette({ open, onClose }: { open: boolean; onClose: () => void }) {
+  useLocale();
   const [search, setSearch] = useState('');
   const [debounced, setDebounced] = useState('');
   const projectId = usePreferences((s) => s.projectId);
@@ -41,8 +43,8 @@ export function CommandPalette({ open, onClose }: { open: boolean; onClose: () =
     <Modal
       open={open}
       onOpenChange={(v) => !v && onClose()}
-      title="Find your next move"
-      description="Search your current project's records or jump to a module."
+      title={t('Find your next move')}
+      description={t("Search your current project's records or jump to a module.")}
     >
       <Command className="command" shouldFilter={false}>
         <div className="command-search">
@@ -51,11 +53,11 @@ export function CommandPalette({ open, onClose }: { open: boolean; onClose: () =
             autoFocus
             value={search}
             onValueChange={setSearch}
-            placeholder="Search customers, properties, bookings…"
+            placeholder={t('Search customers, properties, bookings…')}
           />
         </div>
         <Command.List>
-          <Command.Empty>No matching records or pages.</Command.Empty>
+          <Command.Empty>{t('No matching records or pages.')}</Command.Empty>
           <Command.Group heading="Go to">
             {navItems
               .filter(
@@ -64,13 +66,13 @@ export function CommandPalette({ open, onClose }: { open: boolean; onClose: () =
               .map((n) => (
                 <Command.Item key={n.slug} value={n.slug} onSelect={() => go('/' + n.slug)}>
                   <n.icon size={17} />
-                  <span>{n.label}</span>
+                  <span>{t(n.label)}</span>
                   <ArrowUpRight size={14} />
                 </Command.Item>
               ))}
           </Command.Group>
           {targets.map((r, index) => (
-            <Command.Group key={r.slug} heading={r.label}>
+            <Command.Group key={r.slug} heading={t(r.label)}>
               {asRows(queries[index]?.data).map((record) => (
                 <Command.Item
                   key={record.id}
@@ -86,9 +88,9 @@ export function CommandPalette({ open, onClose }: { open: boolean; onClose: () =
           ))}
         </Command.List>
         <div className="command-footer">
-          <span>↑ ↓ to navigate</span>
-          <span>↵ to open</span>
-          <span>esc to close</span>
+          <span>{t('↑ ↓ to navigate')}</span>
+          <span>{t('↵ to open')}</span>
+          <span>{t('esc to close')}</span>
         </div>
       </Command>
     </Modal>

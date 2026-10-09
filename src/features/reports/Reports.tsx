@@ -1,3 +1,4 @@
+import { t, useLocale } from '../../lib/i18n';
 import { useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useQuery, useMutation } from '@tanstack/react-query';
@@ -28,6 +29,7 @@ export const reportGroups: Record<string, string[]> = {
   ],
 };
 export default function Reports() {
+  useLocale();
   const projectId = usePreferences((s) => s.projectId);
   const [params, setParams] = useSearchParams();
   const [draft, setDraft] = useState<Record<string, string>>(() => Object.fromEntries(params));
@@ -53,7 +55,7 @@ export default function Reports() {
       }),
     onSuccess: (r, format) => {
       setJobs((v) => [{ id: String(r.id), projectId, filename: `estate-${kind}.${format}` }, ...v]);
-      toast.success('Report generation started');
+      toast.success(t('Report generation started'));
     },
     onError: (e) => toast.error(e.message),
   });
@@ -68,9 +70,9 @@ export default function Reports() {
   return (
     <>
       <PageHeading
-        eyebrow="Insights & analysis"
-        title="Reporting center"
-        description="Turn your project records into a clear, shared understanding."
+        eyebrow={t('Insights & analysis')}
+        title={t('Reporting center')}
+        description={t('Turn your project records into a clear, shared understanding.')}
         actions={
           can('reports.export') ? (
             <>
@@ -80,11 +82,11 @@ export default function Reports() {
                 onClick={() => exportJob.mutate('pdf')}
               >
                 <FileText size={16} />
-                Export PDF
+                {t('Export PDF')}
               </Button>
               <Button busy={exportJob.isPending} onClick={() => exportJob.mutate('xlsx')}>
                 <Download size={16} />
-                Export Excel
+                {t('Export Excel')}
               </Button>
             </>
           ) : undefined
@@ -100,11 +102,11 @@ export default function Reports() {
       >
         <div className="report-filter-title">
           <SlidersHorizontal size={18} />
-          <strong>Build your report</strong>
+          <strong>{t('Build your report')}</strong>
         </div>
         <div className="report-filter-grid">
           <div className="form-field">
-            <label htmlFor="report-kind">Report</label>
+            <label htmlFor="report-kind">{t('Report')}</label>
             <select
               id="report-kind"
               value={draft.kind ?? kind}
@@ -113,7 +115,7 @@ export default function Reports() {
               {Object.entries(reportGroups)
                 .filter(([group]) => group !== 'Financial statements' || can('finance.read'))
                 .map(([group, kinds]) => (
-                  <optgroup key={group} label={group}>
+                  <optgroup key={group} label={t(group)}>
                     {kinds.map((k) => (
                       <option key={k} value={k}>
                         {humanize(k)}
@@ -124,7 +126,7 @@ export default function Reports() {
             </select>
           </div>
           <div className="form-field">
-            <label htmlFor="report-from">From date</label>
+            <label htmlFor="report-from">{t('From date')}</label>
             <input
               id="report-from"
               type="date"
@@ -133,7 +135,7 @@ export default function Reports() {
             />
           </div>
           <div className="form-field">
-            <label htmlFor="report-to">Through date</label>
+            <label htmlFor="report-to">{t('Through date')}</label>
             <input
               id="report-to"
               type="date"
@@ -142,10 +144,10 @@ export default function Reports() {
             />
           </div>
           <div className="form-field">
-            <label htmlFor="report-phase">Phase</label>
+            <label htmlFor="report-phase">{t('Phase')}</label>
             <input
               id="report-phase"
-              placeholder="All phases"
+              placeholder={t('All phases')}
               value={draft.phase ?? ''}
               onChange={(e) => setDraft({ ...draft, phase: e.target.value })}
             />
@@ -154,10 +156,10 @@ export default function Reports() {
             <div className="form-field">
               <label htmlFor="report-relation">
                 {(draft.kind ?? kind) === 'customer-statement'
-                  ? 'Customer'
+                  ? t('Customer')
                   : (draft.kind ?? kind) === 'vendor-ledger'
-                    ? 'Vendor'
-                    : 'Account'}
+                    ? t('Vendor')
+                    : t('Account')}
               </label>
               {(() => {
                 const name =
@@ -179,7 +181,7 @@ export default function Reports() {
           )}
           <Button type="submit">
             <RefreshCw size={15} />
-            Apply filters
+            {t('Apply filters')}
           </Button>
         </div>
       </form>
@@ -192,7 +194,7 @@ export default function Reports() {
                 {typeof value === 'boolean' ? (
                   <>
                     <CheckCircle2 size={18} />
-                    {value ? 'Balanced' : 'Out of balance'}
+                    {value ? t('Balanced') : t('Out of balance')}
                   </>
                 ) : (
                   money(value, query.data.currency)
@@ -206,7 +208,9 @@ export default function Reports() {
         <div className="panel-heading">
           <div>
             <h2>{humanize(kind)}</h2>
-            <p>{query.data?.currency ?? 'Project currency'} · Server-calculated report</p>
+            <p>
+              {query.data?.currency ?? t('Project currency')} {t('· Server-calculated report')}
+            </p>
           </div>
         </div>
         {query.isError ? (

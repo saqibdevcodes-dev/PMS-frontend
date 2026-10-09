@@ -1,4 +1,6 @@
+import { t, useLocale } from '../../lib/i18n';
 import { useState, useEffect, useMemo } from 'react';
+import { RecordImage } from '../../components/ImageUpload';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import {
@@ -26,16 +28,19 @@ import { DataTable } from '../../components/DataTable';
 import { OperationDialog } from '../../components/OperationDialog';
 import RecordDetail from './RecordDetail';
 export function ProjectRequired() {
+  useLocale();
   return (
     <div className="panel">
       <EmptyState
-        title="Your next project starts here"
-        description="Choose a project from the sidebar, or create your first development to bring your workspace to life."
+        title={t('Your next project starts here')}
+        description={t(
+          'Choose a project from the sidebar, or create your first development to bring your workspace to life.',
+        )}
         action={
           <Button asChild>
             <Link to="/projects">
               <Plus size={16} />
-              Explore projects
+              {t('Explore projects')}
             </Link>
           </Button>
         }
@@ -44,17 +49,21 @@ export function ProjectRequired() {
   );
 }
 export function Unauthorized() {
+  useLocale();
   return (
     <ErrorState
       error={
         new Error(
-          'Your role does not have access to this workspace. Ask an administrator to update your permissions.',
+          t(
+            'Your role does not have access to this workspace. Ask an administrator to update your permissions.',
+          ),
         )
       }
     />
   );
 }
 export default function ResourcePage({ slug }: { slug: string }) {
+  useLocale();
   const resource = resources.find((r) => r.slug === slug)!;
   const projectId = usePreferences((s) => s.projectId);
   const setProject = usePreferences((s) => s.setProject);
@@ -168,13 +177,13 @@ export default function ResourcePage({ slug }: { slug: string }) {
               navigate('/dashboard');
             }}
           >
-            Open workspace
+            {t('Open workspace')}
             <ArrowUpRight size={14} />
           </Button>
         )}
         {allowed.length > 0 && (
           <details className="actions-menu">
-            <summary aria-label={`Actions for ${labelOf(record)}`}>
+            <summary aria-label={t('Actions for {0}', { '0': labelOf(record) })}>
               <MoreHorizontal size={18} />
             </summary>
             <div>
@@ -185,7 +194,7 @@ export default function ResourcePage({ slug }: { slug: string }) {
                     setAction({ operation: op, title: actionTitle(op, resource), record })
                   }
                 >
-                  {actionTitle(op, resource)}
+                  {t(actionTitle(op, resource))}
                 </button>
               ))}
             </div>
@@ -205,7 +214,7 @@ export default function ResourcePage({ slug }: { slug: string }) {
             <Button
               variant="secondary"
               size="icon"
-              aria-label="Refresh records"
+              aria-label={t('Refresh records')}
               onClick={() => void query.refetch()}
             >
               <RefreshCw size={16} className={query.isFetching ? 'spin' : ''} />
@@ -214,7 +223,7 @@ export default function ResourcePage({ slug }: { slug: string }) {
               <Button asChild>
                 <Link to="/bookings/new">
                   <Plus size={17} />
-                  New booking
+                  {t('New booking')}
                 </Link>
               </Button>
             )}
@@ -225,7 +234,7 @@ export default function ResourcePage({ slug }: { slug: string }) {
                 onClick={() => setAction({ operation: op, title: actionTitle(op, resource) })}
               >
                 <Plus size={16} />
-                {actionTitle(op, resource)}
+                {t(actionTitle(op, resource))}
               </Button>
             ))}
           </>
@@ -235,7 +244,7 @@ export default function ResourcePage({ slug }: { slug: string }) {
         <div className="module-links">
           {related.map((r) => (
             <Link to={'/' + r.slug} key={r.slug}>
-              {r.label}
+              {t(r.label)}
               <ArrowUpRight size={12} />
             </Link>
           ))}
@@ -248,8 +257,8 @@ export default function ResourcePage({ slug }: { slug: string }) {
               <div className="input-icon">
                 <Search size={16} />
                 <input
-                  aria-label={`Search ${resource.label}`}
-                  placeholder={`Search ${resource.label.toLowerCase()}…`}
+                  aria-label={t('Search {0}', { '0': t(resource.label) })}
+                  placeholder={t('Search {0}…', { '0': t(resource.label) })}
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                 />
@@ -257,11 +266,11 @@ export default function ResourcePage({ slug }: { slug: string }) {
             )}
             {statuses && (
               <select
-                aria-label="Filter by status"
+                aria-label={t('Filter by status')}
                 value={params.get('status') ?? ''}
                 onChange={(e) => update('status', e.target.value)}
               >
-                <option value="">All statuses</option>
+                <option value="">{t('All statuses')}</option>
                 {statuses.map((s) => (
                   <option key={s} value={s}>
                     {humanize(String(s))}
@@ -271,27 +280,27 @@ export default function ResourcePage({ slug }: { slug: string }) {
             )}
             {slug === 'inventory' && (
               <input
-                aria-label="Filter by phase"
-                placeholder="Phase"
+                aria-label={t('Filter by phase')}
+                placeholder={t('Phase')}
                 value={params.get('phase') ?? ''}
                 onChange={(e) => update('phase', e.target.value)}
               />
             )}
             <select
-              aria-label="Sort order"
+              aria-label={t('Sort order')}
               value={params.get('sort') ?? 'desc'}
               onChange={(e) => update('sort', e.target.value)}
               disabled={!queryParams.has('sort')}
             >
-              <option value="desc">Descending</option>
-              <option value="asc">Ascending</option>
+              <option value="desc">{t('Descending')}</option>
+              <option value="asc">{t('Ascending')}</option>
             </select>
           </div>
           {resource.views && (
             <div className="segmented">
               {slug === 'inventory' && (
                 <button
-                  aria-label="Matrix view"
+                  aria-label={t('Matrix view')}
                   aria-pressed={view === 'matrix'}
                   onClick={() => update('view', 'matrix')}
                 >
@@ -300,7 +309,7 @@ export default function ResourcePage({ slug }: { slug: string }) {
               )}
               {platform.mobile && (
                 <button
-                  aria-label="Scan property reference"
+                  aria-label={t('Scan property reference')}
                   onClick={() =>
                     void scanCode()
                       .then(setSearch)
@@ -311,14 +320,14 @@ export default function ResourcePage({ slug }: { slug: string }) {
                 </button>
               )}
               <button
-                aria-label="Table view"
+                aria-label={t('Table view')}
                 aria-pressed={view === 'table'}
                 onClick={() => update('view', 'table')}
               >
                 <List size={17} />
               </button>
               <button
-                aria-label={slug === 'crm' ? 'Pipeline view' : 'Card view'}
+                aria-label={slug === 'crm' ? t('Pipeline view') : t('Card view')}
                 aria-pressed={view === 'grid'}
                 onClick={() => update('view', 'grid')}
               >
@@ -332,8 +341,8 @@ export default function ResourcePage({ slug }: { slug: string }) {
         ) : view === 'matrix' && slug === 'inventory' && dataItems.length ? (
           <>
             <div className="view-note">
-              Showing the current page of {total} units. Filter by phase or status to narrow the
-              matrix.
+              {t('Showing the current page of')} {total}{' '}
+              {t('units. Filter by phase or status to narrow the matrix.')}
             </div>
             <div className="inventory-matrix">
               {[
@@ -394,7 +403,11 @@ export default function ResourcePage({ slug }: { slug: string }) {
               {dataItems.map((r) => (
                 <button className="unit-card" key={r.id} onClick={() => setDetail(r)}>
                   <div>
-                    <resource.icon size={21} />
+                    {r.photoId ? (
+                      <RecordImage id={String(r.photoId)} alt={labelOf(r)} />
+                    ) : (
+                      <resource.icon size={21} />
+                    )}
                     <Badge value={r.status} />
                   </div>
                   <h3>{labelOf(r)}</h3>
@@ -433,17 +446,17 @@ export default function ResourcePage({ slug }: { slug: string }) {
             disabled={page === 1}
             onClick={() => update('page', String(page - 1))}
           >
-            Previous page
+            {t('Previous page')}
           </Button>
           <span>
-            Page {page} · {total} records
+            {t('Page')} {page} · {total} {t('records')}
           </span>
           <Button
             variant="secondary"
             disabled={page * limit >= total}
             onClick={() => update('page', String(page + 1))}
           >
-            Next page
+            {t('Next page')}
           </Button>
         </div>
       )}

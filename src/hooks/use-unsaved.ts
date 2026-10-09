@@ -1,6 +1,7 @@
 import { useEffect, useId } from 'react';
 import { useBlocker } from 'react-router-dom';
 import { create } from 'zustand';
+import { confirmAction } from '../components/ConfirmDialog';
 const drafts = create<{
   items: Record<string, boolean>;
   set: (id: string, dirty: boolean) => void;
@@ -16,15 +17,16 @@ const drafts = create<{
     }),
   clear: () => set({ items: {} }),
 }));
-export function confirmDiscard() {
+export async function confirmDiscard() {
   if (!Object.keys(drafts.getState().items).length) return true;
   if (
-    !window.confirm(
-      'Leave these unsaved changes? A reserved property stays on hold until it is cancelled or expires.',
-    )
+    !(await confirmAction({
+      title: 'Discard unsaved changes?',
+      description:
+        'Your changes have not been saved. Any reserved property stays on hold until it is cancelled or expires.',
+    }))
   )
     return false;
-  drafts.getState().clear();
   return true;
 }
 export function useUnsavedChanges(dirty: boolean) {
@@ -42,8 +44,16 @@ export function useNavigationGuard() {
   );
   useEffect(() => {
     if (blocker.state === 'blocked') {
-      if (confirmDiscard()) blocker.proceed();
-      else blocker.reset();
+      let current = true;
+      void confirmDiscard().then((discard) => {
+        if (current) {
+          if (discard) blocker.proceed();
+          else blocker.reset();
+        }
+      });
+      return () => {
+        current = false;
+      };
     }
   }, [blocker]);
   useEffect(() => {

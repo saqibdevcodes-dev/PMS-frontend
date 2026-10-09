@@ -1,3 +1,4 @@
+import { t, useLocale } from '../lib/i18n';
 import { useMemo, useState, type ReactNode } from 'react';
 import {
   useReactTable,
@@ -11,6 +12,7 @@ import { Columns3, ChevronLeft, ChevronRight, ArrowUpRight, Copy } from 'lucide-
 import { toast } from 'sonner';
 import { date, humanize, labelOf, money, moneyFields, shortId } from '../lib/format';
 import { type Row, asRows, row } from '../lib/types';
+import { RecordImage } from './ImageUpload';
 import { Badge, Button, EmptyState, Skeleton } from './ui';
 import { usePreferences } from '../stores/preferences';
 export function DisplayValue({
@@ -22,8 +24,11 @@ export function DisplayValue({
   value: unknown;
   currency?: string;
 }) {
+  useLocale();
   if (value === null || value === undefined || value === '')
     return <span className="muted">—</span>;
+  if (name === 'photoId' || name === 'proofImageId' || name === 'imageId')
+    return <RecordImage id={String(value)} />;
   if (name === 'status' || typeof value === 'boolean') return <Badge value={value} />;
   if (moneyFields.test(name)) return <span className="numeric">{money(value, currency)}</span>;
   if (/At$|Date$/.test(name)) return <span className="nowrap">{date(value)}</span>;
@@ -40,7 +45,7 @@ export function DisplayValue({
         {asRows(value)
           .map((v) => String(row(v.role).name ?? v.name ?? ''))
           .filter(Boolean)
-          .join(', ') || 'No roles'}
+          .join(', ') || t('No roles')}
       </span>
     );
   if (Array.isArray(value))
@@ -81,6 +86,7 @@ export function DataTable({
   empty?: ReactNode;
   controls?: boolean;
 }) {
+  const language = useLocale();
   const [visibility, setVisibility] = useState<VisibilityState>({});
   const [selection, setSelection] = useState<RowSelectionState>({});
   const definitions = useMemo<ColumnDef<Row>[]>(
@@ -92,7 +98,7 @@ export function DataTable({
               header: ({ table }) => (
                 <input
                   type="checkbox"
-                  aria-label="Select this page"
+                  aria-label={t('Select this page')}
                   checked={table.getIsAllRowsSelected()}
                   onChange={table.getToggleAllRowsSelectedHandler()}
                 />
@@ -100,7 +106,7 @@ export function DataTable({
               cell: ({ row: r }) => (
                 <input
                   type="checkbox"
-                  aria-label={`Select ${labelOf(r.original)}`}
+                  aria-label={t('Select {0}', { '0': labelOf(r.original) })}
                   checked={r.getIsSelected()}
                   onChange={r.getToggleSelectedHandler()}
                   onClick={(e) => e.stopPropagation()}
@@ -137,7 +143,9 @@ export function DataTable({
           ]
         : []),
     ],
-    [columns, controls, onRow, actions, currency],
+    // humanize reads the active locale, so headers must be rebuilt when it changes.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [columns, controls, onRow, actions, currency, language],
   );
   const table = useReactTable({
     data,
@@ -156,7 +164,7 @@ export function DataTable({
       {controls && (
         <div className="table-options">
           <span>
-            {totalRows.toLocaleString()} records
+            {totalRows.toLocaleString()} {t('records')}
             {Object.values(selection).filter(Boolean).length > 0 && (
               <Button
                 variant="ghost"
@@ -170,18 +178,18 @@ export function DataTable({
                       )
                       .join('\n'),
                   );
-                  toast.success('Selected references copied');
+                  toast.success(t('Selected references copied'));
                 }}
               >
                 <Copy size={13} />
-                Copy selected references
+                {t('Copy selected references')}
               </Button>
             )}
           </span>
           <details className="column-picker">
             <summary>
               <Columns3 size={14} />
-              Columns
+              {t('Columns')}
             </summary>
             <div>
               {table
@@ -206,8 +214,10 @@ export function DataTable({
       ) : !data.length ? (
         (empty ?? (
           <EmptyState
-            title="No records yet"
-            description="New records will appear here. Try adjusting your filters or create your first record."
+            title={t('No records yet')}
+            description={t(
+              'New records will appear here. Try adjusting your filters or create your first record.',
+            )}
           />
         ))
       ) : (
@@ -243,8 +253,8 @@ export function DataTable({
       {onPage && totalRows > 0 && (
         <div className="pagination">
           <span>
-            Showing {Math.min((page - 1) * limit + 1, totalRows)}–
-            {Math.min(page * limit, totalRows)} of {totalRows.toLocaleString()}
+            {t('Showing')} {Math.min((page - 1) * limit + 1, totalRows)}–
+            {Math.min(page * limit, totalRows)} {t('of')} {totalRows.toLocaleString()}
           </span>
           <div>
             <Button
@@ -257,7 +267,7 @@ export function DataTable({
               }}
             >
               <ChevronLeft size={15} />
-              Previous
+              {t('Previous')}
             </Button>
             <span>
               {page} / {totalPages}
@@ -271,7 +281,7 @@ export function DataTable({
                 onPage(page + 1);
               }}
             >
-              Next
+              {t('Next')}
               <ChevronRight size={15} />
             </Button>
           </div>

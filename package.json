@@ -5,7 +5,10 @@
   "type": "module",
   "main": "electron/main.cjs",
   "scripts": {
-    "dev": "vite --host 127.0.0.1 --port 3000 --strictPort",
+    "dev": "vite --mode development --host 127.0.0.1 --port 3000 --strictPort",
+    "dev:production": "vite --mode production --host 127.0.0.1 --port 3000 --strictPort",
+    "dev:local": "vite --mode development --host 127.0.0.1 --port 3000 --strictPort",
+    "test:portal": "playwright test --config playwright.portal.config.ts",
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview --host 127.0.0.1 --port 3000 --strictPort",
     "typecheck": "tsc --noEmit",

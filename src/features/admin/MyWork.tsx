@@ -1,3 +1,4 @@
+import { t, useLocale } from '../../lib/i18n';
 import { useQueries } from '@tanstack/react-query';
 import { Link, useNavigate } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
@@ -9,6 +10,7 @@ import { PageHeading, ErrorState, EmptyState } from '../../components/ui';
 import { DataTable } from '../../components/DataTable';
 import { ProjectRequired } from '../resources/ResourcePage';
 export default function MyWork() {
+  useLocale();
   const projectId = usePreferences((s) => s.projectId);
   const user = useAuth((s) => s.user)!;
   const navigate = useNavigate();
@@ -58,9 +60,9 @@ export default function MyWork() {
   return (
     <>
       <PageHeading
-        eyebrow="Your daily focus"
-        title="My work"
-        description="Assigned records and decisions that need your attention."
+        eyebrow={t('Your daily focus')}
+        title={t('My work')}
+        description={t('Assigned records and decisions that need your attention.')}
       />
       <div className="my-work-grid">
         {groups.map((group, i) => {
@@ -72,10 +74,10 @@ export default function MyWork() {
               <div className="panel-heading">
                 <div>
                   <h2>{group.name}</h2>
-                  <p>Most recent records in this project</p>
+                  <p>{t('Most recent records in this project')}</p>
                 </div>
                 <Link className="text-link" to={'/' + group.slug}>
-                  Open module
+                  {t('Open module')}
                   <ArrowRight size={14} />
                 </Link>
               </div>
@@ -91,8 +93,8 @@ export default function MyWork() {
                   empty={
                     <EmptyState
                       compact
-                      title="Nothing waiting here"
-                      description="New assignments and requests will appear as they arrive."
+                      title={t('Nothing waiting here')}
+                      description={t('New assignments and requests will appear as they arrive.')}
                     />
                   }
                 />
@@ -104,8 +106,8 @@ export default function MyWork() {
       {!groups.length && (
         <div className="panel">
           <EmptyState
-            title="Your workspace is ready"
-            description="An administrator can assign the project permissions you need."
+            title={t('Your workspace is ready')}
+            description={t('An administrator can assign the project permissions you need.')}
           />
         </div>
       )}

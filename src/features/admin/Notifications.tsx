@@ -1,3 +1,4 @@
+import { t, useLocale } from '../../lib/i18n';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { useState } from 'react';
 import { Bell, CheckCheck } from 'lucide-react';
@@ -8,6 +9,7 @@ import { asRows, type Page } from '../../lib/types';
 import { date } from '../../lib/format';
 import { PageHeading, Button, EmptyState, ErrorState, Skeleton, Badge } from '../../components/ui';
 export default function Notifications() {
+  useLocale();
   const [page, setPage] = useState(1);
   const query = useQuery({
     queryKey: ['notifications', page],
@@ -22,9 +24,9 @@ export default function Notifications() {
   return (
     <>
       <PageHeading
-        eyebrow="Stay in the loop"
-        title="Notifications"
-        description="Updates from your team and your project workflows."
+        eyebrow={t('Stay in the loop')}
+        title={t('Notifications')}
+        description={t('Updates from your team and your project workflows.')}
       />
       <section className="panel notifications-list">
         {query.isLoading ? (
@@ -53,30 +55,32 @@ export default function Notifications() {
                   onClick={() => mark.mutate(String(n.id))}
                 >
                   <CheckCheck size={16} />
-                  Mark read
+                  {t('Mark read')}
                 </Button>
               )}
             </article>
           ))
         ) : (
           <EmptyState
-            title="You're all caught up"
-            description="Your notifications will appear here as your team works."
+            title={t("You're all caught up")}
+            description={t('Your notifications will appear here as your team works.')}
           />
         )}
       </section>
       {query.data && query.data.pagination.totalPages > 1 && (
         <div className="grid-pagination">
           <Button variant="secondary" disabled={page === 1} onClick={() => setPage(page - 1)}>
-            Previous
+            {t('Previous')}
           </Button>
-          <span>Page {page}</span>
+          <span>
+            {t('Page')} {page}
+          </span>
           <Button
             variant="secondary"
             disabled={page >= query.data.pagination.totalPages}
             onClick={() => setPage(page + 1)}
           >
-            Next
+            {t('Next')}
           </Button>
         </div>
       )}

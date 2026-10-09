@@ -1,3 +1,4 @@
+import { t, useLocale } from '../../lib/i18n';
 import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { ArrowUpRight, ShieldCheck } from 'lucide-react';
@@ -5,10 +6,11 @@ import { api } from '../../lib/api';
 import { usePreferences } from '../../stores/preferences';
 import { can } from '../../stores/auth';
 import { resources } from '../resources/catalog';
-import { money } from '../../lib/format';
+import { money, humanize } from '../../lib/format';
 import { PageHeading, ErrorState } from '../../components/ui';
 import { ProjectRequired, Unauthorized } from '../resources/ResourcePage';
 export default function Finance() {
+  useLocale();
   const projectId = usePreferences((s) => s.projectId);
   const balance = useQuery({
     queryKey: ['finance-overview', projectId],
@@ -24,9 +26,11 @@ export default function Finance() {
   return (
     <>
       <PageHeading
-        eyebrow="Finance & accounting"
-        title="Financial workspace"
-        description="A reliable ledger. A clear view of every movement."
+        eyebrow={t('Accounts & money')}
+        title={t('Accounts & money')}
+        description={t(
+          'Manage bank accounts, business expenses and accounting records. Use Payments received to record customer payments.',
+        )}
       />
       {balance.isError ? (
         <ErrorState error={balance.error} />
@@ -38,18 +42,18 @@ export default function Finance() {
               <span>
                 <strong>
                   {balance.data.summary.balanced
-                    ? 'Your trial balance reconciles'
-                    : 'Your trial balance needs review'}
+                    ? t('Your accounting entries are balanced')
+                    : t('Your accounting entries need review')}
                 </strong>
-                <small>All posted journal lines, including reversals</small>
+                <small>{t('All posted journal lines, including reversals')}</small>
               </span>
             </div>
             <div>
-              <span>Total debits</span>
+              <span>{t('Total debits')}</span>
               <strong>{money(balance.data.summary.debit, balance.data.currency)}</strong>
             </div>
             <div>
-              <span>Total credits</span>
+              <span>{t('Total credits')}</span>
               <strong>{money(balance.data.summary.credit, balance.data.currency)}</strong>
             </div>
           </div>
@@ -67,10 +71,10 @@ export default function Finance() {
               <span className="finance-icon">
                 <r.icon size={23} />
               </span>
-              <h2>{r.label}</h2>
-              <p>{r.description}</p>
+              <h2>{t(r.label)}</h2>
+              <p>{t(r.description)}</p>
               <span className="text-link">
-                Open workspace
+                {t('Open workspace')}
                 <ArrowUpRight size={15} />
               </span>
             </Link>
@@ -80,8 +84,8 @@ export default function Finance() {
         <section className="panel financial-reports">
           <div className="panel-heading">
             <div>
-              <h2>Financial statements</h2>
-              <p>Source records, reconciled by the backend</p>
+              <h2>{t('Financial statements')}</h2>
+              <p>{t('Reports that show income, expenses, bank balances and amounts owed')}</p>
             </div>
           </div>
           <div>
@@ -95,7 +99,7 @@ export default function Finance() {
               'ledger',
             ].map((kind) => (
               <Link to={'/reports?kind=' + kind} key={kind}>
-                {kind.replaceAll('-', ' ')}
+                {humanize(kind)}
                 <ArrowUpRight size={16} />
               </Link>
             ))}

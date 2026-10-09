@@ -1,10 +1,12 @@
+import { t, useLocale } from '../lib/i18n';
 import { useEffect, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Search, ChevronLeft, ChevronRight } from 'lucide-react';
 import { api, queryString } from '../lib/api';
 import { operations, projectRoot, resolvePath, supportsQuery } from '../lib/contract';
 import { asRows, row, type Row, type Page } from '../lib/types';
-import { labelOf, shortId } from '../lib/format';
+import { roleDescriptions, fieldLabels } from '../lib/form-guidance';
+import { labelOf, shortId, humanize } from '../lib/format';
 import { usePreferences } from '../stores/preferences';
 import { can } from '../stores/auth';
 import { Button } from './ui';
@@ -43,6 +45,7 @@ export function RelationSelect({
   onRecord,
   entityId,
   disabled,
+  statusFilter,
 }: {
   name: string;
   value: string;
@@ -51,7 +54,9 @@ export function RelationSelect({
   onRecord?: (record: Row) => void;
   entityId?: string;
   disabled?: boolean;
+  statusFilter?: string;
 }) {
+  useLocale();
   const projectId = usePreferences((s) => s.projectId);
   const [search, setSearch] = useState('');
   const [debounced, setDebounced] = useState('');
@@ -68,12 +73,13 @@ export function RelationSelect({
   const op = operations.find((o) => o.path === path && o.method === 'get');
   const permitted = Boolean(op && can(op.permission) && (source?.startsWith('/') || projectId));
   const query = useQuery({
-    queryKey: ['relation', projectId, name, debounced, page],
+    queryKey: ['relation', projectId, name, debounced, page, statusFilter],
     enabled: permitted,
     queryFn: ({ signal }) =>
       api(
         resolvePath(path) +
           queryString({
+            ...(statusFilter && supportsQuery(path, 'status') ? { status: statusFilter } : {}),
             ...(supportsQuery(path, 'page') ? { page, limit: 25 } : {}),
             ...(supportsQuery(path, 'search') ? { search: debounced } : {}),
           }),
@@ -97,7 +103,7 @@ export function RelationSelect({
         id={id}
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        placeholder="Record ID (lookup permission required)"
+        placeholder={t('Record ID (lookup permission required)')}
         disabled={disabled}
       />
     );
@@ -106,8 +112,8 @@ export function RelationSelect({
       <div className="input-icon">
         <Search size={14} />
         <input
-          aria-label={`Search ${name}`}
-          placeholder="Search records…"
+          aria-label={t('Search {0}', { '0': humanize(name) })}
+          placeholder={t('Search {0}…', { '0': t(fieldLabels[name] ?? 'records') })}
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           disabled={disabled}
@@ -123,14 +129,16 @@ export function RelationSelect({
           if (item) onRecord?.(item);
         }}
       >
-        <option value="">{query.isLoading ? 'Loading…' : 'Select a record'}</option>
+        <option value="">{query.isLoading ? t('Loading…') : t('Select a record')}</option>
         {value && !items.some((r) => r.id === value) && (
-          <option value={value}>{shortId(value)} · selected record</option>
+          <option value={value}>
+            {shortId(value)} {t('· selected record')}
+          </option>
         )}
         {items.map((r) => (
           <option key={r.id} value={r.id}>
-            {labelOf(r)}
-            {r.status ? ` · ${r.status}` : ''}
+            {name === 'roleIds' ? t(labelOf(r)) : labelOf(r)}
+            {r.status ? ` · ${humanize(String(r.status))}` : ''}
           </option>
         ))}
       </select>
@@ -146,7 +154,7 @@ export function RelationSelect({
             <ChevronLeft size={14} />
           </Button>
           <small>
-            Page {page} of {totalPages}
+            {t('Page')} {page} {t('of')} {totalPages}
           </small>
           <Button
             type="button"
@@ -159,8 +167,26 @@ export function RelationSelect({
           </Button>
         </div>
       )}
+      {name === 'roleIds' && items.find((r) => r.id === value) && (
+        <div className="role-explanation">
+          <p>
+            {t(
+              roleDescriptions[String(items.find((r) => r.id === value)?.name)] ??
+                'Custom role. Review its current permissions below.',
+            )}
+          </p>
+          <details>
+            <summary>{t('View current permissions')}</summary>
+            <ul>
+              {asRows(items.find((r) => r.id === value)?.permissions).map((p) => (
+                <li key={String(p.permissionKey)}>{humanize(String(p.permissionKey))}</li>
+              ))}
+            </ul>
+          </details>
+        </div>
+      )}
       {query.isError && (
-        <small className="field-error">Could not load records. Retry your search.</small>
+        <small className="field-error">{t('Could not load records. Retry your search.')}</small>
       )}
     </div>
   );

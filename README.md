@@ -1,35 +1,31 @@
 # Estate PMS frontend
 
-React, Vite and strict TypeScript frontend for the backend in `../PMS-BE`. The shared application runs in a browser, Electron on Windows, and Capacitor on Android/iOS. It uses the real REST API, with project membership and permissions enforced by the backend.
+React, Vite and strict TypeScript frontend for the backend in `../BE` (the older `../PMS-BE` layout is also supported for API generation). The shared application runs in a browser, Electron on Windows, and Capacitor on Android/iOS. It uses the real REST API, with project membership and permissions enforced by the backend.
 
 For `https://etihadrealestate.tech`, follow the [production deployment guide](docs/production-deployment.md). The frontend GitHub Actions workflow deploys static files to the existing VPS and calls `https://api.etihadrealestate.tech/api/v1` directly.
 
+Customers now have their own `/portal/login` and dashboard, with property details, installments, personal receipts, shared documents and statements. Staff invite customers from their record. See the [customer portal and environment guide](docs/customer-portal.md) for rollout requirements and the security finding discovered during validation.
+
 ## Open the application
 
-With the backend Docker stack running, open **http://localhost:3000**. Sign in with the administrator credentials configured in `../PMS-BE/.env` (`ADMIN_EMAIL` and `ADMIN_PASSWORD`). Credentials are deliberately not copied into frontend files. An empty project list is expected on a new installation: create a project, configure its accounts and payment plans, then add inventory and customers.
-
-From the parent `PMS` directory, start or rebuild the existing containers with:
-
-```powershell
-docker compose -p pms -f PMS-BE/compose.yaml --profile app up -d --build
-docker compose -f PMS-FE/compose.yaml up -d --build
-```
-
-The frontend joins the existing `pms_default` Docker network. Set `PMS_DOCKER_NETWORK` if your backend uses a different Compose project name. Keep the existing `pms` project name to reuse its databases and volumes after moving the backend into `PMS-BE`.
+Start the frontend as described below and open **http://localhost:3000**. The default command calls your separately running local backend at **http://localhost:4000/api/v1** directly. Sign in with an account from that backend; credentials are deliberately not copied into frontend files. Staff accounts open the project workspace and invited customer accounts open the customer portal.
 
 ## Local development
 
-Use Node.js 22.12 or newer. Run these commands inside `PMS-FE`:
+Use Node.js 22.12 or newer. Run these commands inside `FE`:
 
 ```powershell
 npm ci
-cp .env.example .env
 npm run dev
 ```
 
-Vite proxies `/api` to `http://127.0.0.1:4000`. `PMS_BACKEND_URL` changes that upstream. Stop only the frontend container before using development port 3000 (`docker compose stop frontend` from `PMS-FE`). Use **localhost**, matching the backend's trusted browser origin. Do not put passwords, signing keys or backend secrets in `VITE_*` variables; they are public build settings.
+`npm run dev` and `npm run dev:local` select `.env.development`, with `VITE_API_BASE_URL=http://localhost:4000/api/v1`. Copy `.env.development.example` if the file does not exist. Browser API requests now show port **4000**, while the frontend remains on **3000**. Restart Vite after changing environment files or switching modes.
+
+Use `npm run dev:production` to select `.env.production` and the hosted backend. In that mode, `VITE_API_BASE_URL=/api/v1` uses Vite's proxy with `PMS_BACKEND_URL=https://api.etihadrealestate.tech`. No backend is started by these frontend commands. Open the frontend using **localhost** and include `http://localhost:3000` in the local backend's `TRUSTED_ORIGINS` for direct requests and cookie sessions. Do not put passwords, signing keys or backend secrets in `VITE_*` variables; they are public build settings.
 
 ## Features
+
+See [forms, photos and languages](docs/forms-and-languages.md) for the guided forms, Urdu/Arabic interface and required backend migration.
 
 - Responsive project workspace, light/dark/system themes, command search, notifications and personal work.
 - Inventory table/cards/matrix, search and pagination, CSV import, customer records and CRM pipeline.
@@ -54,7 +50,7 @@ npm run test:e2e
 npm audit
 ```
 
-API generation reads `../PMS-BE/docs/openapi.json`. After backend schema changes, run `npm run db:generate`, `npm run build` and `npm run openapi` inside `PMS-BE`, then regenerate frontend contracts.
+API generation reads `../BE/docs/openapi.json`, with `../PMS-BE` as a fallback. After backend schema changes, run `npm run db:generate`, `npm run build` and `npm run openapi` inside the backend, then regenerate frontend contracts. `npm run test:portal` runs the separate portal browser tests with intercepted API fixtures and no backend services.
 
 Browser/desktop integration tests require the backend dependencies running in Docker, installed Electron binaries, and a current build in `PMS-FE/dist`. They start a separate API/worker on port 4100 and Vite on 3100. They reset **only** the dedicated `pms_frontend_test` database, Redis database 5, and use the `pms-frontend-test` storage bucket. Do not use those test resources for application data. Test credentials and screenshots are written to ignored `test-results`; the HTML report is `playwright-report/index.html`. The main application database is not seeded with demonstration transactions.
 
