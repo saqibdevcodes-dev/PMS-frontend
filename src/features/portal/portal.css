@@ -17,7 +17,7 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  font-size: 27px;
+  font-size: clamp(14px, 2vw, 24px);
   font-weight: 750;
   letter-spacing: -1px;
 }
@@ -440,6 +440,8 @@
 @media (max-width: 720px) {
   .portal-header {
     padding: 16px 20px;
+    flex-wrap: wrap;
+    gap: 12px;
   }
   .portal-user > span {
     display: none;

@@ -37,10 +37,7 @@ export default function AuthPage() {
           <span className="brand-mark">
             <Building2 size={24} />
           </span>
-          <span>
-            {t('estate')}
-            <span className="blue">.</span>
-          </span>
+          <span>etihadrealestate</span>
         </Link>
         <div className="auth-copy">
           <div className="eyebrow">
@@ -264,9 +261,7 @@ export default function AuthPage() {
           </div>
         </div>
         <footer className="auth-footer">
-          <span>
-            © {new Date().getFullYear()} {t('Estate Workspace')}
-          </span>
+          <span>© {new Date().getFullYear()} etihadrealestate</span>
           <span>{t('Online-first. Always in sync.')}</span>
         </footer>
       </main>

@@ -71,8 +71,7 @@ export default function Portal() {
             <Building2 size={24} />
           </span>
           <span>
-            {t('estate')}
-            <span className="blue">.</span>
+            etihadrealestate
             <small>{t('CUSTOMER PORTAL')}</small>
           </span>
         </Link>

@@ -145,7 +145,7 @@ export default function Profile() {
         <section className="panel preferences-card">
           <h2>{t('Desktop application')}</h2>
           <p>
-            {t('Estate PMS · Version')} {updates.data?.version ?? '1.0.0'}
+            etihadrealestate · {t('Version')} {updates.data?.version ?? '1.0.0'}
           </p>
           <Button
             variant="secondary"

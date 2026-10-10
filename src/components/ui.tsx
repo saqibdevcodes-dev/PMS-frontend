@@ -205,10 +205,7 @@ export function BrandedLoader() {
       <div className="brand-mark">
         <Building2 size={26} />
       </div>
-      <h2>
-        {t('Estate')}
-        <span className="blue">.</span>
-      </h2>
+      <h2>etihadrealestate</h2>
       <span className="loading-line" />
       <p>{t('Preparing your workspace')}</p>
     </div>

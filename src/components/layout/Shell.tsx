@@ -126,15 +126,14 @@ export default function Shell() {
         />
       )}
       <aside className={'sidebar ' + (mobile ? 'mobile-open' : '')}>
-        <NavLink to="/dashboard" className="brand">
+        <NavLink to="/dashboard" className="brand" aria-label="etihadrealestate">
           <span className="brand-mark">
             <Building2 size={22} />
           </span>
           <span className="brand-word">
-            {t('estate')}
-            <span className="blue">.</span>
+            etihadrealestate
+            <span className="workspace-badge">{t('WORKSPACE')}</span>
           </span>
-          <span className="workspace-badge">{t('WORKSPACE')}</span>
         </NavLink>
         <button
           className="project-switcher"
@@ -260,7 +259,7 @@ export default function Shell() {
         </main>
         <footer className="workspace-footer">
           <span>
-            {t('Estate Workspace')} <span> / </span> v1.0
+            etihadrealestate <span> / </span> v1.0
           </span>
           <span>
             <span className={online ? 'live-dot' : 'offline-dot'} />

@@ -313,11 +313,13 @@ code {
   flex-shrink: 0;
 }
 .workspace-badge {
+  display: block;
+  width: fit-content;
   font-size: 7px;
   letter-spacing: 1px;
   font-weight: 500;
   color: #8595af;
-  margin-left: auto;
+  margin-top: 5px;
   border: 1px solid #405168;
   border-radius: 3px;
   padding: 3px 4px;
@@ -339,6 +341,11 @@ code {
 .sidebar .brand {
   padding: 0 7px;
   margin-bottom: 30px;
+}
+.brand-word {
+  font-size: 12px;
+  letter-spacing: -0.2px;
+  white-space: nowrap;
 }
 .project-switcher {
   display: flex;
@@ -1986,7 +1993,9 @@ tr[data-selected='true'] {
   min-height: 100dvh;
 }
 .auth-story .brand {
-  font-size: 33px;
+  font-size: clamp(16px, 2vw, 24px);
+  letter-spacing: -0.6px;
+  white-space: nowrap;
 }
 .auth-story .brand-mark {
   width: 40px;
@@ -3431,8 +3440,8 @@ tr[data-selected='true'] {
     font-size: 34px;
   }
   .auth-top:before {
-    content: 'estate.';
-    font-size: 26px;
+    content: 'etihadrealestate';
+    font-size: 20px;
     font-weight: 650;
     letter-spacing: -1px;
     color: var(--primary);

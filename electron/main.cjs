@@ -120,7 +120,7 @@ function createWindow() {
     height: 960,
     minWidth: 390,
     minHeight: 650,
-    title: 'Estate · Property workspace',
+    title: 'etihadrealestate.com',
     backgroundColor: '#f5f7fb',
     show: false,
     icon: path.join(__dirname, '../public/icon.png'),
@@ -267,7 +267,7 @@ app
     Menu.setApplicationMenu(
       Menu.buildFromTemplate([
         {
-          label: 'Estate',
+          label: 'etihadrealestate.com',
           submenu: [
             {
               label: 'Print current view',
@@ -285,7 +285,7 @@ app
     createWindow();
   })
   .catch((error) => {
-    dialog.showErrorBox('Estate could not start', error.message);
+    dialog.showErrorBox('etihadrealestate.com could not start', error.message);
     app.quit();
   });
 app.on('window-all-closed', () => app.quit());
