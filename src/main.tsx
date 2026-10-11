@@ -5,7 +5,6 @@ import { onlineManager, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from 'sonner';
 import App from './app/App';
 import { ConfirmDialog } from './components/ConfirmDialog';
-import { LanguageSelector } from './components/LanguageSelector';
 import { z } from 'zod';
 import { connectNative } from './platform/adapter';
 import { queryClient } from './lib/query';
@@ -49,7 +48,6 @@ function Root() {
   return (
     <QueryClientProvider client={queryClient}>
       <App />
-      <LanguageSelector />
       <ConfirmDialog />
       <Toaster richColors closeButton theme={theme} position="bottom-right" />
     </QueryClientProvider>

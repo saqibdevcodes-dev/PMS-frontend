@@ -35,6 +35,7 @@ import {
 } from '../../components/ui';
 import type { Page } from '../../lib/types';
 import Profile from '../admin/Profile';
+import { BrandLogo } from '../../components/BrandLogo';
 import type {
   PortalBooking,
   PortalDashboard,
@@ -66,14 +67,9 @@ export default function Portal() {
   return (
     <div className="customer-portal">
       <header className="portal-header">
-        <Link className="portal-brand" to="/portal">
-          <span className="brand-mark">
-            <Building2 size={24} />
-          </span>
-          <span>
-            etihadrealestate
-            <small>{t('CUSTOMER PORTAL')}</small>
-          </span>
+        <Link className="portal-brand" to="/portal" aria-label="Etihad Real Estate">
+          <BrandLogo className="portal-logo" decorative />
+          <small>{t('CUSTOMER PORTAL')}</small>
         </Link>
         <div className="portal-user">
           <span>{user.name}</span>

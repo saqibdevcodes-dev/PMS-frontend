@@ -10,6 +10,7 @@ import { asRows, type Row, type Operation } from '../../lib/types';
 import { Button, PageHeading, ErrorState } from '../../components/ui';
 import { OperationDialog } from '../../components/OperationDialog';
 import { ProjectRequired, Unauthorized } from '../resources/ResourcePage';
+import { LanguageSelector } from '../../components/LanguageSelector';
 export default function Settings() {
   useLocale();
   const projectId = usePreferences((s) => s.projectId);
@@ -34,7 +35,6 @@ export default function Settings() {
     },
   });
   if (!can('settings.manage')) return <Unauthorized />;
-  if (!projectId) return <ProjectRequired />;
   const choices = [
     {
       icon: SlidersHorizontal,
@@ -62,55 +62,70 @@ export default function Settings() {
         title={t('Project settings')}
         description={t('Configure the rules that keep your project running consistently.')}
       />
-      <div className="finance-modules">
-        {choices
-          .filter((c) => can(c.op.permission))
-          .map((choice) => (
-            <section className="panel" key={t(choice.title)}>
-              <span className="finance-icon">
-                <choice.icon size={23} />
-              </span>
-              <h2>{t(choice.title)}</h2>
-              <p>{t(choice.description)}</p>
-              <Button
-                variant="secondary"
-                disabled={choice.op.method === 'patch' && !project.data}
-                onClick={() => setAction({ operation: choice.op, title: choice.title })}
-              >
-                {t('Configure')}
-              </Button>
-            </section>
-          ))}
-      </div>
-      {query.isError && <ErrorState error={query.error} />}
-      {project.isError && <ErrorState error={project.error} retry={() => void project.refetch()} />}
-      <section className="panel settings-current">
-        <div className="panel-heading">
-          <div>
-            <h2>{t('Current settings')}</h2>
-            <p>{t('Recorded configuration for the selected project')}</p>
-          </div>
+      <section className="panel language-settings">
+        <div>
+          <h2>{t('System language')}</h2>
+          <p>{t('Choose the language used throughout your workspace.')}</p>
         </div>
-        {asRows(query.data).map((r) => (
-          <div key={r.id ?? String(r.key)}>
-            <h3>{String(r.key)}</h3>
-            <dl className="detail-grid">
-              {Object.entries(r.value && typeof r.value === 'object' ? (r.value as Row) : {}).map(
-                ([k, v]) => (
-                  <div key={k}>
-                    <dt>{k}</dt>
-                    <dd>
-                      <code>{String(v)}</code>
-                    </dd>
-                  </div>
-                ),
-              )}
-            </dl>
-          </div>
-        ))}
+        <LanguageSelector />
       </section>
-      {action && (
-        <OperationDialog {...action} record={project.data} onClose={() => setAction(null)} />
+      {!projectId ? (
+        <ProjectRequired />
+      ) : (
+        <>
+          <div className="finance-modules">
+            {choices
+              .filter((c) => can(c.op.permission))
+              .map((choice) => (
+                <section className="panel" key={t(choice.title)}>
+                  <span className="finance-icon">
+                    <choice.icon size={23} />
+                  </span>
+                  <h2>{t(choice.title)}</h2>
+                  <p>{t(choice.description)}</p>
+                  <Button
+                    variant="secondary"
+                    disabled={choice.op.method === 'patch' && !project.data}
+                    onClick={() => setAction({ operation: choice.op, title: choice.title })}
+                  >
+                    {t('Configure')}
+                  </Button>
+                </section>
+              ))}
+          </div>
+          {query.isError && <ErrorState error={query.error} />}
+          {project.isError && (
+            <ErrorState error={project.error} retry={() => void project.refetch()} />
+          )}
+          <section className="panel settings-current">
+            <div className="panel-heading">
+              <div>
+                <h2>{t('Current settings')}</h2>
+                <p>{t('Recorded configuration for the selected project')}</p>
+              </div>
+            </div>
+            {asRows(query.data).map((r) => (
+              <div key={r.id ?? String(r.key)}>
+                <h3>{String(r.key)}</h3>
+                <dl className="detail-grid">
+                  {Object.entries(
+                    r.value && typeof r.value === 'object' ? (r.value as Row) : {},
+                  ).map(([k, v]) => (
+                    <div key={k}>
+                      <dt>{k}</dt>
+                      <dd>
+                        <code>{String(v)}</code>
+                      </dd>
+                    </div>
+                  ))}
+                </dl>
+              </div>
+            ))}
+          </section>
+          {action && (
+            <OperationDialog {...action} record={project.data} onClose={() => setAction(null)} />
+          )}
+        </>
       )}
     </>
   );

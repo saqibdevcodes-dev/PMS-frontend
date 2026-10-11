@@ -44,7 +44,7 @@ const list = (items: unknown[]) => ({
   pagination: { page: 1, limit: 25, total: items.length, totalPages: 1 },
 });
 type Write = { path: string; body: Record<string, unknown>; raw: string };
-async function setup(page: Page) {
+async function setup(page: Page, admin = true) {
   const writes: Write[] = [],
     requests: string[] = [];
   let image = 20;
@@ -69,7 +69,9 @@ async function setup(page: Page) {
         name: 'Test Admin',
         email: 'admin@example.invalid',
         accountType: 'STAFF',
-        permissions: [...new Set(operations.map((o) => o.permission).filter(Boolean))],
+        permissions: [...new Set(operations.map((o) => o.permission).filter(Boolean))].filter(
+          (permission) => admin || permission !== 'settings.manage',
+        ),
         projects: [{ projectId: project.id }],
       };
     else if (path === '/images' && isWrite)
@@ -271,16 +273,107 @@ test('document uploads send a chosen display and download name', async ({ page }
   expect(doc.raw).toContain('name="name"');
   expect(doc.raw).toContain('Agreement A-104');
 });
+test('project codes follow the name, keep manual edits, and currency and timezone submit dropdown values', async ({
+  page,
+}) => {
+  const { writes } = await setup(page);
+  await page.goto('/projects');
+  await page.getByRole('button', { name: 'Add project', exact: true }).click();
+  const dialog = page.getByRole('dialog');
+  await expect(dialog.locator('.language-selector')).toHaveCount(0);
+  await dialog.getByLabel('Name', { exact: false }).first().fill('Garden Homes');
+  await expect(dialog.getByLabel('Project code')).toHaveValue('GARDEN-HOMES');
+  await dialog.getByLabel('Name', { exact: false }).first().fill('Garden Homes Phase Two');
+  await expect(dialog.getByLabel('Project code')).toHaveValue('GARDEN-HOMES-PHASE-T');
+  await dialog.getByLabel('Project code').fill('GH-02');
+  await dialog.getByLabel('Name', { exact: false }).first().fill('Garden Homes Phase Three');
+  await expect(dialog.getByLabel('Project code')).toHaveValue('GH-02');
+  await dialog.getByLabel('Currency').selectOption('AED');
+  await dialog.getByLabel('Timezone').selectOption('Asia/Dubai');
+  await page.screenshot({ path: 'test-results/portal/project-settings-form.png', fullPage: true });
+  await dialog.getByRole('button', { name: 'Review changes' }).click();
+  await dialog.getByRole('button', { name: 'Confirm & submit' }).click();
+  expect(writes.find((write) => write.path === '/projects')?.body).toMatchObject({
+    name: 'Garden Homes Phase Three',
+    code: 'GH-02',
+    currency: 'AED',
+    timezone: 'Asia/Dubai',
+  });
+});
+
+test('language is available only in the admin navbar and settings and stays in sync', async ({
+  page,
+}) => {
+  await setup(page);
+  await page.goto('/settings');
+  await expect(page.locator('.language-selector')).toHaveCount(2);
+  await page.locator('.language-settings select').selectOption('ar');
+  await expect(page.locator('.topbar .language-selector select')).toHaveValue('ar');
+  await expect(page.locator('html')).toHaveAttribute('dir', 'rtl');
+  await page.reload();
+  await expect(page.locator('.language-settings select')).toHaveValue('ar');
+  await page.screenshot({ path: 'test-results/portal/admin-settings-arabic.png', fullPage: true });
+});
+
+test('staff without administration access has no language picker', async ({ page }) => {
+  await setup(page, false);
+  await page.goto('/customers');
+  await expect(page.getByRole('heading', { name: 'Customers', exact: true })).toBeVisible();
+  await expect(page.locator('.language-selector')).toHaveCount(0);
+  await page.getByRole('button', { name: 'Add customer', exact: true }).click();
+  await expect(page.getByRole('dialog').locator('.language-selector')).toHaveCount(0);
+});
+
+test('photo drop area uploads files, rejects unsupported files, and removes the selected photo', async ({
+  page,
+}) => {
+  const { writes } = await setup(page);
+  await page.goto('/projects');
+  await page.getByRole('button', { name: 'Add project', exact: true }).click();
+  const dialog = page.getByRole('dialog');
+  await expect(dialog.getByText('Drop your image here, or')).toBeVisible();
+  await dialog.getByLabel('Photo', { exact: true }).setInputFiles({
+    name: 'unsafe.svg',
+    mimeType: 'image/svg+xml',
+    buffer: Buffer.from('<svg/>'),
+  });
+  await expect(dialog.getByText('Choose a JPEG, PNG or WebP image up to 5 MiB.')).toBeVisible();
+  expect(writes.filter((write) => write.path === '/images')).toHaveLength(0);
+  const transfer = await page.evaluateHandle(
+    (bytes) => {
+      const data = new DataTransfer();
+      data.items.add(new File([new Uint8Array(bytes)], 'dropped.png', { type: 'image/png' }));
+      return data;
+    },
+    [...png],
+  );
+  await dialog.locator('.image-upload').dispatchEvent('drop', { dataTransfer: transfer });
+  await expect(dialog.getByRole('status')).toHaveText('Photo uploaded');
+  await expect(dialog.getByRole('img', { name: 'Photo', exact: true })).toBeVisible();
+  expect(writes.filter((write) => write.path === '/images')).toHaveLength(1);
+  await page.screenshot({ path: 'test-results/portal/photo-dropzone.png', fullPage: true });
+  await dialog.getByRole('button', { name: 'Remove photo' }).click();
+  await expect(dialog.locator('.upload-file')).toHaveCount(0);
+  await expect(dialog.getByRole('img')).toHaveCount(0);
+  await transfer.dispose();
+});
+
 for (const language of ['ur', 'ar'] as const)
-  test(`${language} translates forms, preserves drafts, persists selection and fits mobile`, async ({
+  test(`${language} translates forms from the navbar, persists selection and fits mobile`, async ({
     page,
   }) => {
     await setup(page);
     await page.goto('/inventory');
-    await page.getByRole('button', { name: 'Add property', exact: true }).click();
+    await page.locator('.topbar .language-selector select').selectOption(language);
+    await page
+      .getByRole('button', {
+        name: language === 'ur' ? 'جائیداد شامل کریں' : 'إضافة عقار',
+        exact: true,
+      })
+      .click();
     const d = page.getByRole('dialog');
-    await d.getByLabel('Property number').fill('Draft-101');
-    await d.getByLabel('Language / زبان / اللغة').selectOption(language);
+    await expect(d.locator('.language-selector')).toHaveCount(0);
+    await d.getByLabel(language === 'ur' ? 'جائیداد کا نمبر' : 'رقم العقار').fill('Draft-101');
     await expect(page.locator('html')).toHaveAttribute('dir', 'rtl');
     await expect(page.locator('html')).toHaveAttribute('lang', language);
     await expect(

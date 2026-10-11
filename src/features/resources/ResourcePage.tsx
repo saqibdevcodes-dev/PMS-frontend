@@ -13,6 +13,7 @@ import {
   MoreHorizontal,
   Grid3X3,
   ScanLine,
+  Pencil,
 } from 'lucide-react';
 import { resources, resourcePath, actionsFor, actionTitle } from './catalog';
 import { operations, projectRoot, resolvePath } from '../../lib/contract';
@@ -83,7 +84,8 @@ export default function ResourcePage({ slug }: { slug: string }) {
     [get],
   );
   const page = Number(params.get('page') || 1);
-  const limit = 25;
+  const requestedLimit = Number(params.get('limit') || 25);
+  const limit = [10, 25, 50, 100].includes(requestedLimit) ? requestedLimit : 25;
   const view = params.get('view') ?? 'table';
   const queryValues = Object.fromEntries(
     [...params.entries()].filter(([key]) => queryParams.has(key)),
@@ -161,8 +163,22 @@ export default function ResourcePage({ slug }: { slug: string }) {
     ].includes(slug);
   function rowActions(record: Row) {
     const allowed = actionsFor(resource, record);
+    const edit = slug === 'customers' ? allowed.find((op) => op.method === 'patch') : undefined;
     return (
       <div className="row-actions">
+        {edit && (
+          <Button
+            variant="secondary"
+            size="small"
+            aria-label={t('Edit {name}', { name: labelOf(record) })}
+            onClick={() =>
+              setAction({ operation: edit, title: actionTitle(edit, resource), record })
+            }
+          >
+            <Pencil size={13} />
+            {t('Edit')}
+          </Button>
+        )}
         {slug === 'projects' && (
           <Button
             variant="ghost"
@@ -181,22 +197,24 @@ export default function ResourcePage({ slug }: { slug: string }) {
             <ArrowUpRight size={14} />
           </Button>
         )}
-        {allowed.length > 0 && (
+        {allowed.some((op) => op !== edit) && (
           <details className="actions-menu">
             <summary aria-label={t('Actions for {0}', { '0': labelOf(record) })}>
               <MoreHorizontal size={18} />
             </summary>
             <div>
-              {allowed.map((op) => (
-                <button
-                  key={op.id}
-                  onClick={() =>
-                    setAction({ operation: op, title: actionTitle(op, resource), record })
-                  }
-                >
-                  {t(actionTitle(op, resource))}
-                </button>
-              ))}
+              {allowed
+                .filter((op) => op !== edit)
+                .map((op) => (
+                  <button
+                    key={op.id}
+                    onClick={() =>
+                      setAction({ operation: op, title: actionTitle(op, resource), record })
+                    }
+                  >
+                    {t(actionTitle(op, resource))}
+                  </button>
+                ))}
             </div>
           </details>
         )}
@@ -427,6 +445,7 @@ export default function ResourcePage({ slug }: { slug: string }) {
           )
         ) : (
           <DataTable
+            directory={slug === 'customers'}
             data={dataItems}
             columns={resource.columns}
             busy={query.isLoading}
@@ -436,6 +455,7 @@ export default function ResourcePage({ slug }: { slug: string }) {
             total={total}
             limit={limit}
             onPage={(p) => update('page', String(p))}
+            onLimit={slug === 'customers' ? (n) => update('limit', String(n)) : undefined}
           />
         )}
       </section>

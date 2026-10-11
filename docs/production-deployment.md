@@ -15,8 +15,15 @@ that setup before enabling the workflow.
 
 The browser calls `https://api.etihadrealestate.tech/api/v1` directly. The new
 frontend site serves static files and has no API proxy. Its Content Security Policy
-allows connections to the existing API domain. The local Docker configuration
-continues to use its existing `/api/v1` proxy.
+allows connections and signed image URLs from the existing API domain. The local
+Docker configuration continues to use its existing `/api/v1` proxy.
+
+For backend local file storage, include `https://api.etihadrealestate.tech` in the
+existing frontend site's `img-src` directive as well as `connect-src`. Update the
+active HTTPS server block while preserving its certificate settings, then run
+`sudo nginx -t && sudo systemctl reload nginx`. Static frontend releases do not
+install or update this host Nginx configuration automatically. Uploaded files
+remain private behind the backend's signed download endpoint.
 
 A read-only OPTIONS check on 2026-09-26 returned HTTP 204 with
 `Access-Control-Allow-Origin: https://etihadrealestate.tech` and

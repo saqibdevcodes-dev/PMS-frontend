@@ -25,7 +25,7 @@ const list = (items: unknown[]) => ({
 });
 type Write = { path: string; method: string; body: Record<string, unknown>; raw: string };
 
-async function setup(page: Page, portalPermission = true) {
+async function setup(page: Page, portalPermission = true, customerCount = 1) {
   const writes: Write[] = [];
   const requests: string[] = [];
   const customers: Record<string, unknown>[] = [
@@ -35,8 +35,21 @@ async function setup(page: Page, portalPermission = true) {
       reference: 'CUST-001',
       phone: '03001234567',
       email: 'existing@example.invalid',
+      createdAt: '2026-09-21T10:00:00Z',
+      identityLast4: '1234',
+      photoId: id(20),
     },
   ];
+  for (let index = 2; index <= customerCount; index++)
+    customers.push({
+      id: id(100 + index),
+      name: `Buyer ${String(index).padStart(3, '0')}`,
+      reference: `CUST-${String(index).padStart(3, '0')}`,
+      phone: '+92 300 1234567',
+      email: `buyer${index}@example.invalid`,
+      createdAt: '2026-09-21T10:00:00Z',
+      identityLast4: '9876',
+    });
   let portalStatus = 'NOT_ACTIVE';
   await page.route('**/api/v1/**', async (route) => {
     const request = route.request();
@@ -84,7 +97,24 @@ async function setup(page: Page, portalPermission = true) {
         customers.push(customer);
         portalStatus = body.password ? 'ACTIVE' : 'NOT_ACTIVE';
         data = customer;
-      } else data = list(customers);
+      } else {
+        const params = new URL(request.url()).searchParams;
+        const pageNumber = Number(params.get('page') || 1);
+        const pageSize = Number(params.get('limit') || 25);
+        const search = (params.get('search') || '').toLowerCase();
+        const filtered = customers.filter((customer) =>
+          `${customer.name} ${customer.email} ${customer.reference}`.toLowerCase().includes(search),
+        );
+        data = {
+          items: filtered.slice((pageNumber - 1) * pageSize, pageNumber * pageSize),
+          pagination: {
+            page: pageNumber,
+            limit: pageSize,
+            total: filtered.length,
+            totalPages: Math.ceil(filtered.length / pageSize),
+          },
+        };
+      }
     } else if (path.startsWith(customerRoot + '/') && path.endsWith('/portal/invite')) {
       portalStatus = 'PENDING';
       data = { status: portalStatus };
@@ -106,6 +136,52 @@ async function setup(page: Page, portalPermission = true) {
   });
   return { writes, requests };
 }
+
+test('customer directory combines photos with names, edits records and paginates and searches on mobile', async ({
+  page,
+}) => {
+  await setup(page, true, 63);
+  await page.goto('/customers');
+  const table = page.locator('.customer-directory');
+  await expect(table.getByRole('columnheader', { name: 'Full name' })).toBeVisible();
+  await expect(table.getByRole('columnheader', { name: 'Photo Id' })).toHaveCount(0);
+  await expect(table.locator('tbody tr')).toHaveCount(25);
+  await expect(table.locator('.customer-avatar img')).toHaveCount(1);
+  await expect(table.getByText('CUST-001', { exact: true })).toBeVisible();
+  await page.screenshot({
+    path: 'test-results/portal/customer-directory-desktop.png',
+    fullPage: true,
+  });
+  await table.getByRole('button', { name: 'Edit Existing Buyer', exact: true }).click();
+  await expect(page.getByRole('dialog').getByLabel('Name', { exact: false }).first()).toHaveValue(
+    'Existing Buyer',
+  );
+  await page.getByRole('button', { name: 'Close dialog' }).click();
+  await table.getByRole('button', { name: 'Page 2', exact: true }).click();
+  await expect(table.getByRole('button', { name: 'Buyer 026', exact: true })).toBeVisible();
+  await table.getByLabel('Rows per page').selectOption('10');
+  await expect(table.locator('tbody tr')).toHaveCount(10);
+  await expect(table.getByRole('button', { name: 'Existing Buyer', exact: true })).toBeVisible();
+  await table.getByRole('button', { name: 'Next', exact: true }).click();
+  await expect(table.getByRole('button', { name: 'Buyer 011', exact: true })).toBeVisible();
+  await page.getByRole('textbox', { name: 'Search Customers', exact: true }).fill('Buyer 063');
+  await expect(table.locator('tbody tr')).toHaveCount(1);
+  await expect(table.getByRole('button', { name: 'Buyer 063', exact: true })).toBeVisible();
+  await page.setViewportSize({ width: 390, height: 844 });
+  await expect
+    .poll(() => page.evaluate(() => document.documentElement.scrollWidth <= innerWidth))
+    .toBe(true);
+  await page.screenshot({
+    path: 'test-results/portal/customer-directory-mobile.png',
+    fullPage: true,
+  });
+  await page.getByRole('button', { name: 'Toggle color theme' }).click();
+  await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
+  await page.screenshot({
+    path: 'test-results/portal/customer-directory-dark-mobile.png',
+    fullPage: true,
+  });
+});
 
 async function openCustomer(page: Page) {
   await page.goto('/customers');

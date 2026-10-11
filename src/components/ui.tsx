@@ -1,4 +1,5 @@
 import { t, useLocale } from '../lib/i18n';
+import { BrandLogo } from './BrandLogo';
 import { forwardRef, type ButtonHTMLAttributes, type ReactNode } from 'react';
 import * as Dialog from '@radix-ui/react-dialog';
 import { Slot } from '@radix-ui/react-slot';
@@ -8,7 +9,6 @@ import { twMerge } from 'tailwind-merge';
 import { AlertCircle, ArrowRight, Building2, LoaderCircle, X } from 'lucide-react';
 import { ApiError } from '../lib/api';
 import { humanize } from '../lib/format';
-import { LanguageSelector } from './LanguageSelector';
 export const cn = (...values: ClassValue[]) => twMerge(clsx(values));
 const buttonStyles = cva('btn', {
   variants: {
@@ -94,7 +94,6 @@ export function Modal({
               <Dialog.Title>{t(title)}</Dialog.Title>
               {description && <Dialog.Description>{t(description)}</Dialog.Description>}
             </div>
-            <LanguageSelector inline />
             <Dialog.Close asChild>
               <Button variant="ghost" size="icon" aria-label={t('Close dialog')}>
                 <X size={19} />
@@ -202,9 +201,7 @@ export function BrandedLoader() {
   useLocale();
   return (
     <div className="boot-loader">
-      <div className="brand-mark">
-        <Building2 size={26} />
-      </div>
+      <BrandLogo variant="app" className="loader-emblem" />
       <h2>etihadrealestate</h2>
       <span className="loading-line" />
       <p>{t('Preparing your workspace')}</p>

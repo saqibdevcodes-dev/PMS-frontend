@@ -1,10 +1,10 @@
 import { Languages } from 'lucide-react';
 import { usePreferences } from '../stores/preferences';
 import type { Language } from '../lib/i18n';
-export function LanguageSelector({ inline = false }: { inline?: boolean }) {
+export function LanguageSelector() {
   const { language, setLanguage } = usePreferences();
   return (
-    <div className={'language-selector' + (inline ? ' language-selector-inline' : '')}>
+    <div className="language-selector">
       <Languages size={17} />
       <select
         aria-label="Language / زبان / اللغة"

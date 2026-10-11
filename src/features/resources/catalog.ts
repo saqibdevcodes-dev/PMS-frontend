@@ -90,7 +90,7 @@ export const resources: Resource[] = [
     group: 'Sales & customers',
     permission: 'customers.read',
     description: 'Manage customer photos, contact details and portal access.',
-    columns: ['name', 'photoId', 'reference', 'phone', 'email', 'identityLast4', 'createdAt'],
+    columns: ['name', 'email', 'phone', 'identityLast4', 'createdAt'],
   },
   {
     slug: 'reservations',

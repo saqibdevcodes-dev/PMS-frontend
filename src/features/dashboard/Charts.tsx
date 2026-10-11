@@ -14,16 +14,7 @@ import {
   Bar,
 } from 'recharts';
 import { money } from '../../lib/format';
-export const chartColors = [
-  '#4168e8',
-  '#8babfc',
-  '#33ad8b',
-  '#edb559',
-  '#91a0b7',
-  '#b499d5',
-  '#f18c85',
-  '#7086ac',
-];
+import { chartColors } from '../../lib/chart-colors';
 export function CollectionChart({
   data,
   currency,
@@ -37,8 +28,8 @@ export function CollectionChart({
       <AreaChart data={data} margin={{ top: 12, right: 8, left: 4, bottom: 0 }}>
         <defs>
           <linearGradient id="collection-fill" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#4168e8" stopOpacity={0.2} />
-            <stop offset="100%" stopColor="#4168e8" stopOpacity={0} />
+            <stop offset="0%" stopColor="var(--primary)" stopOpacity={0.2} />
+            <stop offset="100%" stopColor="var(--primary)" stopOpacity={0} />
           </linearGradient>
         </defs>
         <CartesianGrid strokeDasharray="3 5" vertical={false} stroke="var(--border)" />
@@ -71,7 +62,7 @@ export function CollectionChart({
           type="monotone"
           dataKey="amount"
           name={t('Verified collections')}
-          stroke="#4168e8"
+          stroke="var(--primary)"
           strokeWidth={2.5}
           fill="url(#collection-fill)"
         />

@@ -16,10 +16,18 @@
 .portal-brand {
   display: flex;
   align-items: center;
-  gap: 12px;
   font-size: clamp(14px, 2vw, 24px);
   font-weight: 750;
   letter-spacing: -1px;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 5px;
+}
+.portal-logo {
+  width: 190px;
+  padding: 7px;
+  border-radius: 7px;
+  background: #fff;
 }
 .portal-brand small {
   display: block;
@@ -86,10 +94,13 @@
   padding: 32px 36px;
   border-radius: 18px;
   color: #fff;
-  background: linear-gradient(115deg, #172d49, #244b78);
+  background: linear-gradient(115deg, #182331, #355e85);
   margin-bottom: 26px;
   position: relative;
   overflow: hidden;
+}
+:root[data-theme='dark'] .portal-welcome {
+  background: linear-gradient(115deg, #141414, #202020);
 }
 .portal-welcome:after {
   content: '';

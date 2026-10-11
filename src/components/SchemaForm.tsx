@@ -1,4 +1,4 @@
-import { t, useLocale } from '../lib/i18n';
+import { t, useLocale, localeCode } from '../lib/i18n';
 import { createContext, useContext, useEffect, useState } from 'react';
 import {
   Controller,
@@ -21,6 +21,7 @@ import { fieldLabels, guidanceFor, imagePurpose } from '../lib/form-guidance';
 import { ImageUpload } from './ImageUpload';
 import { FeatureEditor } from './FeatureEditor';
 import { useAuth } from '../stores/auth';
+import { currencies, timezones, projectCode } from '../lib/project-options';
 const Guidance = createContext({ path: '', uploading: (_key: string, _busy: boolean) => {} });
 function messageAt(errors: FieldErrors, path: string) {
   let current: unknown = errors;
@@ -214,6 +215,35 @@ export function SchemaField({
         name={name}
         control={form.control}
         render={({ field }) => {
+          if (fieldKey === 'currency' || fieldKey === 'timezone') {
+            const options = fieldKey === 'currency' ? currencies : timezones;
+            const current = String(field.value ?? '');
+            const names = new Intl.DisplayNames([localeCode()], { type: 'currency' });
+            return (
+              <select
+                {...field}
+                id={id}
+                value={current}
+                disabled={disabled}
+                aria-invalid={!!error}
+                aria-describedby={hint ? id + '-help' : undefined}
+              >
+                <option value="">
+                  {t('Choose')} {fieldLabel}
+                </option>
+                {current && !options.includes(current) && (
+                  <option value={current}>{current}</option>
+                )}
+                {options.map((option) => (
+                  <option key={option} value={option}>
+                    {fieldKey === 'currency'
+                      ? `${option} — ${names.of(option) ?? option}`
+                      : option.replaceAll('_', ' ')}
+                  </option>
+                ))}
+              </select>
+            );
+          }
           if (type === 'boolean')
             return (
               <input
@@ -300,6 +330,14 @@ export function SchemaField({
           return (
             <input
               {...field}
+              onChange={(event) => {
+                if (fieldKey === 'name' && guidance.path === '/projects') {
+                  const code = form.getValues('code');
+                  if (!code || code === projectCode(String(field.value ?? '')))
+                    form.setValue('code', projectCode(event.target.value), { shouldDirty: true });
+                }
+                field.onChange(event);
+              }}
               value={value}
               id={id}
               type={inputType}

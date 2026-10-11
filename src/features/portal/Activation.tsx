@@ -1,9 +1,10 @@
 import { t, useLocale } from '../../lib/i18n';
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Building2, CheckCircle2 } from 'lucide-react';
+import { CheckCircle2 } from 'lucide-react';
 import { api } from '../../lib/api';
 import { Button, ErrorState } from '../../components/ui';
+import { BrandLogo } from '../../components/BrandLogo';
 import './portal.css';
 export default function Activation() {
   useLocale();
@@ -20,9 +21,7 @@ export default function Activation() {
   return (
     <main className="portal-activation">
       <section className="portal-panel">
-        <div className="brand-mark">
-          <Building2 size={27} />
-        </div>
+        <BrandLogo variant="app" className="activation-emblem" />
         <span className="eyebrow">{t('YOUR CUSTOMER PORTAL')}</span>
         <h1>{done ? t('You’re ready to sign in.') : t('Welcome to your property account.')}</h1>
         {done ? (

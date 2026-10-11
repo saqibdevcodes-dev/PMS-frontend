@@ -24,21 +24,13 @@ import { date, humanize, money, calendarDay } from '../../lib/format';
 import { Button, PageHeading, EmptyState, ErrorState, Skeleton, Badge } from '../../components/ui';
 import { DataTable } from '../../components/DataTable';
 import { ProjectRequired, Unauthorized } from '../resources/ResourcePage';
+import { chartColors as colors } from '../../lib/chart-colors';
+import { BrandLogo } from '../../components/BrandLogo';
 const CollectionChart = lazy(() =>
   import('./Charts').then((m) => ({ default: m.CollectionChart })),
 );
 const InventoryChart = lazy(() => import('./Charts').then((m) => ({ default: m.InventoryChart })));
 const AgeingChart = lazy(() => import('./Charts').then((m) => ({ default: m.AgeingChart })));
-const colors = [
-  '#4168e8',
-  '#8babfc',
-  '#33ad8b',
-  '#edb559',
-  '#91a0b7',
-  '#b499d5',
-  '#f18c85',
-  '#7086ac',
-];
 export default function Dashboard() {
   useLocale();
   const projectId = usePreferences((s) => s.projectId);
@@ -142,7 +134,7 @@ export default function Dashboard() {
       }),
       icon: Building2,
       url: '/inventory',
-      tone: 'blue',
+      tone: 'accent',
     },
     {
       label: 'Net sales value',
@@ -171,47 +163,50 @@ export default function Dashboard() {
   ];
   return (
     <>
-      <PageHeading
-        eyebrow={t('{0} / MANAGEMENT OVERVIEW', { '0': projectName })}
-        title={t('Portfolio overview')}
-        description={t('Hello, {name}. Here is your project summary.', {
-          name: user.name.split(' ')[0],
-        })}
-        actions={
-          <>
-            <Button
-              variant="secondary"
-              size="icon"
-              aria-label={t('Refresh dashboard')}
-              onClick={() =>
-                void Promise.all([
-                  summary.refetch(),
-                  collections.refetch(),
-                  ageing.refetch(),
-                  bookings.refetch(),
-                  approvals.refetch(),
-                ])
-              }
-            >
-              <RefreshCw size={16} />
-            </Button>
-            <Button variant="secondary" asChild>
-              <Link to="/reports">
-                <ArrowUpRight size={16} />
-                {t('View reports')}
-              </Link>
-            </Button>
-            {can('bookings.create') && (
-              <Button asChild>
-                <Link to="/bookings/new">
-                  <Plus size={17} />
-                  {t('New booking')}
+      <div className="dashboard-heading">
+        <BrandLogo variant="app" className="dashboard-emblem" decorative />
+        <PageHeading
+          eyebrow={t('{0} / MANAGEMENT OVERVIEW', { '0': projectName })}
+          title={t('Portfolio overview')}
+          description={t('Hello, {name}. Here is your project summary.', {
+            name: user.name.split(' ')[0],
+          })}
+          actions={
+            <>
+              <Button
+                variant="secondary"
+                size="icon"
+                aria-label={t('Refresh dashboard')}
+                onClick={() =>
+                  void Promise.all([
+                    summary.refetch(),
+                    collections.refetch(),
+                    ageing.refetch(),
+                    bookings.refetch(),
+                    approvals.refetch(),
+                  ])
+                }
+              >
+                <RefreshCw size={16} />
+              </Button>
+              <Button variant="secondary" asChild>
+                <Link to="/reports">
+                  <ArrowUpRight size={16} />
+                  {t('View reports')}
                 </Link>
               </Button>
-            )}
-          </>
-        }
-      />
+              {can('bookings.create') && (
+                <Button asChild>
+                  <Link to="/bookings/new">
+                    <Plus size={17} />
+                    {t('New booking')}
+                  </Link>
+                </Button>
+              )}
+            </>
+          }
+        />
+      </div>
       <div className="dashboard-context">
         <div>
           <span className="live-dot" />
@@ -279,7 +274,7 @@ export default function Dashboard() {
               )}
             </strong>
             <span>
-              <span className="legend-dot" style={{ background: '#4168e8' }} />
+              <span className="legend-dot" style={{ background: 'var(--primary)' }} />
               {t('Cleared collections')}
             </span>
           </div>
@@ -415,7 +410,7 @@ export default function Dashboard() {
             <ArrowUpRight size={15} />
           </Link>
           <Link to="/installments" className="attention-item">
-            <span className="attention-icon blue">
+            <span className="attention-icon accent">
               <CalendarDays size={19} />
             </span>
             <span>

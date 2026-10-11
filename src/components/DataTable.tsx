@@ -72,6 +72,8 @@ export function DataTable({
   currency = usePreferences.getState().currency,
   empty,
   controls = true,
+  directory = false,
+  onLimit,
 }: {
   data: Row[];
   columns: string[];
@@ -85,6 +87,8 @@ export function DataTable({
   currency?: string;
   empty?: ReactNode;
   controls?: boolean;
+  directory?: boolean;
+  onLimit?: (limit: number) => void;
 }) {
   const language = useLocale();
   const [visibility, setVisibility] = useState<VisibilityState>({});
@@ -120,9 +124,35 @@ export function DataTable({
         (key, index) =>
           ({
             accessorKey: key,
-            header: humanize(key),
+            header:
+              directory && key === 'name'
+                ? t('Full name')
+                : directory && key === 'createdAt'
+                  ? t('Joined date')
+                  : humanize(key),
             cell: ({ row: r, getValue }) =>
-              index === 0 && onRow ? (
+              directory && key === 'name' ? (
+                <div className="customer-identity">
+                  <span className="customer-avatar" aria-hidden="true">
+                    <RecordImage
+                      id={r.original.photoId ? String(r.original.photoId) : undefined}
+                      alt={labelOf(r.original)}
+                      fallback={labelOf(r.original)
+                        .split(/\s+/)
+                        .slice(0, 2)
+                        .map((part) => part[0])
+                        .join('')
+                        .toUpperCase()}
+                    />
+                  </span>
+                  <div>
+                    <button className="record-link" onClick={() => onRow?.(r.original)}>
+                      {String(getValue())}
+                    </button>
+                    <small>{String(r.original.reference ?? '')}</small>
+                  </div>
+                </div>
+              ) : index === 0 && onRow ? (
                 <button className="record-link" onClick={() => onRow(r.original)}>
                   <DisplayValue name={key} value={getValue()} currency={currency} />
                   <ArrowUpRight size={13} />
@@ -136,7 +166,7 @@ export function DataTable({
         ? [
             {
               id: 'actions',
-              header: '',
+              header: directory ? t('Actions') : '',
               cell: ({ row: r }) => actions(r.original),
               enableHiding: false,
             } satisfies ColumnDef<Row>,
@@ -145,7 +175,7 @@ export function DataTable({
     ],
     // humanize reads the active locale, so headers must be rebuilt when it changes.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [columns, controls, onRow, actions, currency, language],
+    [columns, controls, onRow, actions, currency, language, directory],
   );
   const table = useReactTable({
     data,
@@ -160,7 +190,7 @@ export function DataTable({
   const totalRows = total ?? data.length;
   const totalPages = Math.max(1, Math.ceil(totalRows / limit));
   return (
-    <div className="table-container">
+    <div className={'table-container' + (directory ? ' customer-directory' : '')}>
       {controls && (
         <div className="table-options">
           <span>
@@ -252,10 +282,32 @@ export function DataTable({
       )}
       {onPage && totalRows > 0 && (
         <div className="pagination">
-          <span>
-            {t('Showing')} {Math.min((page - 1) * limit + 1, totalRows)}–
-            {Math.min(page * limit, totalRows)} {t('of')} {totalRows.toLocaleString()}
-          </span>
+          <div className="pagination-summary">
+            {onLimit && (
+              <label className="page-size">
+                {t('Rows per page')}
+                <select
+                  aria-label={t('Rows per page')}
+                  value={limit}
+                  disabled={busy}
+                  onChange={(event) => {
+                    setSelection({});
+                    onLimit(Number(event.target.value));
+                  }}
+                >
+                  {[10, 25, 50, 100].map((size) => (
+                    <option key={size} value={size}>
+                      {size}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            )}
+            <span>
+              {t('Showing')} {Math.min((page - 1) * limit + 1, totalRows)}–
+              {Math.min(page * limit, totalRows)} {t('of')} {totalRows.toLocaleString()}
+            </span>
+          </div>
           <div>
             <Button
               variant="secondary"
@@ -269,9 +321,33 @@ export function DataTable({
               <ChevronLeft size={15} />
               {t('Previous')}
             </Button>
-            <span>
-              {page} / {totalPages}
-            </span>
+            {directory ? (
+              [...new Set([1, page - 1, page, page + 1, totalPages])]
+                .filter((n) => n >= 1 && n <= totalPages)
+                .sort((a, b) => a - b)
+                .map((n, i, pages) => (
+                  <span className="page-number-group" key={n}>
+                    {i > 0 && n - pages[i - 1]! > 1 && <span aria-hidden="true">…</span>}
+                    <Button
+                      variant={n === page ? 'primary' : 'ghost'}
+                      size="small"
+                      aria-current={n === page ? 'page' : undefined}
+                      aria-label={t('Page {page}', { page: n })}
+                      disabled={busy}
+                      onClick={() => {
+                        setSelection({});
+                        onPage(n);
+                      }}
+                    >
+                      {n}
+                    </Button>
+                  </span>
+                ))
+            ) : (
+              <span>
+                {page} / {totalPages}
+              </span>
+            )}
             <Button
               variant="secondary"
               size="small"

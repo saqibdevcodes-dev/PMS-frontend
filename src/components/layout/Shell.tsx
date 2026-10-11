@@ -31,6 +31,8 @@ import { type Page, type Row, type Operation, asRows } from '../../lib/types';
 import { Button, Modal } from '../ui';
 import { CommandPalette } from './CommandPalette';
 import { OperationDialog } from '../OperationDialog';
+import { LanguageSelector } from '../LanguageSelector';
+import { BrandLogo } from '../BrandLogo';
 export default function Shell() {
   useLocale();
   const user = useAuth((s) => s.user)!;
@@ -126,14 +128,11 @@ export default function Shell() {
         />
       )}
       <aside className={'sidebar ' + (mobile ? 'mobile-open' : '')}>
-        <NavLink to="/dashboard" className="brand" aria-label="etihadrealestate">
-          <span className="brand-mark">
-            <Building2 size={22} />
+        <NavLink to="/dashboard" className="brand" aria-label="Etihad Real Estate">
+          <span className="sidebar-logo-full bg-white/80 rounded p-1 shadow-sm shadow-gray-200">
+            <img src="/logo2.png" alt="" width={1448} height={444} />
           </span>
-          <span className="brand-word">
-            etihadrealestate
-            <span className="workspace-badge">{t('WORKSPACE')}</span>
-          </span>
+          <BrandLogo variant="symbol" className="sidebar-logo-compact" decorative />
         </NavLink>
         <button
           className="project-switcher"
@@ -219,6 +218,7 @@ export default function Shell() {
             </span>
           </div>
           <div className="topbar-actions">
+            {can('settings.manage') && <LanguageSelector />}
             <button className="global-search" onClick={() => setSearch(true)}>
               <Search size={16} />
               <span>{t('Search anything…')}</span>

@@ -41,7 +41,12 @@ export const fieldLabels: Record<string, string> = {
 };
 export const fieldHelp: Record<string, [string, string]> = {
   name: ['e.g. Ahmed Ali', 'Enter the full name as it should appear on records.'],
-  code: ['e.g. EG-01', 'A short unique project code. Use capital letters, numbers and hyphens.'],
+  code: [
+    'e.g. GARDEN-HOMES',
+    'Generated from the project name. You can edit it: use 2–20 capital letters, numbers or hyphens. The code must be unique.',
+  ],
+  currency: ['Choose a currency', 'Used for prices, payments and reports in this project.'],
+  timezone: ['Choose a timezone', 'Used for project dates, deadlines and reports.'],
   number: ['e.g. A-104', 'The plot, apartment, shop or office number used in this project.'],
   size: [
     'e.g. 5',

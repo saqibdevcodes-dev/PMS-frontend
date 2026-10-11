@@ -1,7 +1,7 @@
 import { t, useLocale } from '../../lib/i18n';
 import { useState } from 'react';
 import { Link, Navigate, useLocation } from 'react-router-dom';
-import { Building2, ArrowRight, Eye, EyeOff, ShieldCheck, ArrowUpRight } from 'lucide-react';
+import { ArrowRight, Eye, EyeOff, ShieldCheck, ArrowUpRight } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -9,6 +9,7 @@ import { login } from '../../hooks/use-auth';
 import { useAuth } from '../../stores/auth';
 import { api } from '../../lib/api';
 import { Button, ErrorState } from '../../components/ui';
+import { BrandLogo } from '../../components/BrandLogo';
 const schema = z.object({
   email: z.email('Enter a valid email address.'),
   password: z.string().min(1, 'Enter your password.'),
@@ -33,11 +34,10 @@ export default function AuthPage() {
   return (
     <div className="auth-page">
       <aside className="auth-story">
-        <Link to="/login" className="brand">
-          <span className="brand-mark">
-            <Building2 size={24} />
+        <Link to="/login" className="brand" aria-label="Etihad Real Estate">
+          <span className="auth-logo-full bg-white/80 rounded p-1 shadow-sm shadow-gray-200">
+            <img src="/logo2.png" alt="" width={1448} height={444} />
           </span>
-          <span>etihadrealestate</span>
         </Link>
         <div className="auth-copy">
           <div className="eyebrow">
@@ -77,6 +77,9 @@ export default function AuthPage() {
         </footer>
       </aside>
       <main className="auth-main">
+        <Link to="/login" className="auth-mobile-logo" aria-label="Etihad Real Estate">
+          <BrandLogo variant="stacked" decorative />
+        </Link>
         <div className="auth-top">
           <span>{t('PROPERTY MANAGEMENT SYSTEM')}</span>
           <ShieldCheck size={18} />
