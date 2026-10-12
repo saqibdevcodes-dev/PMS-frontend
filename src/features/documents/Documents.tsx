@@ -1,3 +1,4 @@
+import { errorMessage } from '../../lib/error-messages';
 import { t, useLocale } from '../../lib/i18n';
 import { useState } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
@@ -62,9 +63,9 @@ export default function Documents() {
       api<{ url: string }>(`/projects/${projectId}/documents/${r.id}/download`),
     onSuccess: (r) =>
       void saveFile(r.url, String(download.variables?.name ?? 'document.pdf')).catch((e: Error) =>
-        toast.error(e.message),
+        toast.error(errorMessage(e)),
       ),
-    onError: (e) => toast.error(e.message),
+    onError: (e) => toast.error(errorMessage(e)),
   });
   const visibility = useMutation({
     mutationFn: (r: Row) =>
@@ -76,7 +77,7 @@ export default function Documents() {
       toast.success(t('Customer sharing updated'));
       void query.refetch();
     },
-    onError: (e: Error) => toast.error(e.message),
+    onError: (e: Error) => toast.error(errorMessage(e)),
   });
   useUnsavedChanges(uploading && Boolean(file || documentName.trim()));
   if (!can('documents.read')) return <Unauthorized />;

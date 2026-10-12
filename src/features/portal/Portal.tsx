@@ -1,5 +1,7 @@
+import { errorMessage } from '../../lib/error-messages';
 import { t, useLocale } from '../../lib/i18n';
 import { useState, type ReactNode } from 'react';
+import * as Dialog from '@radix-ui/react-dialog';
 import { Link, NavLink, Navigate, Route, Routes, useParams } from 'react-router-dom';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import {
@@ -17,6 +19,8 @@ import {
   ArrowUpRight,
   Printer,
   ShieldCheck,
+  Menu,
+  X,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { api } from '../../lib/api';
@@ -36,6 +40,9 @@ import {
 import type { Page } from '../../lib/types';
 import Profile from '../admin/Profile';
 import { BrandLogo } from '../../components/BrandLogo';
+import { LanguageSelector } from '../../components/LanguageSelector';
+import { ImageUpload, RecordImage } from '../../components/ImageUpload';
+import { queryClient } from '../../lib/query';
 import type {
   PortalBooking,
   PortalDashboard,
@@ -64,68 +71,140 @@ export default function Portal() {
   useLocale();
   const user = useAuth((s) => s.user)!;
   const [signingOut, setSigningOut] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const account = usePortal<CustomerAccount>('account');
   return (
-    <div className="customer-portal">
-      <header className="portal-header">
-        <Link className="portal-brand" to="/portal" aria-label="Etihad Real Estate">
-          <BrandLogo className="portal-logo" decorative />
-          <small>{t('CUSTOMER PORTAL')}</small>
-        </Link>
-        <div className="portal-user">
-          <span>{user.name}</span>
-          <Button
-            variant="ghost"
-            size="small"
-            busy={signingOut}
-            onClick={() => {
-              setSigningOut(true);
-              void logout()
-                .catch((e) => toast.error(e.message))
-                .finally(() => setSigningOut(false));
-            }}
-          >
-            <LogOut size={16} />
-            {t('Sign out')}
-          </Button>
-        </div>
-      </header>
-      <div className="portal-frame">
-        <aside className="portal-sidebar">
-          <nav aria-label={t('Customer portal')}>
-            {navigation.map(([path, label, Icon]) => (
-              <NavLink key={path} to={'/portal' + (path ? '/' + path : '')} end={!path}>
-                <Icon size={18} />
-                {t(label)}
-              </NavLink>
-            ))}
-          </nav>
-          <div className="portal-help">
-            <ShieldCheck size={22} />
-            <strong>{t('Your property account')}</strong>
-            <p>
-              {t(
-                'Only your linked records appear here. For account corrections or new requests, contact your property office.',
-              )}
-            </p>
+    <Dialog.Root open={menuOpen} onOpenChange={setMenuOpen}>
+      <div className="customer-portal">
+        <header className="portal-header">
+          <Dialog.Trigger asChild>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="portal-menu-trigger"
+              aria-label={t('Open menu')}
+            >
+              <Menu size={22} />
+            </Button>
+          </Dialog.Trigger>
+          <Link className="portal-brand" to="/portal" aria-label="Etihad Real Estate">
+            <BrandLogo className="portal-logo" decorative />
+            <small>{t('CUSTOMER PORTAL')}</small>
+          </Link>
+          <div className="portal-user">
+            <LanguageSelector />
+            <Link
+              to="/portal/profile"
+              className="portal-account-link"
+              aria-label={t('Open my account')}
+            >
+              <CustomerAvatar photoId={account.data?.photoId} />
+              <span className="portal-user-name">{user.name}</span>
+            </Link>
+            <Button
+              variant="ghost"
+              size="small"
+              busy={signingOut}
+              aria-label={t('Sign out')}
+              onClick={() => {
+                setSigningOut(true);
+                void logout()
+                  .catch((e) => toast.error(errorMessage(e)))
+                  .finally(() => setSigningOut(false));
+              }}
+            >
+              <LogOut size={16} />
+              <span className="portal-signout-label">{t('Sign out')}</span>
+            </Button>
           </div>
-        </aside>
-        <main className="portal-main">
-          <Routes>
-            <Route index element={<Overview />} />
-            <Route path="bookings" element={<Bookings />} />
-            <Route path="bookings/:id" element={<BookingDetail />} />
-            <Route path="installments" element={<Installments />} />
-            <Route path="payments" element={<Payments />} />
-            <Route path="documents" element={<Documents />} />
-            <Route path="requests" element={<Requests />} />
-            <Route path="notifications" element={<Notifications />} />
-            <Route path="profile" element={<Account />} />
-            <Route path="*" element={<Navigate to="/portal" replace />} />
-          </Routes>
-        </main>
+        </header>
+        <div className="portal-frame">
+          <aside className="portal-sidebar portal-desktop-sidebar">
+            <PortalNavigation />
+          </aside>
+          <main className="portal-main">
+            <Routes>
+              <Route index element={<Overview />} />
+              <Route path="bookings" element={<Bookings />} />
+              <Route path="bookings/:id" element={<BookingDetail />} />
+              <Route path="installments" element={<Installments />} />
+              <Route path="payments" element={<Payments />} />
+              <Route path="documents" element={<Documents />} />
+              <Route path="requests" element={<Requests />} />
+              <Route path="notifications" element={<Notifications />} />
+              <Route path="profile" element={<Account />} />
+              <Route path="*" element={<Navigate to="/portal" replace />} />
+            </Routes>
+          </main>
+        </div>
+        <footer className="portal-footer">{t('Your property. Your progress. One place.')}</footer>
       </div>
-      <footer className="portal-footer">{t('Your property. Your progress. One place.')}</footer>
-    </div>
+      <Dialog.Portal>
+        <Dialog.Overlay className="portal-drawer-overlay" />
+        <Dialog.Content className="portal-sidebar portal-drawer" aria-describedby={undefined}>
+          <div className="portal-drawer-heading">
+            <Dialog.Title>{t('Customer portal')}</Dialog.Title>
+            <Dialog.Close asChild>
+              <Button variant="ghost" size="icon" aria-label={t('Close menu')}>
+                <X size={20} />
+              </Button>
+            </Dialog.Close>
+          </div>
+          <PortalNavigation onNavigate={() => setMenuOpen(false)} />
+        </Dialog.Content>
+      </Dialog.Portal>
+    </Dialog.Root>
+  );
+}
+
+type CustomerAccount = { id: string; name: string; email: string; photoId: string | null };
+function CustomerAvatar({ photoId, large = false }: { photoId?: string | null; large?: boolean }) {
+  const name = useAuth((s) => s.user!.name);
+  return (
+    <span className={'portal-avatar' + (large ? ' portal-avatar-large' : '')}>
+      <RecordImage
+        id={photoId ?? undefined}
+        alt={t('Profile photo of {0}', { '0': name })}
+        fallback={
+          <span aria-hidden="true">
+            {name
+              .split(' ')
+              .slice(0, 2)
+              .map((part) => part[0])
+              .join('')}
+          </span>
+        }
+      />
+    </span>
+  );
+}
+function PortalNavigation({ onNavigate }: { onNavigate?: () => void }) {
+  useLocale();
+  return (
+    <>
+      <nav aria-label={t('Customer portal')}>
+        {navigation.map(([path, label, Icon]) => (
+          <NavLink
+            key={path}
+            to={'/portal' + (path ? '/' + path : '')}
+            end={!path}
+            onClick={onNavigate}
+          >
+            <Icon size={18} />
+            {t(label)}
+          </NavLink>
+        ))}
+      </nav>
+      <div className="portal-help">
+        <ShieldCheck size={22} />
+        <strong>{t('Your property account')}</strong>
+        <p>
+          {t(
+            'Only your linked records appear here. For account corrections or new requests, contact your property office.',
+          )}
+        </p>
+      </div>
+    </>
   );
 }
 
@@ -133,6 +212,9 @@ function usePortal<T>(path: string) {
   const userId = useAuth((s) => s.user?.id);
   return useQuery({
     queryKey: ['customer-portal', userId, path],
+    ...(path === 'account'
+      ? { refetchOnWindowFocus: 'always' as const, refetchOnMount: 'always' as const }
+      : {}),
     queryFn: ({ signal }) => api<T>('/portal/' + path, { signal }),
   });
 }
@@ -209,17 +291,21 @@ function Overview() {
   useLocale();
   const name = useAuth((s) => s.user!.name).split(' ')[0];
   const query = usePortal<PortalDashboard>('dashboard');
+  const account = usePortal<CustomerAccount>('account');
   return (
     <>
       <section className="portal-welcome">
-        <div className="eyebrow">{t('AT HOME WITH YOUR ACCOUNT')}</div>
-        <h1>
-          {t('Hello,')} {name}.
-        </h1>
-        <p>{t('A clear view of your properties, payments, and what comes next.')}</p>
-        <Link to="/portal/bookings">
-          {t('View my properties')} <ArrowUpRight size={17} />
-        </Link>
+        <div className="portal-welcome-copy">
+          <div className="eyebrow">{t('AT HOME WITH YOUR ACCOUNT')}</div>
+          <h1>
+            {t('Hello,')} {name}.
+          </h1>
+          <p>{t('A clear view of your properties, payments, and what comes next.')}</p>
+          <Link to="/portal/bookings">
+            {t('View my properties')} <ArrowUpRight size={17} />
+          </Link>
+        </div>
+        <CustomerAvatar photoId={account.data?.photoId} large />
       </section>
       {query.isLoading ? (
         <Skeleton />
@@ -357,7 +443,7 @@ function BookingDetail() {
       const result = await api<{ url: string }>('/portal/bookings/' + id + '/statement/download');
       await saveFile(result.url, 'account-statement.pdf');
     },
-    onError: (error: Error) => toast.error(error.message),
+    onError: (error: Error) => toast.error(errorMessage(error)),
   });
   if (query.isLoading) return <Skeleton />;
   if (query.isError) return <ErrorState error={query.error} />;
@@ -598,7 +684,7 @@ function Payments({ bookingId }: { bookingId?: string }) {
             )}
             <Button
               onClick={() =>
-                void Promise.resolve(print()).catch((e: Error) => toast.error(e.message))
+                void Promise.resolve(print()).catch((e: Error) => toast.error(errorMessage(e)))
               }
             >
               <Printer size={16} />
@@ -617,7 +703,7 @@ function Documents({ bookingId }: { bookingId?: string }) {
       const result = await api<{ url: string }>('/portal/documents/' + doc.id + '/download');
       await saveFile(result.url, doc.name);
     },
-    onError: (e: Error) => toast.error(e.message),
+    onError: (e: Error) => toast.error(errorMessage(e)),
   });
   return (
     <>
@@ -732,7 +818,7 @@ function Notifications() {
     mutationFn: (id: string) =>
       api('/portal/notifications/' + id + '/read', { method: 'POST', body: {} }),
     onSuccess: () => setRevision((v) => v + 1),
-    onError: (e: Error) => toast.error(e.message),
+    onError: (e: Error) => toast.error(errorMessage(e)),
   });
   return (
     <>
@@ -771,8 +857,43 @@ function Notifications() {
 }
 function Account() {
   useLocale();
+  const account = usePortal<CustomerAccount>('account');
   return (
     <>
+      <section className="portal-panel portal-account-settings">
+        <div className="portal-section-heading">
+          <div>
+            <h2>{t('Profile photo')}</h2>
+            <p className="portal-note">
+              {t(
+                'Choose a photo to update your profile. Your name and contact details are managed by the property office.',
+              )}
+            </p>
+          </div>
+          <LanguageSelector />
+        </div>
+        {account.isLoading ? (
+          <Skeleton rows={1} />
+        ) : account.isError ? (
+          <ErrorState error={account.error} retry={() => void account.refetch()} />
+        ) : (
+          <ImageUpload
+            value={account.data?.photoId ?? ''}
+            purpose="USER"
+            label="Profile photo"
+            uploadPath="/portal/profile/photo"
+            allowRemove={false}
+            onChange={(photoId) => {
+              queryClient.setQueryData(
+                ['customer-portal', useAuth.getState().user!.id, 'account'],
+                { ...account.data!, photoId },
+              );
+              void queryClient.invalidateQueries({ queryKey: ['customer-portal'] });
+              toast.success(t('Profile photo updated'));
+            }}
+          />
+        )}
+      </section>
       <PageHeading
         title={t('My customer profiles')}
         description={t(
@@ -806,7 +927,10 @@ function Account() {
           </div>
         )}
       </Paged>
-      <Profile />
+      <Profile
+        showSessions={false}
+        avatar={<CustomerAvatar photoId={account.data?.photoId} large />}
+      />
     </>
   );
 }

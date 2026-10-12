@@ -23,6 +23,7 @@ import { asRows, row, type Row } from '../../lib/types';
 import { date, humanize, money, calendarDay } from '../../lib/format';
 import { Button, PageHeading, EmptyState, ErrorState, Skeleton, Badge } from '../../components/ui';
 import { DataTable } from '../../components/DataTable';
+import { Select } from '../../components/Select';
 import { ProjectRequired, Unauthorized } from '../resources/ResourcePage';
 import { chartColors as colors } from '../../lib/chart-colors';
 import { BrandLogo } from '../../components/BrandLogo';
@@ -164,7 +165,7 @@ export default function Dashboard() {
   return (
     <>
       <div className="dashboard-heading">
-        <BrandLogo variant="app" className="dashboard-emblem" decorative />
+        <BrandLogo variant="symbol" className="dashboard-emblem" decorative />
         <PageHeading
           eyebrow={t('{0} / MANAGEMENT OVERVIEW', { '0': projectName })}
           title={t('Portfolio overview')}
@@ -256,15 +257,15 @@ export default function Dashboard() {
               <h2>{t('Collection activity')}</h2>
               <p>{t('Verified funds received during the selected period')}</p>
             </div>
-            <select
+            <Select
               aria-label={t('Collection chart period')}
               value={days}
-              onChange={(e) => setDays(Number(e.target.value))}
-            >
-              <option value={7}>{t('Last 7 days')}</option>
-              <option value={30}>{t('Last 30 days')}</option>
-              <option value={90}>{t('Last 90 days')}</option>
-            </select>
+              onChange={(value) => setDays(Number(value))}
+              options={[7, 30, 90].map((value) => ({
+                value: String(value),
+                label: t('Last {0} days', { '0': value }),
+              }))}
+            />
           </div>
           <div className="chart-summary">
             <strong>

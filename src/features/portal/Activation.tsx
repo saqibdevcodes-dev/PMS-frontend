@@ -21,7 +21,7 @@ export default function Activation() {
   return (
     <main className="portal-activation">
       <section className="portal-panel">
-        <BrandLogo variant="app" className="activation-emblem" />
+        <BrandLogo variant="symbol" className="activation-emblem" />
         <span className="eyebrow">{t('YOUR CUSTOMER PORTAL')}</span>
         <h1>{done ? t('You’re ready to sign in.') : t('Welcome to your property account.')}</h1>
         {done ? (

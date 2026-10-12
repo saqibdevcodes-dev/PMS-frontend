@@ -1,5 +1,6 @@
 import { test, expect, type Page } from '@playwright/test';
 import { readFile } from 'node:fs/promises';
+import { chooseOption } from '../support/select';
 type Fixture = {
   projectId: string;
   customerId: string;
@@ -19,10 +20,7 @@ async function login(page: Page, email = 'manager@frontend.test') {
   await page.getByRole('button', { name: 'Sign in to workspace' }).click();
   await expect(page.getByTitle('Switch project')).toBeVisible();
   await page.getByTitle('Switch project').click();
-  await page
-    .getByRole('dialog')
-    .getByRole('button', { name: /Parkside Residences/ })
-    .click();
+  await page.getByRole('option', { name: /Parkside Residences/ }).click();
   await expect(page.getByTitle('Switch project')).toContainText('Parkside Residences');
 }
 async function submit(page: Page) {
@@ -117,15 +115,16 @@ test('booking, separate-person approval, payment verification and confirmation w
   test.setTimeout(150000);
   await login(page);
   await page.goto('/bookings/new');
-  await page.getByLabel('Customer *', { exact: true }).selectOption(fixture.customerId);
-  await page.getByLabel('Property *', { exact: true }).selectOption(fixture.unitId);
+  await chooseOption(page.getByLabel('Customer *', { exact: true }), fixture.customerId);
+  await chooseOption(page.getByLabel('Property *', { exact: true }), fixture.unitId);
   await page.getByRole('button', { name: 'Continue', exact: true }).click();
   await page.getByRole('button', { name: 'Reserve this property' }).click();
   await expect(page.getByText('Property reserved', { exact: true })).toBeVisible();
   await page.getByRole('button', { name: 'Continue', exact: true }).click();
-  await page
-    .getByLabel('Payment plan version *', { exact: true })
-    .selectOption(fixture.planVersionId);
+  await chooseOption(
+    page.getByLabel('Payment plan version *', { exact: true }),
+    fixture.planVersionId,
+  );
   await page.getByRole('button', { name: 'Continue', exact: true }).click();
   await page.getByRole('checkbox').check();
   const created = page.waitForResponse(
@@ -143,11 +142,13 @@ test('booking, separate-person approval, payment verification and confirmation w
   await login(approver, 'approver@frontend.test');
   await approver.goto('/approvals?record=' + result.approval.id);
   await approver.getByRole('button', { name: 'Review approval', exact: true }).click();
-  await approver
-    .getByRole('dialog')
-    .last()
-    .getByLabel(/^Decision/)
-    .selectOption('APPROVE');
+  await chooseOption(
+    approver
+      .getByRole('dialog')
+      .last()
+      .getByLabel(/^Decision/),
+    'APPROVE',
+  );
   await approver
     .getByRole('dialog')
     .last()
@@ -157,11 +158,11 @@ test('booking, separate-person approval, payment verification and confirmation w
   await page.goto('/collections');
   await page.getByRole('button', { name: 'New payment', exact: true }).click();
   const form = page.getByRole('dialog');
-  await form.getByLabel(/^Booking id/).selectOption(result.booking.id);
+  await chooseOption(form.getByLabel(/^Booking id/), result.booking.id);
   await form.getByLabel(/^Amount/).fill(result.booking.downPayment);
-  await form.getByLabel(/^Method/).selectOption('CASH');
+  await chooseOption(form.getByLabel(/^Method/), 'CASH');
   await form.getByLabel(/^Paid at/).fill('2026-09-23T10:00');
-  await form.getByLabel(/^Receiving account id/).selectOption(fixture.cashId);
+  await chooseOption(form.getByLabel(/^Receiving account id/), fixture.cashId);
   const paymentResponse = page.waitForResponse(
     (r) => r.url().endsWith('/payments') && r.request().method() === 'POST',
   );
@@ -169,11 +170,13 @@ test('booking, separate-person approval, payment verification and confirmation w
   const payment = (await (await paymentResponse).json()).data;
   await approver.goto('/collections?record=' + payment.id);
   await approver.getByRole('button', { name: 'Verify payment', exact: true }).click();
-  await approver
-    .getByRole('dialog')
-    .last()
-    .getByLabel(/^Decision/)
-    .selectOption('CLEARED');
+  await chooseOption(
+    approver
+      .getByRole('dialog')
+      .last()
+      .getByLabel(/^Decision/),
+    'CLEARED',
+  );
   await approver
     .getByRole('dialog')
     .last()
@@ -182,11 +185,13 @@ test('booking, separate-person approval, payment verification and confirmation w
   await submit(approver);
   await page.goto('/bookings?record=' + result.booking.id);
   await page.getByRole('button', { name: 'Confirm booking', exact: true }).click();
-  await page
-    .getByRole('dialog')
-    .last()
-    .getByLabel(/^Approval id/)
-    .selectOption(result.approval.id);
+  await chooseOption(
+    page
+      .getByRole('dialog')
+      .last()
+      .getByLabel(/^Approval id/),
+    result.approval.id,
+  );
   await submit(page);
   await expect(page.getByRole('dialog').getByText('Confirmed', { exact: true })).toBeVisible();
   await approverContext.close();

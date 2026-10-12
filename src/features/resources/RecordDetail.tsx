@@ -5,6 +5,7 @@ import { Link } from 'react-router-dom';
 import { ArrowUpRight, Copy, FileText } from 'lucide-react';
 import { toast } from 'sonner';
 import { api } from '../../lib/api';
+import { errorMessage } from '../../lib/error-messages';
 import { operations, resolvePath, operation, projectRoot } from '../../lib/contract';
 import { asRows, row, type Row, type Operation } from '../../lib/types';
 import { labelOf, humanize } from '../../lib/format';
@@ -52,11 +53,20 @@ export default function RecordDetail({
   const query = useQuery({
     queryKey: ['detail', projectId, resource.slug, record.id],
     enabled: hasDetail && !!record.id,
+    ...(resource.slug === 'customers'
+      ? { refetchOnWindowFocus: 'always' as const, refetchOnMount: 'always' as const }
+      : {}),
     queryFn: ({ signal }) => api<Row>(resolvePath(path, { id: record.id! }), { signal }),
   });
   const detail = query.data ?? record;
+  const photos = Array.isArray(detail.photoIds)
+    ? detail.photoIds
+    : detail.photoId && ['projects', 'inventory'].includes(resource.slug)
+      ? [detail.photoId]
+      : [];
   const collections = Object.entries(detail).filter(
-    ([key, value]) => Array.isArray(value) && value.length && !hidden.has(key),
+    ([key, value]) =>
+      key !== 'photoIds' && Array.isArray(value) && value.length && !hidden.has(key),
   );
   const position = row(detail.position);
   return (
@@ -132,13 +142,25 @@ export default function RecordDetail({
             <Skeleton />
           ) : tab === 'overview' ? (
             <>
+              {photos.length > 0 && (
+                <section className="detail-photos" aria-label={t('Photos')}>
+                  <h4>{t('Photos')}</h4>
+                  <DisplayValue name="photoIds" value={photos} />
+                </section>
+              )}
               {resource.slug === 'customers' &&
                 can('customers.portal.manage') &&
                 record.id &&
                 projectId && <CustomerAccess projectId={projectId} customerId={record.id} />}
               <dl className="detail-grid">
                 {Object.entries(detail)
-                  .filter(([k, v]) => !hidden.has(k) && v !== null && typeof v !== 'object')
+                  .filter(
+                    ([k, v]) =>
+                      !(k === 'photoId' && photos.length) &&
+                      !hidden.has(k) &&
+                      v !== null &&
+                      typeof v !== 'object',
+                  )
                   .map(([k, v]) => (
                     <div key={k}>
                       <dt>{humanize(k)}</dt>
@@ -164,7 +186,7 @@ export default function RecordDetail({
                           setIdentity(r.identity);
                         } catch (e) {
                           toast.error(
-                            e instanceof Error ? e.message : t('Unable to reveal identity'),
+                            e instanceof Error ? errorMessage(e) : t('Unable to reveal identity'),
                           );
                         }
                       }}

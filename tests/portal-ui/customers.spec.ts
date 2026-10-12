@@ -1,5 +1,6 @@
 import { test, expect, type Locator, type Page } from '@playwright/test';
 import { readFileSync } from 'node:fs';
+import { chooseOption } from '../support/select';
 
 const operations = JSON.parse(
   readFileSync(new URL('../../src/generated/operations.json', import.meta.url), 'utf8'),
@@ -134,8 +135,34 @@ async function setup(page: Page, portalPermission = true, customerCount = 1) {
       body: JSON.stringify({ success: true, data }),
     });
   });
-  return { writes, requests };
+  return { writes, requests, customers };
 }
+
+test('returning to the admin tab refreshes changed customer photos in the list and open record immediately', async ({
+  page,
+}) => {
+  const { requests, customers } = await setup(page);
+  await page.goto('/customers');
+  await expect(page.locator('.customer-avatar img')).toBeVisible();
+  await page.getByRole('button', { name: 'Existing Buyer', exact: true }).click();
+  await expect(page.getByRole('dialog')).toBeVisible();
+  const detailPath = customerRoot + '/' + id(2);
+  await expect.poll(() => requests.filter((path) => path === detailPath).length).toBe(1);
+  // Simulate another session updating the customer's profile while this tab is hidden.
+  await page.evaluate(() => {
+    Object.defineProperty(document, 'visibilityState', { configurable: true, value: 'hidden' });
+    window.dispatchEvent(new Event('visibilitychange'));
+  });
+  customers[0]!.photoId = id(21);
+  await page.evaluate(() => {
+    Object.defineProperty(document, 'visibilityState', { configurable: true, value: 'visible' });
+    window.dispatchEvent(new Event('visibilitychange'));
+  });
+  await expect.poll(() => requests.includes('/images/' + id(21))).toBe(true);
+  await expect.poll(() => requests.filter((path) => path === detailPath).length).toBe(2);
+  await expect.poll(() => requests.filter((path) => path === customerRoot).length).toBe(2);
+  expect(requests.filter((path) => path === '/images/' + id(20)).length).toBeGreaterThan(0);
+});
 
 test('customer directory combines photos with names, edits records and paginates and searches on mobile', async ({
   page,
@@ -159,7 +186,7 @@ test('customer directory combines photos with names, edits records and paginates
   await page.getByRole('button', { name: 'Close dialog' }).click();
   await table.getByRole('button', { name: 'Page 2', exact: true }).click();
   await expect(table.getByRole('button', { name: 'Buyer 026', exact: true })).toBeVisible();
-  await table.getByLabel('Rows per page').selectOption('10');
+  await chooseOption(table.getByLabel('Rows per page'), '10');
   await expect(table.locator('tbody tr')).toHaveCount(10);
   await expect(table.getByRole('button', { name: 'Existing Buyer', exact: true })).toBeVisible();
   await table.getByRole('button', { name: 'Next', exact: true }).click();
@@ -369,7 +396,12 @@ test('adding a customer from a booking supports photo and portal login and selec
   await dialog.getByRole('button', { name: 'Review changes' }).click();
   await dialog.getByRole('button', { name: 'Confirm & submit' }).click();
   await expect(dialog).toHaveCount(0);
-  await expect(page.getByLabel('Customer *', { exact: true })).toHaveValue(id(30));
+  await expect(page.getByLabel('Customer *', { exact: true })).toContainText('New Buyer');
+  await page.getByLabel('Customer *', { exact: true }).click();
+  await expect(page.locator(`[role="option"][data-value="${id(30)}"]`)).toHaveAttribute(
+    'aria-selected',
+    'true',
+  );
   expect(writes.find((write) => write.path === customerRoot)?.body).toMatchObject({
     photoId: id(20),
     password,

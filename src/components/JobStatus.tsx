@@ -1,3 +1,4 @@
+import { errorMessage } from '../lib/error-messages';
 import { t, useLocale } from '../lib/i18n';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { FileText, Download } from 'lucide-react';
@@ -24,8 +25,9 @@ export function JobStatus({
   });
   const download = useMutation({
     mutationFn: () => api<{ url: string }>(`/projects/${projectId}/jobs/${id}/download`),
-    onSuccess: (r) => void saveFile(r.url, filename).catch((e: Error) => toast.error(e.message)),
-    onError: (e) => toast.error(e.message),
+    onSuccess: (r) =>
+      void saveFile(r.url, filename).catch((e: Error) => toast.error(errorMessage(e))),
+    onError: (e) => toast.error(errorMessage(e)),
   });
   return (
     <div className="job-status" role="status">

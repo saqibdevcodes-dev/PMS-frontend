@@ -9,6 +9,8 @@ export const fieldLabels: Record<string, string> = {
   features: 'Property features',
   featureImages: 'Feature photos',
   photoId: 'Photo',
+  photoIds: 'Photos',
+  imageId: 'Photo',
   price: 'Property price',
   charges: 'Additional property fees',
   method: 'Payment method',
@@ -147,7 +149,7 @@ export function imagePurpose(path: string) {
   if (/\/customers(?:\/|$)/.test(path)) return 'CUSTOMER';
   if (path === '/users') return 'USER';
   if (/\/dealers$/.test(path)) return 'DEALER';
-  if (/\/units$/.test(path)) return 'UNIT';
+  if (/\/units(?:\/|$)/.test(path)) return 'UNIT';
   return 'PROJECT';
 }
 export const roleDescriptions: Record<string, string> = {

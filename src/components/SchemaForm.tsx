@@ -15,10 +15,12 @@ import { humanize } from '../lib/format';
 import type { JsonSchema, Row } from '../lib/types';
 import { Button, ErrorState } from './ui';
 import { RelationSelect, relationPaths } from './RelationSelect';
+import { Select } from './Select';
 import { useUnsavedChanges } from '../hooks/use-unsaved';
-import { ApiError } from '../lib/api';
+import { validationDetails } from '../lib/error-messages';
 import { fieldLabels, guidanceFor, imagePurpose } from '../lib/form-guidance';
 import { ImageUpload } from './ImageUpload';
+import { ImageGalleryUpload } from './ImageGalleryUpload';
 import { FeatureEditor } from './FeatureEditor';
 import { useAuth } from '../stores/auth';
 import { currencies, timezones, projectCode } from '../lib/project-options';
@@ -104,6 +106,30 @@ export function SchemaField({
               onBusy={(b) => guidance.uploading(name, b)}
             />
             {hint && <small>{t(hint[1])}</small>}
+            {error && (
+              <p className="field-error" role="alert">
+                {error}
+              </p>
+            )}
+          </div>
+        )}
+      />
+    );
+  if (fieldKey === 'photoIds')
+    return (
+      <Controller
+        name={name}
+        control={form.control}
+        render={({ field }) => (
+          <div className="form-field form-full">
+            <ImageGalleryUpload
+              value={Array.isArray(field.value) ? field.value : []}
+              onChange={field.onChange}
+              purpose={imagePurpose(guidance.path)}
+              label={propertyForm ? 'Property photos' : 'Project photos'}
+              disabled={disabled}
+              onBusy={(busy) => guidance.uploading(name, busy)}
+            />
             {error && (
               <p className="field-error" role="alert">
                 {error}
@@ -220,28 +246,27 @@ export function SchemaField({
             const current = String(field.value ?? '');
             const names = new Intl.DisplayNames([localeCode()], { type: 'currency' });
             return (
-              <select
+              <Select
                 {...field}
                 id={id}
                 value={current}
                 disabled={disabled}
                 aria-invalid={!!error}
                 aria-describedby={hint ? id + '-help' : undefined}
-              >
-                <option value="">
-                  {t('Choose')} {fieldLabel}
-                </option>
-                {current && !options.includes(current) && (
-                  <option value={current}>{current}</option>
-                )}
-                {options.map((option) => (
-                  <option key={option} value={option}>
-                    {fieldKey === 'currency'
-                      ? `${option} — ${names.of(option) ?? option}`
-                      : option.replaceAll('_', ' ')}
-                  </option>
-                ))}
-              </select>
+                placeholder={`${t('Choose')} ${fieldLabel}`}
+                options={[
+                  ...(current && !options.includes(current)
+                    ? [{ value: current, label: current }]
+                    : []),
+                  ...options.map((option) => ({
+                    value: option,
+                    label:
+                      fieldKey === 'currency'
+                        ? `${option} — ${names.of(option) ?? option}`
+                        : option.replaceAll('_', ' '),
+                  })),
+                ]}
+              />
             );
           }
           if (type === 'boolean')
@@ -256,11 +281,11 @@ export function SchemaField({
             );
           if (schema.enum)
             return (
-              <select
+              <Select
                 {...field}
-                onChange={(event) => {
-                  field.onChange(event.target.value);
-                  if (event.target.value !== 'OTHER') {
+                onChange={(value) => {
+                  field.onChange(value);
+                  if (value !== 'OTHER') {
                     if (fieldKey === 'type' && propertyForm)
                       form.setValue('typeDetails', undefined);
                     if (fieldKey === 'method') form.setValue('methodDetails', undefined);
@@ -270,16 +295,12 @@ export function SchemaField({
                 id={id}
                 disabled={disabled}
                 aria-invalid={!!error}
-              >
-                <option value="">
-                  {t('Choose')} {humanize(fieldKey).toLowerCase()}
-                </option>
-                {schema.enum.map((v) => (
-                  <option key={v} value={v}>
-                    {humanize(String(v))}
-                  </option>
-                ))}
-              </select>
+                placeholder={`${t('Choose')} ${humanize(fieldKey).toLowerCase()}`}
+                options={schema.enum.map((value) => ({
+                  value: String(value),
+                  label: humanize(String(value)),
+                }))}
+              />
             );
           if (relationPaths[fieldKey])
             return (
@@ -397,6 +418,14 @@ export function SchemaForm({
     Boolean(s.user?.permissions.includes('customers.portal.manage')),
   );
   const customerCreate = operationPath.endsWith('/customers') && !!schema.properties?.password;
+  const baseSchema: JsonSchema = schema.properties?.photoIds
+    ? {
+        ...schema,
+        properties: Object.fromEntries(
+          Object.entries(schema.properties).filter(([key]) => key !== 'photoId'),
+        ),
+      }
+    : schema;
   const formSchema: JsonSchema = customerCreate
     ? {
         ...schema,
@@ -409,7 +438,7 @@ export function SchemaForm({
           ...(managePortal ? { confirmPassword: { type: 'string', maxLength: 128 } } : {}),
         },
       }
-    : schema;
+    : baseSchema;
   const uploading = Object.values(uploads).some(Boolean);
   const [attemptError, setAttemptError] = useState<unknown>();
   const resolver = zodResolver(
@@ -423,15 +452,23 @@ export function SchemaForm({
     defaultValues: {
       ...(defaults(formSchema) as Row),
       ...initial,
+      ...(schema.properties?.photoIds
+        ? {
+            photoIds: Array.isArray(initial?.photoIds)
+              ? initial.photoIds
+              : initial?.photoId
+                ? [initial.photoId]
+                : [],
+          }
+        : {}),
       ...(customerCreate && managePortal && initial?.password
         ? { confirmPassword: initial.password }
         : {}),
     },
   });
   useEffect(() => {
-    if (error instanceof ApiError && Array.isArray(error.details))
-      for (const detail of error.details)
-        form.setError(detail.path.join('.'), { message: detail.message });
+    for (const detail of validationDetails(error))
+      if (detail.path.length) form.setError(detail.path.join('.'), { message: detail.message });
   }, [error, form]);
   useUnsavedChanges(form.formState.isDirty || uploading);
   const portalPassword = customerCreate && managePortal && Boolean(form.watch('password'));
@@ -466,7 +503,7 @@ export function SchemaForm({
               form.setError('password', { message: t('Passwords do not match.') });
               return;
             }
-            if (operationPath.endsWith('/units') && v.type === 'OTHER' && !v.typeDetails) {
+            if (/\/units(?:\/|$)/.test(operationPath) && v.type === 'OTHER' && !v.typeDetails) {
               form.setError('typeDetails', { message: t('Describe the property type.') });
               return;
             }

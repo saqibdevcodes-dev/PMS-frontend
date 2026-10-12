@@ -5,6 +5,7 @@ import { featureOptions } from '../lib/form-guidance';
 import type { Row } from '../lib/types';
 import { Button } from './ui';
 import { ImageUpload } from './ImageUpload';
+import { Select } from './Select';
 export function FeatureEditor({
   name,
   disabled,
@@ -34,20 +35,17 @@ export function FeatureEditor({
       <legend>{t('Property features')}</legend>
       <p className="muted">{t('Choose each feature and optionally add its photo.')}</p>
       <div className="feature-picker">
-        <select
+        <Select
           aria-label={t('Choose a feature')}
           value={choice}
           disabled={disabled}
-          onChange={(e) => setChoice(e.target.value)}
-        >
-          <option value="">{t('Choose a feature')}</option>
-          {featureOptions.map((f) => (
-            <option key={f} value={f}>
-              {t(f)}
-            </option>
-          ))}
-          <option value="OTHER">{t('Other')}</option>
-        </select>
+          onChange={setChoice}
+          placeholder={t('Choose a feature')}
+          options={[
+            ...featureOptions.map((value) => ({ value, label: t(value) })),
+            { value: 'OTHER', label: t('Other') },
+          ]}
+        />
         {choice === 'OTHER' && (
           <input
             aria-label={t('Other feature')}

@@ -1,3 +1,4 @@
+import { errorMessage } from '../../lib/error-messages';
 import { t, useLocale } from '../../lib/i18n';
 import { useQuery } from '@tanstack/react-query';
 import { Printer, ShieldCheck } from 'lucide-react';
@@ -72,7 +73,7 @@ export function Receipt({ id, onClose }: { id: string; onClose: () => void }) {
             )}
             <Button
               onClick={() =>
-                void Promise.resolve(print()).catch((e: Error) => toast.error(e.message))
+                void Promise.resolve(print()).catch((e: Error) => toast.error(errorMessage(e)))
               }
             >
               <Printer size={16} />

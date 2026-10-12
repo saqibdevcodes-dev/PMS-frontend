@@ -7,7 +7,7 @@ import { cva, type VariantProps } from 'class-variance-authority';
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 import { AlertCircle, ArrowRight, Building2, LoaderCircle, X } from 'lucide-react';
-import { ApiError } from '../lib/api';
+import { errorDescription } from '../lib/error-messages';
 import { humanize } from '../lib/format';
 export const cn = (...values: ClassValue[]) => twMerge(clsx(values));
 const buttonStyles = cva('btn', {
@@ -72,6 +72,7 @@ export function Modal({
   description,
   children,
   wide = false,
+  className,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -79,6 +80,7 @@ export function Modal({
   description?: string;
   children: ReactNode;
   wide?: boolean;
+  className?: string;
 }) {
   useLocale();
   return (
@@ -86,8 +88,13 @@ export function Modal({
       <Dialog.Portal>
         <Dialog.Overlay className="modal-overlay" />
         <Dialog.Content
-          className={cn('modal', wide && 'modal-wide')}
+          className={cn('modal', wide && 'modal-wide', className)}
           {...(description ? {} : { 'aria-describedby': undefined })}
+          onEscapeKeyDown={(event) => {
+            // The combobox handles Escape first, leaving the enclosing form open.
+            if (event.target instanceof Element && event.target.closest('.select-popover'))
+              event.preventDefault();
+          }}
         >
           <header className="modal-header">
             <div>
@@ -131,20 +138,19 @@ export function EmptyState({
 }
 export function ErrorState({ error, retry }: { error: unknown; retry?: () => void }) {
   useLocale();
+  const { title, message, details } = errorDescription(error);
   return (
     <div className="error-state" role="alert">
       <AlertCircle size={20} />
       <div>
-        <strong>
-          {error instanceof ApiError && error.status === 403
-            ? t('Access restricted')
-            : t('Something needs your attention')}
-        </strong>
-        <p>{error instanceof Error ? t(error.message) : t('Unable to load this information.')}</p>
-        {error instanceof ApiError && error.requestId && (
-          <small>
-            {t('Support reference:')} {error.requestId}
-          </small>
+        <strong>{title}</strong>
+        <p>{message}</p>
+        {details.length > 0 && (
+          <ul className="error-details">
+            {details.map((detail) => (
+              <li key={detail}>{detail}</li>
+            ))}
+          </ul>
         )}
       </div>
       {retry && (
@@ -201,7 +207,7 @@ export function BrandedLoader() {
   useLocale();
   return (
     <div className="boot-loader">
-      <BrandLogo variant="app" className="loader-emblem" />
+      <BrandLogo variant="symbol" className="loader-emblem" />
       <h2>etihadrealestate</h2>
       <span className="loading-line" />
       <p>{t('Preparing your workspace')}</p>

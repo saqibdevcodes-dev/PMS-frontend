@@ -28,16 +28,15 @@ export function ConfirmDialog() {
       onOpenChange={(open) => !open && finish(false)}
       title={prompt?.title ?? ''}
       description={prompt?.description}
+      className="confirm-dialog"
     >
-      <div className="modal-body">
-        <div className="form-footer">
-          <Button variant="secondary" onClick={() => finish(false)}>
-            {t(prompt?.cancel ?? 'Keep editing')}
-          </Button>
-          <Button variant="danger" onClick={() => finish(true)}>
-            {t(prompt?.confirm ?? 'Discard changes')}
-          </Button>
-        </div>
+      <div className="confirm-actions">
+        <Button variant="secondary" onClick={() => finish(false)}>
+          {t(prompt?.cancel ?? 'Keep editing')}
+        </Button>
+        <Button variant="danger" onClick={() => finish(true)}>
+          {t(prompt?.confirm ?? 'Discard changes')}
+        </Button>
       </div>
     </Modal>
   );

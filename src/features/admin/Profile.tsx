@@ -1,5 +1,6 @@
+import { errorMessage } from '../../lib/error-messages';
 import { t, useLocale } from '../../lib/i18n';
-import { useState } from 'react';
+import { useState, type ReactNode } from 'react';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { Monitor, ShieldCheck, LogOut, KeyRound } from 'lucide-react';
 import { toast } from 'sonner';
@@ -19,7 +20,13 @@ import {
   desktopUpdates,
   print,
 } from '../../platform/adapter';
-export default function Profile() {
+export default function Profile({
+  showSessions = true,
+  avatar,
+}: {
+  showSessions?: boolean;
+  avatar?: ReactNode;
+}) {
   useLocale();
   const user = useAuth((s) => s.user)!;
   const preferences = usePreferences();
@@ -31,10 +38,11 @@ export default function Profile() {
   const sessions = useQuery({
     queryKey: ['my-sessions'],
     queryFn: ({ signal }) => api('/auth/sessions', { signal }),
+    enabled: showSessions,
   });
   const signout = useMutation({
     mutationFn: () => logout(),
-    onError: (e) => toast.error(e.message),
+    onError: (e) => toast.error(errorMessage(e)),
   });
   const updates = useQuery({
     queryKey: ['desktop-update'],
@@ -52,19 +60,23 @@ export default function Profile() {
         localStorage.setItem('estate-device-' + user.id, device.id);
       }),
     onSuccess: () => toast.success(t('Push notifications enabled')),
-    onError: (e) => toast.error(e.message),
+    onError: (e) => toast.error(errorMessage(e)),
   });
   const updateApp = useMutation({
     mutationFn: () => desktopUpdates!.check(),
     onSuccess: () => void updates.refetch(),
-    onError: (e) => toast.error(e.message),
+    onError: (e) => toast.error(errorMessage(e)),
   });
   return (
     <>
       <PageHeading
         eyebrow={t('Your account')}
         title={t('Profile & security')}
-        description={t('Personal preferences and control over your active sessions.')}
+        description={
+          showSessions
+            ? t('Personal preferences and control over your active sessions.')
+            : t('Personal preferences and account security.')
+        }
         actions={
           <Button variant="secondary" busy={signout.isPending} onClick={() => signout.mutate()}>
             <LogOut size={16} />
@@ -74,7 +86,7 @@ export default function Profile() {
       />
       <div className="profile-grid">
         <section className="panel profile-card">
-          <span className="avatar avatar-large">{user.name[0]}</span>
+          {avatar ?? <span className="avatar avatar-large">{user.name[0]}</span>}
           <h2>{user.name}</h2>
           <p>{user.email}</p>
           <span className="profile-access">
@@ -150,7 +162,7 @@ export default function Profile() {
           <Button
             variant="secondary"
             onClick={() =>
-              void Promise.resolve(print()).catch((e: Error) => toast.error(e.message))
+              void Promise.resolve(print()).catch((e: Error) => toast.error(errorMessage(e)))
             }
           >
             {t('Print this view')}
@@ -180,42 +192,44 @@ export default function Profile() {
           )}
         </section>
       )}
-      <section className="panel">
-        <div className="panel-heading">
-          <div>
-            <h2>{t('Active & recent sessions')}</h2>
-            <p>{t('Recognize every device with access to your account.')}</p>
+      {showSessions && (
+        <section className="panel">
+          <div className="panel-heading">
+            <div>
+              <h2>{t('Active & recent sessions')}</h2>
+              <p>{t('Recognize every device with access to your account.')}</p>
+            </div>
+            <Monitor size={20} />
           </div>
-          <Monitor size={20} />
-        </div>
-        {sessions.isError ? (
-          <ErrorState error={sessions.error} />
-        ) : (
-          <DataTable
-            data={asRows(sessions.data)}
-            columns={['platform', 'lastActivity', 'expiresAt', 'revokedAt']}
-            busy={sessions.isLoading}
-            controls={false}
-            actions={(r) =>
-              !r.revokedAt && (
-                <Button
-                  variant="secondary"
-                  size="small"
-                  onClick={() =>
-                    setAction({
-                      operation: operation('delete', '/auth/sessions/{id}'),
-                      title: 'Revoke session',
-                      record: r,
-                    })
-                  }
-                >
-                  {t('Revoke')}
-                </Button>
-              )
-            }
-          />
-        )}
-      </section>
+          {sessions.isError ? (
+            <ErrorState error={sessions.error} />
+          ) : (
+            <DataTable
+              data={asRows(sessions.data)}
+              columns={['platform', 'lastActivity', 'expiresAt', 'revokedAt']}
+              busy={sessions.isLoading}
+              controls={false}
+              actions={(r) =>
+                !r.revokedAt && (
+                  <Button
+                    variant="secondary"
+                    size="small"
+                    onClick={() =>
+                      setAction({
+                        operation: operation('delete', '/auth/sessions/{id}'),
+                        title: 'Revoke session',
+                        record: r,
+                      })
+                    }
+                  >
+                    {t('Revoke')}
+                  </Button>
+                )
+              }
+            />
+          )}
+        </section>
+      )}
       {action && (
         <OperationDialog
           {...action}

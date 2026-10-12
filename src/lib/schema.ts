@@ -90,9 +90,7 @@ export function normalize(schema: JsonSchema, value: unknown): unknown {
         const input = record[key];
         if (
           !schema.required?.includes(key) &&
-          (input === undefined ||
-            ((input === '' || input === null) && !nullable(field)) ||
-            (Array.isArray(input) && !input.length))
+          (input === undefined || ((input === '' || input === null) && !nullable(field)))
         )
           return [];
         return [[key, normalize(field, input)]];

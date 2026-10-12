@@ -64,6 +64,19 @@ export default function BookingWizard() {
     },
     onError: setError,
   });
+  const release = useMutation({
+    mutationFn: () =>
+      api(`/projects/${projectId}/reservations/${reservation!.id}/release`, { method: 'POST' }),
+    onSuccess: () => {
+      setReservation(undefined);
+      setUnit((current) => ({ ...current, status: 'AVAILABLE' }));
+      setAgreed(false);
+      setStep(0);
+      setError(undefined);
+      void queryClient.invalidateQueries();
+    },
+    onError: setError,
+  });
   const create = useMutation({
     mutationFn: () =>
       api<Row>(`/projects/${projectId}/bookings`, {
@@ -104,6 +117,7 @@ export default function BookingWizard() {
   });
   const steps = ['Choose customer & property', 'Choose payment schedule', 'Review & submit'];
   const uncertain = error instanceof ApiError && error.status === 0;
+  const uncertainRelease = uncertain && error === release.error;
   return (
     <>
       {showCustomer && (
@@ -193,6 +207,8 @@ export default function BookingWizard() {
                         onChange={(id) => {
                           setCustomer({ id });
                           setReservation(undefined);
+                          setOwners([]);
+                          setAgreed(false);
                         }}
                         onRecord={setCustomer}
                       />
@@ -213,6 +229,9 @@ export default function BookingWizard() {
                         onChange={(id) => {
                           setUnit({ id });
                           setReservation(undefined);
+                          setDiscount('0');
+                          setDiscountApproval('');
+                          setAgreed(false);
                         }}
                         onRecord={setUnit}
                       />
@@ -408,13 +427,24 @@ export default function BookingWizard() {
             <footer className="wizard-footer">
               <Button
                 variant="secondary"
-                disabled={step === 0 || create.isPending || reserve.isPending || uncertain}
+                busy={release.isPending}
+                disabled={
+                  step === 0 ||
+                  create.isPending ||
+                  reserve.isPending ||
+                  (uncertain && !uncertainRelease)
+                }
                 onClick={() => {
                   setError(undefined);
+                  if (step === 1 && reservation) {
+                    release.mutate();
+                    return;
+                  }
+                  setAgreed(false);
                   setStep(step - 1);
                 }}
               >
-                {t('Back')}
+                {uncertainRelease ? t('Retry releasing property') : t('Back')}
               </Button>
               {step < 2 ? (
                 <Button
@@ -422,6 +452,7 @@ export default function BookingWizard() {
                     (step === 0 && (!customer.id || !unit.id || unit.status !== 'AVAILABLE')) ||
                     (step === 1 && (!reservation || !plan.id)) ||
                     reserve.isPending ||
+                    release.isPending ||
                     uncertain
                   }
                   onClick={() => {

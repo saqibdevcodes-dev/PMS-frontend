@@ -1,7 +1,7 @@
 import { t, useLocale } from '../lib/i18n';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { Search, ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { api, queryString } from '../lib/api';
 import { operations, projectRoot, resolvePath, supportsQuery } from '../lib/contract';
 import { asRows, row, type Row, type Page } from '../lib/types';
@@ -10,6 +10,7 @@ import { labelOf, shortId, humanize } from '../lib/format';
 import { usePreferences } from '../stores/preferences';
 import { can } from '../stores/auth';
 import { Button } from './ui';
+import { SearchSelect } from './SearchSelect';
 export const relationPaths: Record<string, string> = {
   customerId: 'customers',
   buyerId: 'customers',
@@ -61,6 +62,7 @@ export function RelationSelect({
   const [search, setSearch] = useState('');
   const [debounced, setDebounced] = useState('');
   const [page, setPage] = useState(1);
+  const [selectedRecord, setSelectedRecord] = useState<Row>();
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebounced(search);
@@ -86,16 +88,30 @@ export function RelationSelect({
         { signal },
       ),
   });
-  let items = asRows(query.data);
-  if (source === '/roles') items = asRows(row(query.data).roles);
-  if (name === 'planVersionId')
-    items = items.flatMap((p) =>
-      asRows(p.versions).map((v) => ({ ...v, name: `${labelOf(p)} · v${v.version}`, plan: p })),
-    );
-  if (name === 'approvalId' || name === 'discountApprovalId')
-    items = items.filter((r) => r.status === 'APPROVED' && (!entityId || r.entityId === entityId));
-  if (debounced && !supportsQuery(path, 'search'))
-    items = items.filter((r) => labelOf(r).toLowerCase().includes(debounced.toLowerCase()));
+  const items = useMemo(() => {
+    let items = asRows(query.data);
+    if (source === '/roles') items = asRows(row(query.data).roles);
+    if (name === 'planVersionId')
+      items = items.flatMap((p) =>
+        asRows(p.versions).map((v) => ({ ...v, name: `${labelOf(p)} · v${v.version}`, plan: p })),
+      );
+    if (name === 'approvalId' || name === 'discountApprovalId')
+      items = items.filter(
+        (r) => r.status === 'APPROVED' && (!entityId || r.entityId === entityId),
+      );
+    if (debounced && !supportsQuery(path, 'search'))
+      items = items.filter((r) => labelOf(r).toLowerCase().includes(debounced.toLowerCase()));
+    return items;
+  }, [query.data, name, source, entityId, debounced, path]);
+  useEffect(() => {
+    const match = items.find((item) => item.id === value);
+    if (match) setSelectedRecord(match);
+  }, [items, value]);
+  const selected =
+    items.find((item) => item.id === value) ??
+    (selectedRecord?.id === value ? selectedRecord : undefined);
+  const optionLabel = (record: Row) =>
+    `${name === 'roleIds' ? t(labelOf(record)) : labelOf(record)}${record.status ? ` · ${humanize(String(record.status))}` : ''}`;
   const totalPages = (query.data as Page | undefined)?.pagination?.totalPages ?? 1;
   if (!permitted)
     return (
@@ -109,76 +125,71 @@ export function RelationSelect({
     );
   return (
     <div className="relation-field">
-      <div className="input-icon">
-        <Search size={14} />
-        <input
-          aria-label={t('Search {0}', { '0': humanize(name) })}
-          placeholder={t('Search {0}…', { '0': t(fieldLabels[name] ?? 'records') })}
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          disabled={disabled}
-        />
-      </div>
-      <select
+      <SearchSelect
         id={id}
         value={value}
         disabled={disabled}
-        onChange={(e) => {
-          onChange(e.target.value);
-          const item = items.find((r) => r.id === e.target.value);
+        search={search}
+        onSearch={setSearch}
+        searchLabel={t('Search {0}…', { '0': t(fieldLabels[name] ?? 'records') })}
+        options={items.map((record) => ({ value: record.id!, label: optionLabel(record) }))}
+        selectedLabel={
+          value
+            ? selected
+              ? optionLabel(selected)
+              : `${shortId(value)} ${t('· selected record')}`
+            : undefined
+        }
+        loading={query.isFetching || search !== debounced}
+        error={query.isError}
+        onRetry={() => void query.refetch()}
+        onChange={(value) => {
+          onChange(value);
+          const item = items.find((r) => r.id === value);
           if (item) onRecord?.(item);
         }}
-      >
-        <option value="">{query.isLoading ? t('Loading…') : t('Select a record')}</option>
-        {value && !items.some((r) => r.id === value) && (
-          <option value={value}>
-            {shortId(value)} {t('· selected record')}
-          </option>
-        )}
-        {items.map((r) => (
-          <option key={r.id} value={r.id}>
-            {name === 'roleIds' ? t(labelOf(r)) : labelOf(r)}
-            {r.status ? ` · ${humanize(String(r.status))}` : ''}
-          </option>
-        ))}
-      </select>
-      {totalPages > 1 && (
-        <div className="relation-pager">
-          <Button
-            type="button"
-            variant="ghost"
-            size="small"
-            disabled={page === 1}
-            onClick={() => setPage(page - 1)}
-          >
-            <ChevronLeft size={14} />
-          </Button>
-          <small>
-            {t('Page')} {page} {t('of')} {totalPages}
-          </small>
-          <Button
-            type="button"
-            variant="ghost"
-            size="small"
-            disabled={page >= totalPages}
-            onClick={() => setPage(page + 1)}
-          >
-            <ChevronRight size={14} />
-          </Button>
-        </div>
-      )}
-      {name === 'roleIds' && items.find((r) => r.id === value) && (
+        footer={
+          totalPages > 1 && (
+            <div className="relation-pager">
+              <Button
+                type="button"
+                variant="ghost"
+                size="small"
+                disabled={page === 1}
+                aria-label={t('Previous results')}
+                onClick={() => setPage(page - 1)}
+              >
+                <ChevronLeft size={14} />
+              </Button>
+              <small>
+                {t('Page')} {page} {t('of')} {totalPages}
+              </small>
+              <Button
+                type="button"
+                variant="ghost"
+                size="small"
+                disabled={page >= totalPages}
+                aria-label={t('Next results')}
+                onClick={() => setPage(page + 1)}
+              >
+                <ChevronRight size={14} />
+              </Button>
+            </div>
+          )
+        }
+      />
+      {name === 'roleIds' && selected && (
         <div className="role-explanation">
           <p>
             {t(
-              roleDescriptions[String(items.find((r) => r.id === value)?.name)] ??
+              roleDescriptions[String(selected.name)] ??
                 'Custom role. Review its current permissions below.',
             )}
           </p>
           <details>
             <summary>{t('View current permissions')}</summary>
             <ul>
-              {asRows(items.find((r) => r.id === value)?.permissions).map((p) => (
+              {asRows(selected.permissions).map((p) => (
                 <li key={String(p.permissionKey)}>{humanize(String(p.permissionKey))}</li>
               ))}
             </ul>

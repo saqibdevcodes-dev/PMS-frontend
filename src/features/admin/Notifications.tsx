@@ -1,3 +1,4 @@
+import { errorMessage } from '../../lib/error-messages';
 import { t, useLocale } from '../../lib/i18n';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { useState } from 'react';
@@ -19,7 +20,7 @@ export default function Notifications() {
   const mark = useMutation({
     mutationFn: (id: string) => api('/notifications/' + id + '/read', { method: 'POST', body: {} }),
     onSuccess: () => void queryClient.invalidateQueries({ queryKey: ['notifications'] }),
-    onError: (e) => toast.error(e.message),
+    onError: (e) => toast.error(errorMessage(e)),
   });
   return (
     <>

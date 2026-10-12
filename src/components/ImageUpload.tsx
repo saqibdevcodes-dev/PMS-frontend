@@ -48,6 +48,8 @@ export function ImageUpload({
   required = false,
   disabled = false,
   onBusy,
+  uploadPath = '/images',
+  allowRemove = true,
 }: {
   value?: string;
   onChange: (value: string) => void;
@@ -56,6 +58,8 @@ export function ImageUpload({
   required?: boolean;
   disabled?: boolean;
   onBusy?: (busy: boolean) => void;
+  uploadPath?: string;
+  allowRemove?: boolean;
 }) {
   useLocale();
   const projectId = usePreferences((s) => s.projectId);
@@ -90,9 +94,11 @@ export function ImageUpload({
     try {
       const body = new FormData();
       body.append('file', file);
-      body.append('purpose', purpose);
-      if (!['PROJECT', 'USER'].includes(purpose)) body.append('projectId', projectId);
-      const result = await api<{ id: string }>('/images', { method: 'POST', body });
+      if (uploadPath === '/images') {
+        body.append('purpose', purpose);
+        if (!['PROJECT', 'USER'].includes(purpose)) body.append('projectId', projectId);
+      }
+      const result = await api<{ id: string }>(uploadPath, { method: 'POST', body });
       onChange(result.id);
     } catch (e) {
       // Keep the previously saved image when replacing it fails.
@@ -166,20 +172,22 @@ export function ImageUpload({
             {busy ? <LoaderCircle size={18} className="spin" /> : <CheckCircle2 size={18} />}
             <span className="sr-only">{busy ? t('Uploading photo…') : t('Photo uploaded')}</span>
           </span>
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon"
-            aria-label={t('Remove photo')}
-            disabled={busy || disabled}
-            onClick={() => {
-              onChange('');
-              setPreview(undefined);
-              setError(undefined);
-            }}
-          >
-            <X size={17} />
-          </Button>
+          {allowRemove && (
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              aria-label={t('Remove photo')}
+              disabled={busy || disabled}
+              onClick={() => {
+                onChange('');
+                setPreview(undefined);
+                setError(undefined);
+              }}
+            >
+              <X size={17} />
+            </Button>
+          )}
           <progress
             aria-label={busy ? t('Uploading photo…') : t('Photo uploaded')}
             max={100}

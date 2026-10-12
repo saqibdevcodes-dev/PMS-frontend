@@ -1,3 +1,4 @@
+import { errorMessage } from '../../lib/error-messages';
 import { t, useLocale } from '../../lib/i18n';
 import { useState, useEffect, useMemo } from 'react';
 import { RecordImage } from '../../components/ImageUpload';
@@ -26,6 +27,7 @@ import { asRows, row, type Row, type Page, type Operation } from '../../lib/type
 import { humanize, labelOf, money } from '../../lib/format';
 import { Button, PageHeading, ErrorState, EmptyState, Badge } from '../../components/ui';
 import { DataTable } from '../../components/DataTable';
+import { Select } from '../../components/Select';
 import { OperationDialog } from '../../components/OperationDialog';
 import RecordDetail from './RecordDetail';
 export function ProjectRequired() {
@@ -96,6 +98,9 @@ export default function ResourcePage({ slug }: { slug: string }) {
     queryKey: ['resource', projectId, slug, queryValues],
     enabled: can(resource.permission) && (resource.global || !!projectId),
     placeholderData: keepPreviousData,
+    ...(slug === 'customers'
+      ? { refetchOnWindowFocus: 'always' as const, refetchOnMount: 'always' as const }
+      : {}),
     queryFn: ({ signal }) =>
       api(
         resolvePath(path) + queryString({ ...queryValues, ...(paginated ? { page, limit } : {}) }),
@@ -283,18 +288,18 @@ export default function ResourcePage({ slug }: { slug: string }) {
               </div>
             )}
             {statuses && (
-              <select
+              <Select
                 aria-label={t('Filter by status')}
                 value={params.get('status') ?? ''}
-                onChange={(e) => update('status', e.target.value)}
-              >
-                <option value="">{t('All statuses')}</option>
-                {statuses.map((s) => (
-                  <option key={s} value={s}>
-                    {humanize(String(s))}
-                  </option>
-                ))}
-              </select>
+                onChange={(value) => update('status', value)}
+                options={[
+                  { value: '', label: t('All statuses') },
+                  ...statuses.map((value) => ({
+                    value: String(value),
+                    label: humanize(String(value)),
+                  })),
+                ]}
+              />
             )}
             {slug === 'inventory' && (
               <input
@@ -304,15 +309,16 @@ export default function ResourcePage({ slug }: { slug: string }) {
                 onChange={(e) => update('phase', e.target.value)}
               />
             )}
-            <select
+            <Select
               aria-label={t('Sort order')}
               value={params.get('sort') ?? 'desc'}
-              onChange={(e) => update('sort', e.target.value)}
+              onChange={(value) => update('sort', value)}
               disabled={!queryParams.has('sort')}
-            >
-              <option value="desc">{t('Descending')}</option>
-              <option value="asc">{t('Ascending')}</option>
-            </select>
+              options={[
+                { value: 'desc', label: t('Descending') },
+                { value: 'asc', label: t('Ascending') },
+              ]}
+            />
           </div>
           {resource.views && (
             <div className="segmented">
@@ -331,7 +337,7 @@ export default function ResourcePage({ slug }: { slug: string }) {
                   onClick={() =>
                     void scanCode()
                       .then(setSearch)
-                      .catch((e: Error) => toast.error(e.message))
+                      .catch((e: Error) => toast.error(errorMessage(e)))
                   }
                 >
                   <ScanLine size={17} />
@@ -446,6 +452,9 @@ export default function ResourcePage({ slug }: { slug: string }) {
         ) : (
           <DataTable
             directory={slug === 'customers'}
+            imageIdentity={
+              slug === 'projects' ? 'name' : slug === 'inventory' ? 'number' : undefined
+            }
             data={dataItems}
             columns={resource.columns}
             busy={query.isLoading}

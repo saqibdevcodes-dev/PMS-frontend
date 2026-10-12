@@ -1,3 +1,4 @@
+import { errorMessage } from '../../lib/error-messages';
 import { t, useLocale } from '../../lib/i18n';
 import { useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
@@ -12,6 +13,7 @@ import { can } from '../../stores/auth';
 import { Button, PageHeading, ErrorState } from '../../components/ui';
 import { DataTable } from '../../components/DataTable';
 import { RelationSelect } from '../../components/RelationSelect';
+import { Select } from '../../components/Select';
 import { ProjectRequired, Unauthorized } from '../resources/ResourcePage';
 import { JobStatus } from '../../components/JobStatus';
 export const reportGroups: Record<string, string[]> = {
@@ -57,7 +59,7 @@ export default function Reports() {
       setJobs((v) => [{ id: String(r.id), projectId, filename: `estate-${kind}.${format}` }, ...v]);
       toast.success(t('Report generation started'));
     },
-    onError: (e) => toast.error(e.message),
+    onError: (e) => toast.error(errorMessage(e)),
   });
   if (!can('reports.read') || (financial && !can('finance.read'))) return <Unauthorized />;
   if (!projectId) return <ProjectRequired />;
@@ -107,23 +109,16 @@ export default function Reports() {
         <div className="report-filter-grid">
           <div className="form-field">
             <label htmlFor="report-kind">{t('Report')}</label>
-            <select
+            <Select
               id="report-kind"
               value={draft.kind ?? kind}
-              onChange={(e) => setDraft({ kind: e.target.value })}
-            >
-              {Object.entries(reportGroups)
+              onChange={(value) => setDraft({ kind: value })}
+              options={Object.entries(reportGroups)
                 .filter(([group]) => group !== 'Financial statements' || can('finance.read'))
-                .map(([group, kinds]) => (
-                  <optgroup key={group} label={t(group)}>
-                    {kinds.map((k) => (
-                      <option key={k} value={k}>
-                        {humanize(k)}
-                      </option>
-                    ))}
-                  </optgroup>
-                ))}
-            </select>
+                .flatMap(([group, kinds]) =>
+                  kinds.map((value) => ({ value, label: humanize(value), group: t(group) })),
+                )}
+            />
           </div>
           <div className="form-field">
             <label htmlFor="report-from">{t('From date')}</label>

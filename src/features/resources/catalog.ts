@@ -55,7 +55,7 @@ export const resources: Resource[] = [
     global: true,
     permission: 'projects.read',
     description: 'Create and manage your property developments.',
-    columns: ['name', 'photoId', 'code', 'currency', 'timezone', 'createdAt'],
+    columns: ['name', 'currency', 'timezone', 'createdAt'],
   },
   {
     slug: 'inventory',
@@ -66,7 +66,7 @@ export const resources: Resource[] = [
     group: 'Sales & customers',
     permission: 'inventory.read',
     description: 'View property availability, area, price and photos.',
-    columns: ['number', 'photoId', 'type', 'phase', 'block', 'size', 'price', 'status'],
+    columns: ['number', 'phase', 'block', 'size', 'price', 'status'],
     views: true,
   },
   {

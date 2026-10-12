@@ -48,6 +48,18 @@ describe('exact values and contract-driven validation', () => {
       active: false,
     });
   });
+  it('preserves explicit empty galleries on edits and leaves omitted galleries unchanged', () => {
+    const schema = operation('patch', '/projects/{projectId}/units/{id}').body!;
+    expect(normalize(schema, { photoIds: [] })).toEqual({ photoIds: [] });
+    expect(normalize(schema, { number: 'A-104' })).toEqual({ number: 'A-104' });
+    expect(
+      validator(schema).safeParse({
+        photoIds: Array(6).fill('aaaaaaaa-aaaa-4aaa-aaaa-aaaaaaaaaaaa'),
+      }).success,
+    ).toBe(false);
+    expect(schema.properties).not.toHaveProperty('price');
+    expect(schema.properties).not.toHaveProperty('charges');
+  });
 });
 describe('CSV inventory imports', () => {
   it('supports quoted separators, escaped quotes, CRLF, and exact amounts', () => {

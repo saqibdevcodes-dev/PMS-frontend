@@ -35,9 +35,7 @@ export default function AuthPage() {
     <div className="auth-page">
       <aside className="auth-story">
         <Link to="/login" className="brand" aria-label="Etihad Real Estate">
-          <span className="auth-logo-full bg-white/80 rounded p-1 shadow-sm shadow-gray-200">
-            <img src="/logo2.png" alt="" width={1448} height={444} />
-          </span>
+          <BrandLogo background="dark" className="auth-logo-full" decorative />
         </Link>
         <div className="auth-copy">
           <div className="eyebrow">
@@ -78,7 +76,7 @@ export default function AuthPage() {
       </aside>
       <main className="auth-main">
         <Link to="/login" className="auth-mobile-logo" aria-label="Etihad Real Estate">
-          <BrandLogo variant="stacked" decorative />
+          <BrandLogo decorative />
         </Link>
         <div className="auth-top">
           <span>{t('PROPERTY MANAGEMENT SYSTEM')}</span>

@@ -34,6 +34,7 @@ export function OperationDialog({
   const [review, setReview] = useState<Row | null>(null);
   const [draft, setDraft] = useState<Row>();
   function prepare(values: Row) {
+    mutation.reset();
     setDraft(values);
     setReview(values);
   }
@@ -210,6 +211,7 @@ export function OperationDialog({
               onSubmit={prepare}
               entityId={record?.id}
               operationPath={operation.path}
+              error={mutation.error}
             />
           </>
         )}

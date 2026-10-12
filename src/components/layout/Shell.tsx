@@ -33,6 +33,7 @@ import { CommandPalette } from './CommandPalette';
 import { OperationDialog } from '../OperationDialog';
 import { LanguageSelector } from '../LanguageSelector';
 import { BrandLogo } from '../BrandLogo';
+import { SearchSelect } from '../SearchSelect';
 export default function Shell() {
   useLocale();
   const user = useAuth((s) => s.user)!;
@@ -41,7 +42,6 @@ export default function Shell() {
   const navigate = useNavigate();
   const [mobile, setMobile] = useState(false);
   const [search, setSearch] = useState(false);
-  const [projectPicker, setProjectPicker] = useState(false);
   const [projectSearch, setProjectSearch] = useState('');
   const [online, setOnline] = useState(navigator.onLine);
   const [quick, setQuick] = useState(false);
@@ -112,7 +112,6 @@ export default function Shell() {
       String(p.timezone ?? 'Asia/Karachi'),
     );
     void queryClient.cancelQueries();
-    setProjectPicker(false);
     setMobile(false);
   }
   return (
@@ -129,25 +128,48 @@ export default function Shell() {
       )}
       <aside className={'sidebar ' + (mobile ? 'mobile-open' : '')}>
         <NavLink to="/dashboard" className="brand" aria-label="Etihad Real Estate">
-          <span className="sidebar-logo-full bg-white/80 rounded p-1 shadow-sm shadow-gray-200">
-            <img src="/logo2.png" alt="" width={1448} height={444} />
-          </span>
-          <BrandLogo variant="symbol" className="sidebar-logo-compact" decorative />
+          <BrandLogo background="dark" className="sidebar-logo-full" decorative />
+          <BrandLogo
+            variant="symbol"
+            background="dark"
+            className="sidebar-logo-compact"
+            decorative
+          />
         </NavLink>
-        <button
-          className="project-switcher"
-          onClick={() => setProjectPicker(true)}
-          title={t('Switch project')}
-        >
-          <span className="project-icon">
-            <Building2 size={17} />
-          </span>
-          <span className="project-caption">
-            <small>{t('CURRENT PROJECT')}</small>
-            <strong>{preferences.projectName || t('Choose a project')}</strong>
-          </span>
-          <ChevronDown size={15} />
-        </button>
+        <SearchSelect
+          className="project-select"
+          triggerClassName="project-switcher"
+          ariaLabel={t('Switch project')}
+          value={preferences.projectId}
+          options={(projects.data?.items ?? []).map((p) => ({
+            value: p.id!,
+            label: `${p.name} · ${p.code}`,
+          }))}
+          search={projectSearch}
+          onSearch={setProjectSearch}
+          searchLabel={t('Search projects')}
+          selectedLabel={preferences.projectName}
+          disabled={!can('projects.read')}
+          loading={projects.isFetching}
+          error={projects.isError}
+          onRetry={() => void projects.refetch()}
+          clearable={false}
+          onChange={(value) => {
+            const p = projects.data?.items.find((p) => p.id === value);
+            if (p) void selectProject(p);
+          }}
+          triggerContent={
+            <>
+              <span className="project-icon">
+                <Building2 size={17} />
+              </span>
+              <span className="project-caption">
+                <small>{t('CURRENT PROJECT')}</small>
+                <strong>{preferences.projectName || t('Choose a project')}</strong>
+              </span>
+            </>
+          }
+        />
         <nav className="sidebar-nav" aria-label={t('Main navigation')}>
           {groups.map((group) => (
             <div className="nav-group" key={t(group)}>
@@ -268,54 +290,6 @@ export default function Shell() {
         </footer>
       </div>
       <CommandPalette open={search} onClose={() => setSearch(false)} />
-      <Modal
-        open={projectPicker}
-        onOpenChange={setProjectPicker}
-        title={t('Your projects')}
-        description={t('Choose the workspace you want to work in.')}
-      >
-        <div className="modal-body">
-          <div className="input-icon">
-            <Search size={17} />
-            <input
-              aria-label={t('Search projects')}
-              placeholder={t('Search assigned projects…')}
-              value={projectSearch}
-              onChange={(e) => setProjectSearch(e.target.value)}
-            />
-          </div>
-          <div className="project-options">
-            {projects.data?.items.map((p) => (
-              <button
-                key={p.id}
-                onClick={() => selectProject(p)}
-                className={p.id === preferences.projectId ? 'selected' : ''}
-              >
-                <Building2 size={20} />
-                <span>
-                  <strong>{String(p.name)}</strong>
-                  <small>
-                    {String(p.code)} · {String(p.currency)}
-                  </small>
-                </span>
-                <ArrowUpRight size={16} />
-              </button>
-            ))}
-          </div>
-          {!projects.data?.items.length && (
-            <p className="muted">{t('No matching assigned projects.')}</p>
-          )}
-          <Button
-            variant="secondary"
-            onClick={() => {
-              navigate('/projects');
-              setProjectPicker(false);
-            }}
-          >
-            {t('Manage projects')}
-          </Button>
-        </div>
-      </Modal>
       <Modal
         open={quick}
         onOpenChange={setQuick}
