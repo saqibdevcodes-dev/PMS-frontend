@@ -8,10 +8,12 @@ import { ImageUpload } from './ImageUpload';
 import { Select } from './Select';
 export function FeatureEditor({
   name,
+  purpose = 'FEATURE',
   disabled,
   onBusy,
 }: {
   name: string;
+  purpose?: 'FEATURE' | 'PROJECT';
   disabled?: boolean;
   onBusy: (key: string, busy: boolean) => void;
 }) {
@@ -32,7 +34,7 @@ export function FeatureEditor({
   }
   return (
     <fieldset className="form-section">
-      <legend>{t('Property features')}</legend>
+      <legend>{t(purpose === 'PROJECT' ? 'Project features' : 'Property features')}</legend>
       <p className="muted">{t('Choose each feature and optionally add its photo.')}</p>
       <div className="feature-picker">
         <Select
@@ -75,7 +77,7 @@ export function FeatureEditor({
             <strong>{t(feature)}</strong>
             <ImageUpload
               label={t('Feature photo')}
-              purpose="FEATURE"
+              purpose={purpose}
               value={images.find((i) => i.feature === feature)?.imageId}
               onChange={(id) => updateImages(feature, id)}
               disabled={disabled}

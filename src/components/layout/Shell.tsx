@@ -186,7 +186,6 @@ export default function Shell() {
                   >
                     <n.icon size={18} />
                     <span>{t(n.label)}</span>
-                    {n.slug === 'approvals' && <span className="nav-small-dot" />}
                   </NavLink>
                 ))}
             </div>
@@ -300,7 +299,7 @@ export default function Shell() {
           {resources
             .filter(
               (r) =>
-                ['projects', 'customers', 'inventory', 'crm', 'collections'].includes(r.slug) &&
+                ['projects', 'customers', 'inventory', 'collections'].includes(r.slug) &&
                 (r.global || preferences.projectId),
             )
             .flatMap((r) =>

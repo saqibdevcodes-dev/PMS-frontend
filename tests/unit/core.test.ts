@@ -78,33 +78,25 @@ describe('workflow permissions', () => {
     id: 'maker',
     name: 'Maker',
     email: 'maker@test.invalid',
-    permissions: ['approvals.read', 'bookings.approve'],
+    permissions: ['bookings.approve', 'payments.verify'],
     projects: [],
   } as User;
-  it('hides decisions from the requester, and requires the current approval-level permission', () => {
-    const op = operation('post', '/projects/{projectId}/approvals/{id}/decide');
+  it('allows direct confirmation only for permitted employees and draft bookings', () => {
+    const op = operation('post', '/projects/{projectId}/bookings/{id}/confirm');
     useAuth.getState().setUser(user);
-    const record = {
-      id: 'request',
-      status: 'PENDING',
-      requestedBy: 'maker',
-      permissions: ['bookings.approve'],
-      level: 0,
-    };
-    expect(allowedAction(op, record)).toBe(false);
-    expect(allowedAction(op, { ...record, requestedBy: 'someone-else' })).toBe(true);
-    expect(
-      allowedAction(op, {
-        ...record,
-        requestedBy: 'someone-else',
-        permissions: ['finance.approve'],
-      }),
-    ).toBe(false);
-    expect(allowedAction(op, { ...record, requestedBy: 'someone-else', status: 'APPROVED' })).toBe(
-      false,
-    );
+    expect(allowedAction(op, { status: 'DRAFT' })).toBe(true);
+    expect(allowedAction(op, { status: 'CONFIRMED' })).toBe(false);
+    useAuth.getState().setUser({ ...user, permissions: ['bookings.create'] });
+    expect(allowedAction(op, { status: 'DRAFT' })).toBe(false);
+  });
+  it('still prevents the payment receiver from verifying their own payment', () => {
+    const op = operation('post', '/projects/{projectId}/payments/{id}/verify');
+    useAuth.getState().setUser(user);
+    expect(allowedAction(op, { status: 'PENDING', receivedBy: user.id })).toBe(false);
+    expect(allowedAction(op, { status: 'PENDING', receivedBy: 'other' })).toBe(true);
   });
 });
+
 describe('desktop security boundaries', () => {
   it('accepts localhost development and HTTPS production API URLs only', () => {
     expect(serverUrl('http://127.0.0.1:4000/api/v1')).toContain('4000');

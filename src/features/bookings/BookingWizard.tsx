@@ -1,557 +1,434 @@
 import { t, useLocale } from '../../lib/i18n';
-import { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { useMutation } from '@tanstack/react-query';
+import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import Decimal from 'decimal.js';
-import { ArrowLeft, ArrowRight, Check, ShieldCheck, Building2 } from 'lucide-react';
-import { toast } from 'sonner';
-import { useUnsavedChanges } from '../../hooks/use-unsaved';
-import { api, ApiError } from '../../lib/api';
+import { CheckCircle2, Building2, UserRound, ArrowRight, ShieldCheck } from 'lucide-react';
+import { RecordImage } from '../../components/ImageUpload';
+import { api } from '../../lib/api';
 import { queryClient } from '../../lib/query';
 import { usePreferences } from '../../stores/preferences';
 import { can } from '../../stores/auth';
-import { row, asRows, type Row } from '../../lib/types';
-import { humanize, money, labelOf } from '../../lib/format';
+import { row, type Row } from '../../lib/types';
+import { money, labelOf, calendarDay } from '../../lib/format';
 import { RelationSelect } from '../../components/RelationSelect';
-import { Button, PageHeading, ErrorState, Badge } from '../../components/ui';
+import { Button, PageHeading, ErrorState } from '../../components/ui';
 import { OperationDialog } from '../../components/OperationDialog';
-import { operations, projectRoot } from '../../lib/contract';
+import { operation, projectRoot } from '../../lib/contract';
 import { ProjectRequired, Unauthorized } from '../resources/ResourcePage';
+import { useUnsavedChanges } from '../../hooks/use-unsaved';
+import { PaymentFields, initialTerms, previewPlan, type Terms } from './PaymentFields';
+
 export default function BookingWizard() {
   useLocale();
   const projectId = usePreferences((s) => s.projectId);
-  const projectName = usePreferences((s) => s.projectName);
-  const navigate = useNavigate();
-  const [showCustomer, setShowCustomer] = useState(false);
   const [step, setStep] = useState(0);
   const [customer, setCustomer] = useState<Row>({});
   const [unit, setUnit] = useState<Row>({});
-  const [plan, setPlan] = useState<Row>({});
-  const [reservation, setReservation] = useState<Row>();
-  const [discount, setDiscount] = useState('0');
-  const [discountApproval, setDiscountApproval] = useState('');
-  const [dealer, setDealer] = useState('');
-  const [owners, setOwners] = useState<{ customerId: string; share: string }[]>([]);
-  const [error, setError] = useState<unknown>();
-  const [agreed, setAgreed] = useState(false);
+  const [sellingPrice, setSellingPrice] = useState('');
+  const [applyDiscount, setApplyDiscount] = useState(false);
+  const [discount, setDiscount] = useState('');
+  const [terms, setTerms] = useState<Terms>(initialTerms);
   const [created, setCreated] = useState<Row>();
+  const [error, setError] = useState<unknown>();
+  const [showCustomer, setShowCustomer] = useState(false);
+  const project = useQuery({
+    queryKey: ['booking-project', projectId],
+    enabled: !!projectId,
+    queryFn: () => api<Row>(`/projects/${projectId}`),
+  });
   useEffect(() => {
     setStep(0);
     setCustomer({});
     setUnit({});
-    setReservation(undefined);
-    setPlan({});
-    setOwners([]);
-    setDealer('');
-    setDiscount('0');
-    setDiscountApproval('');
-    setError(undefined);
+    setSellingPrice('');
+    setDiscount('');
+    setApplyDiscount(false);
+    setTerms(initialTerms());
     setCreated(undefined);
-    setAgreed(false);
+    setError(undefined);
   }, [projectId]);
-  useUnsavedChanges(Boolean((customer.id || unit.id || reservation) && !created));
-  const reserve = useMutation({
-    mutationFn: () =>
-      api<Row>(`/projects/${projectId}/reservations`, {
-        method: 'POST',
-        body: { unitId: unit.id, customerId: customer.id },
-      }),
-    onSuccess: (r) => {
-      setReservation(r);
-      setStep(1);
-      setError(undefined);
-      void queryClient.invalidateQueries();
-    },
-    onError: setError,
-  });
-  const release = useMutation({
-    mutationFn: () =>
-      api(`/projects/${projectId}/reservations/${reservation!.id}/release`, { method: 'POST' }),
-    onSuccess: () => {
-      setReservation(undefined);
-      setUnit((current) => ({ ...current, status: 'AVAILABLE' }));
-      setAgreed(false);
-      setStep(0);
-      setError(undefined);
-      void queryClient.invalidateQueries();
-    },
-    onError: setError,
-  });
-  const create = useMutation({
+  useUnsavedChanges(Boolean((customer.id || unit.id) && !created));
+  const price = new Decimal(sellingPrice || 0);
+  const effectiveDiscount = new Decimal(applyDiscount ? discount || 0 : 0);
+  const total = price.plus(String(unit.charges ?? 0)).minus(effectiveDiscount);
+  const minimum = total
+    .mul(String(project.data?.downPaymentPercent ?? 20))
+    .div(100)
+    .toDecimalPlaces(2, Decimal.ROUND_UP);
+  const save = useMutation({
     mutationFn: () =>
       api<Row>(`/projects/${projectId}/bookings`, {
         method: 'POST',
         body: {
-          reservationId: reservation?.id,
-          planVersionId: plan.id,
-          discount,
-          ...(new Decimal(discount).gt(0) ? { discountApprovalId: discountApproval } : {}),
-          ...(dealer ? { dealerId: dealer } : {}),
-          ...(owners.length ? { owners } : {}),
+          customerId: customer.id,
+          unitId: unit.id,
+          sellingPrice: price.toFixed(2),
+          discount: effectiveDiscount.toFixed(2),
+          confirm: can('bookings.approve'),
+          paymentType: terms.paymentType,
+          ...(terms.paymentType === 'INSTALLMENTS' ? terms : {}),
         },
       }),
     onSuccess: (r) => {
-      setCreated(r);
+      setCreated(row(r.booking));
       void queryClient.invalidateQueries();
-      toast.success(t('Booking submitted for approval'));
     },
     onError: setError,
   });
-  if (!can('bookings.create') || !can('reservations.create')) return <Unauthorized />;
+  if (!can('bookings.create')) return <Unauthorized />;
   if (!projectId) return <ProjectRequired />;
-  let total = new Decimal(String(unit.price ?? 0)).plus(String(unit.charges ?? 0));
-  try {
-    total = total.minus(discount);
-  } catch {
-    /* Validation is shown before continuing. */
+  function next() {
+    setError(undefined);
+    if (step === 0 && (!customer.id || !unit.id))
+      return setError(new Error('Choose a customer and an available property.'));
+    if (
+      step === 1 &&
+      (!price.gt(0) || effectiveDiscount.lt(0) || effectiveDiscount.gt(price) || !total.gt(0))
+    )
+      return setError(
+        new Error('Enter a positive price and a discount that does not exceed the selling price.'),
+      );
+    if (step === 2 && terms.paymentType === 'INSTALLMENTS') {
+      const down = new Decimal(terms.downPayment || 0);
+      const rows = previewPlan(total, terms);
+      if (
+        down.lt(minimum) ||
+        down.gte(total) ||
+        !rows.length ||
+        rows.some((r) => new Decimal(r.amount).lt('0.01')) ||
+        terms.firstInstallmentDate < calendarDay(new Date())
+      )
+        return setError(
+          new Error(
+            `Down payment must be at least ${money(minimum)} and less than the total. Choose valid installment amounts and a current or future first due date.`,
+          ),
+        );
+    }
+    setStep(step + 1);
   }
-  const schedule = asRows(plan.schedule);
-  let assigned = new Decimal(0);
-  const preview: Row[] = schedule.map((part, i) => {
-    const amount =
-      i === schedule.length - 1
-        ? total.minus(assigned)
-        : total.mul(String(part.percent)).div(100).toDecimalPlaces(2);
-    assigned = assigned.plus(amount);
-    return { ...part, amount: amount.toFixed(2) };
-  });
-  const steps = ['Choose customer & property', 'Choose payment schedule', 'Review & submit'];
-  const uncertain = error instanceof ApiError && error.status === 0;
-  const uncertainRelease = uncertain && error === release.error;
+  if (created)
+    return (
+      <section className="panel booking-complete">
+        <CheckCircle2 size={44} />
+        <h1>Booking Created Successfully</h1>
+        <dl className="detail-grid">
+          <div>
+            <dt>{t('Customer')}</dt>
+            <dd>{labelOf(customer)}</dd>
+          </div>
+          <div>
+            <dt>{t('Property')}</dt>
+            <dd>{labelOf(unit)}</dd>
+          </div>
+          <div>
+            <dt>{t('Booking Number')}</dt>
+            <dd>{String(created.reference)}</dd>
+          </div>
+          <div>
+            <dt>{t('Payment Type')}</dt>
+            <dd>{terms.paymentType === 'FULL_PAYMENT' ? 'Full Payment' : 'Installment Plan'}</dd>
+          </div>
+        </dl>
+        <p>
+          {created.status === 'CONFIRMED'
+            ? 'The property is booked. You can now record the customer’s payment.'
+            : 'The booking is saved. An employee with booking confirmation permission can confirm it directly.'}
+        </p>
+        <div className="form-footer">
+          <Button asChild variant="secondary">
+            <Link to="/bookings">Close</Link>
+          </Button>
+          <Button asChild>
+            <Link to={'/bookings?record=' + created.id}>{t('View Booking')}</Link>
+          </Button>
+        </div>
+      </section>
+    );
   return (
     <>
-      {showCustomer && (
-        <OperationDialog
-          operation={operations.find(
-            (o) => o.path === projectRoot + '/customers' && o.method === 'post',
-          )!}
-          title={t('Add customer')}
-          onClose={() => setShowCustomer(false)}
-          onSuccess={(data) => {
-            setCustomer(row(data));
-            setShowCustomer(false);
-          }}
-        />
-      )}
       <PageHeading
-        eyebrow={t('Sales & customers / Bookings')}
-        title={created ? t('Booking created') : t('Create a booking')}
-        description={
-          created
-            ? t('Your booking is recorded and awaiting its required approvals.')
-            : t(
-                'Choose a customer and property, select a payment schedule, then review your booking.',
-              )
-        }
-        actions={
-          <Button asChild variant="secondary">
-            <Link to="/bookings">
-              <ArrowLeft size={16} />
-              {t('All bookings')}
-            </Link>
-          </Button>
-        }
+        title="Create booking"
+        description="Choose the customer, property and payment plan, then review the booking."
       />
-      {created ? (
-        <section className="panel success-panel">
-          <ShieldCheck size={46} />
-          <h2>{String(row(created.booking).reference ?? 'Booking created')}</h2>
-          <Badge value={row(created.booking).status} />
-          <p>{t('Approval and cleared down payment are required before confirmation.')}</p>
-          <div className="detail-grid">
-            <div>
-              <span>{t('Booking ID')}</span>
-              <code>{String(row(created.booking).id)}</code>
-            </div>
-            <div>
-              <span>{t('Approval ID')}</span>
-              <code>{String(row(created.approval).id)}</code>
-            </div>
-          </div>
-          <Button onClick={() => navigate('/bookings?record=' + row(created.booking).id)}>
-            {t('View booking')}
-            <ArrowRight size={16} />
-          </Button>
-        </section>
-      ) : (
-        <div className="wizard-layout">
-          <section className="panel wizard-main">
-            <ol className="wizard-steps">
-              {steps.map((label, i) => (
-                <li key={label} className={step === i ? 'current' : step > i ? 'completed' : ''}>
-                  <span>{step > i ? <Check size={16} /> : i + 1}</span>
-                  <strong>{t(label)}</strong>
-                </li>
-              ))}
-            </ol>
-            <div className="wizard-body">
-              <span className="eyebrow">
-                {t('STEP')} {step + 1} {t('OF 3')}
-              </span>
-              <h2>{t(steps[step])}</h2>
-              {step === 0 ? (
-                <>
-                  <p className="muted">
-                    {t(
-                      'Choose an existing customer and an available property. The property is temporarily held when you continue.',
-                    )}
-                  </p>
-                  <div className="form-grid">
-                    <div className="form-field">
-                      <label htmlFor="wizard-customer">{t('Customer *')}</label>
-                      <RelationSelect
-                        id="wizard-customer"
-                        name="customerId"
-                        disabled={Boolean(reservation)}
-                        value={String(customer.id ?? '')}
-                        onChange={(id) => {
-                          setCustomer({ id });
-                          setReservation(undefined);
-                          setOwners([]);
-                          setAgreed(false);
-                        }}
-                        onRecord={setCustomer}
-                      />
-                      {can('customers.create') && !reservation && (
-                        <Button type="button" variant="ghost" onClick={() => setShowCustomer(true)}>
-                          {t('Add a new customer')}
-                        </Button>
-                      )}
-                    </div>
-                    <div className="form-field">
-                      <label htmlFor="wizard-unit">{t('Property *')}</label>
-                      <RelationSelect
-                        id="wizard-unit"
-                        name="unitId"
-                        statusFilter="AVAILABLE"
-                        disabled={Boolean(reservation)}
-                        value={String(unit.id ?? '')}
-                        onChange={(id) => {
-                          setUnit({ id });
-                          setReservation(undefined);
-                          setDiscount('0');
-                          setDiscountApproval('');
-                          setAgreed(false);
-                        }}
-                        onRecord={setUnit}
-                      />
-                    </div>
-                  </div>
-                  {Boolean(unit.status) && unit.status !== 'AVAILABLE' && (
-                    <ErrorState
-                      error={new Error(t('This property is not available. Choose another unit.'))}
-                    />
+      <section className="booking-workspace">
+        <ol className="setup-steps">
+          {['Customer & property', 'Price & discount', 'Payment type', 'Review & confirm'].map(
+            (label, i) => (
+              <li key={label}>
+                <button
+                  disabled={i > step || save.isPending}
+                  aria-current={i === step ? 'step' : undefined}
+                  onClick={() => {
+                    setStep(i);
+                    setError(undefined);
+                  }}
+                >
+                  <span>{i < step ? <CheckCircle2 size={16} /> : i + 1}</span>
+                  {t(label)}
+                </button>
+              </li>
+            ),
+          )}
+        </ol>
+        <div className="booking-layout">
+          <div className="panel booking-editor">
+            <header className="workspace-card-heading">
+              <div>
+                <span className="workspace-eyebrow">
+                  {t('Step')} {step + 1} / 4
+                </span>
+                <h2>
+                  {t(
+                    [
+                      'Choose your customer and property',
+                      'Set the booking amount',
+                      'Plan the payments',
+                      'Ready to book',
+                    ][step],
                   )}
-                </>
-              ) : step === 1 ? (
+                </h2>
+                <p>
+                  {t(
+                    [
+                      'Connect the right customer with an available property.',
+                      'Check the price and fees. Apply a discount if needed.',
+                      'Choose full payment or build an installment schedule.',
+                      'Check everything below. You can go back to make changes.',
+                    ][step],
+                  )}
+                </p>
+              </div>
+              <span className="workspace-icon">
+                <Building2 size={22} />
+              </span>
+            </header>
+            <div
+              key={step}
+              className="form-grid booking-step-content"
+              onChange={() => setError(undefined)}
+            >
+              {step === 0 && (
                 <>
-                  <p className="muted">
-                    {t(
-                      'Choose how the customer will pay. The schedule below shows each payment amount.',
+                  <div className="form-field">
+                    <label htmlFor="booking-customer">{t('Customer')}</label>
+                    <RelationSelect
+                      id="booking-customer"
+                      name="customerId"
+                      value={String(customer.id ?? '')}
+                      onChange={(id) => setCustomer({ id })}
+                      onRecord={setCustomer}
+                    />
+                    {can('customers.create') && (
+                      <Button variant="ghost" onClick={() => setShowCustomer(true)}>
+                        {t('Add customer')}
+                      </Button>
                     )}
-                  </p>
-                  <div className="form-grid">
-                    <div className="form-field form-full">
-                      <label htmlFor="wizard-plan">{t('Payment schedule *')}</label>
-                      <RelationSelect
-                        id="wizard-plan"
-                        name="planVersionId"
-                        value={String(plan.id ?? '')}
-                        onChange={(id) => setPlan({ id })}
-                        onRecord={setPlan}
-                      />
-                    </div>
-                    <div className="form-field">
-                      <label htmlFor="wizard-discount">{t('Discount amount')}</label>
+                  </div>
+                  <div className="form-field">
+                    <label htmlFor="booking-property">{t('Property')}</label>
+                    <RelationSelect
+                      id="booking-property"
+                      name="unitId"
+                      statusFilter="AVAILABLE"
+                      value={String(unit.id ?? '')}
+                      onChange={(id) => {
+                        if (id !== unit.id) {
+                          setUnit({ id });
+                          setSellingPrice('');
+                        }
+                      }}
+                      onRecord={(r) => {
+                        setUnit(r);
+                        setSellingPrice((current) => current || String(r.price));
+                      }}
+                    />
+                    <small>Only available properties can be booked.</small>
+                  </div>
+                </>
+              )}
+              {step === 1 && (
+                <>
+                  <label className="form-field">
+                    Property selling price
+                    <input
+                      type="number"
+                      min="0.01"
+                      step="0.01"
+                      disabled={!can('inventory.change_price')}
+                      value={sellingPrice}
+                      onChange={(e) => setSellingPrice(e.target.value)}
+                    />
+                  </label>
+                  <div className="form-field">
+                    <span>{t('Additional property fees')}</span>
+                    <strong>{money(unit.charges)}</strong>
+                  </div>
+                  {can('discounts.approve') && (
+                    <label className="check-field form-full">
                       <input
-                        id="wizard-discount"
-                        placeholder="0.00"
-                        inputMode="decimal"
+                        type="checkbox"
+                        checked={applyDiscount}
+                        onChange={(e) => {
+                          setApplyDiscount(e.target.checked);
+                          if (!e.target.checked) setDiscount('');
+                        }}
+                      />
+                      Apply Discount
+                    </label>
+                  )}
+                  {applyDiscount && (
+                    <label className="form-field">
+                      {t('Discount amount')}
+                      <input
+                        type="number"
+                        min="0"
+                        max={sellingPrice}
+                        step="0.01"
                         value={discount}
                         onChange={(e) => setDiscount(e.target.value)}
                       />
-                    </div>
-                    {discount !== '0' && (
-                      <div className="form-field">
-                        <label htmlFor="wizard-discount-approval">{t('Approved discount')}</label>
-                        <RelationSelect
-                          id="wizard-discount-approval"
-                          name="discountApprovalId"
-                          entityId={unit.id}
-                          value={discountApproval}
-                          onChange={setDiscountApproval}
-                        />
-                      </div>
-                    )}
-                    <div className="form-field">
-                      <label htmlFor="wizard-dealer">{t('Dealer (optional)')}</label>
-                      <RelationSelect
-                        id="wizard-dealer"
-                        name="dealerId"
-                        value={dealer}
-                        onChange={setDealer}
-                      />
-                    </div>
-                  </div>
-                  <div className="plan-preview">
-                    {preview.map((p, i) => (
-                      <div key={i}>
-                        <span>
-                          {String(p.label)}
-                          <small>
-                            {String(p.percent)}% · {Number(p.days ?? 0)} {t('days /')}{' '}
-                            {Number(p.months ?? 0)} {t('months')}
-                          </small>
-                        </span>
-                        <strong>{money(p.amount)}</strong>
-                      </div>
-                    ))}
-                  </div>
-                  <fieldset className="form-section">
-                    <legend>{t('Ownership')}</legend>
-                    <p className="muted">
-                      {t(
-                        'The selected customer owns 100% unless you specify joint owners. Shares must total 100% and include the primary customer.',
-                      )}
-                    </p>
-                    {owners.map((owner, index) => (
-                      <div className="ownership-row" key={index}>
-                        <div className="form-field">
-                          <label htmlFor={'owner-' + index}>
-                            {t('Owner')} {index + 1}
-                          </label>
-                          <RelationSelect
-                            id={'owner-' + index}
-                            name="customerId"
-                            value={owner.customerId}
-                            onChange={(customerId) =>
-                              setOwners((current) =>
-                                current.map((v, i) => (i === index ? { ...v, customerId } : v)),
-                              )
-                            }
-                          />
-                        </div>
-                        <div className="form-field">
-                          <label htmlFor={'share-' + index}>{t('Share %')}</label>
-                          <input
-                            id={'share-' + index}
-                            placeholder="100"
-                            inputMode="decimal"
-                            value={owner.share}
-                            onChange={(e) =>
-                              setOwners((current) =>
-                                current.map((v, i) =>
-                                  i === index ? { ...v, share: e.target.value } : v,
-                                ),
-                              )
-                            }
-                          />
-                        </div>
-                        <Button
-                          variant="ghost"
-                          size="small"
-                          onClick={() =>
-                            setOwners((current) => current.filter((_, i) => i !== index))
-                          }
-                        >
-                          {t('Remove owner')} {index + 1}
-                        </Button>
-                      </div>
-                    ))}
-                    <Button
-                      variant="secondary"
-                      disabled={owners.length >= 20}
-                      onClick={() =>
-                        setOwners((current) =>
-                          current.length
-                            ? [...current, { customerId: '', share: '' }]
-                            : [
-                                { customerId: customer.id!, share: '50' },
-                                { customerId: '', share: '50' },
-                              ],
-                        )
-                      }
-                    >
-                      {t('Add joint owners')}
-                    </Button>
-                  </fieldset>
-                </>
-              ) : (
-                <>
-                  <div className="review-notice">
-                    <ShieldCheck size={23} />
-                    <div>
-                      <strong>{t('Ready for your final review')}</strong>
-                      <p>
-                        {t(
-                          'This creates a draft booking and approval request. It does not confirm a sale.',
-                        )}
-                      </p>
-                    </div>
-                  </div>
-                  <dl className="detail-grid">
-                    <div>
-                      <dt>{t('Customer')}</dt>
-                      <dd>{labelOf(customer)}</dd>
-                    </div>
-                    <div>
-                      <dt>{t('Unit')}</dt>
-                      <dd>{labelOf(unit)}</dd>
-                    </div>
-                    <div>
-                      <dt>{t('Payment plan')}</dt>
-                      <dd>{labelOf(plan)}</dd>
-                    </div>
-                    <div>
-                      <dt>{t('Booking value')}</dt>
-                      <dd>{money(total.toFixed(2))}</dd>
-                    </div>
-                  </dl>
-                  {owners.length > 0 && (
-                    <p className="muted">
-                      {owners.length} {t('owners ·')} {owners.map((o) => o.share + '%').join(' / ')}
-                    </p>
+                    </label>
                   )}
-                  <label className="confirmation-check">
-                    <input
-                      type="checkbox"
-                      checked={agreed}
-                      onChange={(e) => setAgreed(e.target.checked)}
-                    />
-                    {t('I have reviewed the customer, property, price, and payment plan.')}
-                  </label>
+                  <p className="form-full">
+                    Total payable: <strong>{money(total)}</strong>
+                  </p>
                 </>
               )}
-              {Boolean(error) && <ErrorState error={error} />}
+              {step === 2 && (
+                <PaymentFields
+                  value={terms}
+                  onChange={(value) => {
+                    setTerms(value);
+                    setError(undefined);
+                  }}
+                  total={total}
+                  minimum={minimum.toFixed(2)}
+                />
+              )}
+              {step === 3 && (
+                <div className="form-full">
+                  <h2>Review booking</h2>
+                  <dl className="detail-grid">
+                    {Object.entries({
+                      Customer: labelOf(customer),
+                      Property: labelOf(unit),
+                      'Selling price': money(price),
+                      Fees: money(unit.charges),
+                      Discount: money(effectiveDiscount),
+                      'Total payable': money(total),
+                      'Payment type':
+                        terms.paymentType === 'FULL_PAYMENT' ? 'Full Payment' : 'Installment Plan',
+                      ...(terms.paymentType === 'INSTALLMENTS'
+                        ? {
+                            'Down payment': money(terms.downPayment),
+                            Installments: String(terms.installmentCount),
+                            'First installment': terms.firstInstallmentDate,
+                          }
+                        : {}),
+                    }).map(([k, v]) => (
+                      <div key={k}>
+                        <dt>{k}</dt>
+                        <dd>{v}</dd>
+                      </div>
+                    ))}
+                  </dl>
+                </div>
+              )}
             </div>
-            <footer className="wizard-footer">
+            {(error || project.error) && <ErrorState error={error || project.error} />}
+            <div className="form-footer">
               <Button
                 variant="secondary"
-                busy={release.isPending}
-                disabled={
-                  step === 0 ||
-                  create.isPending ||
-                  reserve.isPending ||
-                  (uncertain && !uncertainRelease)
-                }
+                disabled={!step || save.isPending}
                 onClick={() => {
-                  setError(undefined);
-                  if (step === 1 && reservation) {
-                    release.mutate();
-                    return;
-                  }
-                  setAgreed(false);
                   setStep(step - 1);
+                  setError(undefined);
                 }}
               >
-                {uncertainRelease ? t('Retry releasing property') : t('Back')}
+                {t('Back')}
               </Button>
-              {step < 2 ? (
-                <Button
-                  disabled={
-                    (step === 0 && (!customer.id || !unit.id || unit.status !== 'AVAILABLE')) ||
-                    (step === 1 && (!reservation || !plan.id)) ||
-                    reserve.isPending ||
-                    release.isPending ||
-                    uncertain
-                  }
-                  onClick={() => {
-                    setError(undefined);
-                    if (step === 0 && !reservation) {
-                      reserve.mutate();
-                      return;
-                    }
-                    if (step === 1) {
-                      try {
-                        if (
-                          owners.length &&
-                          (!owners.some((o) => o.customerId === customer.id) ||
-                            new Set(owners.map((o) => o.customerId)).size !== owners.length ||
-                            owners.some(
-                              (o) =>
-                                !o.customerId ||
-                                !/^\d+(\.\d{1,2})?$/.test(o.share) ||
-                                new Decimal(o.share).lte(0),
-                            ) ||
-                            !owners.reduce((sum, o) => sum.plus(o.share), new Decimal(0)).eq(100))
-                        )
-                          throw new Error(
-                            t(
-                              'Select unique joint owners, include the primary customer, and make shares total 100%.',
-                            ),
-                          );
-                        if (
-                          !/^\d+(\.\d{1,2})?$/.test(discount) ||
-                          total.lte(0) ||
-                          (new Decimal(discount).gt(0) && !discountApproval)
-                        )
-                          throw new Error(
-                            t('Enter a valid discount and select its approval, or use zero.'),
-                          );
-                      } catch (e) {
-                        setError(e);
-                        return;
-                      }
-                    }
-                    setStep(step + 1);
-                  }}
-                >
-                  {step === 0 && !reservation ? t('Hold property & continue') : t('Continue')}
-                  <ArrowRight size={16} />
+              {step < 3 ? (
+                <Button onClick={next} disabled={project.isPending}>
+                  {t('Continue')}
+                  <ArrowRight size={15} />
                 </Button>
               ) : (
-                <Button
-                  disabled={!agreed || uncertain}
-                  busy={create.isPending}
-                  onClick={() => create.mutate()}
-                >
-                  {t('Submit booking for approval')}
-                  <ArrowRight size={16} />
+                <Button busy={save.isPending} onClick={() => save.mutate()}>
+                  {can('bookings.approve') ? 'Confirm Booking' : 'Save Booking'}
                 </Button>
               )}
-            </footer>
-          </section>
-          <aside className="panel booking-summary">
-            <div className="booking-summary-top">
-              <Building2 size={25} />
-              <span>{t('BOOKING SUMMARY')}</span>
             </div>
-            <h3>{projectName}</h3>
-            <div className="summary-property">
-              {unit.id ? labelOf(unit) : t('Your selected property')}
-              <small>
-                {unit.type ? humanize(String(unit.type)) : t('Choose a unit to get started')}
-              </small>
-            </div>
-            <dl>
+          </div>
+          <aside className="panel booking-recap" aria-label={t('Booking summary')}>
+            <div className="workspace-eyebrow">{t('Booking summary')}</div>
+            <h2>{String(project.data?.name ?? t('Your booking'))}</h2>
+            <div className="booking-recap-identity">
+              <span className="summary-avatar">
+                <RecordImage
+                  id={customer.photoId ? String(customer.photoId) : undefined}
+                  fallback={<UserRound size={21} />}
+                />
+              </span>
               <div>
-                <dt>{t('Base price')}</dt>
-                <dd>{money(unit.price)}</dd>
+                <small>{t('Customer')}</small>
+                <strong>{customer.id ? labelOf(customer) : t('Choose a customer')}</strong>
+              </div>
+            </div>
+            <div className="booking-recap-identity">
+              <span className="summary-avatar">
+                <RecordImage
+                  id={unit.photoId ? String(unit.photoId) : undefined}
+                  fallback={<Building2 size={21} />}
+                />
+              </span>
+              <div>
+                <small>{t('Property')}</small>
+                <strong>{unit.id ? labelOf(unit) : t('Choose a property')}</strong>
+              </div>
+            </div>
+            <dl className="booking-costs">
+              <div>
+                <dt>{t('Selling price')}</dt>
+                <dd>{unit.id ? money(price) : '—'}</dd>
               </div>
               <div>
                 <dt>{t('Additional property fees')}</dt>
-                <dd>{money(unit.charges)}</dd>
+                <dd>{unit.id ? money(unit.charges) : '—'}</dd>
               </div>
-              <div>
-                <dt>{t('Discount')}</dt>
-                <dd>{money(discount)}</dd>
-              </div>
-              <div className="summary-total">
-                <dt>{t('Booking value')}</dt>
-                <dd>{money(total.toFixed(2))}</dd>
+              {applyDiscount && (
+                <div>
+                  <dt>{t('Discount')}</dt>
+                  <dd>−{money(effectiveDiscount)}</dd>
+                </div>
+              )}
+              <div className="booking-grand-total">
+                <dt>{t('Total payable')}</dt>
+                <dd>{unit.id ? money(total) : '—'}</dd>
               </div>
             </dl>
-            <p>
-              <ShieldCheck size={15} />
-              {t('Final amounts and schedule are validated by the server.')}
-            </p>
-            {reservation && (
-              <small>
-                {t('Reservation')} {String(reservation.id).slice(0, 8)}
-              </small>
+            {step >= 2 && (
+              <p className="summary-payment-type">
+                {terms.paymentType === 'FULL_PAYMENT' ? t('Full Payment') : t('Installment Plan')}
+              </p>
             )}
+            <p className="booking-save-note">
+              <ShieldCheck size={17} />
+              {t('Your booking is saved only after the final confirmation.')}
+            </p>
           </aside>
         </div>
+      </section>
+      {showCustomer && (
+        <OperationDialog
+          operation={operation('post', projectRoot + '/customers')}
+          title="Add customer"
+          onClose={() => setShowCustomer(false)}
+          onSuccess={(v) => {
+            setCustomer(row(v));
+            setShowCustomer(false);
+          }}
+        />
       )}
     </>
   );

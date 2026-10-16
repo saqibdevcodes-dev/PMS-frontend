@@ -21,7 +21,7 @@ import { usePreferences } from '../../stores/preferences';
 import { useAuth, can } from '../../stores/auth';
 import { asRows, row, type Row } from '../../lib/types';
 import { date, humanize, money, calendarDay } from '../../lib/format';
-import { Button, PageHeading, EmptyState, ErrorState, Skeleton, Badge } from '../../components/ui';
+import { Button, PageHeading, EmptyState, ErrorState, Skeleton } from '../../components/ui';
 import { DataTable } from '../../components/DataTable';
 import { Select } from '../../components/Select';
 import { ProjectRequired, Unauthorized } from '../resources/ResourcePage';
@@ -68,11 +68,6 @@ export default function Dashboard() {
     queryKey: ['dashboard-bookings', projectId],
     enabled: !!projectId && can('bookings.read'),
     queryFn: ({ signal }) => api(root + '/bookings?limit=5', { signal }),
-  });
-  const approvals = useQuery({
-    queryKey: ['dashboard-approvals', projectId],
-    enabled: !!projectId && can('approvals.read'),
-    queryFn: ({ signal }) => api(root + '/approvals?limit=10', { signal }),
   });
   if (!can('reports.read'))
     return (
@@ -123,9 +118,6 @@ export default function Dashboard() {
       .reduce((acc, r) => acc.plus(String(r.outstanding)), new Decimal(0))
       .toNumber(),
   }));
-  const pending = asRows(approvals.data)
-    .filter((a) => a.status === 'PENDING')
-    .slice(0, 3);
   const cards = [
     {
       label: 'Total inventory',
@@ -184,7 +176,6 @@ export default function Dashboard() {
                     collections.refetch(),
                     ageing.refetch(),
                     bookings.refetch(),
-                    approvals.refetch(),
                   ])
                 }
               >
@@ -374,7 +365,9 @@ export default function Dashboard() {
                 <EmptyState
                   compact
                   title={t('Your first booking is ahead')}
-                  description={t('Bookings will appear here once a reservation is converted.')}
+                  description={t(
+                    'Create a booking by choosing a customer and an available property.',
+                  )}
                 />
               }
             />
@@ -388,17 +381,6 @@ export default function Dashboard() {
             </div>
             <ShieldCheck size={18} />
           </div>
-          <Link to="/approvals" className="attention-item">
-            <span className="attention-icon violet">
-              <ShieldCheck size={19} />
-            </span>
-            <span>
-              <strong>{t('Pending approvals')}</strong>
-              <small>{t("Keep your team's work moving")}</small>
-            </span>
-            <b>{String(s.pendingApprovals ?? 0)}</b>
-            <ArrowUpRight size={15} />
-          </Link>
           <Link to="/reports?kind=ageing" className="attention-item">
             <span className="attention-icon amber">
               <Clock3 size={19} />
@@ -421,16 +403,6 @@ export default function Dashboard() {
             <b>{String(s.upcomingInstallments ?? 0)}</b>
             <ArrowUpRight size={15} />
           </Link>
-          {pending.length > 0 && (
-            <div className="pending-list">
-              {pending.map((a) => (
-                <Link to={'/approvals?record=' + a.id} key={a.id}>
-                  <span>{humanize(String(a.operation))}</span>
-                  <Badge value={a.status} />
-                </Link>
-              ))}
-            </div>
-          )}
           <Link className="work-link" to="/my-work">
             {t('Open my work')}
             <ArrowRight size={15} />

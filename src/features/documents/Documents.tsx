@@ -202,8 +202,8 @@ export default function Documents() {
       )}
       <Modal
         open={uploading}
-        onOpenChange={async (open) => {
-          if (upload.isPending || (!open && !(await confirmDiscard()))) return;
+        beforeClose={async () => !upload.isPending && (await confirmDiscard())}
+        onOpenChange={(open) => {
           setUploading(open);
           if (!open) {
             setFile(undefined);

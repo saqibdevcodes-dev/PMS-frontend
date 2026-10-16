@@ -1,0 +1,192 @@
+.projects-panel {
+  border-radius: 14px;
+}
+.project-directory-heading {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  padding: 22px 22px 8px;
+}
+.project-directory-icon {
+  display: grid;
+  place-items: center;
+  flex: 0 0 40px;
+  height: 40px;
+  border-radius: 11px;
+  color: var(--primary);
+  background: var(--hover);
+  border: 1px solid var(--border);
+}
+.project-directory-heading h2 {
+  font-size: 15px;
+  font-weight: 650;
+  letter-spacing: -0.25px;
+}
+.project-directory-heading p {
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: 5px;
+  line-height: 1.5;
+}
+.projects-panel .table-toolbar {
+  padding: 16px 22px;
+}
+.projects-panel .toolbar-filters {
+  width: 100%;
+}
+.projects-panel .toolbar-filters .input-icon {
+  width: min(350px, 100%);
+}
+.projects-panel .toolbar-filters > .search-select {
+  margin-inline-start: auto;
+}
+.projects-panel .table-options {
+  padding: 12px 22px;
+}
+.projects-panel .table-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+}
+.projects-panel table {
+  min-width: 1150px;
+}
+.projects-panel th {
+  padding: 13px 14px;
+  font-size: 10px;
+  color: var(--text);
+  font-weight: 600;
+  border-top: 1px solid var(--border);
+}
+.projects-panel td {
+  padding: 13px 14px;
+  font-size: 12px;
+  vertical-align: middle;
+  height: 72px;
+}
+.projects-panel tbody tr {
+  transition: background-color 150ms ease;
+}
+.projects-panel [data-column='select'] {
+  padding-inline: 20px 8px;
+  width: 44px;
+}
+.projects-panel [data-column='name'] {
+  min-width: 225px;
+  max-width: 270px;
+}
+.projects-panel .resource-identity {
+  min-width: 190px;
+  gap: 10px;
+}
+.projects-panel .resource-identity-text .record-link {
+  max-width: 145px;
+  font-size: 12px;
+  font-weight: 600;
+}
+.projects-panel .resource-identity-text small {
+  font-variant-numeric: tabular-nums;
+}
+.projects-panel [data-column='location'] {
+  min-width: 160px;
+  max-width: 185px;
+}
+.projects-panel [data-column='features'] {
+  min-width: 135px;
+  max-width: 180px;
+}
+.projects-panel [data-column='paymentRules'] {
+  min-width: 185px;
+}
+.projects-panel [data-column='regionalSettings'] {
+  min-width: 150px;
+  max-width: 185px;
+}
+.projects-panel [data-column='actions'] {
+  text-align: end;
+  min-width: 165px;
+}
+.projects-panel .row-actions {
+  align-items: center;
+}
+.projects-panel .row-actions > .btn {
+  white-space: nowrap;
+}
+.project-cell-stack {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  min-width: 0;
+}
+.project-cell-stack small {
+  color: var(--muted);
+  font-size: 10px;
+  line-height: 1.4;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.project-location > span,
+.project-amenity,
+.project-timezone,
+.project-payment-rules > span {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  max-width: 100%;
+}
+.project-location svg,
+.project-amenity svg,
+.project-timezone svg {
+  flex-shrink: 0;
+  color: var(--muted);
+}
+.project-location > span > span,
+.project-amenity > span,
+.project-timezone > span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.project-amenity {
+  font-size: 11px;
+}
+.project-payment-rules > span > span {
+  font-size: 10px;
+  color: var(--muted);
+}
+.project-payment-rules strong {
+  font-size: 12px;
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+}
+.project-currency {
+  display: inline-flex;
+  padding: 2px 7px;
+  border-radius: 5px;
+  color: var(--primary);
+  background: var(--hover);
+  font-size: 10px;
+  font-weight: 650;
+  letter-spacing: 0.4px;
+}
+@media (max-width: 600px) {
+  .project-directory-heading {
+    padding: 18px 14px 4px;
+  }
+  .projects-panel .table-toolbar,
+  .projects-panel .table-options {
+    padding-inline: 14px;
+  }
+  .projects-panel .toolbar-filters .input-icon {
+    flex-basis: 100%;
+  }
+  .projects-panel .toolbar-filters > .search-select {
+    margin-inline-start: 0;
+    max-width: 170px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .projects-panel tbody tr {
+    transition: none;
+  }
+}

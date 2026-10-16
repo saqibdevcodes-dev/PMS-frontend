@@ -1,4 +1,564 @@
 {
+  "Transfer fee": ["انتقال کی فیس", "رسوم نقل الملكية"],
+  "Current customer": ["موجودہ کسٹمر", "العميل الحالي"],
+  "Selected booking": ["منتخب بکنگ", "الحجز المحدد"],
+  "Selected customer": ["منتخب کسٹمر", "العميل المحدد"],
+  "Could not load party details. Go back to check your selection.": ["فریقین کی تفصیلات لوڈ نہیں ہو سکیں۔ واپس جا کر اپنا انتخاب چیک کریں۔", "تعذر تحميل تفاصيل الأطراف. ارجع للتحقق من اختيارك."],
+  "Case document checks": ["کیس کے دستاویزات کی جانچ", "فحص مستندات المعاملة"],
+  "Authority or housing society": [
+    "متعلقہ ادارہ یا ہاؤسنگ سوسائٹی",
+    "الجهة المختصة أو الجمعية السكنية"
+  ],
+  "Case file / document references": [
+    "کیس فائل / دستاویزات کے حوالے",
+    "مراجع ملف المعاملة / المستندات"
+  ],
+  "Identity checked": ["شناخت کی جانچ مکمل", "تم التحقق من الهوية"],
+  "Ownership checked": ["ملکیت کی جانچ مکمل", "تم التحقق من الملكية"],
+  "Application and supporting documents checked": [
+    "درخواست اور متعلقہ دستاویزات کی جانچ مکمل",
+    "تم فحص الطلب والمستندات الداعمة"
+  ],
+  "Applicable taxes and fees checked": [
+    "لاگو ٹیکس اور فیس کی جانچ مکمل",
+    "تم فحص الضرائب والرسوم المطبقة"
+  ],
+  "Consent of owners and buyer checked": [
+    "مالکان اور خریدار کی رضامندی کی جانچ مکمل",
+    "تم التحقق من موافقة المالكين والمشتري"
+  ],
+  "Property released for possession": [
+    "جائیداد قبضے کے لیے جاری ہو چکی ہے",
+    "تم السماح بتسليم حيازة العقار"
+  ],
+  "Site plan / demarcation checked": [
+    "سائٹ پلان / حد بندی کی جانچ مکمل",
+    "تم فحص مخطط الموقع / تحديد الحدود"
+  ],
+  "Authority clearance": ["متعلقہ ادارے کی کلیئرنس", "مخالصة الجهة المختصة"],
+  "Clearance document reference": ["کلیئرنس دستاویز کا حوالہ", "مرجع مستند المخالصة"],
+  "Clearance expiry date": ["کلیئرنس کی آخری تاریخ", "تاريخ انتهاء المخالصة"],
+  "Reason separate clearance is not required": [
+    "الگ کلیئرنس درکار نہ ہونے کی وجہ",
+    "سبب عدم الحاجة إلى مخالصة منفصلة"
+  ],
+  "Signed handover receipt reference": [
+    "دستخط شدہ حوالگی کی رسید کا حوالہ",
+    "مرجع إيصال التسليم الموقّع"
+  ],
+  "Owner or authorised recipient name": [
+    "مالک یا مجاز وصول کنندہ کا نام",
+    "اسم المالك أو المستلم المفوض"
+  ],
+  "e.g. DHA Lahore, CDA or your housing society": [
+    "مثلاً ڈی ایچ اے لاہور، سی ڈی اے یا آپ کی ہاؤسنگ سوسائٹی",
+    "مثلاً DHA لاهور أو CDA أو جمعيتك السكنية"
+  ],
+  "Enter the authority or society responsible for this property.": [
+    "اس جائیداد کے ذمہ دار ادارے یا سوسائٹی کا نام درج کریں۔",
+    "أدخل الجهة أو الجمعية المسؤولة عن هذا العقار."
+  ],
+  "Enter file numbers or references from Documents": [
+    "فائل نمبر یا دستاویزات کے حوالے درج کریں",
+    "أدخل أرقام الملفات أو مراجع المستندات"
+  ],
+  "Keep the supporting documents in the case file. Include additional documents for an attorney, company, inheritance or gift, where applicable.": [
+    "متعلقہ دستاویزات کیس فائل میں رکھیں۔ ضرورت کے مطابق وکالت، کمپنی، وراثت یا ہبہ کے اضافی کاغذات شامل کریں۔",
+    "احفظ المستندات الداعمة في ملف المعاملة وأرفق مستندات الوكالة أو الشركة أو الميراث أو الهبة عند انطباقها."
+  ],
+  "Check the relevant CNIC / NICOP or other accepted identity documents of the parties or authorised representative.": [
+    "فریقین یا مجاز نمائندے کے متعلقہ شناختی کارڈ، نائیکوپ یا دیگر قابل قبول شناختی دستاویزات کی جانچ کریں۔",
+    "تحقق من CNIC أو NICOP أو وثائق الهوية المقبولة للأطراف أو الممثل المفوض."
+  ],
+  "Check original allotment / transfer / title documents, current owners and any lender or ownership restrictions.": [
+    "اصل الاٹمنٹ، انتقال یا ملکیت کے کاغذات، موجودہ مالکان اور قرض یا ملکیت کی پابندیوں کی جانچ کریں۔",
+    "افحص مستندات التخصيص أو النقل أو الملكية الأصلية والمالكين الحاليين وأي قيود تتعلق بالتمويل أو الملكية."
+  ],
+  "Check signed applications and the photos, witnesses, affidavits or authority documents required for this case.": [
+    "اس کیس کے لیے دستخط شدہ درخواستیں، تصاویر، گواہ، حلف نامے یا ادارے کی مطلوبہ دستاویزات چیک کریں۔",
+    "افحص الطلبات الموقعة والصور والشهود والإقرارات أو مستندات الجهة المطلوبة لهذه المعاملة."
+  ],
+  "Verify applicable tax and authority fee receipts, or documented exemptions. The system checks booking dues separately.": [
+    "لاگو ٹیکس، ادارے کی فیس کی رسیدیں یا تحریری استثنا چیک کریں۔ سسٹم بکنگ کے واجبات الگ چیک کرتا ہے۔",
+    "تحقق من إيصالات الضرائب ورسوم الجهة أو الإعفاءات الموثقة. يفحص النظام مستحقات الحجز بشكل منفصل."
+  ],
+  "Verify consent and signatures of all current owners and the buyer, or valid legal authority to act for them.": [
+    "تمام موجودہ مالکان اور خریدار کی رضامندی اور دستخط یا ان کی جانب سے کام کرنے کا درست قانونی اختیار چیک کریں۔",
+    "تحقق من موافقة وتوقيعات جميع المالكين الحاليين والمشتري أو التفويض القانوني الساري لتمثيلهم."
+  ],
+  "Confirm this phase, sector and property is released for possession by the authority or developer.": [
+    "تصدیق کریں کہ ادارے یا ڈویلپر نے اس فیز، سیکٹر اور جائیداد کا قبضہ جاری کیا ہے۔",
+    "تأكد من سماح الجهة أو المطور بتسليم حيازة هذه المرحلة والقطاع والعقار."
+  ],
+  "Verify the applicable site plan, demarcation and property identification. Record building or utility clearances where required.": [
+    "متعلقہ سائٹ پلان، حد بندی اور جائیداد کی شناخت چیک کریں۔ ضرورت کے مطابق عمارت یا یوٹیلیٹی کلیئرنس درج کریں۔",
+    "تحقق من مخطط الموقع وتحديد الحدود وهوية العقار. سجّل مخالفصات المبنى أو المرافق عند الحاجة."
+  ],
+  "Choose clearance status": ["کلیئرنس کی حالت منتخب کریں", "اختر حالة المخالصة"],
+  "Use a verified NDC, NOC or dues-clearance document where the authority requires one. Otherwise record the reason.": [
+    "جہاں ادارہ تقاضا کرے وہاں تصدیق شدہ این ڈی سی، این او سی یا واجبات کی کلیئرنس استعمال کریں۔ ورنہ وجہ درج کریں۔",
+    "استخدم شهادة NDC أو NOC أو مخالصة مستحقات موثقة حيث تطلبها الجهة، وإلا فسجّل السبب."
+  ],
+  "Enter the NDC, NOC or clearance reference": [
+    "این ڈی سی، این او سی یا کلیئرنس کا حوالہ درج کریں",
+    "أدخل مرجع NDC أو NOC أو المخالصة"
+  ],
+  "Use the authority document or an existing clearance certificate reference.": [
+    "ادارے کی دستاویز یا موجودہ کلیئرنس سرٹیفکیٹ کا حوالہ استعمال کریں۔",
+    "استخدم مستند الجهة أو مرجع شهادة مخالصة موجودة."
+  ],
+  "Enter the expiry shown on the document, if it has one. Expired clearance cannot be used to complete the case.": [
+    "اگر دستاویز پر آخری تاریخ ہو تو درج کریں۔ زائد المیعاد کلیئرنس سے کیس مکمل نہیں ہو سکتا۔",
+    "أدخل تاريخ الانتهاء المدون على المستند إن وجد. لا يمكن إكمال المعاملة بمخالصة منتهية."
+  ],
+  "Explain the authority requirement": ["ادارے کے تقاضے کی وضاحت کریں", "وضّح متطلب الجهة"],
+  "Record the rule or authority confirmation that a separate clearance document is not required.": [
+    "وہ ضابطہ یا ادارے کی تصدیق درج کریں جس کے مطابق الگ کلیئرنس دستاویز ضروری نہیں۔",
+    "سجّل القاعدة أو تأكيد الجهة بأن مستند مخالصة منفصل غير مطلوب."
+  ],
+  "Enter the signed receipt or case file reference": [
+    "دستخط شدہ رسید یا کیس فائل کا حوالہ درج کریں",
+    "أدخل مرجع الإيصال الموقع أو ملف المعاملة"
+  ],
+  "Keep the signed possession / handover acknowledgement with the case documents.": [
+    "قبضہ یا حوالگی کی دستخط شدہ رسید کیس کے کاغذات کے ساتھ رکھیں۔",
+    "احفظ إقرار الحيازة أو التسليم الموقع مع مستندات المعاملة."
+  ],
+  "Enter the recipient’s full name": [
+    "وصول کنندہ کا مکمل نام درج کریں",
+    "أدخل الاسم الكامل للمستلم"
+  ],
+  "The current owner or their verified authorised representative receiving possession.": [
+    "موجودہ مالک یا قبضہ وصول کرنے والا ان کا تصدیق شدہ مجاز نمائندہ۔",
+    "المالك الحالي أو ممثله المفوض الذي تم التحقق منه لاستلام الحيازة."
+  ],
+  "Complete this check before continuing.": [
+    "آگے بڑھنے سے پہلے یہ جانچ مکمل کریں۔",
+    "أكمل هذا الفحص قبل المتابعة."
+  ],
+  "Enter the clearance document reference.": [
+    "کلیئرنس دستاویز کا حوالہ درج کریں۔",
+    "أدخل مرجع مستند المخالصة."
+  ],
+  "The clearance has expired. Verify a current document.": [
+    "کلیئرنس کی میعاد ختم ہو چکی ہے۔ نئی دستاویز کی تصدیق کریں۔",
+    "انتهت صلاحية المخالصة. تحقق من مستند سارٍ."
+  ],
+  "Explain why separate authority clearance is not required.": [
+    "وضاحت کریں کہ ادارے کی الگ کلیئرنس کیوں ضروری نہیں۔",
+    "وضّح سبب عدم الحاجة إلى مخالصة منفصلة من الجهة."
+  ],
+  "From inspection to handover": ["معائنے سے حوالگی تک", "من المعاينة إلى التسليم"],
+  "Transfer with a complete case file": [
+    "مکمل کیس فائل کے ساتھ انتقال",
+    "نقل الملكية بملف معاملة مكتمل"
+  ],
+  "Check ownership and possession release, record an inspection, resolve issues, then save the signed handover receipt.": [
+    "ملکیت اور قبضے کی اجازت چیک کریں، معائنہ درج کریں، مسائل حل کریں، پھر دستخط شدہ حوالگی کی رسید محفوظ کریں۔",
+    "تحقق من الملكية والسماح بالحيازة، وسجّل المعاينة وعالج الملاحظات ثم احفظ إيصال التسليم الموقع."
+  ],
+  "Choose the booking and new owner, verify the case documents, settle transfer charges, then complete the ownership change.": [
+    "بکنگ اور نیا مالک منتخب کریں، کیس کی دستاویزات چیک کریں، انتقال کی فیس ادا کریں، پھر ملکیت کی تبدیلی مکمل کریں۔",
+    "اختر الحجز والمالك الجديد، وتحقق من المستندات وسدد رسوم النقل ثم أكمل تغيير الملكية."
+  ],
+  "Requirements vary by authority and property type. Check the current rules for this case. A separate NDC is needed only where the authority requires it.": [
+    "تقاضے ادارے اور جائیداد کی قسم کے لحاظ سے مختلف ہوتے ہیں۔ اس کیس کے موجودہ ضابطے چیک کریں۔ الگ این ڈی سی صرف ادارے کے تقاضے پر ضروری ہے۔",
+    "تختلف المتطلبات حسب الجهة ونوع العقار. راجع القواعد الحالية لهذه المعاملة. تُطلب شهادة NDC منفصلة فقط عندما تشترطها الجهة."
+  ],
+  "This system requires all scheduled booking dues to be cleared before transfer or possession. Official registration and authority approval are handled outside the dashboard.": [
+    "یہ سسٹم انتقال یا قبضے سے پہلے بکنگ کے تمام شیڈول شدہ واجبات کی ادائیگی چاہتا ہے۔ سرکاری رجسٹریشن اور ادارے کی منظوری ڈیش بورڈ سے باہر کی جاتی ہے۔",
+    "يشترط النظام تسوية جميع مستحقات الحجز المجدولة قبل النقل أو الحيازة. يتم التسجيل الرسمي واعتماد الجهة خارج لوحة التحكم."
+  ],
+  "Reviewed on": ["جانچ کی تاریخ", "تاريخ المراجعة"],
+  "Checked": ["جانچ مکمل", "تم الفحص"],
+  "Not checked": ["جانچ نہیں ہوئی", "لم يتم الفحص"],
+  "Not required": ["ضروری نہیں", "غير مطلوب"],
+  "Review case documents": ["کیس کی دستاویزات کی جانچ کریں", "مراجعة مستندات المعاملة"],
+  "Verify transfer fee": ["انتقال کی فیس کی تصدیق کریں", "التحقق من رسوم النقل"],
+  "Complete transfer": ["انتقال مکمل کریں", "إكمال نقل الملكية"],
+  "Amenities": ["سہولیات", "المرافق"],
+  "Payment rules": ["ادائیگی کے اصول", "قواعد الدفع"],
+  "Currency & timezone": ["کرنسی اور ٹائم زون", "العملة والمنطقة الزمنية"],
+  "Project directory": ["منصوبوں کی فہرست", "دليل المشاريع"],
+  "Locations, amenities and payment settings at a glance.": [
+    "مقامات، سہولیات اور ادائیگی کی ترتیبات ایک نظر میں۔",
+    "المواقع والمرافق وإعدادات الدفع في لمحة واحدة."
+  ],
+  "+{count} more": ["مزید {count}", "+{count} أخرى"],
+  "Min. down payment": ["کم از کم پیشگی ادائیگی", "الحد الأدنى للدفعة المقدمة"],
+  "Clearance: {count} days": ["کلیئرنس: {count} دن", "المخالصة: {count} أيام"],
+  "Minimum down payment applies only to installment bookings.": [
+    "کم از کم پیشگی ادائیگی صرف اقساط والی بکنگ پر لاگو ہوتی ہے۔",
+    "ينطبق الحد الأدنى للدفعة المقدمة على حجوزات التقسيط فقط."
+  ],
+  "Details & amenities": ["تفصیلات اور سہولیات", "التفاصيل والمرافق"],
+  "A clear picture of your project, all in one place.": [
+    "آپ کے منصوبے کی تمام اہم تفصیلات ایک جگہ۔",
+    "صورة واضحة لمشروعك في مكان واحد."
+  ],
+  "Manage the payment rules that apply to this project.": [
+    "اس منصوبے پر لاگو ادائیگی کے اصول ترتیب دیں۔",
+    "إدارة قواعد الدفع الخاصة بهذا المشروع."
+  ],
+  "Inventory & availability": ["پراپرٹیز اور دستیابی", "المخزون والتوفر"],
+  "Add properties with their area, photos and selling price.": [
+    "رقبے، تصاویر اور فروخت کی قیمت کے ساتھ پراپرٹیز شامل کریں۔",
+    "أضف العقارات مع المساحة والصور وسعر البيع."
+  ],
+  "Pricing & plans": ["قیمتیں اور منصوبے", "الأسعار والخطط"],
+  "Prices & payment options": ["قیمتیں اور ادائیگی کے طریقے", "الأسعار وخيارات الدفع"],
+  "Review property prices and choose payment terms when creating a booking.": [
+    "پراپرٹی کی قیمتیں دیکھیں اور بکنگ بناتے وقت ادائیگی کی شرائط منتخب کریں۔",
+    "راجع أسعار العقارات واختر شروط الدفع عند إنشاء الحجز."
+  ],
+  "Ready for booking": ["بکنگ کے لیے تیار", "جاهز للحجز"],
+  "Review & start selling": ["جائزہ لیں اور فروخت شروع کریں", "المراجعة وبدء البيع"],
+  "Check the essentials before creating your next booking.": [
+    "نئی بکنگ بنانے سے پہلے ضروری تفصیلات دیکھیں۔",
+    "تحقق من التفاصيل الأساسية قبل إنشاء الحجز التالي."
+  ],
+  "Edit project settings": ["منصوبے کی ترتیبات تبدیل کریں", "تعديل إعدادات المشروع"],
+  "Project details": ["منصوبے کی تفصیلات", "تفاصيل المشروع"],
+  "Project setup": ["منصوبے کی ترتیب", "إعداد المشروع"],
+  "At a glance": ["ایک نظر میں", "لمحة سريعة"],
+  "Ready for bookings": ["بکنگ کے لیے تیار", "جاهز للحجوزات"],
+  "Setup needs attention": ["ترتیب مکمل کرنا باقی ہے", "الإعداد يحتاج إلى استكمال"],
+  "Edit overview & features": ["تفصیلات اور سہولیات تبدیل کریں", "تعديل التفاصيل والمميزات"],
+  "Not added yet": ["ابھی شامل نہیں کیا گیا", "لم تتم الإضافة بعد"],
+  "About this project": ["اس منصوبے کے بارے میں", "عن هذا المشروع"],
+  "Add a short description of your project.": [
+    "اپنے منصوبے کی مختصر تفصیل شامل کریں۔",
+    "أضف وصفاً موجزاً لمشروعك."
+  ],
+  "Features & amenities": ["خصوصیات اور سہولیات", "المميزات والمرافق"],
+  "No amenities added yet. Add the facilities that make this project stand out.": [
+    "ابھی کوئی سہولت شامل نہیں۔ اس منصوبے کی نمایاں سہولیات شامل کریں۔",
+    "لم تُضف مرافق بعد. أضف المرافق التي تميز هذا المشروع."
+  ],
+  "Applies to installment bookings only.": [
+    "صرف اقساط والی بکنگ پر لاگو ہوتا ہے۔",
+    "ينطبق على حجوزات التقسيط فقط."
+  ],
+  "The period a clearance certificate remains valid.": [
+    "کلیئرنس سرٹیفکیٹ کے مؤثر رہنے کی مدت۔",
+    "المدة التي تظل فيها شهادة المخالصة صالحة."
+  ],
+  "Full payment bookings do not require a down payment.": [
+    "مکمل ادائیگی والی بکنگ کے لیے پیشگی رقم ضروری نہیں۔",
+    "حجوزات الدفع الكامل لا تتطلب دفعة أولى."
+  ],
+  "Pay the full booking amount.": ["بکنگ کی پوری رقم ادا کریں۔", "دفع مبلغ الحجز كاملاً."],
+  "Set a down payment and scheduled installments.": [
+    "پیشگی رقم اور اقساط کا شیڈول مقرر کریں۔",
+    "حدد الدفعة الأولى وجدول الأقساط."
+  ],
+  "You do not have permission to view properties.": [
+    "آپ کو پراپرٹیز دیکھنے کی اجازت نہیں ہے۔",
+    "ليس لديك صلاحية عرض العقارات."
+  ],
+  "Change property price": ["پراپرٹی کی قیمت تبدیل کریں", "تغيير سعر العقار"],
+  "Your project is ready": ["آپ کا منصوبہ تیار ہے", "مشروعك جاهز"],
+  "A few details are missing": ["کچھ تفصیلات باقی ہیں", "بعض التفاصيل غير مكتملة"],
+  "Choose a customer and an available property to create a booking.": [
+    "بکنگ بنانے کے لیے کسٹمر اور دستیاب پراپرٹی منتخب کریں۔",
+    "اختر عميلاً وعقاراً متاحاً لإنشاء حجز."
+  ],
+  "Complete these details to make your project ready for bookings.": [
+    "منصوبے کو بکنگ کے لیے تیار کرنے کے لیے یہ تفصیلات مکمل کریں۔",
+    "أكمل هذه التفاصيل ليصبح مشروعك جاهزاً للحجوزات."
+  ],
+  "Project location": ["منصوبے کا مقام", "موقع المشروع"],
+  "Add the project location in Overview.": [
+    "خلاصے میں منصوبے کا مقام شامل کریں۔",
+    "أضف موقع المشروع في النظرة العامة."
+  ],
+  "Available properties": ["دستیاب پراپرٹیز", "العقارات المتاحة"],
+  "Add at least one available property with a selling price.": [
+    "فروخت کی قیمت کے ساتھ کم از کم ایک دستیاب پراپرٹی شامل کریں۔",
+    "أضف عقاراً متاحاً واحداً على الأقل مع سعر البيع."
+  ],
+  "Create booking": ["بکنگ بنائیں", "إنشاء حجز"],
+  "Add a location in Overview to continue.": [
+    "جاری رکھنے کے لیے خلاصے میں مقام شامل کریں۔",
+    "أضف الموقع في النظرة العامة للمتابعة."
+  ],
+  "Add a property to continue.": ["جاری رکھنے کے لیے پراپرٹی شامل کریں۔", "أضف عقاراً للمتابعة."],
+  "Close": ["بند کریں", "إغلاق"],
+  "Manage this project from setup to booking.": [
+    "منصوبے کی ترتیب سے بکنگ تک انتظام کریں۔",
+    "إدارة هذا المشروع من الإعداد إلى الحجز."
+  ],
+  "Verified": ["تصدیق شدہ", "معتمد"],
+  "Customer account statement": ["کسٹمر کے حساب کی تفصیل", "كشف حساب العميل"],
+  "A clear view of property bookings, verified payments and remaining balances.": [
+    "پراپرٹی بکنگ، تصدیق شدہ ادائیگیوں اور باقی رقوم کی واضح تفصیل۔",
+    "عرض واضح لحجوزات العقارات والمدفوعات المعتمدة والأرصدة المتبقية."
+  ],
+  "Choose a customer": ["کسٹمر منتخب کریں", "اختر عميلاً"],
+  "Select a customer above and apply filters to view their account statement.": [
+    "حساب کی تفصیل دیکھنے کے لیے اوپر کسٹمر منتخب کریں اور فلٹر لگائیں۔",
+    "اختر عميلاً أعلاه وطبّق عوامل التصفية لعرض كشف حسابه."
+  ],
+  "Customer copy": ["کسٹمر کی نقل", "نسخة العميل"],
+  "Issued": ["جاری کردہ", "تاريخ الإصدار"],
+  "Prepared for": ["برائے", "أُعدّ لصالح"],
+  "Payment period": ["ادائیگی کی مدت", "فترة الدفعات"],
+  "Beginning": ["ابتدا", "البداية"],
+  "Present": ["حال", "الوقت الحالي"],
+  "All recorded payments": ["تمام درج شدہ ادائیگیاں", "جميع الدفعات المسجلة"],
+  "Balances as of": ["اس تاریخ تک کے بیلنس", "الأرصدة حتى"],
+  "Scheduled balance": ["شیڈول کے مطابق بقایا", "الرصيد المجدول"],
+  "No entries for this period.": ["اس مدت کے لیے کوئی اندراج نہیں۔", "لا توجد قيود لهذه الفترة."],
+  "Questions about your statement?": [
+    "حساب کی تفصیل کے بارے میں سوالات؟",
+    "لديك استفسار عن كشف حسابك؟"
+  ],
+  "Contact the property office with your customer or booking reference.": [
+    "اپنے کسٹمر یا بکنگ نمبر کے ساتھ پراپرٹی آفس سے رابطہ کریں۔",
+    "تواصل مع مكتب العقارات مع ذكر مرجع العميل أو الحجز."
+  ],
+  "Booking overview": ["بکنگ کا جائزہ", "نظرة عامة على الحجوزات"],
+  "Payment history": ["ادائیگیوں کی تفصیل", "سجل الدفعات"],
+  "Booked on": ["بکنگ کی تاریخ", "تاريخ الحجز"],
+  "Booking / property": ["بکنگ / پراپرٹی", "الحجز / العقار"],
+  "Receipt / booking": ["رسید / بکنگ", "الإيصال / الحجز"],
+  "Current": ["موجودہ", "حالي"],
+  "Previous": ["پچھلا", "السابق"],
+  "Pending confirmation": ["تصدیق کا منتظر", "بانتظار التأكيد"],
+  "Current and historical property bookings. Cancelled bookings and previous ownership are excluded from the balance summary.": [
+    "موجودہ اور سابقہ پراپرٹی بکنگ۔ منسوخ بکنگ اور سابقہ ملکیت کو بیلنس کے خلاصے میں شامل نہیں کیا گیا۔",
+    "حجوزات العقارات الحالية والسابقة. يستثني ملخص الرصيد الحجوزات الملغاة والملكية السابقة."
+  ],
+  "Payments recorded for this customer in the selected period.": [
+    "منتخب مدت میں اس کسٹمر کی درج شدہ ادائیگیاں۔",
+    "دفعات هذا العميل المسجلة خلال الفترة المحددة."
+  ],
+  "Balances are current and cover complete confirmed bookings under current ownership, including joint ownership.": [
+    "یہ موجودہ بیلنس ہیں اور مشترکہ ملکیت سمیت موجودہ ملکیت کی تمام تصدیق شدہ بکنگ پر لاگو ہوتے ہیں۔",
+    "الأرصدة حالية وتشمل الحجوزات المؤكدة كاملة ضمن الملكية الحالية، بما فيها الملكية المشتركة."
+  ],
+  "Date filters apply to payment history only. Payment history lists this customer's verified and reversed payments; reversed payments do not reduce balances.": [
+    "تاریخ کے فلٹر صرف ادائیگیوں کی تفصیل پر لاگو ہوتے ہیں۔ اس میں کسٹمر کی تصدیق شدہ اور واپس کی گئی ادائیگیاں شامل ہیں؛ واپس کی گئی ادائیگیاں بیلنس کم نہیں کرتیں۔",
+    "تسري تصفية التاريخ على سجل الدفعات فقط. يتضمن السجل دفعات العميل المعتمدة والمعكوسة؛ الدفعات المعكوسة لا تخفض الأرصدة."
+  ],
+  "Overdue installments: {overdue}. Unallocated advance credit: {advance}.": [
+    "تاخیر شدہ اقساط: {overdue}۔ غیر مختص پیشگی رقم: {advance}۔",
+    "الأقساط المتأخرة: {overdue}. رصيد الدفعات المقدمة غير المخصص: {advance}."
+  ],
+  "Print": ["پرنٹ کریں", "طباعة"],
+  "Payments & clearance": ["ادائیگیاں اور کلیئرنس", "الدفعات والمخالصة"],
+  "Minimum down payment": ["کم از کم پیشگی ادائیگی", "الحد الأدنى للدفعة المقدمة"],
+  "Clearance certificate validity": ["کلیئرنس سرٹیفکیٹ کی میعاد", "صلاحية شهادة المخالصة"],
+  "Edit settings": ["ترتیبات تبدیل کریں", "تعديل الإعدادات"],
+  "Total price": ["کل قیمت", "السعر الإجمالي"],
+  "Remaining balance": ["باقی رقم", "الرصيد المتبقي"],
+  "Record & view payments": ["ادائیگیاں درج کریں اور دیکھیں", "تسجيل الدفعات وعرضها"],
+  "Change remaining installments": ["باقی اقساط تبدیل کریں", "تعديل الأقساط المتبقية"],
+  "Your booking": ["آپ کی بکنگ", "حجزك"],
+  "Choose a property": ["پراپرٹی منتخب کریں", "اختر عقاراً"],
+  "Selling price": ["فروخت کی قیمت", "سعر البيع"],
+  "Total payable": ["کل قابل ادائیگی رقم", "إجمالي المبلغ المستحق"],
+  "Your booking is saved only after the final confirmation.": [
+    "آپ کی بکنگ صرف آخری تصدیق کے بعد محفوظ ہوگی۔",
+    "لن يُحفظ الحجز إلا بعد التأكيد النهائي."
+  ],
+  "Verified payments update this schedule automatically.": [
+    "تصدیق شدہ ادائیگیوں سے یہ شیڈول خود بخود اپ ڈیٹ ہوتا ہے۔",
+    "تُحدّث الدفعات المعتمدة هذا الجدول تلقائياً."
+  ],
+  "Customer groups": ["کسٹمر گروپس", "مجموعات العملاء"],
+  "Counts follow your search.": ["تعداد آپ کی تلاش کے مطابق ہے۔", "تعكس الأعداد نتائج بحثك."],
+  "All customers": ["تمام کسٹمرز", "جميع العملاء"],
+  "Fully paid": ["مکمل ادائیگی", "مدفوع بالكامل"],
+  "No property": ["کوئی پراپرٹی نہیں", "بلا عقار"],
+  "Every customer in this project": ["اس پروجیکٹ کے تمام کسٹمرز", "جميع عملاء هذا المشروع"],
+  "Confirmed installment bookings with a balance": [
+    "تصدیق شدہ اقساط کی بکنگ جن کی رقم باقی ہے",
+    "حجوزات أقساط مؤكدة لها رصيد متبقٍ"
+  ],
+  "All current bookings confirmed and fully paid": [
+    "تمام موجودہ بکنگز کی تصدیق اور مکمل ادائیگی ہو چکی ہے",
+    "جميع الحجوزات الحالية مؤكدة ومدفوعة بالكامل"
+  ],
+  "No current booking or property ownership": [
+    "کوئی موجودہ بکنگ یا پراپرٹی کی ملکیت نہیں",
+    "لا يوجد حجز أو ملكية عقار حالية"
+  ],
+  "Awaiting booking confirmation or full payment": [
+    "بکنگ کی تصدیق یا مکمل ادائیگی کا انتظار",
+    "بانتظار تأكيد الحجز أو سداد المبلغ كاملاً"
+  ],
+  "No property assigned": ["کوئی پراپرٹی مختص نہیں", "لا يوجد عقار مخصص"],
+  "No current booking": ["کوئی موجودہ بکنگ نہیں", "لا يوجد حجز حالي"],
+  "Confirmed booking": ["تصدیق شدہ بکنگ", "حجز مؤكد"],
+  "Pending booking": ["بکنگ کی تصدیق باقی ہے", "حجز بانتظار التأكيد"],
+  "Booked properties": ["بک شدہ پراپرٹیز", "العقارات المحجوزة"],
+  "Current customers": ["موجودہ کسٹمرز", "العملاء الحاليون"],
+  "Payment status": ["ادائیگی کی حالت", "حالة الدفع"],
+  "Choose your customer and property": ["کسٹمر اور پراپرٹی منتخب کریں", "اختر العميل والعقار"],
+  "Set the booking amount": ["بکنگ کی رقم مقرر کریں", "حدد مبلغ الحجز"],
+  "Plan the payments": ["ادائیگیوں کا منصوبہ بنائیں", "خطط للدفعات"],
+  "Ready to book": ["بکنگ کے لیے تیار", "جاهز للحجز"],
+  "Connect the right customer with an available property.": [
+    "کسٹمر کے لیے دستیاب پراپرٹی منتخب کریں۔",
+    "اربط العميل بالعقار المتاح المناسب."
+  ],
+  "Check the price and fees. Apply a discount if needed.": [
+    "قیمت اور فیس چیک کریں۔ ضرورت ہو تو رعایت دیں۔",
+    "راجع السعر والرسوم وأضف خصماً عند الحاجة."
+  ],
+  "Choose full payment or build an installment schedule.": [
+    "مکمل ادائیگی منتخب کریں یا اقساط کا شیڈول بنائیں۔",
+    "اختر الدفع الكامل أو أنشئ جدول أقساط."
+  ],
+  "Check everything below. You can go back to make changes.": [
+    "نیچے تمام تفصیلات چیک کریں۔ تبدیلی کے لیے واپس جا سکتے ہیں۔",
+    "راجع التفاصيل أدناه. يمكنك العودة لإجراء تعديلات."
+  ],
+  "Choose a booking to get started": ["شروع کرنے کے لیے بکنگ منتخب کریں", "اختر حجزاً للبدء"],
+  "View its payment progress, upcoming installments and remaining balance in one place.": [
+    "ادائیگی کی پیش رفت، آنے والی اقساط اور باقی رقم ایک جگہ دیکھیں۔",
+    "اعرض تقدم السداد والأقساط القادمة والرصيد المتبقي في مكان واحد."
+  ],
+  "Verified payments": ["تصدیق شدہ ادائیگیاں", "الدفعات المعتمدة"],
+  "Payment progress": ["ادائیگی کی پیش رفت", "تقدم السداد"],
+  "{percent}% paid": ["{percent}% ادا شدہ", "تم سداد {percent}%"],
+  "Next payment": ["اگلی ادائیگی", "الدفعة التالية"],
+  "Schedule complete": ["شیڈول مکمل", "اكتمل الجدول"],
+  "There are no outstanding scheduled payments.": [
+    "شیڈول میں کوئی ادائیگی باقی نہیں ہے۔",
+    "لا توجد دفعات مجدولة مستحقة."
+  ],
+  "Record and verify the down payment to unlock schedule changes.": [
+    "شیڈول بدلنے کے لیے پیشگی ادائیگی درج اور تصدیق کریں۔",
+    "سجل الدفعة المقدمة واعتمدها لتتمكن من تعديل الجدول."
+  ],
+  "You can change the remaining unpaid installments.": [
+    "آپ باقی غیر ادا شدہ اقساط بدل سکتے ہیں۔",
+    "يمكنك تعديل الأقساط المتبقية غير المدفوعة."
+  ],
+  "Paid and partly paid installments are always kept.": [
+    "ادا شدہ اور جزوی ادا شدہ اقساط ہمیشہ برقرار رہتی ہیں۔",
+    "تُحفظ دائماً الأقساط المدفوعة كلياً أو جزئياً."
+  ],
+  "Review the new dates and amounts before saving.": [
+    "محفوظ کرنے سے پہلے نئی تاریخیں اور رقوم چیک کریں۔",
+    "راجع التواريخ والمبالغ الجديدة قبل الحفظ."
+  ],
+  "Manage the rules used for this project's bookings and clearance certificates.": [
+    "اس پروجیکٹ کی بکنگ اور کلیئرنس سرٹیفکیٹس کے اصول مقرر کریں۔",
+    "أدر قواعد الحجوزات وشهادات المخالصة لهذا المشروع."
+  ],
+  "Required for installment bookings. Full-payment bookings have no down-payment requirement.": [
+    "اقساط کی بکنگ کے لیے لازم ہے۔ مکمل ادائیگی والی بکنگ میں پیشگی ادائیگی ضروری نہیں۔",
+    "مطلوب لحجوزات الأقساط. لا تتطلب حجوزات الدفع الكامل دفعة مقدمة."
+  ],
+  "The period a clearance certificate remains valid after it is issued.": [
+    "اجراء کے بعد کلیئرنس سرٹیفکیٹ کے مؤثر رہنے کی مدت۔",
+    "مدة صلاحية شهادة المخالصة بعد إصدارها."
+  ],
+  "Review these rules before creating new bookings.": [
+    "نئی بکنگ بنانے سے پہلے یہ اصول دیکھیں۔",
+    "راجع هذه القواعد قبل إنشاء حجوزات جديدة."
+  ],
+  "Review the details below, then confirm.": [
+    "نیچے دی گئی تفصیلات دیکھیں، پھر تصدیق کریں۔",
+    "راجع التفاصيل أدناه، ثم أكد الإجراء."
+  ],
+  "This confirms the booking. Payments can be recorded afterward.": [
+    "اس سے بکنگ کی تصدیق ہو جائے گی۔ اس کے بعد ادائیگیاں درج کی جا سکتی ہیں۔",
+    "سيتم تأكيد الحجز. يمكن تسجيل الدفعات بعد ذلك."
+  ],
+  "Booking confirmed": ["بکنگ کی تصدیق ہو گئی", "تم تأكيد الحجز"],
+  "Payment receipt issued after verification.": [
+    "تصدیق کے بعد جاری کردہ ادائیگی کی رسید۔",
+    "إيصال الدفع الصادر بعد التحقق."
+  ],
+  "Confirm bookings": ["بکنگ کی تصدیق کریں", "تأكيد الحجوزات"],
+  "Apply discounts": ["رعایت دیں", "تطبيق الخصومات"],
+  "Complete transfers": ["ملکیت کی منتقلی مکمل کریں", "إكمال نقل الملكية"],
+  "Pay refunds": ["رقم واپس کریں", "صرف المبالغ المستردة"],
+  "Issue clearance certificates": ["کلیئرنس سرٹیفکیٹ جاری کریں", "إصدار شهادات المخالصة"],
+  "Complete handovers": ["حوالگی مکمل کریں", "إكمال التسليم"],
+  "Manage employees": ["ملازمین کا انتظام کریں", "إدارة الموظفين"],
+  "Creation Time": ["تخلیق کا وقت", "وقت الإنشاء"],
+  "Payment type": ["ادائیگی کی قسم", "نوع الدفع"],
+  "Number of installments": ["اقساط کی تعداد", "عدد الأقساط"],
+  "Months between payments": ["ادائیگیوں کے درمیان مہینے", "الأشهر بين الدفعات"],
+  "First installment date": ["پہلی قسط کی تاریخ", "تاريخ القسط الأول"],
+  "Responsible employee": ["ذمہ دار ملازم", "الموظف المسؤول"],
+  "e.g. DHA Phase 5, Lahore": ["مثلاً ڈی ایچ اے فیز 5، لاہور", "مثلاً المرحلة الخامسة، لاهور"],
+  "Enter the city, address or area where the project is located.": [
+    "شہر، پتہ یا علاقہ درج کریں جہاں منصوبہ واقع ہے۔",
+    "أدخل المدينة أو العنوان أو المنطقة التي يقع فيها المشروع."
+  ],
+  "Describe this project": ["اس منصوبے کی تفصیل لکھیں", "صف هذا المشروع"],
+  "Tell customers and staff what makes this development useful.": [
+    "صارفین اور ملازمین کو اس منصوبے کی خصوصیات بتائیں۔",
+    "وضح للعملاء والموظفين مزايا هذا المشروع."
+  ],
+  "e.g. 20": ["مثلاً 20", "مثلاً 20"],
+  "The minimum percentage paid upfront for installment bookings. Full payment is exempt.": [
+    "اقساط پر بکنگ کے لیے کم از کم پیشگی ادائیگی کی شرح۔ مکمل ادائیگی پر یہ شرط لاگو نہیں ہوتی۔",
+    "الحد الأدنى لنسبة الدفعة المقدمة للحجز بالتقسيط. لا ينطبق على الدفع الكامل."
+  ],
+  "Reviews project performance and confirms bookings, discounts, ownership changes and refunds.": [
+    "منصوبے کی کارکردگی کا جائزہ لیتا ہے اور بکنگ، رعایت، ملکیت کی تبدیلی اور رقم کی واپسی مکمل کرتا ہے۔",
+    "يراجع أداء المشروع ويؤكد الحجوزات والخصومات وتغييرات الملكية والمبالغ المستردة."
+  ],
+  "Manages project settings and properties, and confirms bookings and property handovers.": [
+    "منصوبے کی ترتیبات اور جائیدادوں کا انتظام کرتا ہے اور بکنگ اور حوالگی مکمل کرتا ہے۔",
+    "يدير إعدادات المشروع والعقارات ويؤكد الحجوزات وتسليم العقارات."
+  ],
+  "Manages customers, bookings and payment schedules.": [
+    "صارفین، بکنگ اور ادائیگی کے شیڈول کا انتظام کرتا ہے۔",
+    "يدير العملاء والحجوزات وجداول الدفع."
+  ],
+  "Adds customers and prepares bookings.": [
+    "صارفین شامل کرتا ہے اور بکنگ تیار کرتا ہے۔",
+    "يضيف العملاء ويجهز الحجوزات."
+  ],
+  "Create bookings and track their payment status.": [
+    "بکنگ بنائیں اور ادائیگی کی صورت حال دیکھیں۔",
+    "أنشئ الحجوزات وتابع حالة الدفع."
+  ],
+  "Track refunds and their payments.": [
+    "رقم کی واپسی اور اس کی ادائیگیوں کا جائزہ لیں۔",
+    "تابع المبالغ المستردة ودفعاتها."
+  ],
+  "Employees": ["ملازمین", "الموظفون"],
+  "Manage employee photos, roles and access.": [
+    "ملازمین کی تصاویر، کردار اور رسائی کا انتظام کریں۔",
+    "أدر صور الموظفين وأدوارهم وصلاحياتهم."
+  ],
+  "Add employee": ["ملازم شامل کریں", "إضافة موظف"],
+  "Choose what each employee can view and change.": [
+    "منتخب کریں کہ ہر ملازم کیا دیکھ اور تبدیل کر سکتا ہے۔",
+    "حدد ما يمكن لكل موظف عرضه وتعديله."
+  ],
+  "Your changes have been saved.": ["آپ کی تبدیلیاں محفوظ ہو گئی ہیں۔", "تم حفظ تغييراتك."],
+  "Check the details below, then save your changes.": [
+    "نیچے دی گئی تفصیلات دیکھیں، پھر تبدیلیاں محفوظ کریں۔",
+    "راجع التفاصيل أدناه ثم احفظ تغييراتك."
+  ],
+  "You do not have access to this list": [
+    "آپ کو اس فہرست تک رسائی حاصل نہیں ہے",
+    "ليس لديك صلاحية الوصول إلى هذه القائمة"
+  ],
+  "Selected record": ["منتخب ریکارڈ", "السجل المحدد"],
+  "Receive project reminders and payment notifications on this device.": [
+    "اس آلے پر منصوبے کی یاد دہانیاں اور ادائیگی کی اطلاعات حاصل کریں۔",
+    "تلق تذكيرات المشروع وإشعارات الدفع على هذا الجهاز."
+  ],
+  "Create a booking by choosing a customer and an available property.": [
+    "صارف اور دستیاب جائیداد منتخب کر کے بکنگ بنائیں۔",
+    "أنشئ حجزاً باختيار عميل وعقار متاح."
+  ],
+  "Booking number": ["بکنگ نمبر", "رقم الحجز"],
+  "Full Payment": ["مکمل ادائیگی", "الدفع الكامل"],
+  "Installment Plan": ["اقساط کا منصوبہ", "خطة التقسيط"],
+  "Ready": ["تیار", "جاهز"],
+  "Unavailable": ["دستیاب نہیں", "غير متاح"],
   "Actions": ["کارروائیاں", "الإجراءات"],
   "Edit": ["ترمیم کریں", "تعديل"],
   "System language": ["سسٹم کی زبان", "لغة النظام"],
@@ -169,7 +729,6 @@
   ],
   "Base price": ["بنیادی قیمت", "السعر الأساسي"],
   "Big picture.": ["مجموعی صورتحال", "النظرة العامة"],
-  "Booked on": ["بکنگ کی تاریخ", "تاريخ الحجز"],
   "Booking": ["بکنگ", "الحجز"],
   "Booking (optional)": ["بکنگ (اختیاری)", "الحجز (اختياري)"],
   "Booking / installment": ["بکنگ / قسط", "الحجز / القسط"],
@@ -538,7 +1097,6 @@
   "Pipeline view": ["لیڈز کے مراحل دیکھیں", "عرض مراحل العملاء المحتملين"],
   "Portfolio overview": ["منصوبوں کا خلاصہ", "نظرة عامة على المشاريع"],
   "Preparing your workspace": ["ورک اسپیس تیار ہو رہی ہے", "جارٍ تجهيز مساحة العمل"],
-  "Previous": ["پچھلا", "السابق"],
   "Previous page": ["پچھلا صفحہ", "الصفحة السابقة"],
   "Print / save PDF": ["پرنٹ / PDF محفوظ کریں", "طباعة / حفظ PDF"],
   "Print receipt": ["رسید پرنٹ کریں", "طباعة الإيصال"],
@@ -1480,7 +2038,6 @@
   "{amount} overdue": ["{amount} تاخیر شدہ", "{amount} متأخرة"],
   "Contract value": ["معاہدے کی مالیت", "قيمة العقد"],
   "Cleared payments": ["تصدیق شدہ ادائیگیاں", "الدفعات المؤكدة"],
-  "Scheduled balance": ["شیڈول کے مطابق بقایا", "الرصيد المجدول"],
   "Overdue": ["تاخیر شدہ", "متأخر"],
   "There are no records to show yet.": [
     "ابھی دکھانے کے لیے کوئی ریکارڈ نہیں۔",

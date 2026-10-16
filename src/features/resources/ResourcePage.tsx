@@ -1,6 +1,9 @@
+import { ProjectDetail } from './ProjectDetail';
 import { errorMessage } from '../../lib/error-messages';
 import { t, useLocale } from '../../lib/i18n';
+import { OwnershipGuide } from '../../components/OwnershipVerification';
 import { useState, useEffect, useMemo } from 'react';
+import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
 import { RecordImage } from '../../components/ImageUpload';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { useQuery, keepPreviousData } from '@tanstack/react-query';
@@ -30,6 +33,8 @@ import { DataTable } from '../../components/DataTable';
 import { Select } from '../../components/Select';
 import { OperationDialog } from '../../components/OperationDialog';
 import RecordDetail from './RecordDetail';
+import { CustomerGroups, PaymentStatus, PortfolioLinks } from './Portfolio';
+import { ProjectTableHeading, projectCell, projectColumnLabels } from './ProjectTable';
 export function ProjectRequired() {
   useLocale();
   return (
@@ -66,7 +71,7 @@ export function Unauthorized() {
   );
 }
 export default function ResourcePage({ slug }: { slug: string }) {
-  useLocale();
+  const language = useLocale();
   const resource = resources.find((r) => r.slug === slug)!;
   const projectId = usePreferences((s) => s.projectId);
   const setProject = usePreferences((s) => s.setProject);
@@ -158,11 +163,8 @@ export default function ResourcePage({ slug }: { slug: string }) {
     [
       'projects',
       'inventory',
-      'crm',
       'customers',
       'bookings',
-      'dealers',
-      'vendors',
       'payment-plans',
       'document-templates',
     ].includes(slug);
@@ -203,25 +205,44 @@ export default function ResourcePage({ slug }: { slug: string }) {
           </Button>
         )}
         {allowed.some((op) => op !== edit) && (
-          <details className="actions-menu">
-            <summary aria-label={t('Actions for {0}', { '0': labelOf(record) })}>
-              <MoreHorizontal size={18} />
-            </summary>
-            <div>
-              {allowed
-                .filter((op) => op !== edit)
-                .map((op) => (
-                  <button
-                    key={op.id}
-                    onClick={() =>
-                      setAction({ operation: op, title: actionTitle(op, resource), record })
-                    }
-                  >
-                    {t(actionTitle(op, resource))}
-                  </button>
-                ))}
-            </div>
-          </details>
+          <DropdownMenu.Root modal={false} dir={language === 'en' ? 'ltr' : 'rtl'}>
+            <DropdownMenu.Trigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="actions-menu-trigger"
+                aria-label={t('Actions for {0}', { '0': labelOf(record) })}
+              >
+                <MoreHorizontal size={18} />
+              </Button>
+            </DropdownMenu.Trigger>
+            <DropdownMenu.Portal>
+              <DropdownMenu.Content
+                className="actions-menu"
+                align="end"
+                sideOffset={6}
+                collisionPadding={8}
+                hideWhenDetached
+                loop
+              >
+                {allowed
+                  .filter((op) => op !== edit)
+                  .map((op) => (
+                    <DropdownMenu.Item
+                      key={op.id}
+                      className="actions-menu-item"
+                      onSelect={() =>
+                        op.path.endsWith('/reschedule')
+                          ? navigate('/payment-plans?booking=' + record.id)
+                          : setAction({ operation: op, title: actionTitle(op, resource), record })
+                      }
+                    >
+                      {t(actionTitle(op, resource))}
+                    </DropdownMenu.Item>
+                  ))}
+              </DropdownMenu.Content>
+            </DropdownMenu.Portal>
+          </DropdownMenu.Root>
         )}
       </div>
     );
@@ -263,6 +284,17 @@ export default function ResourcePage({ slug }: { slug: string }) {
           </>
         }
       />
+      {slug === 'customers' && can('bookings.read') && (
+        <CustomerGroups
+          selected={params.get('group') ?? ''}
+          groups={row(row(query.data).groups)}
+          busy={query.isFetching}
+          onChange={(value) => update('group', value)}
+        />
+      )}
+      {(slug === 'transfers' || slug === 'possessions') && (
+        <OwnershipGuide possession={slug === 'possessions'} />
+      )}
       {related.length > 0 && (
         <div className="module-links">
           {related.map((r) => (
@@ -273,7 +305,8 @@ export default function ResourcePage({ slug }: { slug: string }) {
           ))}
         </div>
       )}
-      <section className="panel">
+      <section className={slug === 'projects' ? 'panel projects-panel' : 'panel'}>
+        {slug === 'projects' && <ProjectTableHeading />}
         <div className="table-toolbar">
           <div className="toolbar-filters">
             {showSearch && (
@@ -351,7 +384,7 @@ export default function ResourcePage({ slug }: { slug: string }) {
                 <List size={17} />
               </button>
               <button
-                aria-label={slug === 'crm' ? t('Pipeline view') : t('Card view')}
+                aria-label={t('Card view')}
                 aria-pressed={view === 'grid'}
                 onClick={() => update('view', 'grid')}
               >
@@ -402,61 +435,51 @@ export default function ResourcePage({ slug }: { slug: string }) {
             </div>
           </>
         ) : view === 'grid' && dataItems.length ? (
-          slug === 'crm' ? (
-            <div className="pipeline">
-              {['NEW', 'CONTACTED', 'QUALIFIED', 'LOST', 'CONVERTED'].map((status) => (
-                <div className="pipeline-column" key={status}>
-                  <h3>
-                    {humanize(status)}
-                    <span>{dataItems.filter((r) => r.status === status).length}</span>
-                  </h3>
-                  {dataItems
-                    .filter((r) => r.status === status)
-                    .map((r) => (
-                      <button className="pipeline-card" key={r.id} onClick={() => setDetail(r)}>
-                        <strong>{labelOf(r)}</strong>
-                        <span>{String(r.phone)}</span>
-                        <small>{String(r.source)}</small>
-                      </button>
-                    ))}
+          <div className="inventory-grid">
+            {dataItems.map((r) => (
+              <button className="unit-card" key={r.id} onClick={() => setDetail(r)}>
+                <div>
+                  {r.photoId ? (
+                    <RecordImage id={String(r.photoId)} alt={labelOf(r)} />
+                  ) : (
+                    <resource.icon size={21} />
+                  )}
+                  <Badge value={r.status} />
                 </div>
-              ))}
-            </div>
-          ) : (
-            <div className="inventory-grid">
-              {dataItems.map((r) => (
-                <button className="unit-card" key={r.id} onClick={() => setDetail(r)}>
-                  <div>
-                    {r.photoId ? (
-                      <RecordImage id={String(r.photoId)} alt={labelOf(r)} />
-                    ) : (
-                      <resource.icon size={21} />
-                    )}
-                    <Badge value={r.status} />
-                  </div>
-                  <h3>{labelOf(r)}</h3>
-                  <p>
-                    {humanize(String(r.type))} · {String(r.size)} {String(r.measurementUnit)}
-                  </p>
-                  <footer>
-                    <span>
-                      {String(r.phase ?? 'Unassigned phase')}
-                      {r.block ? ' / ' + String(r.block) : ''}
-                    </span>
-                    <strong>{money(r.price)}</strong>
-                  </footer>
-                </button>
-              ))}
-            </div>
-          )
+                <h3>{labelOf(r)}</h3>
+                <p>
+                  {humanize(String(r.type))} · {String(r.size)} {String(r.measurementUnit)}
+                </p>
+                <footer>
+                  <span>
+                    {String(r.phase ?? 'Unassigned phase')}
+                    {r.block ? ' / ' + String(r.block) : ''}
+                  </span>
+                  <strong>{money(r.price)}</strong>
+                </footer>
+              </button>
+            ))}
+          </div>
         ) : (
           <DataTable
             directory={slug === 'customers'}
+            columnLabels={slug === 'projects' ? projectColumnLabels : undefined}
             imageIdentity={
               slug === 'projects' ? 'name' : slug === 'inventory' ? 'number' : undefined
             }
             data={dataItems}
-            columns={resource.columns}
+            columns={resource.columns.filter(
+              (key) => !['bookings', 'paymentStatus'].includes(key) || can('bookings.read'),
+            )}
+            renderCell={(key, record) =>
+              slug === 'projects' ? (
+                projectCell(key, record)
+              ) : key === 'bookings' && (slug === 'customers' || slug === 'inventory') ? (
+                <PortfolioLinks record={record} kind={slug} />
+              ) : key === 'paymentStatus' ? (
+                <PaymentStatus value={record.paymentStatus} />
+              ) : undefined
+            }
             busy={query.isLoading}
             onRow={setDetail}
             actions={rowActions}
@@ -464,7 +487,7 @@ export default function ResourcePage({ slug }: { slug: string }) {
             total={total}
             limit={limit}
             onPage={(p) => update('page', String(p))}
-            onLimit={slug === 'customers' ? (n) => update('limit', String(n)) : undefined}
+            onLimit={paginated ? (n) => update('limit', String(n)) : undefined}
           />
         )}
       </section>
@@ -489,16 +512,25 @@ export default function ResourcePage({ slug }: { slug: string }) {
           </Button>
         </div>
       )}
-      {detail && (
-        <RecordDetail
-          resource={resource}
-          record={detail}
-          onClose={() => {
-            setDetail(null);
-            if (params.has('record')) update('record', '');
-          }}
-        />
-      )}
+      {detail &&
+        (slug === 'projects' ? (
+          <ProjectDetail
+            record={detail}
+            onClose={() => {
+              setDetail(null);
+              if (params.has('record')) update('record', '');
+            }}
+          />
+        ) : (
+          <RecordDetail
+            resource={resource}
+            record={detail}
+            onClose={() => {
+              setDetail(null);
+              if (params.has('record')) update('record', '');
+            }}
+          />
+        ))}
       {action && <OperationDialog {...action} onClose={() => setAction(null)} />}
     </>
   );

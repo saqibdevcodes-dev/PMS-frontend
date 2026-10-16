@@ -1,6 +1,13 @@
 import { t, useLocale } from '../lib/i18n';
 import { BrandLogo } from './BrandLogo';
-import { forwardRef, type ButtonHTMLAttributes, type ReactNode } from 'react';
+import {
+  forwardRef,
+  useEffect,
+  useRef,
+  useState,
+  type ButtonHTMLAttributes,
+  type ReactNode,
+} from 'react';
 import * as Dialog from '@radix-ui/react-dialog';
 import { Slot } from '@radix-ui/react-slot';
 import { cva, type VariantProps } from 'class-variance-authority';
@@ -9,6 +16,7 @@ import { twMerge } from 'tailwind-merge';
 import { AlertCircle, ArrowRight, Building2, LoaderCircle, X } from 'lucide-react';
 import { errorDescription } from '../lib/error-messages';
 import { humanize } from '../lib/format';
+import { useModalLayer } from '../hooks/use-modal-layer';
 export const cn = (...values: ClassValue[]) => twMerge(clsx(values));
 const buttonStyles = cva('btn', {
   variants: {
@@ -68,6 +76,7 @@ export function Badge({ value }: { value: unknown }) {
 export function Modal({
   open,
   onOpenChange,
+  beforeClose,
   title,
   description,
   children,
@@ -76,6 +85,7 @@ export function Modal({
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  beforeClose?: () => boolean | Promise<boolean>;
   title: string;
   description?: string;
   children: ReactNode;
@@ -83,12 +93,63 @@ export function Modal({
   className?: string;
 }) {
   useLocale();
+  const { contentRef, overlayRef, onCloseAutoFocus } = useModalLayer();
+  const [closing, setClosing] = useState(false);
+  const closePending = useRef(false);
+  const closeTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const mounted = useRef(false);
+  useEffect(() => {
+    mounted.current = true;
+    return () => {
+      mounted.current = false;
+      clearTimeout(closeTimer.current);
+    };
+  }, []);
+  useEffect(() => {
+    if (!open) {
+      clearTimeout(closeTimer.current);
+      closeTimer.current = undefined;
+      closePending.current = false;
+      setClosing(false);
+    }
+  }, [open]);
+
+  async function changeOpen(next: boolean) {
+    if (next) {
+      onOpenChange(true);
+      return;
+    }
+    if (closePending.current || !open) return;
+    closePending.current = true;
+    try {
+      // Keep the form mounted and visible while its discard prompt is open.
+      if (beforeClose && !(await beforeClose())) return;
+      if (!mounted.current) return;
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        onOpenChange(false);
+        return;
+      }
+      setClosing(true);
+      // Give Radix's 160ms exit animation time to finish before the caller
+      // conditionally unmounts this component.
+      closeTimer.current = setTimeout(() => {
+        onOpenChange(false);
+        setClosing(false);
+        closePending.current = false;
+        closeTimer.current = undefined;
+      }, 180);
+    } finally {
+      if (!closeTimer.current) closePending.current = false;
+    }
+  }
   return (
-    <Dialog.Root open={open} onOpenChange={onOpenChange}>
+    <Dialog.Root open={open && !closing} onOpenChange={changeOpen}>
       <Dialog.Portal>
-        <Dialog.Overlay className="modal-overlay" />
+        <Dialog.Overlay ref={overlayRef} className="modal-overlay" />
         <Dialog.Content
+          ref={contentRef}
           className={cn('modal', wide && 'modal-wide', className)}
+          onCloseAutoFocus={onCloseAutoFocus}
           {...(description ? {} : { 'aria-describedby': undefined })}
           onEscapeKeyDown={(event) => {
             // The combobox handles Escape first, leaving the enclosing form open.
@@ -113,6 +174,7 @@ export function Modal({
     </Dialog.Root>
   );
 }
+export const ModalClose = Dialog.Close;
 export function EmptyState({
   title = 'A fresh start',
   description = 'Records will appear here as your team starts working.',

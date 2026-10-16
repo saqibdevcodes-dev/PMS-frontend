@@ -19,35 +19,35 @@ const Shell = lazy(() => import('../components/layout/Shell'));
 const AuthPage = lazy(() => import('../features/auth/AuthPage'));
 const Dashboard = lazy(() => import('../features/dashboard/Dashboard'));
 const ResourcePage = lazy(() => import('../features/resources/ResourcePage'));
+const PaymentPlans = lazy(() => import('../features/bookings/PaymentPlans'));
 const BookingWizard = lazy(() => import('../features/bookings/BookingWizard'));
 const Reports = lazy(() => import('../features/reports/Reports'));
 const Documents = lazy(() => import('../features/documents/Documents'));
-const Finance = lazy(() => import('../features/finance/Finance'));
 const Profile = lazy(() => import('../features/admin/Profile'));
 const Notifications = lazy(() => import('../features/admin/Notifications'));
 const MyWork = lazy(() => import('../features/admin/MyWork'));
 const Settings = lazy(() => import('../features/admin/Settings'));
 const Portal = lazy(() => import('../features/portal/Portal'));
 const Activation = lazy(() => import('../features/portal/Activation'));
+function WorkspaceError() {
+  useLocale();
+  return (
+    <div className="fatal-error" role="alert">
+      <EmptyState
+        title={t('This screen needs a fresh start')}
+        description={t('Reload the workspace to recover. Your saved records remain on the server.')}
+        action={<Button onClick={() => window.location.reload()}>{t('Reload workspace')}</Button>}
+      />
+    </div>
+  );
+}
 class ErrorBoundary extends Component<{ children: ReactNode }, { failed: boolean }> {
   state = { failed: false };
   static getDerivedStateFromError() {
     return { failed: true };
   }
   render() {
-    return this.state.failed ? (
-      <div className="fatal-error">
-        <EmptyState
-          title={t('This screen needs a fresh start')}
-          description={t(
-            'Reload the workspace to recover. Your saved records remain on the server.',
-          )}
-          action={<Button onClick={() => window.location.reload()}>{t('Reload workspace')}</Button>}
-        />
-      </div>
-    ) : (
-      this.props.children
-    );
+    return this.state.failed ? <WorkspaceError /> : this.props.children;
   }
 }
 function AppRoutes() {
@@ -90,16 +90,18 @@ function AppRoutes() {
           <Route index element={<Navigate to="/dashboard" replace />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/bookings/new" element={<BookingWizard />} />
-          {resources.map((r) => (
-            <Route
-              path={'/' + r.slug}
-              key={r.slug}
-              element={<ResourcePage key={r.slug} slug={r.slug} />}
-            />
-          ))}
+          <Route path="/payment-plans" element={<PaymentPlans />} />
+          {resources
+            .filter((r) => r.slug !== 'payment-plans')
+            .map((r) => (
+              <Route
+                path={'/' + r.slug}
+                key={r.slug}
+                element={<ResourcePage key={r.slug} slug={r.slug} />}
+              />
+            ))}
           <Route path="/reports" element={<Reports />} />
           <Route path="/documents" element={<Documents />} />
-          <Route path="/finance" element={<Finance />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/notifications" element={<Notifications />} />
           <Route path="/my-work" element={<MyWork />} />
@@ -124,7 +126,7 @@ function AppRoutes() {
   );
 }
 const router = (authTransport.native ? createHashRouter : createBrowserRouter)([
-  { path: '*', element: <AppRoutes /> },
+  { path: '*', element: <AppRoutes />, errorElement: <WorkspaceError /> },
 ]);
 export default function App() {
   useLocale();

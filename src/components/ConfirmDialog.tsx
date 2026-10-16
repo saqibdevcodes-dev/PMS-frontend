@@ -2,29 +2,35 @@ import { t, useLocale } from '../lib/i18n';
 import { create } from 'zustand';
 import { Modal, Button } from './ui';
 type Prompt = { title: string; description: string; confirm?: string; cancel?: string };
-const confirmation = create<{ prompt: Prompt | null; resolve?: (value: boolean) => void }>(() => ({
+const confirmation = create<{
+  open: boolean;
+  prompt: Prompt | null;
+  resolve?: (value: boolean) => void;
+}>(() => ({
+  open: false,
   prompt: null,
 }));
 let pending: Promise<boolean> | undefined;
 export function confirmAction(prompt: Prompt): Promise<boolean> {
   if (pending) return pending;
-  pending = new Promise<boolean>((resolve) => confirmation.setState({ prompt, resolve })).finally(
-    () => {
-      pending = undefined;
-    },
-  );
+  pending = new Promise<boolean>((resolve) =>
+    confirmation.setState({ open: true, prompt, resolve }),
+  ).finally(() => {
+    pending = undefined;
+  });
   return pending;
 }
 export function ConfirmDialog() {
   useLocale();
-  const { prompt, resolve } = confirmation();
+  const { open, prompt, resolve } = confirmation();
   function finish(value: boolean) {
-    confirmation.setState({ prompt: null, resolve: undefined });
+    // Retain the text while Radix animates the closed prompt out.
+    confirmation.setState({ open: false, resolve: undefined });
     resolve?.(value);
   }
   return (
     <Modal
-      open={!!prompt}
+      open={open}
       onOpenChange={(open) => !open && finish(false)}
       title={prompt?.title ?? ''}
       description={prompt?.description}

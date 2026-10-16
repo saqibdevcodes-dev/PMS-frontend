@@ -6,7 +6,7 @@ import { api, queryString } from '../lib/api';
 import { operations, projectRoot, resolvePath, supportsQuery } from '../lib/contract';
 import { asRows, row, type Row, type Page } from '../lib/types';
 import { roleDescriptions, fieldLabels } from '../lib/form-guidance';
-import { labelOf, shortId, humanize } from '../lib/format';
+import { labelOf, humanize } from '../lib/format';
 import { usePreferences } from '../stores/preferences';
 import { can } from '../stores/auth';
 import { Button } from './ui';
@@ -16,11 +16,7 @@ export const relationPaths: Record<string, string> = {
   buyerId: 'customers',
   unitId: 'units',
   bookingId: 'bookings',
-  reservationId: 'reservations',
   planVersionId: 'payment-plans',
-  dealerId: 'dealers',
-  approvalId: 'approvals',
-  discountApprovalId: 'approvals',
   accountId: 'accounts',
   receivingAccountId: 'accounts',
   bankAccountId: 'bank-accounts',
@@ -32,11 +28,8 @@ export const relationPaths: Record<string, string> = {
   assignedTo: '/users',
   cash: 'accounts',
   advances: 'accounts',
-  dealerPayable: 'accounts',
   deductions: 'accounts',
   transferRevenue: 'accounts',
-  commissionExpense: 'accounts',
-  dealerRecoverable: 'accounts',
 };
 export function RelationSelect({
   name,
@@ -44,7 +37,6 @@ export function RelationSelect({
   onChange,
   id,
   onRecord,
-  entityId,
   disabled,
   statusFilter,
 }: {
@@ -95,14 +87,10 @@ export function RelationSelect({
       items = items.flatMap((p) =>
         asRows(p.versions).map((v) => ({ ...v, name: `${labelOf(p)} · v${v.version}`, plan: p })),
       );
-    if (name === 'approvalId' || name === 'discountApprovalId')
-      items = items.filter(
-        (r) => r.status === 'APPROVED' && (!entityId || r.entityId === entityId),
-      );
     if (debounced && !supportsQuery(path, 'search'))
       items = items.filter((r) => labelOf(r).toLowerCase().includes(debounced.toLowerCase()));
     return items;
-  }, [query.data, name, source, entityId, debounced, path]);
+  }, [query.data, name, source, debounced, path]);
   useEffect(() => {
     const match = items.find((item) => item.id === value);
     if (match) setSelectedRecord(match);
@@ -117,9 +105,9 @@ export function RelationSelect({
     return (
       <input
         id={id}
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        placeholder={t('Record ID (lookup permission required)')}
+        value=""
+        readOnly
+        placeholder={t('You do not have access to this list')}
         disabled={disabled}
       />
     );
@@ -134,11 +122,7 @@ export function RelationSelect({
         searchLabel={t('Search {0}…', { '0': t(fieldLabels[name] ?? 'records') })}
         options={items.map((record) => ({ value: record.id!, label: optionLabel(record) }))}
         selectedLabel={
-          value
-            ? selected
-              ? optionLabel(selected)
-              : `${shortId(value)} ${t('· selected record')}`
-            : undefined
+          value ? (selected ? optionLabel(selected) : t('Selected record')) : undefined
         }
         loading={query.isFetching || search !== debounced}
         error={query.isError}

@@ -2,7 +2,7 @@ import { t, useLocale } from '../../lib/i18n';
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
-import { ArrowUpRight, Copy, FileText } from 'lucide-react';
+import { ArrowUpRight, FileText } from 'lucide-react';
 import { toast } from 'sonner';
 import { api } from '../../lib/api';
 import { errorMessage } from '../../lib/error-messages';
@@ -17,8 +17,24 @@ import { DataTable, DisplayValue } from '../../components/DataTable';
 import { Receipt } from './Receipt';
 import { OperationDialog } from '../../components/OperationDialog';
 import CustomerAccess from '../portal/CustomerAccess';
+import { PortfolioLinks, PaymentStatus } from './Portfolio';
+import { VerificationSummary } from '../../components/OwnershipVerification';
 import '../portal/portal.css';
 const hidden = new Set([
+  'id',
+  'updatedAt',
+  'createdBy',
+  'approvedBy',
+  'receivedBy',
+  'verifiedBy',
+  'requestedBy',
+  'reservationMinutes',
+  'graceDays',
+  'dealerId',
+  'reservationId',
+  'ndcId',
+  'planVersionId',
+  'paymentTerms',
   'projectId',
   'passwordHash',
   'identityEncrypted',
@@ -28,6 +44,8 @@ const hidden = new Set([
   'key',
   'resultKey',
   'createdTransaction',
+  'bookings',
+  'paymentStatus',
 ]);
 export default function RecordDetail({
   resource,
@@ -79,38 +97,33 @@ export default function RecordDetail({
         wide
       >
         <div className="record-detail">
+          {resource.slug === 'bookings' && (
+            <Link className="text-link" to={'/payment-plans?booking=' + record.id}>
+              View payment plan
+            </Link>
+          )}
           <div className="detail-summary">
             <span className="detail-icon">
               <resource.icon size={23} />
             </span>
             <div>
               <h3>{labelOf(detail)}</h3>
-              <span className="record-id">{record.id}</span>
             </div>
-            <Button
-              size="icon"
-              variant="ghost"
-              aria-label={t('Copy record ID')}
-              onClick={async () => {
-                await navigator.clipboard.writeText(record.id ?? '');
-                toast.success(t('Record ID copied'));
-              }}
-            >
-              <Copy size={16} />
-            </Button>
             <div className="detail-actions">
-              {actionsFor(resource, detail).map((op) => (
-                <Button
-                  key={op.id}
-                  size="small"
-                  variant="secondary"
-                  onClick={() =>
-                    setAction({ operation: op, title: actionTitle(op, resource), record: detail })
-                  }
-                >
-                  {t(actionTitle(op, resource))}
-                </Button>
-              ))}
+              {actionsFor(resource, detail)
+                .filter((op) => !op.path.endsWith('/reschedule'))
+                .map((op) => (
+                  <Button
+                    key={op.id}
+                    size="small"
+                    variant="secondary"
+                    onClick={() =>
+                      setAction({ operation: op, title: actionTitle(op, resource), record: detail })
+                    }
+                  >
+                    {t(actionTitle(op, resource))}
+                  </Button>
+                ))}
             </div>
           </div>
           <div className="tabs" role="tablist">
@@ -142,6 +155,21 @@ export default function RecordDetail({
             <Skeleton />
           ) : tab === 'overview' ? (
             <>
+              {['inventory', 'customers'].includes(resource.slug) &&
+                Array.isArray(detail.bookings) && (
+                  <section className="detail-portfolio">
+                    <h4>
+                      {t(resource.slug === 'customers' ? 'Booked properties' : 'Current customers')}
+                    </h4>
+                    {resource.slug === 'customers' && (
+                      <PaymentStatus value={detail.paymentStatus} />
+                    )}
+                    <PortfolioLinks
+                      record={detail}
+                      kind={resource.slug as 'customers' | 'inventory'}
+                    />
+                  </section>
+                )}
               {photos.length > 0 && (
                 <section className="detail-photos" aria-label={t('Photos')}>
                   <h4>{t('Photos')}</h4>
@@ -158,8 +186,9 @@ export default function RecordDetail({
                     ([k, v]) =>
                       !(k === 'photoId' && photos.length) &&
                       !hidden.has(k) &&
+                      (!/Id$/.test(k) || /photoId|proofImageId/.test(k)) &&
                       v !== null &&
-                      typeof v !== 'object',
+                      (typeof v !== 'object' || ['customer', 'unit', 'booking'].includes(k)),
                   )
                   .map(([k, v]) => (
                     <div key={k}>
@@ -170,6 +199,7 @@ export default function RecordDetail({
                     </div>
                   ))}
               </dl>
+              {detail.verification != null && <VerificationSummary value={detail.verification} />}
               {resource.slug === 'customers' && (
                 <div className="detail-links">
                   {can('customers.view_sensitive') && (
@@ -302,7 +332,8 @@ export default function RecordDetail({
                       (k) =>
                         !hidden.has(k) &&
                         k !== 'id' &&
-                        typeof row(asRows(values)[0])[k] !== 'object',
+                        (typeof row(asRows(values)[0])[k] !== 'object' ||
+                          ['customer', 'booking', 'unit'].includes(k)),
                     )
                     .slice(0, 8)}
                   controls={false}

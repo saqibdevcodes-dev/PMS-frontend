@@ -42,7 +42,10 @@
           "maxLength": 100
         }
       },
-      "required": ["email", "password"],
+      "required": [
+        "email",
+        "password"
+      ],
       "additionalProperties": false
     },
     "parameters": [],
@@ -82,10 +85,18 @@
         },
         "platform": {
           "type": "string",
-          "enum": ["electron", "android", "ios"]
+          "enum": [
+            "electron",
+            "android",
+            "ios"
+          ]
         }
       },
-      "required": ["email", "password", "platform"],
+      "required": [
+        "email",
+        "password",
+        "platform"
+      ],
       "additionalProperties": false
     },
     "parameters": [],
@@ -107,7 +118,9 @@
           "maxLength": 200
         }
       },
-      "required": ["refreshToken"],
+      "required": [
+        "refreshToken"
+      ],
       "additionalProperties": false
     },
     "parameters": [],
@@ -171,7 +184,10 @@
           ]
         }
       },
-      "required": ["currentPassword", "newPassword"],
+      "required": [
+        "currentPassword",
+        "newPassword"
+      ],
       "additionalProperties": false
     },
     "parameters": [],
@@ -193,7 +209,9 @@
           "pattern": "^(?:[A-Za-z0-9_'+\\-]+\\.)*[A-Za-z0-9_'+\\-]*[A-Za-z0-9_+-]@(?:[A-Za-z0-9][A-Za-z0-9\\-]*\\.)+[A-Za-z]{2,}$"
         }
       },
-      "required": ["email"],
+      "required": [
+        "email"
+      ],
       "additionalProperties": false
     },
     "parameters": [],
@@ -231,7 +249,10 @@
           ]
         }
       },
-      "required": ["token", "password"],
+      "required": [
+        "token",
+        "password"
+      ],
       "additionalProperties": false
     },
     "parameters": [],
@@ -282,7 +303,11 @@
         },
         "platform": {
           "type": "string",
-          "enum": ["electron", "android", "ios"]
+          "enum": [
+            "electron",
+            "android",
+            "ios"
+          ]
         },
         "pushToken": {
           "type": "string",
@@ -290,7 +315,11 @@
           "maxLength": 4096
         }
       },
-      "required": ["installationId", "platform", "pushToken"],
+      "required": [
+        "installationId",
+        "platform",
+        "pushToken"
+      ],
       "additionalProperties": false
     },
     "parameters": [],
@@ -331,7 +360,9 @@
         }
       },
       "additionalProperties": false,
-      "required": ["file"]
+      "required": [
+        "file"
+      ]
     },
     "parameters": [],
     "multipart": true
@@ -396,7 +427,10 @@
           ]
         }
       },
-      "required": ["token", "password"],
+      "required": [
+        "token",
+        "password"
+      ],
       "additionalProperties": false
     },
     "parameters": [],
@@ -525,7 +559,10 @@
         "schema": {
           "default": "desc",
           "type": "string",
-          "enum": ["asc", "desc"]
+          "enum": [
+            "asc",
+            "desc"
+          ]
         }
       }
     ],
@@ -576,7 +613,10 @@
         "schema": {
           "default": "desc",
           "type": "string",
-          "enum": ["asc", "desc"]
+          "enum": [
+            "asc",
+            "desc"
+          ]
         }
       }
     ],
@@ -637,7 +677,10 @@
         "schema": {
           "default": "desc",
           "type": "string",
-          "enum": ["asc", "desc"]
+          "enum": [
+            "asc",
+            "desc"
+          ]
         }
       },
       {
@@ -689,7 +732,10 @@
         "schema": {
           "default": "desc",
           "type": "string",
-          "enum": ["asc", "desc"]
+          "enum": [
+            "asc",
+            "desc"
+          ]
         }
       },
       {
@@ -741,7 +787,10 @@
         "schema": {
           "default": "desc",
           "type": "string",
-          "enum": ["asc", "desc"]
+          "enum": [
+            "asc",
+            "desc"
+          ]
         }
       },
       {
@@ -791,7 +840,9 @@
           "type": "boolean"
         }
       },
-      "required": ["portalVisible"],
+      "required": [
+        "portalVisible"
+      ],
       "additionalProperties": false
     },
     "parameters": [
@@ -852,7 +903,10 @@
         "schema": {
           "default": "desc",
           "type": "string",
-          "enum": ["asc", "desc"]
+          "enum": [
+            "asc",
+            "desc"
+          ]
         }
       },
       {
@@ -872,7 +926,12 @@
         "schema": {
           "default": "ndcs",
           "type": "string",
-          "enum": ["ndcs", "transfers", "refunds", "possessions"]
+          "enum": [
+            "ndcs",
+            "transfers",
+            "refunds",
+            "possessions"
+          ]
         }
       }
     ],
@@ -914,7 +973,10 @@
         "schema": {
           "default": "desc",
           "type": "string",
-          "enum": ["asc", "desc"]
+          "enum": [
+            "asc",
+            "desc"
+          ]
         }
       }
     ],
@@ -951,7 +1013,14 @@
       "properties": {
         "purpose": {
           "type": "string",
-          "enum": ["PROJECT", "UNIT", "FEATURE", "CUSTOMER", "DEALER", "USER", "PAYMENT"]
+          "enum": [
+            "PROJECT",
+            "UNIT",
+            "FEATURE",
+            "CUSTOMER",
+            "USER",
+            "PAYMENT"
+          ]
         },
         "projectId": {
           "type": "string",
@@ -963,7 +1032,10 @@
           "format": "binary"
         }
       },
-      "required": ["purpose", "file"],
+      "required": [
+        "purpose",
+        "file"
+      ],
       "additionalProperties": false
     },
     "parameters": [],
@@ -1063,7 +1135,10 @@
         "schema": {
           "default": "desc",
           "type": "string",
-          "enum": ["asc", "desc"]
+          "enum": [
+            "asc",
+            "desc"
+          ]
         }
       }
     ],
@@ -1080,16 +1155,55 @@
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
       "properties": {
-        "code": {
-          "type": "string",
-          "minLength": 2,
-          "maxLength": 20,
-          "pattern": "^[A-Z0-9-]+$"
-        },
         "name": {
           "type": "string",
           "minLength": 2,
           "maxLength": 200
+        },
+        "location": {
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 300
+        },
+        "description": {
+          "default": "",
+          "type": "string",
+          "maxLength": 4000
+        },
+        "features": {
+          "default": [],
+          "maxItems": 30,
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100
+          }
+        },
+        "featureImages": {
+          "default": [],
+          "maxItems": 30,
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "feature": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 100
+              },
+              "imageId": {
+                "type": "string",
+                "format": "uuid",
+                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+              }
+            },
+            "required": [
+              "feature",
+              "imageId"
+            ],
+            "additionalProperties": false
+          }
         },
         "photoId": {
           "type": "string",
@@ -1114,23 +1228,6 @@
           "default": "Asia/Karachi",
           "type": "string"
         },
-        "reservationMinutes": {
-          "default": 60,
-          "type": "integer",
-          "minimum": 5,
-          "maximum": 10080
-        },
-        "downPaymentPercent": {
-          "default": "20",
-          "type": "string",
-          "pattern": "^(0|[1-9]\\d{0,15})(\\.\\d{1,2})?$"
-        },
-        "graceDays": {
-          "default": 0,
-          "type": "integer",
-          "minimum": 0,
-          "maximum": 365
-        },
         "ndcValidityDays": {
           "default": 30,
           "type": "integer",
@@ -1138,7 +1235,10 @@
           "maximum": 365
         }
       },
-      "required": ["code", "name"],
+      "required": [
+        "name",
+        "location"
+      ],
       "additionalProperties": false
     },
     "parameters": [],
@@ -1159,6 +1259,48 @@
           "type": "string",
           "minLength": 2,
           "maxLength": 200
+        },
+        "location": {
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 300
+        },
+        "description": {
+          "type": "string",
+          "maxLength": 4000
+        },
+        "features": {
+          "maxItems": 30,
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100
+          }
+        },
+        "featureImages": {
+          "maxItems": 30,
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "feature": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 100
+              },
+              "imageId": {
+                "type": "string",
+                "format": "uuid",
+                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+              }
+            },
+            "required": [
+              "feature",
+              "imageId"
+            ],
+            "additionalProperties": false
+          }
         },
         "photoId": {
           "anyOf": [
@@ -1188,19 +1330,61 @@
         "timezone": {
           "type": "string"
         },
-        "reservationMinutes": {
+        "ndcValidityDays": {
           "type": "integer",
-          "minimum": 5,
-          "maximum": 10080
-        },
+          "minimum": 1,
+          "maximum": 365
+        }
+      },
+      "additionalProperties": false
+    },
+    "parameters": [
+      {
+        "name": "projectId",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        }
+      }
+    ],
+    "multipart": false
+  },
+  {
+    "id": "get__projects__projectId",
+    "path": "/projects/{projectId}",
+    "method": "get",
+    "summary": "Project overview and setup progress",
+    "permission": "projects.read",
+    "public": false,
+    "parameters": [
+      {
+        "name": "projectId",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        }
+      }
+    ],
+    "multipart": false
+  },
+  {
+    "id": "patch__projects__projectId_settings",
+    "path": "/projects/{projectId}/settings",
+    "method": "patch",
+    "summary": "Save project payment settings",
+    "permission": "projects.update",
+    "public": false,
+    "body": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "properties": {
         "downPaymentPercent": {
           "type": "string",
           "pattern": "^(0|[1-9]\\d{0,15})(\\.\\d{1,2})?$"
-        },
-        "graceDays": {
-          "type": "integer",
-          "minimum": 0,
-          "maximum": 365
         },
         "ndcValidityDays": {
           "type": "integer",
@@ -1208,6 +1392,10 @@
           "maximum": 365
         }
       },
+      "required": [
+        "downPaymentPercent",
+        "ndcValidityDays"
+      ],
       "additionalProperties": false
     },
     "parameters": [
@@ -1298,7 +1486,10 @@
         "schema": {
           "default": "desc",
           "type": "string",
-          "enum": ["asc", "desc"]
+          "enum": [
+            "asc",
+            "desc"
+          ]
         }
       }
     ],
@@ -1365,7 +1556,14 @@
           }
         }
       },
-      "required": ["name", "email", "password", "photoId", "roleIds", "projectIds"],
+      "required": [
+        "name",
+        "email",
+        "password",
+        "photoId",
+        "roleIds",
+        "projectIds"
+      ],
       "additionalProperties": false
     },
     "parameters": [],
@@ -1386,7 +1584,9 @@
           "type": "boolean"
         }
       },
-      "required": ["active"],
+      "required": [
+        "active"
+      ],
       "additionalProperties": false
     },
     "parameters": [
@@ -1492,7 +1692,10 @@
           }
         }
       },
-      "required": ["roleIds", "projectIds"],
+      "required": [
+        "roleIds",
+        "projectIds"
+      ],
       "additionalProperties": false
     },
     "parameters": [
@@ -1553,10 +1756,6 @@
               "customers.update",
               "customers.portal.manage",
               "customers.view_sensitive",
-              "crm.read",
-              "crm.manage",
-              "reservations.create",
-              "reservations.cancel",
               "bookings.read",
               "bookings.create",
               "bookings.approve",
@@ -1569,9 +1768,6 @@
               "discounts.request",
               "discounts.approve",
               "recovery.manage",
-              "dealers.read",
-              "dealers.manage",
-              "commissions.approve",
               "transfers.request",
               "transfers.approve",
               "ndc.request",
@@ -1587,8 +1783,6 @@
               "reports.export",
               "documents.read",
               "documents.manage",
-              "approvals.read",
-              "approvals.manage",
               "users.manage",
               "roles.manage",
               "settings.manage",
@@ -1597,7 +1791,10 @@
           }
         }
       },
-      "required": ["name", "permissions"],
+      "required": [
+        "name",
+        "permissions"
+      ],
       "additionalProperties": false
     },
     "parameters": [],
@@ -1633,10 +1830,6 @@
               "customers.update",
               "customers.portal.manage",
               "customers.view_sensitive",
-              "crm.read",
-              "crm.manage",
-              "reservations.create",
-              "reservations.cancel",
               "bookings.read",
               "bookings.create",
               "bookings.approve",
@@ -1649,9 +1842,6 @@
               "discounts.request",
               "discounts.approve",
               "recovery.manage",
-              "dealers.read",
-              "dealers.manage",
-              "commissions.approve",
               "transfers.request",
               "transfers.approve",
               "ndc.request",
@@ -1667,8 +1857,6 @@
               "reports.export",
               "documents.read",
               "documents.manage",
-              "approvals.read",
-              "approvals.manage",
               "users.manage",
               "roles.manage",
               "settings.manage",
@@ -1677,7 +1865,9 @@
           }
         }
       },
-      "required": ["permissions"],
+      "required": [
+        "permissions"
+      ],
       "additionalProperties": false
     },
     "parameters": [
@@ -1711,7 +1901,14 @@
         },
         "type": {
           "type": "string",
-          "enum": ["RESIDENTIAL_PLOT", "COMMERCIAL_PLOT", "APARTMENT", "SHOP", "OFFICE", "OTHER"]
+          "enum": [
+            "RESIDENTIAL_PLOT",
+            "COMMERCIAL_PLOT",
+            "APARTMENT",
+            "SHOP",
+            "OFFICE",
+            "OTHER"
+          ]
         },
         "typeDetails": {
           "type": "string",
@@ -1750,7 +1947,10 @@
                 "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
               }
             },
-            "required": ["feature", "imageId"],
+            "required": [
+              "feature",
+              "imageId"
+            ],
             "additionalProperties": false
           }
         },
@@ -1780,7 +1980,15 @@
         },
         "measurementUnit": {
           "type": "string",
-          "enum": ["marla", "kanal", "sq ft", "sq yd", "sq m", "acre", "hectare"]
+          "enum": [
+            "marla",
+            "kanal",
+            "sq ft",
+            "sq yd",
+            "sq m",
+            "acre",
+            "hectare"
+          ]
         },
         "features": {
           "default": [],
@@ -1801,7 +2009,13 @@
           "pattern": "^(0|[1-9]\\d{0,15})(\\.\\d{1,2})?$"
         }
       },
-      "required": ["number", "type", "size", "measurementUnit", "price"],
+      "required": [
+        "number",
+        "type",
+        "size",
+        "measurementUnit",
+        "price"
+      ],
       "additionalProperties": false
     },
     "parameters": [
@@ -1910,7 +2124,10 @@
         "schema": {
           "default": "desc",
           "type": "string",
-          "enum": ["asc", "desc"]
+          "enum": [
+            "asc",
+            "desc"
+          ]
         }
       },
       {
@@ -2003,7 +2220,10 @@
                       "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
                     }
                   },
-                  "required": ["feature", "imageId"],
+                  "required": [
+                    "feature",
+                    "imageId"
+                  ],
                   "additionalProperties": false
                 }
               },
@@ -2033,7 +2253,15 @@
               },
               "measurementUnit": {
                 "type": "string",
-                "enum": ["marla", "kanal", "sq ft", "sq yd", "sq m", "acre", "hectare"]
+                "enum": [
+                  "marla",
+                  "kanal",
+                  "sq ft",
+                  "sq yd",
+                  "sq m",
+                  "acre",
+                  "hectare"
+                ]
               },
               "features": {
                 "default": [],
@@ -2054,12 +2282,20 @@
                 "pattern": "^(0|[1-9]\\d{0,15})(\\.\\d{1,2})?$"
               }
             },
-            "required": ["number", "type", "size", "measurementUnit", "price"],
+            "required": [
+              "number",
+              "type",
+              "size",
+              "measurementUnit",
+              "price"
+            ],
             "additionalProperties": false
           }
         }
       },
-      "required": ["units"],
+      "required": [
+        "units"
+      ],
       "additionalProperties": false
     },
     "parameters": [
@@ -2108,7 +2344,7 @@
     "id": "patch__projects__projectId_units__id",
     "path": "/projects/{projectId}/units/{id}",
     "method": "patch",
-    "summary": "Update property details and up to five photos; price changes use the approval workflow",
+    "summary": "Update property details and up to five photos; price changes use the Change price action",
     "permission": "inventory.update",
     "public": false,
     "body": {
@@ -2122,7 +2358,14 @@
         },
         "type": {
           "type": "string",
-          "enum": ["RESIDENTIAL_PLOT", "COMMERCIAL_PLOT", "APARTMENT", "SHOP", "OFFICE", "OTHER"]
+          "enum": [
+            "RESIDENTIAL_PLOT",
+            "COMMERCIAL_PLOT",
+            "APARTMENT",
+            "SHOP",
+            "OFFICE",
+            "OTHER"
+          ]
         },
         "typeDetails": {
           "type": "string",
@@ -2167,7 +2410,10 @@
                 "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
               }
             },
-            "required": ["feature", "imageId"],
+            "required": [
+              "feature",
+              "imageId"
+            ],
             "additionalProperties": false
           }
         },
@@ -2197,7 +2443,15 @@
         },
         "measurementUnit": {
           "type": "string",
-          "enum": ["marla", "kanal", "sq ft", "sq yd", "sq m", "acre", "hectare"]
+          "enum": [
+            "marla",
+            "kanal",
+            "sq ft",
+            "sq yd",
+            "sq m",
+            "acre",
+            "hectare"
+          ]
         },
         "features": {
           "maxItems": 30,
@@ -2245,7 +2499,10 @@
       "properties": {
         "status": {
           "type": "string",
-          "enum": ["AVAILABLE", "BLOCKED"]
+          "enum": [
+            "AVAILABLE",
+            "BLOCKED"
+          ]
         },
         "reason": {
           "type": "string",
@@ -2253,52 +2510,10 @@
           "maxLength": 1000
         }
       },
-      "required": ["status", "reason"],
-      "additionalProperties": false
-    },
-    "parameters": [
-      {
-        "name": "projectId",
-        "in": "path",
-        "required": true,
-        "schema": {
-          "type": "string",
-          "format": "uuid"
-        }
-      },
-      {
-        "name": "id",
-        "in": "path",
-        "required": true,
-        "schema": {
-          "type": "string",
-          "format": "uuid"
-        }
-      }
-    ],
-    "multipart": false
-  },
-  {
-    "id": "post__projects__projectId_units__id_price_requests",
-    "path": "/projects/{projectId}/units/{id}/price-requests",
-    "method": "post",
-    "summary": "Request a unit price change",
-    "permission": "inventory.update",
-    "public": false,
-    "body": {
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "type": "object",
-      "properties": {
-        "price": {
-          "type": "string",
-          "pattern": "^(0|[1-9]\\d{0,15})(\\.\\d{1,2})?$"
-        },
-        "charges": {
-          "type": "string",
-          "pattern": "^(0|[1-9]\\d{0,15})(\\.\\d{1,2})?$"
-        }
-      },
-      "required": ["price", "charges"],
+      "required": [
+        "status",
+        "reason"
+      ],
       "additionalProperties": false
     },
     "parameters": [
@@ -2327,18 +2542,13 @@
     "id": "post__projects__projectId_units__id_price",
     "path": "/projects/{projectId}/units/{id}/price",
     "method": "post",
-    "summary": "Apply approved price with history",
+    "summary": "Apply property price with history",
     "permission": "inventory.change_price",
     "public": false,
     "body": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
       "properties": {
-        "approvalId": {
-          "type": "string",
-          "format": "uuid",
-          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
-        },
         "price": {
           "type": "string",
           "pattern": "^(0|[1-9]\\d{0,15})(\\.\\d{1,2})?$"
@@ -2348,7 +2558,10 @@
           "pattern": "^(0|[1-9]\\d{0,15})(\\.\\d{1,2})?$"
         }
       },
-      "required": ["approvalId", "price", "charges"],
+      "required": [
+        "price",
+        "charges"
+      ],
       "additionalProperties": false
     },
     "parameters": [
@@ -2435,7 +2648,11 @@
           ]
         }
       },
-      "required": ["name", "phone", "identity"],
+      "required": [
+        "name",
+        "phone",
+        "identity"
+      ],
       "additionalProperties": false
     },
     "parameters": [
@@ -2535,7 +2752,10 @@
         "schema": {
           "default": "desc",
           "type": "string",
-          "enum": ["asc", "desc"]
+          "enum": [
+            "asc",
+            "desc"
+          ]
         }
       },
       {
@@ -2545,6 +2765,20 @@
         "schema": {
           "type": "string",
           "maxLength": 40
+        }
+      },
+      {
+        "name": "group",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "string",
+          "enum": [
+            "UNASSIGNED",
+            "INSTALLMENTS",
+            "FULLY_PAID",
+            "PENDING"
+          ]
         }
       }
     ],
@@ -2704,234 +2938,11 @@
           "maxLength": 30
         }
       },
-      "required": ["name", "relationship", "phone"],
-      "additionalProperties": false
-    },
-    "parameters": [
-      {
-        "name": "projectId",
-        "in": "path",
-        "required": true,
-        "schema": {
-          "type": "string",
-          "format": "uuid"
-        }
-      },
-      {
-        "name": "id",
-        "in": "path",
-        "required": true,
-        "schema": {
-          "type": "string",
-          "format": "uuid"
-        }
-      }
-    ],
-    "multipart": false
-  },
-  {
-    "id": "post__projects__projectId_reservations",
-    "path": "/projects/{projectId}/reservations",
-    "method": "post",
-    "summary": "Reserve available inventory with concurrency protection",
-    "permission": "reservations.create",
-    "public": false,
-    "body": {
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "type": "object",
-      "properties": {
-        "unitId": {
-          "type": "string",
-          "format": "uuid",
-          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
-        },
-        "customerId": {
-          "type": "string",
-          "format": "uuid",
-          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
-        }
-      },
-      "required": ["unitId", "customerId"],
-      "additionalProperties": false
-    },
-    "parameters": [
-      {
-        "name": "projectId",
-        "in": "path",
-        "required": true,
-        "schema": {
-          "type": "string",
-          "format": "uuid"
-        }
-      }
-    ],
-    "multipart": false
-  },
-  {
-    "id": "get__projects__projectId_reservations",
-    "path": "/projects/{projectId}/reservations",
-    "method": "get",
-    "summary": "List reservations",
-    "permission": "bookings.read",
-    "public": false,
-    "parameters": [
-      {
-        "name": "projectId",
-        "in": "path",
-        "required": true,
-        "schema": {
-          "type": "string",
-          "format": "uuid"
-        }
-      },
-      {
-        "name": "page",
-        "in": "query",
-        "required": false,
-        "schema": {
-          "default": 1,
-          "type": "integer",
-          "minimum": 1,
-          "maximum": 9007199254740991
-        }
-      },
-      {
-        "name": "limit",
-        "in": "query",
-        "required": false,
-        "schema": {
-          "default": 25,
-          "type": "integer",
-          "minimum": 1,
-          "maximum": 100
-        }
-      },
-      {
-        "name": "search",
-        "in": "query",
-        "required": false,
-        "schema": {
-          "type": "string",
-          "maxLength": 200
-        }
-      },
-      {
-        "name": "status",
-        "in": "query",
-        "required": false,
-        "schema": {
-          "type": "string",
-          "maxLength": 40
-        }
-      },
-      {
-        "name": "from",
-        "in": "query",
-        "required": false,
-        "schema": {
-          "type": "string",
-          "format": "date",
-          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))$"
-        }
-      },
-      {
-        "name": "to",
-        "in": "query",
-        "required": false,
-        "schema": {
-          "type": "string",
-          "format": "date",
-          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))$"
-        }
-      },
-      {
-        "name": "sort",
-        "in": "query",
-        "required": false,
-        "schema": {
-          "default": "desc",
-          "type": "string",
-          "enum": ["asc", "desc"]
-        }
-      }
-    ],
-    "multipart": false
-  },
-  {
-    "id": "post__projects__projectId_reservations__id_release",
-    "path": "/projects/{projectId}/reservations/{id}/release",
-    "method": "post",
-    "summary": "Release your own unfinished booking hold to change customer or property",
-    "permission": "reservations.create",
-    "public": false,
-    "parameters": [
-      {
-        "name": "projectId",
-        "in": "path",
-        "required": true,
-        "schema": {
-          "type": "string",
-          "format": "uuid"
-        }
-      },
-      {
-        "name": "id",
-        "in": "path",
-        "required": true,
-        "schema": {
-          "type": "string",
-          "format": "uuid"
-        }
-      }
-    ],
-    "multipart": false
-  },
-  {
-    "id": "post__projects__projectId_reservations__id_cancel",
-    "path": "/projects/{projectId}/reservations/{id}/cancel",
-    "method": "post",
-    "summary": "Cancel active reservation and release inventory",
-    "permission": "reservations.cancel",
-    "public": false,
-    "parameters": [
-      {
-        "name": "projectId",
-        "in": "path",
-        "required": true,
-        "schema": {
-          "type": "string",
-          "format": "uuid"
-        }
-      },
-      {
-        "name": "id",
-        "in": "path",
-        "required": true,
-        "schema": {
-          "type": "string",
-          "format": "uuid"
-        }
-      }
-    ],
-    "multipart": false
-  },
-  {
-    "id": "post__projects__projectId_units__id_discount_requests",
-    "path": "/projects/{projectId}/units/{id}/discount-requests",
-    "method": "post",
-    "summary": "Request a specific discount amount",
-    "permission": "discounts.request",
-    "public": false,
-    "body": {
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "type": "object",
-      "properties": {
-        "amount": {
-          "type": "string",
-          "pattern": "^(0|[1-9]\\d{0,15})(\\.\\d{1,2})?$"
-        }
-      },
-      "required": ["amount"],
+      "required": [
+        "name",
+        "relationship",
+        "phone"
+      ],
       "additionalProperties": false
     },
     "parameters": [
@@ -2960,7 +2971,7 @@
     "id": "post__projects__projectId_payment_plans",
     "path": "/projects/{projectId}/payment-plans",
     "method": "post",
-    "summary": "Create immutable payment plan version",
+    "summary": "Save payment plan defaults",
     "permission": "plans.manage",
     "public": false,
     "body": {
@@ -2972,46 +2983,37 @@
           "minLength": 2,
           "maxLength": 200
         },
-        "schedule": {
-          "minItems": 1,
-          "maxItems": 360,
-          "type": "array",
-          "items": {
-            "type": "object",
-            "properties": {
-              "label": {
-                "type": "string",
-                "minLength": 1,
-                "maxLength": 100
-              },
-              "percent": {
-                "type": "string",
-                "pattern": "^(0|[1-9]\\d{0,15})(\\.\\d{1,2})?$"
-              },
-              "months": {
-                "default": 0,
-                "type": "integer",
-                "minimum": 0,
-                "maximum": 360
-              },
-              "days": {
-                "default": 0,
-                "type": "integer",
-                "minimum": 0,
-                "maximum": 10000
-              },
-              "date": {
-                "type": "string",
-                "format": "date",
-                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))$"
-              }
-            },
-            "required": ["label", "percent"],
-            "additionalProperties": false
-          }
+        "paymentType": {
+          "type": "string",
+          "enum": [
+            "FULL_PAYMENT",
+            "INSTALLMENTS"
+          ]
+        },
+        "downPayment": {
+          "type": "string",
+          "pattern": "^(0|[1-9]\\d{0,15})(\\.\\d{1,2})?$"
+        },
+        "installmentCount": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 360
+        },
+        "intervalMonths": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 12
+        },
+        "firstInstallmentDate": {
+          "type": "string",
+          "format": "date",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))$"
         }
       },
-      "required": ["name", "schedule"],
+      "required": [
+        "name",
+        "paymentType"
+      ],
       "additionalProperties": false
     },
     "parameters": [
@@ -3073,7 +3075,10 @@
         "schema": {
           "default": "desc",
           "type": "string",
-          "enum": ["asc", "desc"]
+          "enum": [
+            "asc",
+            "desc"
+          ]
         }
       },
       {
@@ -3092,53 +3097,43 @@
     "id": "post__projects__projectId_payment_plans__id_versions",
     "path": "/projects/{projectId}/payment-plans/{id}/versions",
     "method": "post",
-    "summary": "Add new plan version without changing existing bookings",
+    "summary": "Update payment plan defaults without changing existing bookings",
     "permission": "plans.manage",
     "public": false,
     "body": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
       "properties": {
-        "schedule": {
-          "minItems": 1,
-          "maxItems": 360,
-          "type": "array",
-          "items": {
-            "type": "object",
-            "properties": {
-              "label": {
-                "type": "string",
-                "minLength": 1,
-                "maxLength": 100
-              },
-              "percent": {
-                "type": "string",
-                "pattern": "^(0|[1-9]\\d{0,15})(\\.\\d{1,2})?$"
-              },
-              "months": {
-                "default": 0,
-                "type": "integer",
-                "minimum": 0,
-                "maximum": 360
-              },
-              "days": {
-                "default": 0,
-                "type": "integer",
-                "minimum": 0,
-                "maximum": 10000
-              },
-              "date": {
-                "type": "string",
-                "format": "date",
-                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))$"
-              }
-            },
-            "required": ["label", "percent"],
-            "additionalProperties": false
-          }
+        "paymentType": {
+          "type": "string",
+          "enum": [
+            "FULL_PAYMENT",
+            "INSTALLMENTS"
+          ]
+        },
+        "downPayment": {
+          "type": "string",
+          "pattern": "^(0|[1-9]\\d{0,15})(\\.\\d{1,2})?$"
+        },
+        "installmentCount": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 360
+        },
+        "intervalMonths": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 12
+        },
+        "firstInstallmentDate": {
+          "type": "string",
+          "format": "date",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))$"
         }
       },
-      "required": ["schedule"],
+      "required": [
+        "paymentType"
+      ],
       "additionalProperties": false
     },
     "parameters": [
@@ -3167,37 +3162,61 @@
     "id": "post__projects__projectId_bookings",
     "path": "/projects/{projectId}/bookings",
     "method": "post",
-    "summary": "Convert valid reservation into booking and installments",
+    "summary": "Create a booking with a full payment or installment plan",
     "permission": "bookings.create",
     "public": false,
     "body": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
       "properties": {
-        "reservationId": {
+        "paymentType": {
+          "type": "string",
+          "enum": [
+            "FULL_PAYMENT",
+            "INSTALLMENTS"
+          ]
+        },
+        "downPayment": {
+          "type": "string",
+          "pattern": "^(0|[1-9]\\d{0,15})(\\.\\d{1,2})?$"
+        },
+        "installmentCount": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 360
+        },
+        "intervalMonths": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 12
+        },
+        "firstInstallmentDate": {
+          "type": "string",
+          "format": "date",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))$"
+        },
+        "customerId": {
           "type": "string",
           "format": "uuid",
           "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
         },
-        "planVersionId": {
+        "unitId": {
           "type": "string",
           "format": "uuid",
           "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+        },
+        "sellingPrice": {
+          "type": "string",
+          "pattern": "^(0|[1-9]\\d{0,15})(\\.\\d{1,2})?$"
         },
         "discount": {
           "default": "0",
           "type": "string",
           "pattern": "^(0|[1-9]\\d{0,15})(\\.\\d{1,2})?$"
         },
-        "discountApprovalId": {
-          "type": "string",
-          "format": "uuid",
-          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
-        },
-        "dealerId": {
-          "type": "string",
-          "format": "uuid",
-          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+        "confirm": {
+          "default": false,
+          "type": "boolean"
         },
         "owners": {
           "minItems": 1,
@@ -3216,12 +3235,19 @@
                 "pattern": "^(0|[1-9]\\d{0,15})(\\.\\d{1,2})?$"
               }
             },
-            "required": ["customerId", "share"],
+            "required": [
+              "customerId",
+              "share"
+            ],
             "additionalProperties": false
           }
         }
       },
-      "required": ["reservationId", "planVersionId"],
+      "required": [
+        "paymentType",
+        "customerId",
+        "unitId"
+      ],
       "additionalProperties": false
     },
     "parameters": [
@@ -3291,7 +3317,11 @@
         "required": false,
         "schema": {
           "type": "string",
-          "enum": ["DRAFT", "CONFIRMED", "CANCELLED"]
+          "enum": [
+            "DRAFT",
+            "CONFIRMED",
+            "CANCELLED"
+          ]
         }
       },
       {
@@ -3321,7 +3351,10 @@
         "schema": {
           "default": "desc",
           "type": "string",
-          "enum": ["asc", "desc"]
+          "enum": [
+            "asc",
+            "desc"
+          ]
         }
       }
     ],
@@ -3360,90 +3393,9 @@
     "id": "post__projects__projectId_bookings__id_confirm",
     "path": "/projects/{projectId}/bookings/{id}/confirm",
     "method": "post",
-    "summary": "Confirm approved booking after cleared down payment",
+    "summary": "Confirm booking",
     "permission": "bookings.approve",
     "public": false,
-    "body": {
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "type": "object",
-      "properties": {
-        "approvalId": {
-          "type": "string",
-          "format": "uuid",
-          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
-        }
-      },
-      "required": ["approvalId"],
-      "additionalProperties": false
-    },
-    "parameters": [
-      {
-        "name": "projectId",
-        "in": "path",
-        "required": true,
-        "schema": {
-          "type": "string",
-          "format": "uuid"
-        }
-      },
-      {
-        "name": "id",
-        "in": "path",
-        "required": true,
-        "schema": {
-          "type": "string",
-          "format": "uuid"
-        }
-      }
-    ],
-    "multipart": false
-  },
-  {
-    "id": "post__projects__projectId_bookings__id_reschedule_requests",
-    "path": "/projects/{projectId}/bookings/{id}/reschedule-requests",
-    "method": "post",
-    "summary": "Request revision of unpaid installment schedule",
-    "permission": "bookings.create",
-    "public": false,
-    "body": {
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "type": "object",
-      "properties": {
-        "reason": {
-          "type": "string",
-          "minLength": 3,
-          "maxLength": 1000
-        },
-        "schedule": {
-          "minItems": 1,
-          "maxItems": 360,
-          "type": "array",
-          "items": {
-            "type": "object",
-            "properties": {
-              "label": {
-                "type": "string",
-                "minLength": 1,
-                "maxLength": 100
-              },
-              "dueDate": {
-                "type": "string",
-                "format": "date",
-                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))$"
-              },
-              "amount": {
-                "type": "string",
-                "pattern": "^(0|[1-9]\\d{0,15})(\\.\\d{1,2})?$"
-              }
-            },
-            "required": ["label", "dueDate", "amount"],
-            "additionalProperties": false
-          }
-        }
-      },
-      "required": ["reason", "schedule"],
-      "additionalProperties": false
-    },
     "parameters": [
       {
         "name": "projectId",
@@ -3470,7 +3422,7 @@
     "id": "post__projects__projectId_bookings__id_reschedule",
     "path": "/projects/{projectId}/bookings/{id}/reschedule",
     "method": "post",
-    "summary": "Apply approved revision retaining paid installment history",
+    "summary": "Save payment plan and retain paid installment history",
     "permission": "bookings.approve",
     "public": false,
     "body": {
@@ -3482,39 +3434,28 @@
           "minLength": 3,
           "maxLength": 1000
         },
-        "schedule": {
-          "minItems": 1,
-          "maxItems": 360,
-          "type": "array",
-          "items": {
-            "type": "object",
-            "properties": {
-              "label": {
-                "type": "string",
-                "minLength": 1,
-                "maxLength": 100
-              },
-              "dueDate": {
-                "type": "string",
-                "format": "date",
-                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))$"
-              },
-              "amount": {
-                "type": "string",
-                "pattern": "^(0|[1-9]\\d{0,15})(\\.\\d{1,2})?$"
-              }
-            },
-            "required": ["label", "dueDate", "amount"],
-            "additionalProperties": false
-          }
+        "installmentCount": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 360
         },
-        "approvalId": {
+        "intervalMonths": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 12
+        },
+        "firstInstallmentDate": {
           "type": "string",
-          "format": "uuid",
-          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+          "format": "date",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))$"
         }
       },
-      "required": ["reason", "schedule", "approvalId"],
+      "required": [
+        "reason",
+        "installmentCount",
+        "intervalMonths",
+        "firstInstallmentDate"
+      ],
       "additionalProperties": false
     },
     "parameters": [
@@ -3561,7 +3502,14 @@
         },
         "method": {
           "type": "string",
-          "enum": ["CASH", "BANK_TRANSFER", "CHEQUE", "PAY_ORDER", "ONLINE", "OTHER"]
+          "enum": [
+            "CASH",
+            "BANK_TRANSFER",
+            "CHEQUE",
+            "PAY_ORDER",
+            "ONLINE",
+            "OTHER"
+          ]
         },
         "paidAt": {
           "type": "string",
@@ -3588,7 +3536,12 @@
           "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
         }
       },
-      "required": ["bookingId", "amount", "method", "paidAt", "receivingAccountId"],
+      "required": [
+        "bookingId",
+        "amount",
+        "method",
+        "paidAt"
+      ],
       "additionalProperties": false
     },
     "parameters": [
@@ -3669,7 +3622,13 @@
         "required": false,
         "schema": {
           "type": "string",
-          "enum": ["PENDING", "CLEARED", "REJECTED", "BOUNCED", "REVERSED"]
+          "enum": [
+            "PENDING",
+            "CLEARED",
+            "REJECTED",
+            "BOUNCED",
+            "REVERSED"
+          ]
         }
       },
       {
@@ -3699,7 +3658,10 @@
         "schema": {
           "default": "desc",
           "type": "string",
-          "enum": ["asc", "desc"]
+          "enum": [
+            "asc",
+            "desc"
+          ]
         }
       },
       {
@@ -3728,7 +3690,11 @@
       "properties": {
         "decision": {
           "type": "string",
-          "enum": ["CLEARED", "REJECTED", "BOUNCED"]
+          "enum": [
+            "CLEARED",
+            "REJECTED",
+            "BOUNCED"
+          ]
         },
         "reason": {
           "type": "string",
@@ -3736,7 +3702,10 @@
           "maxLength": 1000
         }
       },
-      "required": ["decision", "reason"],
+      "required": [
+        "decision",
+        "reason"
+      ],
       "additionalProperties": false
     },
     "parameters": [
@@ -3767,35 +3736,6 @@
           "minLength": 8,
           "maxLength": 128,
           "pattern": "^[\\w-]+$"
-        }
-      }
-    ],
-    "multipart": false
-  },
-  {
-    "id": "post__projects__projectId_payments__id_reversal_requests",
-    "path": "/projects/{projectId}/payments/{id}/reversal-requests",
-    "method": "post",
-    "summary": "Request payment reversal",
-    "permission": "payments.reverse",
-    "public": false,
-    "parameters": [
-      {
-        "name": "projectId",
-        "in": "path",
-        "required": true,
-        "schema": {
-          "type": "string",
-          "format": "uuid"
-        }
-      },
-      {
-        "name": "id",
-        "in": "path",
-        "required": true,
-        "schema": {
-          "type": "string",
-          "format": "uuid"
         }
       }
     ],
@@ -3841,18 +3781,15 @@
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
       "properties": {
-        "approvalId": {
-          "type": "string",
-          "format": "uuid",
-          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
-        },
         "reason": {
           "type": "string",
           "minLength": 3,
           "maxLength": 1000
         }
       },
-      "required": ["approvalId", "reason"],
+      "required": [
+        "reason"
+      ],
       "additionalProperties": false
     },
     "parameters": [
@@ -3907,281 +3844,6 @@
     "multipart": false
   },
   {
-    "id": "get__projects__projectId_approvals",
-    "path": "/projects/{projectId}/approvals",
-    "method": "get",
-    "summary": "List approval requests with action history",
-    "permission": "approvals.read",
-    "public": false,
-    "parameters": [
-      {
-        "name": "projectId",
-        "in": "path",
-        "required": true,
-        "schema": {
-          "type": "string",
-          "format": "uuid"
-        }
-      },
-      {
-        "name": "page",
-        "in": "query",
-        "required": false,
-        "schema": {
-          "default": 1,
-          "type": "integer",
-          "minimum": 1,
-          "maximum": 9007199254740991
-        }
-      },
-      {
-        "name": "limit",
-        "in": "query",
-        "required": false,
-        "schema": {
-          "default": 25,
-          "type": "integer",
-          "minimum": 1,
-          "maximum": 100
-        }
-      },
-      {
-        "name": "search",
-        "in": "query",
-        "required": false,
-        "schema": {
-          "type": "string",
-          "maxLength": 200
-        }
-      },
-      {
-        "name": "status",
-        "in": "query",
-        "required": false,
-        "schema": {
-          "type": "string",
-          "maxLength": 40
-        }
-      },
-      {
-        "name": "from",
-        "in": "query",
-        "required": false,
-        "schema": {
-          "type": "string",
-          "format": "date",
-          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))$"
-        }
-      },
-      {
-        "name": "to",
-        "in": "query",
-        "required": false,
-        "schema": {
-          "type": "string",
-          "format": "date",
-          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))$"
-        }
-      },
-      {
-        "name": "sort",
-        "in": "query",
-        "required": false,
-        "schema": {
-          "default": "desc",
-          "type": "string",
-          "enum": ["asc", "desc"]
-        }
-      }
-    ],
-    "multipart": false
-  },
-  {
-    "id": "post__projects__projectId_approvals__id_decide",
-    "path": "/projects/{projectId}/approvals/{id}/decide",
-    "method": "post",
-    "summary": "Act on current approval level; designated permission required",
-    "public": false,
-    "body": {
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "type": "object",
-      "properties": {
-        "decision": {
-          "type": "string",
-          "enum": ["APPROVE", "REJECT"]
-        },
-        "comment": {
-          "type": "string",
-          "minLength": 3,
-          "maxLength": 1000
-        }
-      },
-      "required": ["decision", "comment"],
-      "additionalProperties": false
-    },
-    "parameters": [
-      {
-        "name": "projectId",
-        "in": "path",
-        "required": true,
-        "schema": {
-          "type": "string",
-          "format": "uuid"
-        }
-      },
-      {
-        "name": "id",
-        "in": "path",
-        "required": true,
-        "schema": {
-          "type": "string",
-          "format": "uuid"
-        }
-      }
-    ],
-    "multipart": false
-  },
-  {
-    "id": "post__projects__projectId_approvals__id_resubmit",
-    "path": "/projects/{projectId}/approvals/{id}/resubmit",
-    "method": "post",
-    "summary": "Resubmit your rejected approval with its original terms",
-    "public": false,
-    "parameters": [
-      {
-        "name": "projectId",
-        "in": "path",
-        "required": true,
-        "schema": {
-          "type": "string",
-          "format": "uuid"
-        }
-      },
-      {
-        "name": "id",
-        "in": "path",
-        "required": true,
-        "schema": {
-          "type": "string",
-          "format": "uuid"
-        }
-      }
-    ],
-    "multipart": false
-  },
-  {
-    "id": "post__projects__projectId_approval_policies",
-    "path": "/projects/{projectId}/approval-policies",
-    "method": "post",
-    "summary": "Configure approval thresholds and sequential permission levels",
-    "permission": "approvals.manage",
-    "public": false,
-    "body": {
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "type": "object",
-      "properties": {
-        "operation": {
-          "type": "string",
-          "enum": [
-            "DISCOUNT",
-            "BOOKING",
-            "PRICE",
-            "RESCHEDULE",
-            "PAYMENT_REVERSAL",
-            "NDC",
-            "TRANSFER",
-            "CANCELLATION",
-            "REFUND",
-            "COMMISSION",
-            "POSSESSION",
-            "JOURNAL"
-          ]
-        },
-        "minimumAmount": {
-          "type": "string",
-          "pattern": "^(0|[1-9]\\d{0,15})(\\.\\d{1,2})?$"
-        },
-        "permissions": {
-          "minItems": 1,
-          "maxItems": 5,
-          "type": "array",
-          "items": {
-            "type": "string",
-            "enum": [
-              "projects.read",
-              "projects.create",
-              "projects.update",
-              "inventory.read",
-              "inventory.create",
-              "inventory.update",
-              "inventory.change_status",
-              "inventory.change_price",
-              "customers.read",
-              "customers.create",
-              "customers.update",
-              "customers.portal.manage",
-              "customers.view_sensitive",
-              "crm.read",
-              "crm.manage",
-              "reservations.create",
-              "reservations.cancel",
-              "bookings.read",
-              "bookings.create",
-              "bookings.approve",
-              "bookings.cancel",
-              "plans.manage",
-              "payments.read",
-              "payments.create",
-              "payments.verify",
-              "payments.reverse",
-              "discounts.request",
-              "discounts.approve",
-              "recovery.manage",
-              "dealers.read",
-              "dealers.manage",
-              "commissions.approve",
-              "transfers.request",
-              "transfers.approve",
-              "ndc.request",
-              "ndc.approve",
-              "refunds.request",
-              "refunds.approve",
-              "possession.manage",
-              "possession.approve",
-              "finance.read",
-              "finance.post",
-              "finance.reverse",
-              "reports.read",
-              "reports.export",
-              "documents.read",
-              "documents.manage",
-              "approvals.read",
-              "approvals.manage",
-              "users.manage",
-              "roles.manage",
-              "settings.manage",
-              "audit.read"
-            ]
-          }
-        }
-      },
-      "required": ["operation", "minimumAmount", "permissions"],
-      "additionalProperties": false
-    },
-    "parameters": [
-      {
-        "name": "projectId",
-        "in": "path",
-        "required": true,
-        "schema": {
-          "type": "string",
-          "format": "uuid"
-        }
-      }
-    ],
-    "multipart": false
-  },
-  {
     "id": "post__projects__projectId_ndcs",
     "path": "/projects/{projectId}/ndcs",
     "method": "post",
@@ -4204,7 +3866,11 @@
           "type": "boolean"
         }
       },
-      "required": ["bookingId", "identityVerified", "documentsVerified"],
+      "required": [
+        "bookingId",
+        "identityVerified",
+        "documentsVerified"
+      ],
       "additionalProperties": false
     },
     "parameters": [
@@ -4266,7 +3932,10 @@
         "schema": {
           "default": "desc",
           "type": "string",
-          "enum": ["asc", "desc"]
+          "enum": [
+            "asc",
+            "desc"
+          ]
         }
       },
       {
@@ -4275,7 +3944,12 @@
         "required": false,
         "schema": {
           "type": "string",
-          "enum": ["PENDING", "APPROVED", "COMPLETED", "REJECTED"]
+          "enum": [
+            "PENDING",
+            "APPROVED",
+            "COMPLETED",
+            "REJECTED"
+          ]
         }
       },
       {
@@ -4295,20 +3969,13 @@
     "id": "post__projects__projectId_ndcs__id_issue",
     "path": "/projects/{projectId}/ndcs/{id}/issue",
     "method": "post",
-    "summary": "Issue approved NDC with expiry",
+    "summary": "Issue NDC with expiry",
     "permission": "ndc.approve",
     "public": false,
     "body": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
-      "properties": {
-        "approvalId": {
-          "type": "string",
-          "format": "uuid",
-          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
-        }
-      },
-      "required": ["approvalId"],
+      "properties": {},
       "additionalProperties": false
     },
     "parameters": [
@@ -4354,17 +4021,78 @@
           "format": "uuid",
           "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
         },
-        "ndcId": {
-          "type": "string",
-          "format": "uuid",
-          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
-        },
         "charges": {
           "type": "string",
           "pattern": "^(0|[1-9]\\d{0,15})(\\.\\d{1,2})?$"
+        },
+        "verification": {
+          "type": "object",
+          "properties": {
+            "authorityName": {
+              "type": "string",
+              "minLength": 2,
+              "maxLength": 200
+            },
+            "documentsReference": {
+              "type": "string",
+              "minLength": 3,
+              "maxLength": 1000
+            },
+            "identityVerified": {
+              "type": "boolean"
+            },
+            "ownershipVerified": {
+              "type": "boolean"
+            },
+            "documentsVerified": {
+              "type": "boolean"
+            },
+            "taxesAndFeesVerified": {
+              "type": "boolean"
+            },
+            "clearanceStatus": {
+              "type": "string",
+              "enum": [
+                "VERIFIED",
+                "NOT_REQUIRED"
+              ]
+            },
+            "clearanceReference": {
+              "type": "string",
+              "maxLength": 300
+            },
+            "clearanceValidUntil": {
+              "type": "string",
+              "format": "date",
+              "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))$"
+            },
+            "clearanceReason": {
+              "type": "string",
+              "maxLength": 1000
+            },
+            "consentVerified": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "authorityName",
+            "documentsReference",
+            "identityVerified",
+            "ownershipVerified",
+            "documentsVerified",
+            "taxesAndFeesVerified",
+            "clearanceStatus",
+            "consentVerified"
+          ],
+          "additionalProperties": false
         }
       },
-      "required": ["bookingId", "buyerId", "ndcId", "charges"],
+      "required": [
+        "bookingId",
+        "buyerId",
+        "charges",
+        "verification"
+      ],
       "additionalProperties": false
     },
     "parameters": [
@@ -4426,7 +4154,10 @@
         "schema": {
           "default": "desc",
           "type": "string",
-          "enum": ["asc", "desc"]
+          "enum": [
+            "asc",
+            "desc"
+          ]
         }
       },
       {
@@ -4435,7 +4166,12 @@
         "required": false,
         "schema": {
           "type": "string",
-          "enum": ["PENDING", "APPROVED", "COMPLETED", "REJECTED"]
+          "enum": [
+            "PENDING",
+            "APPROVED",
+            "COMPLETED",
+            "REJECTED"
+          ]
         }
       },
       {
@@ -4473,7 +4209,10 @@
           "maxLength": 200
         }
       },
-      "required": ["accountId", "paymentReference"],
+      "required": [
+        "accountId",
+        "paymentReference"
+      ],
       "additionalProperties": false
     },
     "parameters": [
@@ -4508,14 +4247,7 @@
     "body": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
-      "properties": {
-        "approvalId": {
-          "type": "string",
-          "format": "uuid",
-          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
-        }
-      },
-      "required": ["approvalId"],
+      "properties": {},
       "additionalProperties": false
     },
     "parameters": [
@@ -4595,7 +4327,11 @@
           "maxLength": 1000
         }
       },
-      "required": ["bookingId", "deduction", "reason"],
+      "required": [
+        "bookingId",
+        "deduction",
+        "reason"
+      ],
       "additionalProperties": false
     },
     "parameters": [
@@ -4657,7 +4393,10 @@
         "schema": {
           "default": "desc",
           "type": "string",
-          "enum": ["asc", "desc"]
+          "enum": [
+            "asc",
+            "desc"
+          ]
         }
       },
       {
@@ -4666,7 +4405,12 @@
         "required": false,
         "schema": {
           "type": "string",
-          "enum": ["PENDING", "APPROVED", "COMPLETED", "REJECTED"]
+          "enum": [
+            "PENDING",
+            "APPROVED",
+            "COMPLETED",
+            "REJECTED"
+          ]
         }
       },
       {
@@ -4686,20 +4430,13 @@
     "id": "post__projects__projectId_cancellations__id_complete",
     "path": "/projects/{projectId}/cancellations/{id}/complete",
     "method": "post",
-    "summary": "Execute approved cancellation and release inventory",
+    "summary": "Execute cancellation and release inventory",
     "permission": "bookings.cancel",
     "public": false,
     "body": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
-      "properties": {
-        "approvalId": {
-          "type": "string",
-          "format": "uuid",
-          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
-        }
-      },
-      "required": ["approvalId"],
+      "properties": {},
       "additionalProperties": false
     },
     "parameters": [
@@ -4728,7 +4465,7 @@
     "id": "post__projects__projectId_cancellations__id_recalculate",
     "path": "/projects/{projectId}/cancellations/{id}/recalculate",
     "method": "post",
-    "summary": "Recalculate changed collections and request fresh cancellation approval",
+    "summary": "Recalculate changed collections",
     "permission": "bookings.cancel",
     "public": false,
     "body": {
@@ -4745,7 +4482,10 @@
           "maxLength": 1000
         }
       },
-      "required": ["deduction", "reason"],
+      "required": [
+        "deduction",
+        "reason"
+      ],
       "additionalProperties": false
     },
     "parameters": [
@@ -4791,7 +4531,10 @@
           "pattern": "^(0|[1-9]\\d{0,15})(\\.\\d{1,2})?$"
         }
       },
-      "required": ["cancellationId", "amount"],
+      "required": [
+        "cancellationId",
+        "amount"
+      ],
       "additionalProperties": false
     },
     "parameters": [
@@ -4811,18 +4554,13 @@
     "id": "post__projects__projectId_refunds__id_pay",
     "path": "/projects/{projectId}/refunds/{id}/pay",
     "method": "post",
-    "summary": "Pay approved refund and post balanced journal",
+    "summary": "Pay refund and post balanced journal",
     "permission": "refunds.approve",
     "public": false,
     "body": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
       "properties": {
-        "approvalId": {
-          "type": "string",
-          "format": "uuid",
-          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
-        },
         "accountId": {
           "type": "string",
           "format": "uuid",
@@ -4834,7 +4572,10 @@
           "maxLength": 200
         }
       },
-      "required": ["approvalId", "accountId", "paymentReference"],
+      "required": [
+        "accountId",
+        "paymentReference"
+      ],
       "additionalProperties": false
     },
     "parameters": [
@@ -4903,9 +4644,77 @@
           "type": "string",
           "format": "uuid",
           "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+        },
+        "verification": {
+          "type": "object",
+          "properties": {
+            "authorityName": {
+              "type": "string",
+              "minLength": 2,
+              "maxLength": 200
+            },
+            "documentsReference": {
+              "type": "string",
+              "minLength": 3,
+              "maxLength": 1000
+            },
+            "identityVerified": {
+              "type": "boolean"
+            },
+            "ownershipVerified": {
+              "type": "boolean"
+            },
+            "documentsVerified": {
+              "type": "boolean"
+            },
+            "taxesAndFeesVerified": {
+              "type": "boolean"
+            },
+            "clearanceStatus": {
+              "type": "string",
+              "enum": [
+                "VERIFIED",
+                "NOT_REQUIRED"
+              ]
+            },
+            "clearanceReference": {
+              "type": "string",
+              "maxLength": 300
+            },
+            "clearanceValidUntil": {
+              "type": "string",
+              "format": "date",
+              "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))$"
+            },
+            "clearanceReason": {
+              "type": "string",
+              "maxLength": 1000
+            },
+            "possessionReleased": {
+              "type": "boolean"
+            },
+            "sitePlanVerified": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "authorityName",
+            "documentsReference",
+            "identityVerified",
+            "ownershipVerified",
+            "documentsVerified",
+            "taxesAndFeesVerified",
+            "clearanceStatus",
+            "possessionReleased",
+            "sitePlanVerified"
+          ],
+          "additionalProperties": false
         }
       },
-      "required": ["bookingId"],
+      "required": [
+        "bookingId",
+        "verification"
+      ],
       "additionalProperties": false
     },
     "parameters": [
@@ -4967,7 +4776,10 @@
         "schema": {
           "default": "desc",
           "type": "string",
-          "enum": ["asc", "desc"]
+          "enum": [
+            "asc",
+            "desc"
+          ]
         }
       },
       {
@@ -4976,7 +4788,12 @@
         "required": false,
         "schema": {
           "type": "string",
-          "enum": ["PENDING", "APPROVED", "COMPLETED", "REJECTED"]
+          "enum": [
+            "PENDING",
+            "APPROVED",
+            "COMPLETED",
+            "REJECTED"
+          ]
         }
       },
       {
@@ -5018,7 +4835,10 @@
           }
         }
       },
-      "required": ["notes", "snags"],
+      "required": [
+        "notes",
+        "snags"
+      ],
       "additionalProperties": false
     },
     "parameters": [
@@ -5076,134 +4896,28 @@
     "id": "post__projects__projectId_possessions__id_handover",
     "path": "/projects/{projectId}/possessions/{id}/handover",
     "method": "post",
-    "summary": "Complete approved handover after snag and dues checks",
+    "summary": "Complete handover after snag and dues checks",
     "permission": "possession.approve",
     "public": false,
     "body": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
       "properties": {
-        "approvalId": {
-          "type": "string",
-          "format": "uuid",
-          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
-        }
-      },
-      "required": ["approvalId"],
-      "additionalProperties": false
-    },
-    "parameters": [
-      {
-        "name": "projectId",
-        "in": "path",
-        "required": true,
-        "schema": {
-          "type": "string",
-          "format": "uuid"
-        }
-      },
-      {
-        "name": "id",
-        "in": "path",
-        "required": true,
-        "schema": {
-          "type": "string",
-          "format": "uuid"
-        }
-      }
-    ],
-    "multipart": false
-  },
-  {
-    "id": "post__projects__projectId_commissions__id_settle",
-    "path": "/projects/{projectId}/commissions/{id}/settle",
-    "method": "post",
-    "summary": "Settle approved dealer commission once",
-    "permission": "commissions.approve",
-    "public": false,
-    "body": {
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "type": "object",
-      "properties": {
-        "approvalId": {
-          "type": "string",
-          "format": "uuid",
-          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
-        },
-        "accountId": {
-          "type": "string",
-          "format": "uuid",
-          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
-        },
-        "paymentReference": {
+        "handoverReference": {
           "type": "string",
           "minLength": 3,
-          "maxLength": 200
-        }
-      },
-      "required": ["approvalId", "accountId", "paymentReference"],
-      "additionalProperties": false
-    },
-    "parameters": [
-      {
-        "name": "projectId",
-        "in": "path",
-        "required": true,
-        "schema": {
-          "type": "string",
-          "format": "uuid"
-        }
-      },
-      {
-        "name": "id",
-        "in": "path",
-        "required": true,
-        "schema": {
-          "type": "string",
-          "format": "uuid"
-        }
-      }
-    ],
-    "multipart": false
-  },
-  {
-    "id": "post__projects__projectId_leads",
-    "path": "/projects/{projectId}/leads",
-    "method": "post",
-    "summary": "Register a lead with project-scoped assignment",
-    "permission": "crm.manage",
-    "public": false,
-    "body": {
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "type": "object",
-      "properties": {
-        "name": {
+          "maxLength": 300
+        },
+        "receivedByName": {
           "type": "string",
           "minLength": 2,
           "maxLength": 200
-        },
-        "phone": {
-          "type": "string",
-          "minLength": 6,
-          "maxLength": 30
-        },
-        "source": {
-          "type": "string",
-          "minLength": 1,
-          "maxLength": 100
-        },
-        "assignedTo": {
-          "type": "string",
-          "format": "uuid",
-          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
-        },
-        "dealerId": {
-          "type": "string",
-          "format": "uuid",
-          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
         }
       },
-      "required": ["name", "phone", "source"],
+      "required": [
+        "handoverReference",
+        "receivedByName"
+      ],
       "additionalProperties": false
     },
     "parameters": [
@@ -5215,16 +4929,25 @@
           "type": "string",
           "format": "uuid"
         }
+      },
+      {
+        "name": "id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        }
       }
     ],
     "multipart": false
   },
   {
-    "id": "get__projects__projectId_leads",
-    "path": "/projects/{projectId}/leads",
+    "id": "get__projects__projectId_transfers__id",
+    "path": "/projects/{projectId}/transfers/{id}",
     "method": "get",
-    "summary": "Search leads and activities",
-    "permission": "crm.read",
+    "summary": "Get ownership case details",
+    "permission": "bookings.read",
     "public": false,
     "parameters": [
       {
@@ -5237,109 +4960,93 @@
         }
       },
       {
-        "name": "page",
-        "in": "query",
-        "required": false,
-        "schema": {
-          "default": 1,
-          "type": "integer",
-          "minimum": 1,
-          "maximum": 9007199254740991
-        }
-      },
-      {
-        "name": "limit",
-        "in": "query",
-        "required": false,
-        "schema": {
-          "default": 25,
-          "type": "integer",
-          "minimum": 1,
-          "maximum": 100
-        }
-      },
-      {
-        "name": "search",
-        "in": "query",
-        "required": false,
+        "name": "id",
+        "in": "path",
+        "required": true,
         "schema": {
           "type": "string",
-          "maxLength": 200
-        }
-      },
-      {
-        "name": "status",
-        "in": "query",
-        "required": false,
-        "schema": {
-          "type": "string",
-          "enum": ["NEW", "CONTACTED", "QUALIFIED", "LOST", "CONVERTED"]
-        }
-      },
-      {
-        "name": "from",
-        "in": "query",
-        "required": false,
-        "schema": {
-          "type": "string",
-          "format": "date",
-          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))$"
-        }
-      },
-      {
-        "name": "to",
-        "in": "query",
-        "required": false,
-        "schema": {
-          "type": "string",
-          "format": "date",
-          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))$"
-        }
-      },
-      {
-        "name": "sort",
-        "in": "query",
-        "required": false,
-        "schema": {
-          "default": "desc",
-          "type": "string",
-          "enum": ["asc", "desc"]
-        }
-      },
-      {
-        "name": "assignedTo",
-        "in": "query",
-        "required": false,
-        "schema": {
-          "type": "string",
-          "format": "uuid",
-          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+          "format": "uuid"
         }
       }
     ],
     "multipart": false
   },
   {
-    "id": "patch__projects__projectId_leads__id",
-    "path": "/projects/{projectId}/leads/{id}",
+    "id": "patch__projects__projectId_transfers__id_verification",
+    "path": "/projects/{projectId}/transfers/{id}/verification",
     "method": "patch",
-    "summary": "Update lead stage or assignee",
-    "permission": "crm.manage",
+    "summary": "Review case documents",
+    "permission": "transfers.request",
     "public": false,
     "body": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
       "properties": {
-        "status": {
-          "type": "string",
-          "enum": ["NEW", "CONTACTED", "QUALIFIED", "LOST"]
-        },
-        "assignedTo": {
-          "type": "string",
-          "format": "uuid",
-          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+        "verification": {
+          "type": "object",
+          "properties": {
+            "authorityName": {
+              "type": "string",
+              "minLength": 2,
+              "maxLength": 200
+            },
+            "documentsReference": {
+              "type": "string",
+              "minLength": 3,
+              "maxLength": 1000
+            },
+            "identityVerified": {
+              "type": "boolean"
+            },
+            "ownershipVerified": {
+              "type": "boolean"
+            },
+            "documentsVerified": {
+              "type": "boolean"
+            },
+            "taxesAndFeesVerified": {
+              "type": "boolean"
+            },
+            "clearanceStatus": {
+              "type": "string",
+              "enum": [
+                "VERIFIED",
+                "NOT_REQUIRED"
+              ]
+            },
+            "clearanceReference": {
+              "type": "string",
+              "maxLength": 300
+            },
+            "clearanceValidUntil": {
+              "type": "string",
+              "format": "date",
+              "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))$"
+            },
+            "clearanceReason": {
+              "type": "string",
+              "maxLength": 1000
+            },
+            "consentVerified": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "authorityName",
+            "documentsReference",
+            "identityVerified",
+            "ownershipVerified",
+            "documentsVerified",
+            "taxesAndFeesVerified",
+            "clearanceStatus",
+            "consentVerified"
+          ],
+          "additionalProperties": false
         }
       },
+      "required": [
+        "verification"
+      ],
       "additionalProperties": false
     },
     "parameters": [
@@ -5365,38 +5072,12 @@
     "multipart": false
   },
   {
-    "id": "post__projects__projectId_leads__id_activities",
-    "path": "/projects/{projectId}/leads/{id}/activities",
-    "method": "post",
-    "summary": "Record call, follow-up, site visit, meeting or quotation",
-    "permission": "crm.manage",
+    "id": "get__projects__projectId_possessions__id",
+    "path": "/projects/{projectId}/possessions/{id}",
+    "method": "get",
+    "summary": "Get ownership case details",
+    "permission": "bookings.read",
     "public": false,
-    "body": {
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "type": "object",
-      "properties": {
-        "kind": {
-          "type": "string",
-          "enum": ["CALL", "MEETING", "FOLLOW_UP", "SITE_VISIT", "QUOTATION", "NOTE"]
-        },
-        "notes": {
-          "type": "string",
-          "minLength": 1,
-          "maxLength": 4000
-        },
-        "scheduledAt": {
-          "type": "string",
-          "format": "date-time",
-          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
-        },
-        "amount": {
-          "type": "string",
-          "pattern": "^(0|[1-9]\\d{0,15})(\\.\\d{1,2})?$"
-        }
-      },
-      "required": ["kind", "notes"],
-      "additionalProperties": false
-    },
     "parameters": [
       {
         "name": "projectId",
@@ -5420,23 +5101,85 @@
     "multipart": false
   },
   {
-    "id": "post__projects__projectId_leads__id_convert",
-    "path": "/projects/{projectId}/leads/{id}/convert",
-    "method": "post",
-    "summary": "Link qualified lead to an existing project customer",
-    "permission": "crm.manage",
+    "id": "patch__projects__projectId_possessions__id_verification",
+    "path": "/projects/{projectId}/possessions/{id}/verification",
+    "method": "patch",
+    "summary": "Review case documents",
+    "permission": "possession.manage",
     "public": false,
     "body": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
       "properties": {
-        "customerId": {
-          "type": "string",
-          "format": "uuid",
-          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+        "verification": {
+          "type": "object",
+          "properties": {
+            "authorityName": {
+              "type": "string",
+              "minLength": 2,
+              "maxLength": 200
+            },
+            "documentsReference": {
+              "type": "string",
+              "minLength": 3,
+              "maxLength": 1000
+            },
+            "identityVerified": {
+              "type": "boolean"
+            },
+            "ownershipVerified": {
+              "type": "boolean"
+            },
+            "documentsVerified": {
+              "type": "boolean"
+            },
+            "taxesAndFeesVerified": {
+              "type": "boolean"
+            },
+            "clearanceStatus": {
+              "type": "string",
+              "enum": [
+                "VERIFIED",
+                "NOT_REQUIRED"
+              ]
+            },
+            "clearanceReference": {
+              "type": "string",
+              "maxLength": 300
+            },
+            "clearanceValidUntil": {
+              "type": "string",
+              "format": "date",
+              "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))$"
+            },
+            "clearanceReason": {
+              "type": "string",
+              "maxLength": 1000
+            },
+            "possessionReleased": {
+              "type": "boolean"
+            },
+            "sitePlanVerified": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "authorityName",
+            "documentsReference",
+            "identityVerified",
+            "ownershipVerified",
+            "documentsVerified",
+            "taxesAndFeesVerified",
+            "clearanceStatus",
+            "possessionReleased",
+            "sitePlanVerified"
+          ],
+          "additionalProperties": false
         }
       },
-      "required": ["customerId"],
+      "required": [
+        "verification"
+      ],
       "additionalProperties": false
     },
     "parameters": [
@@ -5483,7 +5226,10 @@
           "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
         }
       },
-      "required": ["bookingId", "assignedTo"],
+      "required": [
+        "bookingId",
+        "assignedTo"
+      ],
       "additionalProperties": false
     },
     "parameters": [
@@ -5583,7 +5329,10 @@
         "schema": {
           "default": "desc",
           "type": "string",
-          "enum": ["asc", "desc"]
+          "enum": [
+            "asc",
+            "desc"
+          ]
         }
       },
       {
@@ -5612,7 +5361,13 @@
       "properties": {
         "kind": {
           "type": "string",
-          "enum": ["CALL", "NOTICE", "PROMISE_TO_PAY", "ESCALATION", "NOTE"]
+          "enum": [
+            "CALL",
+            "NOTICE",
+            "PROMISE_TO_PAY",
+            "ESCALATION",
+            "NOTE"
+          ]
         },
         "notes": {
           "type": "string",
@@ -5629,7 +5384,10 @@
           "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))$"
         }
       },
-      "required": ["kind", "notes"],
+      "required": [
+        "kind",
+        "notes"
+      ],
       "additionalProperties": false
     },
     "parameters": [
@@ -5667,224 +5425,15 @@
       "properties": {
         "status": {
           "type": "string",
-          "enum": ["OPEN", "CLOSED"]
+          "enum": [
+            "OPEN",
+            "CLOSED"
+          ]
         }
       },
-      "required": ["status"],
-      "additionalProperties": false
-    },
-    "parameters": [
-      {
-        "name": "projectId",
-        "in": "path",
-        "required": true,
-        "schema": {
-          "type": "string",
-          "format": "uuid"
-        }
-      },
-      {
-        "name": "id",
-        "in": "path",
-        "required": true,
-        "schema": {
-          "type": "string",
-          "format": "uuid"
-        }
-      }
-    ],
-    "multipart": false
-  },
-  {
-    "id": "post__projects__projectId_dealers",
-    "path": "/projects/{projectId}/dealers",
-    "method": "post",
-    "summary": "Register dealer project assignment and commission rule",
-    "permission": "dealers.manage",
-    "public": false,
-    "body": {
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "type": "object",
-      "properties": {
-        "name": {
-          "type": "string",
-          "minLength": 2,
-          "maxLength": 200
-        },
-        "phone": {
-          "type": "string",
-          "minLength": 6,
-          "maxLength": 30
-        },
-        "photoId": {
-          "type": "string",
-          "format": "uuid",
-          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
-        },
-        "commissionPercent": {
-          "default": "0",
-          "type": "string",
-          "pattern": "^(0|[1-9]\\d{0,15})(\\.\\d{1,2})?$"
-        }
-      },
-      "required": ["name", "phone", "photoId"],
-      "additionalProperties": false
-    },
-    "parameters": [
-      {
-        "name": "projectId",
-        "in": "path",
-        "required": true,
-        "schema": {
-          "type": "string",
-          "format": "uuid"
-        }
-      }
-    ],
-    "multipart": false
-  },
-  {
-    "id": "get__projects__projectId_dealers",
-    "path": "/projects/{projectId}/dealers",
-    "method": "get",
-    "summary": "List project dealers and commissions",
-    "permission": "dealers.read",
-    "public": false,
-    "parameters": [
-      {
-        "name": "projectId",
-        "in": "path",
-        "required": true,
-        "schema": {
-          "type": "string",
-          "format": "uuid"
-        }
-      },
-      {
-        "name": "page",
-        "in": "query",
-        "required": false,
-        "schema": {
-          "default": 1,
-          "type": "integer",
-          "minimum": 1,
-          "maximum": 9007199254740991
-        }
-      },
-      {
-        "name": "limit",
-        "in": "query",
-        "required": false,
-        "schema": {
-          "default": 25,
-          "type": "integer",
-          "minimum": 1,
-          "maximum": 100
-        }
-      },
-      {
-        "name": "search",
-        "in": "query",
-        "required": false,
-        "schema": {
-          "type": "string",
-          "maxLength": 200
-        }
-      },
-      {
-        "name": "status",
-        "in": "query",
-        "required": false,
-        "schema": {
-          "type": "string",
-          "maxLength": 40
-        }
-      },
-      {
-        "name": "from",
-        "in": "query",
-        "required": false,
-        "schema": {
-          "type": "string",
-          "format": "date",
-          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))$"
-        }
-      },
-      {
-        "name": "to",
-        "in": "query",
-        "required": false,
-        "schema": {
-          "type": "string",
-          "format": "date",
-          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))$"
-        }
-      },
-      {
-        "name": "sort",
-        "in": "query",
-        "required": false,
-        "schema": {
-          "default": "desc",
-          "type": "string",
-          "enum": ["asc", "desc"]
-        }
-      }
-    ],
-    "multipart": false
-  },
-  {
-    "id": "get__projects__projectId_dealers__id",
-    "path": "/projects/{projectId}/dealers/{id}",
-    "method": "get",
-    "summary": "Dealer statement with sales, allocations and commissions",
-    "permission": "dealers.read",
-    "public": false,
-    "parameters": [
-      {
-        "name": "projectId",
-        "in": "path",
-        "required": true,
-        "schema": {
-          "type": "string",
-          "format": "uuid"
-        }
-      },
-      {
-        "name": "id",
-        "in": "path",
-        "required": true,
-        "schema": {
-          "type": "string",
-          "format": "uuid"
-        }
-      }
-    ],
-    "multipart": false
-  },
-  {
-    "id": "post__projects__projectId_dealers__id_allocations",
-    "path": "/projects/{projectId}/dealers/{id}/allocations",
-    "method": "post",
-    "summary": "Assign inventory to dealer without bypassing central reservation rules",
-    "permission": "dealers.manage",
-    "public": false,
-    "body": {
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "type": "object",
-      "properties": {
-        "unitId": {
-          "type": "string",
-          "format": "uuid",
-          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
-        },
-        "expiresAt": {
-          "type": "string",
-          "format": "date-time",
-          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
-        }
-      },
-      "required": ["unitId", "expiresAt"],
+      "required": [
+        "status"
+      ],
       "additionalProperties": false
     },
     "parameters": [
@@ -5952,10 +5501,20 @@
         },
         "type": {
           "type": "string",
-          "enum": ["ASSET", "LIABILITY", "EQUITY", "REVENUE", "EXPENSE"]
+          "enum": [
+            "ASSET",
+            "LIABILITY",
+            "EQUITY",
+            "REVENUE",
+            "EXPENSE"
+          ]
         }
       },
-      "required": ["code", "name", "type"],
+      "required": [
+        "code",
+        "name",
+        "type"
+      ],
       "additionalProperties": false
     },
     "parameters": [
@@ -6013,7 +5572,10 @@
           "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))$"
         }
       },
-      "required": ["startDate", "endDate"],
+      "required": [
+        "startDate",
+        "endDate"
+      ],
       "additionalProperties": false
     },
     "parameters": [
@@ -6059,78 +5621,10 @@
     "multipart": false
   },
   {
-    "id": "post__projects__projectId_journals_requests",
-    "path": "/projects/{projectId}/journals/requests",
-    "method": "post",
-    "summary": "Request approval of a manual balanced journal",
-    "permission": "finance.post",
-    "public": false,
-    "body": {
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "type": "object",
-      "properties": {
-        "description": {
-          "type": "string",
-          "minLength": 3,
-          "maxLength": 1000
-        },
-        "postedAt": {
-          "type": "string",
-          "format": "date-time",
-          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
-        },
-        "lines": {
-          "minItems": 2,
-          "maxItems": 100,
-          "type": "array",
-          "items": {
-            "type": "object",
-            "properties": {
-              "accountId": {
-                "type": "string",
-                "format": "uuid",
-                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
-              },
-              "debit": {
-                "type": "string",
-                "pattern": "^(0|[1-9]\\d{0,15})(\\.\\d{1,2})?$"
-              },
-              "credit": {
-                "type": "string",
-                "pattern": "^(0|[1-9]\\d{0,15})(\\.\\d{1,2})?$"
-              },
-              "vendorId": {
-                "type": "string",
-                "format": "uuid",
-                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
-              }
-            },
-            "required": ["accountId", "debit", "credit"],
-            "additionalProperties": false
-          }
-        }
-      },
-      "required": ["description", "postedAt", "lines"],
-      "additionalProperties": false
-    },
-    "parameters": [
-      {
-        "name": "projectId",
-        "in": "path",
-        "required": true,
-        "schema": {
-          "type": "string",
-          "format": "uuid"
-        }
-      }
-    ],
-    "multipart": false
-  },
-  {
     "id": "post__projects__projectId_journals",
     "path": "/projects/{projectId}/journals",
     "method": "post",
-    "summary": "Post approved manual journal; immutable after posting",
+    "summary": "Post manual journal; immutable after posting",
     "permission": "finance.post",
     "public": false,
     "body": {
@@ -6173,17 +5667,20 @@
                 "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
               }
             },
-            "required": ["accountId", "debit", "credit"],
+            "required": [
+              "accountId",
+              "debit",
+              "credit"
+            ],
             "additionalProperties": false
           }
-        },
-        "approvalId": {
-          "type": "string",
-          "format": "uuid",
-          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
         }
       },
-      "required": ["description", "postedAt", "lines", "approvalId"],
+      "required": [
+        "description",
+        "postedAt",
+        "lines"
+      ],
       "additionalProperties": false
     },
     "parameters": [
@@ -6283,7 +5780,10 @@
         "schema": {
           "default": "desc",
           "type": "string",
-          "enum": ["asc", "desc"]
+          "enum": [
+            "asc",
+            "desc"
+          ]
         }
       }
     ],
@@ -6306,7 +5806,9 @@
           "maxLength": 1000
         }
       },
-      "required": ["reason"],
+      "required": [
+        "reason"
+      ],
       "additionalProperties": false
     },
     "parameters": [
@@ -6321,97 +5823,6 @@
       },
       {
         "name": "id",
-        "in": "path",
-        "required": true,
-        "schema": {
-          "type": "string",
-          "format": "uuid"
-        }
-      }
-    ],
-    "multipart": false
-  },
-  {
-    "id": "get__projects__projectId_settings",
-    "path": "/projects/{projectId}/settings",
-    "method": "get",
-    "summary": "Read project configuration",
-    "permission": "settings.manage",
-    "public": false,
-    "parameters": [
-      {
-        "name": "projectId",
-        "in": "path",
-        "required": true,
-        "schema": {
-          "type": "string",
-          "format": "uuid"
-        }
-      }
-    ],
-    "multipart": false
-  },
-  {
-    "id": "post__projects__projectId_settings_accounting",
-    "path": "/projects/{projectId}/settings/accounting",
-    "method": "post",
-    "summary": "Configure account mappings for operational events",
-    "permission": "settings.manage",
-    "public": false,
-    "body": {
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "type": "object",
-      "properties": {
-        "cash": {
-          "type": "string",
-          "format": "uuid",
-          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
-        },
-        "advances": {
-          "type": "string",
-          "format": "uuid",
-          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
-        },
-        "dealerPayable": {
-          "type": "string",
-          "format": "uuid",
-          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
-        },
-        "deductions": {
-          "type": "string",
-          "format": "uuid",
-          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
-        },
-        "transferRevenue": {
-          "type": "string",
-          "format": "uuid",
-          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
-        },
-        "commissionExpense": {
-          "type": "string",
-          "format": "uuid",
-          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
-        },
-        "dealerRecoverable": {
-          "type": "string",
-          "format": "uuid",
-          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
-        }
-      },
-      "required": [
-        "cash",
-        "advances",
-        "dealerPayable",
-        "deductions",
-        "transferRevenue",
-        "commissionExpense",
-        "dealerRecoverable"
-      ],
-      "additionalProperties": false
-    },
-    "parameters": [
-      {
-        "name": "projectId",
         "in": "path",
         "required": true,
         "schema": {
@@ -6449,7 +5860,11 @@
           "maxLength": 40
         }
       },
-      "required": ["accountId", "name", "iban"],
+      "required": [
+        "accountId",
+        "name",
+        "iban"
+      ],
       "additionalProperties": false
     },
     "parameters": [
@@ -6512,7 +5927,11 @@
           "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))$"
         }
       },
-      "required": ["journalLineId", "statementReference", "statementDate"],
+      "required": [
+        "journalLineId",
+        "statementReference",
+        "statementDate"
+      ],
       "additionalProperties": false
     },
     "parameters": [
@@ -6559,7 +5978,10 @@
           "maxLength": 30
         }
       },
-      "required": ["name", "phone"],
+      "required": [
+        "name",
+        "phone"
+      ],
       "additionalProperties": false
     },
     "parameters": [
@@ -6621,7 +6043,10 @@
         "schema": {
           "default": "desc",
           "type": "string",
-          "enum": ["asc", "desc"]
+          "enum": [
+            "asc",
+            "desc"
+          ]
         }
       },
       {
@@ -6720,7 +6145,10 @@
         "schema": {
           "default": "desc",
           "type": "string",
-          "enum": ["asc", "desc"]
+          "enum": [
+            "asc",
+            "desc"
+          ]
         }
       }
     ],
@@ -6758,7 +6186,10 @@
           "format": "binary"
         }
       },
-      "required": ["name", "file"],
+      "required": [
+        "name",
+        "file"
+      ],
       "additionalProperties": false
     },
     "parameters": [
@@ -6858,7 +6289,10 @@
         "schema": {
           "default": "desc",
           "type": "string",
-          "enum": ["asc", "desc"]
+          "enum": [
+            "asc",
+            "desc"
+          ]
         }
       },
       {
@@ -6935,7 +6369,10 @@
           "maxLength": 20000
         }
       },
-      "required": ["name", "body"],
+      "required": [
+        "name",
+        "body"
+      ],
       "additionalProperties": false
     },
     "parameters": [
@@ -6997,7 +6434,10 @@
         "schema": {
           "default": "desc",
           "type": "string",
-          "enum": ["asc", "desc"]
+          "enum": [
+            "asc",
+            "desc"
+          ]
         }
       },
       {
@@ -7029,7 +6469,9 @@
           "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
         }
       },
-      "required": ["bookingId"],
+      "required": [
+        "bookingId"
+      ],
       "additionalProperties": false
     },
     "parameters": [
@@ -7114,7 +6556,6 @@
             "outstanding",
             "ageing",
             "customer-statement",
-            "dealers",
             "cancellations",
             "refunds",
             "ndcs",
@@ -7236,7 +6677,6 @@
                 "outstanding",
                 "ageing",
                 "customer-statement",
-                "dealers",
                 "cancellations",
                 "refunds",
                 "ndcs",
@@ -7291,15 +6731,23 @@
               "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
             }
           },
-          "required": ["kind"],
+          "required": [
+            "kind"
+          ],
           "additionalProperties": false
         },
         "format": {
           "type": "string",
-          "enum": ["xlsx", "pdf"]
+          "enum": [
+            "xlsx",
+            "pdf"
+          ]
         }
       },
-      "required": ["report", "format"],
+      "required": [
+        "report",
+        "format"
+      ],
       "additionalProperties": false
     },
     "parameters": [
@@ -7447,7 +6895,10 @@
         "schema": {
           "default": "desc",
           "type": "string",
-          "enum": ["asc", "desc"]
+          "enum": [
+            "asc",
+            "desc"
+          ]
         }
       }
     ],

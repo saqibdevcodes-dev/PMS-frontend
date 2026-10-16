@@ -386,7 +386,7 @@ test('adding a customer from a booking supports photo and portal login and selec
 }) => {
   const { writes } = await setup(page);
   await page.goto('/bookings/new');
-  await page.getByRole('button', { name: 'Add a new customer' }).click();
+  await page.getByRole('button', { name: 'Add customer', exact: true }).click();
   const dialog = page.getByRole('dialog');
   await fillCustomer(dialog);
   await dialog.getByLabel('Customer photo', { exact: true }).setInputFiles(photo);
@@ -396,8 +396,8 @@ test('adding a customer from a booking supports photo and portal login and selec
   await dialog.getByRole('button', { name: 'Review changes' }).click();
   await dialog.getByRole('button', { name: 'Confirm & submit' }).click();
   await expect(dialog).toHaveCount(0);
-  await expect(page.getByLabel('Customer *', { exact: true })).toContainText('New Buyer');
-  await page.getByLabel('Customer *', { exact: true }).click();
+  await expect(page.getByLabel('Customer', { exact: true })).toContainText('New Buyer');
+  await page.getByLabel('Customer', { exact: true }).click();
   await expect(page.locator(`[role="option"][data-value="${id(30)}"]`)).toHaveAttribute(
     'aria-selected',
     'true',

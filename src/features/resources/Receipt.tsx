@@ -22,7 +22,7 @@ export function Receipt({ id, onClose }: { id: string; onClose: () => void }) {
       open
       onOpenChange={(v) => !v && onClose()}
       title={t('Payment receipt')}
-      description={t('An authoritative record of the server-issued receipt.')}
+      description={t('Payment receipt issued after verification.')}
     >
       <div className="modal-body printable-receipt">
         {receipt.isLoading ? (
@@ -35,7 +35,7 @@ export function Receipt({ id, onClose }: { id: string; onClose: () => void }) {
               <ShieldCheck size={30} />
               <div>
                 <h2>{projectName}</h2>
-                <p>{String(receipt.data?.reference ?? id)}</p>
+                <p>{String(receipt.data?.reference ?? 'Receipt')}</p>
               </div>
               <Badge
                 value={receipt.data?.status ?? (receipt.data?.reversedAt ? 'REVERSED' : 'ISSUED')}
@@ -52,12 +52,14 @@ export function Receipt({ id, onClose }: { id: string; onClose: () => void }) {
                 <dd>{date(payment.paidAt)}</dd>
               </div>
               <div>
-                <dt>{t('Booking reference ID')}</dt>
-                <dd className="record-id">{String(payment.bookingId)}</dd>
+                <dt>{t('Booking number')}</dt>
+                <dd className="record-id">{String(row(payment.booking).reference ?? '\u2014')}</dd>
               </div>
               <div>
-                <dt>{t('Payment reference ID')}</dt>
-                <dd className="record-id">{String(payment.id)}</dd>
+                <dt>{t('Customer')}</dt>
+                <dd className="record-id">
+                  {String(row(row(payment.booking).customer).name ?? '\u2014')}
+                </dd>
               </div>
               <div>
                 <dt>{t('Issued on')}</dt>

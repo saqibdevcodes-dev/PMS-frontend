@@ -23,7 +23,7 @@ export async function confirmDiscard() {
     !(await confirmAction({
       title: 'Discard unsaved changes?',
       description:
-        'Your changes have not been saved. Any reserved property stays on hold until it is cancelled or expires.',
+        'Your changes have not been saved. Keep editing to save them, or discard them to close this form.',
     }))
   )
     return false;

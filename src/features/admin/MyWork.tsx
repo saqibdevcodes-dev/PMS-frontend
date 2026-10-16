@@ -16,19 +16,11 @@ export default function MyWork() {
   const navigate = useNavigate();
   const groups = [
     {
-      name: 'Assigned leads',
-      path: 'leads',
-      slug: 'crm',
-      permission: 'crm.read',
-      columns: ['name', 'phone', 'status'],
-      params: '&assignedTo=' + user.id,
-    },
-    {
       name: 'Recovery cases',
       path: 'recovery-cases',
       slug: 'recovery',
       permission: 'recovery.manage',
-      columns: ['bookingId', 'status', 'createdAt'],
+      columns: ['booking', 'status', 'createdAt'],
       params: '&assignedTo=' + user.id,
     },
     {
@@ -36,16 +28,8 @@ export default function MyWork() {
       path: 'payments',
       slug: 'collections',
       permission: 'payments.verify',
-      columns: ['bookingId', 'amount', 'method', 'status'],
+      columns: ['booking', 'amount', 'method', 'status'],
       params: '&status=PENDING',
-    },
-    {
-      name: 'Approval inbox',
-      path: 'approvals',
-      slug: 'approvals',
-      permission: 'approvals.read',
-      columns: ['operation', 'amount', 'status'],
-      params: '',
     },
   ].filter((g) => can(g.permission));
   const queries = useQueries({
@@ -66,9 +50,7 @@ export default function MyWork() {
       />
       <div className="my-work-grid">
         {groups.map((group, i) => {
-          let records = asRows(queries[i]?.data);
-          if (group.path === 'approvals')
-            records = records.filter((r) => r.status === 'PENDING' && r.requestedBy !== user.id);
+          const records = asRows(queries[i]?.data);
           return (
             <section className="panel" key={group.path}>
               <div className="panel-heading">

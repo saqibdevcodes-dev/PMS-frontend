@@ -10,12 +10,13 @@ import {
 } from '@tanstack/react-table';
 import { Building2, Columns3, ChevronLeft, ChevronRight, ArrowUpRight, Copy } from 'lucide-react';
 import { toast } from 'sonner';
-import { date, humanize, labelOf, money, moneyFields, shortId } from '../lib/format';
+import { date, humanize, labelOf, money, moneyFields } from '../lib/format';
 import { type Row, asRows, row } from '../lib/types';
 import { RecordImage } from './ImageUpload';
 import { Select } from './Select';
 import { Badge, Button, EmptyState, Skeleton } from './ui';
 import { usePreferences } from '../stores/preferences';
+import { VerificationSummary } from './OwnershipVerification';
 export function DisplayValue({
   name,
   value,
@@ -28,6 +29,7 @@ export function DisplayValue({
   useLocale();
   if (value === null || value === undefined || value === '')
     return <span className="muted">—</span>;
+  if (name === 'verification') return <VerificationSummary value={value} />;
   if (name === 'photoId' || name === 'proofImageId' || name === 'imageId')
     return <RecordImage id={String(value)} />;
   if (name === 'photoIds' && Array.isArray(value))
@@ -42,12 +44,12 @@ export function DisplayValue({
   if (moneyFields.test(name)) return <span className="numeric">{money(value, currency)}</span>;
   if (/At$|Date$/.test(name)) return <span className="nowrap">{date(value)}</span>;
   if (name === 'identityLast4') return <span className="numeric">•••• {String(value)}</span>;
-  if (name === 'id' || /Id$/.test(name))
-    return (
-      <span className="record-id" title={String(value)}>
-        {shortId(value)}
-      </span>
-    );
+  if (
+    name === 'id' ||
+    /Id$/.test(name) ||
+    (typeof value === 'string' && /^[0-9a-f]{8}-[0-9a-f-]{27}$/i.test(value))
+  )
+    return <span>&mdash;</span>;
   if (name === 'roles')
     return (
       <span>
@@ -64,7 +66,13 @@ export function DisplayValue({
       </span>
     );
   if (typeof value === 'object') return <span>{labelOf(row(value))}</span>;
-  if (name === 'type' || name === 'operation' || name === 'method' || name === 'source')
+  if (
+    name === 'paymentType' ||
+    name === 'type' ||
+    name === 'operation' ||
+    name === 'method' ||
+    name === 'source'
+  )
     return <span>{humanize(String(value))}</span>;
   return <span>{String(value)}</span>;
 }
@@ -84,6 +92,8 @@ export function DataTable({
   directory = false,
   imageIdentity,
   onLimit,
+  renderCell,
+  columnLabels,
 }: {
   data: Row[];
   columns: string[];
@@ -100,6 +110,8 @@ export function DataTable({
   directory?: boolean;
   imageIdentity?: 'name' | 'number';
   onLimit?: (limit: number) => void;
+  renderCell?: (column: string, record: Row) => ReactNode | undefined;
+  columnLabels?: Record<string, string>;
 }) {
   const language = useLocale();
   const [visibility, setVisibility] = useState<VisibilityState>({});
@@ -131,81 +143,96 @@ export function DataTable({
             } satisfies ColumnDef<Row>,
           ]
         : []),
-      ...columns.map(
-        (key, index) =>
-          ({
-            accessorKey: key,
-            header:
-              directory && key === 'name'
-                ? t('Full name')
-                : directory && key === 'createdAt'
-                  ? t('Joined date')
-                  : humanize(key),
-            cell: ({ row: r, getValue }) =>
-              imageIdentity === key ? (
-                <div className="resource-identity">
-                  <span className="resource-thumbnail" aria-hidden="true">
-                    <RecordImage
-                      id={String(
-                        (Array.isArray(r.original.photoIds) ? r.original.photoIds[0] : undefined) ||
-                          r.original.photoId ||
-                          '',
+      ...columns
+        .filter(
+          (k) =>
+            k !== 'updatedAt' &&
+            k !== 'id' &&
+            (!/Ids?$/.test(k) || /^(photoId|photoIds|proofImageId|imageId)$/.test(k)),
+        )
+        .map(
+          (key, index) =>
+            ({
+              accessorKey: key,
+              header: columnLabels?.[key]
+                ? t(columnLabels[key])
+                : directory && key === 'name'
+                  ? t('Full name')
+                  : directory && key === 'createdAt'
+                    ? t('Creation Time')
+                    : humanize(key),
+              cell: ({ row: r, getValue }) =>
+                renderCell?.(key, r.original) ??
+                (imageIdentity === key ? (
+                  <div className="resource-identity">
+                    <span className="resource-thumbnail" aria-hidden="true">
+                      <RecordImage
+                        id={String(
+                          (Array.isArray(r.original.photoIds)
+                            ? r.original.photoIds[0]
+                            : undefined) ||
+                            r.original.photoId ||
+                            '',
+                        )}
+                        alt={labelOf(r.original)}
+                        fallback={<Building2 size={20} />}
+                      />
+                      {Array.isArray(r.original.photoIds) && r.original.photoIds.length > 1 && (
+                        <span className="photo-count">{r.original.photoIds.length}</span>
                       )}
-                      alt={labelOf(r.original)}
-                      fallback={<Building2 size={20} />}
-                    />
-                    {Array.isArray(r.original.photoIds) && r.original.photoIds.length > 1 && (
-                      <span className="photo-count">{r.original.photoIds.length}</span>
-                    )}
-                  </span>
-                  <div className="resource-identity-text">
-                    <button className="record-link" onClick={() => onRow?.(r.original)}>
-                      <span>{String(getValue())}</span>
-                      <ArrowUpRight size={13} />
-                    </button>
-                    <small>
-                      {imageIdentity === 'name'
-                        ? String(r.original.code ?? '')
-                        : humanize(String(r.original.type ?? ''))}
-                    </small>
+                    </span>
+                    <div className="resource-identity-text">
+                      <button className="record-link" onClick={() => onRow?.(r.original)}>
+                        <span>{String(getValue())}</span>
+                        <ArrowUpRight size={13} />
+                      </button>
+                      <small>
+                        {imageIdentity === 'name'
+                          ? String(r.original.code ?? '')
+                          : humanize(String(r.original.type ?? ''))}
+                      </small>
+                    </div>
                   </div>
-                </div>
-              ) : directory && key === 'name' ? (
-                <div className="customer-identity">
-                  <span className="customer-avatar" aria-hidden="true">
-                    <RecordImage
-                      id={r.original.photoId ? String(r.original.photoId) : undefined}
-                      alt={labelOf(r.original)}
-                      fallback={labelOf(r.original)
-                        .split(/\s+/)
-                        .slice(0, 2)
-                        .map((part) => part[0])
-                        .join('')
-                        .toUpperCase()}
-                    />
-                  </span>
-                  <div>
-                    <button className="record-link" onClick={() => onRow?.(r.original)}>
-                      {String(getValue())}
-                    </button>
-                    <small>{String(r.original.reference ?? '')}</small>
+                ) : directory && key === 'name' ? (
+                  <div className="customer-identity">
+                    <span className="customer-avatar" aria-hidden="true">
+                      <RecordImage
+                        id={r.original.photoId ? String(r.original.photoId) : undefined}
+                        alt={labelOf(r.original)}
+                        fallback={labelOf(r.original)
+                          .split(/\s+/)
+                          .slice(0, 2)
+                          .map((part) => part[0])
+                          .join('')
+                          .toUpperCase()}
+                      />
+                    </span>
+                    <div>
+                      <button className="record-link" onClick={() => onRow?.(r.original)}>
+                        {String(getValue())}
+                      </button>
+                      <small>{String(r.original.reference ?? '')}</small>
+                    </div>
                   </div>
-                </div>
-              ) : index === 0 && onRow ? (
-                <button className="record-link" onClick={() => onRow(r.original)}>
+                ) : index === 0 && onRow ? (
+                  <button className="record-link" onClick={() => onRow(r.original)}>
+                    <DisplayValue name={key} value={getValue()} currency={currency} />
+                    <ArrowUpRight size={13} />
+                  </button>
+                ) : (
                   <DisplayValue name={key} value={getValue()} currency={currency} />
-                  <ArrowUpRight size={13} />
-                </button>
-              ) : (
-                <DisplayValue name={key} value={getValue()} currency={currency} />
-              ),
-          }) satisfies ColumnDef<Row>,
-      ),
+                )),
+            }) satisfies ColumnDef<Row>,
+        ),
       ...(actions
         ? [
             {
               id: 'actions',
-              header: directory ? t('Actions') : '',
+              header: columnLabels?.actions
+                ? t(columnLabels.actions)
+                : directory
+                  ? t('Actions')
+                  : '',
               cell: ({ row: r }) => actions(r.original),
               enableHiding: false,
             } satisfies ColumnDef<Row>,
@@ -214,7 +241,18 @@ export function DataTable({
     ],
     // humanize reads the active locale, so headers must be rebuilt when it changes.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [columns, controls, onRow, actions, currency, language, directory, imageIdentity],
+    [
+      columns,
+      controls,
+      onRow,
+      actions,
+      currency,
+      language,
+      directory,
+      imageIdentity,
+      renderCell,
+      columnLabels,
+    ],
   );
   const table = useReactTable({
     data,
@@ -248,9 +286,7 @@ export function DataTable({
                   await navigator.clipboard.writeText(
                     table
                       .getSelectedRowModel()
-                      .rows.map((r) =>
-                        String(r.original.reference ?? r.original.id ?? labelOf(r.original)),
-                      )
+                      .rows.map((r) => String(r.original.reference ?? labelOf(r.original)))
                       .join('\n'),
                   );
                   toast.success(t('Selected references copied'));
@@ -277,7 +313,7 @@ export function DataTable({
                       checked={column.getIsVisible()}
                       onChange={column.getToggleVisibilityHandler()}
                     />
-                    {humanize(column.id)}
+                    {columnLabels?.[column.id] ? t(columnLabels[column.id]) : humanize(column.id)}
                   </label>
                 ))}
             </div>
@@ -302,7 +338,7 @@ export function DataTable({
               {table.getHeaderGroups().map((group) => (
                 <tr key={group.id}>
                   {group.headers.map((header) => (
-                    <th key={header.id}>
+                    <th key={header.id} scope="col" data-column={header.column.id}>
                       {header.isPlaceholder
                         ? null
                         : flexRender(header.column.columnDef.header, header.getContext())}
@@ -315,7 +351,7 @@ export function DataTable({
               {table.getRowModel().rows.map((r) => (
                 <tr key={r.id} data-selected={r.getIsSelected()}>
                   {r.getVisibleCells().map((cell) => (
-                    <td key={cell.id}>
+                    <td key={cell.id} data-column={cell.column.id}>
                       {flexRender(cell.column.columnDef.cell, cell.getContext())}
                     </td>
                   ))}
@@ -347,8 +383,7 @@ export function DataTable({
               </label>
             )}
             <span>
-              {t('Showing')} {Math.min((page - 1) * limit + 1, totalRows)}–
-              {Math.min(page * limit, totalRows)} {t('of')} {totalRows.toLocaleString()}
+              {t('Showing')} {page.toLocaleString()} {t('of')} {totalPages.toLocaleString()}
             </span>
           </div>
           <div>

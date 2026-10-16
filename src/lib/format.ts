@@ -4,6 +4,11 @@ import { permissionLabel } from './permission-label';
 import Decimal from 'decimal.js';
 import { usePreferences } from '../stores/preferences';
 export function humanize(value: string) {
+  if (value === 'FULL_PAYMENT') return t('Full Payment');
+  if (value === 'INSTALLMENTS') return t('Installment Plan');
+  if (value === 'createdAt') return t('Creation Time');
+  if (value === 'APPROVED') return t('Ready');
+  if (value === 'RESERVED') return t('Unavailable');
   if (/^[a-z]+\.[a-z_.]+$/.test(value)) return permissionLabel(value);
   if (fieldLabels[value] && !['name', 'type', 'amount', 'code'].includes(value))
     return t(fieldLabels[value]);
@@ -56,8 +61,7 @@ export function calendarDay(value: Date, timezone = usePreferences.getState().ti
     .map((name) => parts.find((p) => p.type === name)!.value)
     .join('-');
 }
-export const shortId = (id: unknown) =>
-  typeof id === 'string' ? id.slice(0, 8).toUpperCase() : '—';
+export const shortId = (id: unknown) => (typeof id === 'string' ? t('Selected record') : '—');
 export const labelOf = (record: Record<string, unknown>) =>
   String(
     record.name ??
@@ -65,7 +69,10 @@ export const labelOf = (record: Record<string, unknown>) =>
       record.number ??
       record.title ??
       record.code ??
-      shortId(record.id),
+      (record.booking && typeof record.booking === 'object'
+        ? (record.booking as Record<string, unknown>).reference
+        : undefined) ??
+      t('Record'),
   );
 export const moneyFields =
   /^(price|charges|amount|total|discount|deduction|refundable|debit|credit|balance|paid|outstanding|overdue|collected|unallocated|downPayment|netSales|verifiedCollections|commission|promiseAmount|netIncome|assets|liabilities|equity)$/i;

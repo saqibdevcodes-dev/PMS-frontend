@@ -147,7 +147,7 @@ export default function Profile({
       {platform.mobile && (
         <section className="panel preferences-card">
           <h2>{t('Device notifications')}</h2>
-          <p>{t('Receive project reminders and approval notifications on this device.')}</p>
+          <p>{t('Receive project reminders and payment notifications on this device.')}</p>
           <Button busy={push.isPending} onClick={() => push.mutate()}>
             {t('Enable push notifications')}
           </Button>

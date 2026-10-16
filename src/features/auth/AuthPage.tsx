@@ -18,7 +18,6 @@ export default function AuthPage() {
   useLocale();
   const user = useAuth((s) => s.user);
   const location = useLocation();
-  const customerLogin = location.pathname.startsWith('/portal');
   const mode = location.pathname.includes('forgot')
     ? 'forgot'
     : location.pathname.includes('reset')
@@ -34,45 +33,45 @@ export default function AuthPage() {
   return (
     <div className="auth-page">
       <aside className="auth-story">
-        <Link to="/login" className="brand" aria-label="Etihad Real Estate">
-          <BrandLogo background="dark" className="auth-logo-full" decorative />
-        </Link>
-        <div className="auth-copy">
-          <div className="eyebrow">
-            {customerLogin
-              ? t('YOUR PROPERTY ACCOUNT, CONNECTED')
-              : t('YOUR PROPERTY OPERATIONS, CONNECTED')}
-          </div>
-          <h1>
-            {t('Big picture.')}
-            <br />
-            {t('Every detail.')}
-          </h1>
-          <p>
-            {customerLogin
-              ? t(
-                  'Your properties, payment schedule, receipts, and important documents. All in one secure place.',
-                )
-              : t(
-                  'A clearer way to manage properties, build customer relationships, and keep your business moving.',
-                )}
-          </p>
+        <div className="auth-story-bg" aria-hidden="true">
+          <img
+            src="/login-hero.jpg"
+            alt=""
+            className="auth-hero-img"
+          />
+          <div className="auth-story-overlay" />
         </div>
-        <div className="architecture-art" aria-hidden="true">
-          <div className="art-grid" />
-          <div className="art-building building-one" />
-          <div className="art-building building-two" />
-          <div className="art-building building-three" />
-          <div className="art-caption">
-            <span className="live-dot" />
-            {t('One connected workspace')}
-            <ArrowUpRight size={18} />
+        <div className="auth-story-content">
+          <Link to="/login" className="brand" aria-label="Etihad Real Estate">
+            <BrandLogo background="dark" className="auth-logo-full" decorative />
+          </Link>
+          <div className="auth-copy">
+            <div className="eyebrow">
+              {t('YOUR PROPERTY OPERATIONS, CONNECTED')}
+            </div>
+            <h1>
+              {t('Big picture.')}
+              <br />
+              {t('Every detail.')}
+            </h1>
+            <p>
+              {t(
+                'A clearer way to manage properties, build customer relationships, and keep your business moving.',
+              )}
+            </p>
           </div>
+          <div className="auth-story-feature" aria-hidden="true">
+            <div className="auth-feature-pill">
+              <span className="live-dot" />
+              <span>{t('One connected workspace')}</span>
+              <ArrowUpRight size={16} />
+            </div>
+          </div>
+          <footer>
+            <span>{t('Built for the way property teams work.')}</span>
+            <span>{t('WEB · DESKTOP · MOBILE')}</span>
+          </footer>
         </div>
-        <footer>
-          <span>{t('Built for the way property teams work.')}</span>
-          <span>{t('WEB · DESKTOP · MOBILE')}</span>
-        </footer>
       </aside>
       <main className="auth-main">
         <Link to="/login" className="auth-mobile-logo" aria-label="Etihad Real Estate">
@@ -84,7 +83,7 @@ export default function AuthPage() {
         </div>
         <div className="auth-form">
           <span className="auth-welcome">
-            {customerLogin ? t('YOUR CUSTOMER PORTAL') : t('YOUR WORKSPACE AWAITS')}
+            {t('YOUR WORKSPACE AWAITS')}
           </span>
           <h2>
             {mode === 'login'
@@ -162,12 +161,9 @@ export default function AuthPage() {
               </div>
               {Boolean(error) && <ErrorState error={error} />}
               <Button type="submit" className="auth-submit" busy={busy}>
-                {customerLogin ? t('Sign in to customer portal') : t('Sign in to workspace')}
+                {t('Sign in to workspace')}
                 <ArrowRight size={17} />
               </Button>
-              <Link className="text-link" to={customerLogin ? '/login' : '/portal/login'}>
-                {customerLogin ? t('Staff sign in') : t('Customer portal sign in')}
-              </Link>
             </form>
           ) : (
             <form

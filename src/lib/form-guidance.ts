@@ -1,4 +1,12 @@
+import { ownershipLabels, ownershipHelp } from './ownership';
 export const fieldLabels: Record<string, string> = {
+  ...ownershipLabels,
+  createdAt: 'Creation Time',
+  location: 'Location',
+  paymentType: 'Payment type',
+  installmentCount: 'Number of installments',
+  intervalMonths: 'Months between payments',
+  firstInstallmentDate: 'First installment date',
   name: 'Name',
   code: 'Project code',
   number: 'Property number',
@@ -21,31 +29,38 @@ export const fieldLabels: Record<string, string> = {
   paidAt: 'Payment date and time',
   roleIds: 'Roles and responsibilities',
   projectIds: 'Projects this person can access',
-  source: 'How did the lead find us?',
   identity: 'National ID or passport number',
   identityLast4: 'ID ending in',
-  reservationMinutes: 'Property hold duration (minutes)',
   downPaymentPercent: 'Minimum down payment (%)',
-  graceDays: 'Extra days allowed before overdue',
   ndcValidityDays: 'Clearance certificate validity (days)',
   customerId: 'Customer',
   buyerId: 'New owner',
   unitId: 'Property',
   bookingId: 'Booking',
-  planVersionId: 'Payment schedule',
-  dealerId: 'Dealer',
-  assignedTo: 'Responsible team member',
-  commissionPercent: 'Dealer commission (%)',
+  assignedTo: 'Responsible employee',
   communicationConsent: 'Customer agrees to receive messages',
   amount: 'Payment amount',
   phone: 'Phone number',
   email: 'Email address',
 };
 export const fieldHelp: Record<string, [string, string]> = {
+  ...ownershipHelp,
   name: ['e.g. Ahmed Ali', 'Enter the full name as it should appear on records.'],
   code: [
     'e.g. GARDEN-HOMES',
     'Generated from the project name. You can edit it: use 2–20 capital letters, numbers or hyphens. The code must be unique.',
+  ],
+  location: [
+    'e.g. DHA Phase 5, Lahore',
+    'Enter the city, address or area where the project is located.',
+  ],
+  description: [
+    'Describe this project',
+    'Tell customers and staff what makes this development useful.',
+  ],
+  downPaymentPercent: [
+    'e.g. 20',
+    'The minimum percentage paid upfront for installment bookings. Full payment is exempt.',
   ],
   currency: ['Choose a currency', 'Used for prices, payments and reports in this project.'],
   timezone: ['Choose a timezone', 'Used for project dates, deadlines and reports.'],
@@ -69,7 +84,6 @@ export const fieldHelp: Record<string, [string, string]> = {
   phone: ['e.g. +92 300 1234567', 'Include the country code so the person can be contacted.'],
   email: ['e.g. name@example.com', 'Use an email address that belongs to this person.'],
   address: ['e.g. House 12, Street 4, Lahore', 'Enter the house, street, city and country.'],
-  source: ['e.g. Website, referral or site visit', 'Tell us where this enquiry came from.'],
   notes: [
     'Add useful details about this enquiry',
     'Include the preferred property, budget, follow-up date or discussion notes.',
@@ -97,7 +111,6 @@ export const fieldHelp: Record<string, [string, string]> = {
     'Choose a proof image',
     'A receipt, transfer screenshot, cheque or deposit slip is required for every payment method except cash.',
   ],
-  commissionPercent: ['e.g. 2.50', 'The percentage of the booking value agreed with this dealer.'],
   phase: ['e.g. Phase 1', 'The development phase, if this project uses phases.'],
   block: ['e.g. Block A', 'The block or section containing this property.'],
   floor: ['e.g. Ground floor or 3', 'The floor of the building, if applicable.'],
@@ -148,7 +161,6 @@ export const featureOptions = [
 export function imagePurpose(path: string) {
   if (/\/customers(?:\/|$)/.test(path)) return 'CUSTOMER';
   if (path === '/users') return 'USER';
-  if (/\/dealers$/.test(path)) return 'DEALER';
   if (/\/units(?:\/|$)/.test(path)) return 'UNIT';
   return 'PROJECT';
 }
@@ -156,12 +168,11 @@ export const roleDescriptions: Record<string, string> = {
   'Super Admin':
     'Full administration of users, roles, project records and settings. Assign only to trusted administrators.',
   Management:
-    'Reviews project performance and approves bookings, discounts, ownership changes and refunds.',
+    'Reviews project performance and confirms bookings, discounts, ownership changes and refunds.',
   'Project Manager':
-    'Manages project settings and properties, and approves bookings and property handovers.',
-  'Sales Manager':
-    'Manages leads, customers, property reservations, bookings and payment schedules.',
-  'Sales Executive': 'Follows up leads, adds customers, reserves properties and prepares bookings.',
+    'Manages project settings and properties, and confirms bookings and property handovers.',
+  'Sales Manager': 'Manages customers, bookings and payment schedules.',
+  'Sales Executive': 'Adds customers and prepares bookings.',
   'Finance Manager':
     'Records and verifies payments, manages accounting entries and reviews refunds.',
   'Finance Officer':
@@ -169,6 +180,5 @@ export const roleDescriptions: Record<string, string> = {
   'Recovery Officer': 'Tracks overdue installments and follows up outstanding customer payments.',
   'Customer Service':
     'Updates customer details, manages documents and prepares property handovers.',
-  'Dealer Coordinator': 'Manages dealers, their property allocations and commission arrangements.',
   Auditor: 'Views records and reports for review without changing them.',
 };

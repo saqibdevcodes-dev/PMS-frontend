@@ -23,7 +23,9 @@ import { ImageUpload } from './ImageUpload';
 import { ImageGalleryUpload } from './ImageGalleryUpload';
 import { FeatureEditor } from './FeatureEditor';
 import { useAuth } from '../stores/auth';
-import { currencies, timezones, projectCode } from '../lib/project-options';
+import { currencies, timezones } from '../lib/project-options';
+import { verificationErrors } from '../lib/ownership';
+import { OwnershipGuide } from './OwnershipVerification';
 const Guidance = createContext({ path: '', uploading: (_key: string, _busy: boolean) => {} });
 function messageAt(errors: FieldErrors, path: string) {
   let current: unknown = errors;
@@ -64,6 +66,8 @@ export function SchemaField({
       : guidanceFor(fieldKey, guidance.path);
   const fieldLabel = t(
     label ??
+      (fieldKey === 'charges' && guidance.path.includes('/transfers') ? 'Transfer fee' : undefined) ??
+      (fieldKey === 'features' && !propertyForm ? 'Project features' : undefined) ??
       (fieldKey === 'photoId' && /\/customers(?:\/|$)/.test(guidance.path)
         ? 'Customer photo'
         : undefined) ??
@@ -81,10 +85,16 @@ export function SchemaField({
   const placeholder = hint ? t(hint[0]) : t('Enter {field}', { field: fieldLabel });
   const method = form.watch('method');
   const propertyType = form.watch('type');
+  const clearanceStatus = form.watch('verification.clearanceStatus');
   const error = messageAt(form.formState.errors, name);
   const id = 'field-' + name;
   if (
+    fieldKey === 'receivingAccountId' ||
     fieldKey === 'featureImages' ||
+    (name.startsWith('verification.') &&
+      (((fieldKey === 'clearanceReference' || fieldKey === 'clearanceValidUntil') &&
+        clearanceStatus !== 'VERIFIED') ||
+        (fieldKey === 'clearanceReason' && clearanceStatus !== 'NOT_REQUIRED'))) ||
     (fieldKey === 'typeDetails' && propertyType !== 'OTHER') ||
     (fieldKey === 'methodDetails' && method !== 'OTHER')
   )
@@ -140,11 +150,23 @@ export function SchemaField({
       />
     );
   if (fieldKey === 'features')
-    return <FeatureEditor name={name} disabled={disabled} onBusy={guidance.uploading} />;
+    return (
+      <FeatureEditor
+        purpose={propertyForm ? 'FEATURE' : 'PROJECT'}
+        name={name}
+        disabled={disabled}
+        onBusy={guidance.uploading}
+      />
+    );
   if (type === 'object')
     return (
-      <fieldset className="form-section">
+      <fieldset
+        className={'form-section' + (fieldKey === 'verification' ? ' verification-fields' : '')}
+      >
         <legend>{fieldLabel}</legend>
+        {fieldKey === 'verification' && (
+          <OwnershipGuide compact possession={guidance.path.includes('/possessions')} />
+        )}
         <div className="form-grid">
           {Object.entries(schema.properties ?? {}).map(([key, child]) => (
             <SchemaField
@@ -276,6 +298,8 @@ export function SchemaField({
                 type="checkbox"
                 checked={Boolean(field.value)}
                 onChange={(e) => field.onChange(e.target.checked)}
+                aria-describedby={hint ? id + '-help' : undefined}
+                aria-invalid={!!error}
                 disabled={disabled}
               />
             );
@@ -285,6 +309,16 @@ export function SchemaField({
                 {...field}
                 onChange={(value) => {
                   field.onChange(value);
+                  if (fieldKey === 'clearanceStatus') {
+                    for (const key of [
+                      'clearanceReference',
+                      'clearanceValidUntil',
+                      'clearanceReason',
+                    ]) {
+                      form.setValue('verification.' + key, undefined);
+                      form.clearErrors('verification.' + key);
+                    }
+                  }
                   if (value !== 'OTHER') {
                     if (fieldKey === 'type' && propertyForm)
                       form.setValue('typeDetails', undefined);
@@ -310,6 +344,12 @@ export function SchemaField({
                 value={String(field.value ?? '')}
                 onChange={field.onChange}
                 entityId={entityId}
+                statusFilter={
+                  fieldKey === 'bookingId' &&
+                  /\/(transfers|possessions)(?:\/|$)/.test(guidance.path)
+                    ? 'CONFIRMED'
+                    : undefined
+                }
                 disabled={disabled}
               />
             );
@@ -352,11 +392,6 @@ export function SchemaField({
             <input
               {...field}
               onChange={(event) => {
-                if (fieldKey === 'name' && guidance.path === '/projects') {
-                  const code = form.getValues('code');
-                  if (!code || code === projectCode(String(field.value ?? '')))
-                    form.setValue('code', projectCode(event.target.value), { shouldDirty: true });
-                }
                 field.onChange(event);
               }}
               value={value}
@@ -484,6 +519,18 @@ export function SchemaForm({
           onSubmit={form.handleSubmit((v) => {
             setAttemptError(undefined);
             if (uploading) return;
+            if (formSchema.properties?.verification) {
+              const issues = verificationErrors(
+                v.verification,
+                Object.keys(formSchema.properties.verification.properties ?? {}),
+              );
+              if (issues.length) {
+                for (const [key, message] of issues)
+                  form.setError('verification.' + key, { message });
+                form.setFocus('verification.' + issues[0]![0]);
+                return;
+              }
+            }
             if (customerCreate && v.password) {
               if (!v.email) {
                 form.setError('email', {
