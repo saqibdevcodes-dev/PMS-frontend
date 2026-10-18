@@ -2468,5 +2468,60 @@
   "Retry releasing property": [
     "پراپرٹی کا عارضی ہولڈ ختم کرنے کی دوبارہ کوشش کریں",
     "أعد محاولة إلغاء حجز العقار المؤقت"
+  ],
+  "Identity document type": ["شناختی دستاویز کی قسم", "نوع وثيقة الهوية"],
+  "Customer portal access is active. Their login ID and generated password are queued for email delivery.": [
+    "کسٹمر پورٹل تک رسائی فعال ہے۔ ان کی لاگ اِن آئی ڈی اور تیار کردہ پاس ورڈ ای میل ترسیل کے لیے قطار میں ہے۔",
+    "الوصول إلى بوابة العملاء نشط. تم إدراج معرّف تسجيل الدخول وكلمة المرور المُنشأة في قائمة انتظار الإرسال عبر البريد الإلكتروني."
+  ],
+  "Enter all 13 digits of the CNIC.": [
+    "شناختی کارڈ کے تمام 13 ہندسے درج کریں۔",
+    "أدخل جميع أرقام بطاقة الهوية الوطنية الـ 13."
+  ],
+  "Enter the cheque number or bank transaction ID.": [
+    "چیک نمبر یا بینک ٹرانزیکشن آئی ڈی درج کریں۔",
+    "أدخل رقم الشيك أو معرّف المعاملة المصرفية."
+  ],
+  "A secure password is generated automatically. The customer ID, login email and password are emailed to the customer. Check their email address before saving.": [
+    "ایک محفوظ پاس ورڈ خودکار طور پر تیار کیا جاتا ہے۔ کسٹمر آئی ڈی، لاگ اِن ای میل اور پاس ورڈ کسٹمر کو ای میل کر دیے جاتے ہیں۔ محفوظ کرنے سے پہلے ان کا ای میل پتہ چیک کر لیں۔",
+    "يتم إنشاء كلمة مرور آمنة تلقائياً. يتم إرسال معرّف العميل والبريد الإلكتروني لتسجيل الدخول وكلمة المرور إلى العميل عبر البريد الإلكتروني. تحقق من عنوان بريده الإلكتروني قبل الحفظ."
+  ],
+  "View payment": ["ادائیگی دیکھیں", "عرض الدفعة"],
+  "Receiving bank account": ["وصول کنندہ بینک اکاؤنٹ", "الحساب المصرفي المستلم"],
+  "Bank transfer screenshot": ["بینک ٹرانسفر کا اسکرین شاٹ", "لقطة شاشة التحويل المصرفي"],
+  "Payment verification permission is required to approve cash. Ask an authorised staff member.": [
+    "نقد رقم کی منظوری کے لیے ادائیگی کی تصدیق کی اجازت درکار ہے۔ کسی مجاز عملے کے رکن سے رابطہ کریں۔",
+    "إذن التحقق من الدفع مطلوب للموافقة على النقد. اطلب من موظف معتمد."
+  ],
+  "Cheque and bank payments stay pending until another authorised staff member verifies the funds.": [
+    "چیک اور بینک ادائیگیاں اس وقت تک زیر التوا رہتی ہیں جب تک کوئی دوسرا مجاز عملہ فنڈز کی تصدیق نہ کر لے۔",
+    "تظل مدفوعات الشيكات والتحويلات المصرفية معلقة حتى يتحقق موظف معتمد آخر من الأموال."
+  ],
+  "Receive installment": ["قسط وصول کریں", "استلام القسط"],
+  "Earlier installment first": ["پہلے پچھلی قسط", "القسط الأقدم أولاً"],
+  "Who can view this document?": ["یہ دستاویز کون دیکھ سکتا ہے؟", "من يمكنه عرض هذا المستند؟"],
+  "Staff only": ["صرف عملہ", "الموظفون فقط"],
+  "Selected customer or booking": ["منتخب کسٹمر یا بکنگ", "العميل المحدد أو الحجز"],
+  "All customers in this project": ["اس پروجیکٹ کے تمام کسٹمرز", "جميع العملاء في هذا المشروع"],
+  "Visible to current and future customers linked to this project. Do not upload personal customer records here.": [
+    "اس پروجیکٹ سے منسلک موجودہ اور مستقبل کے تمام صارفین دیکھ سکتے ہیں۔ یہاں کسٹمر کے ذاتی ریکارڈز اپ لوڈ نہ کریں۔",
+    "مرئي للعملاء الحاليين والمستقبليين المرتبطين بهذا المشروع. لا ترفع سجلات العملاء الشخصية هنا."
+  ],
+  "Resend login credentials": [
+    "لاگ اِن کی تفصیلات دوبارہ بھیجیں",
+    "إعادة إرسال بيانات تسجيل الدخول"
+  ],
+  "Available only until the customer first signs in. Resending generates a new password.": [
+    "صرف کسٹمر کے پہلی بار لاگ اِن ہونے تک دستیاب ہے۔ دوبارہ بھیجنے سے ایک نیا پاس ورڈ تیار ہوتا ہے۔",
+    "متاح فقط حتى يسجل العميل الدخول للمرة الأولى. تؤدي إعادة الإرسال إلى إنشاء كلمة مرور جديدة."
+  ],
+  "This account already has access. The customer can use Forgot password on the login screen.": [
+    "اس اکاؤنٹ کو پہلے ہی رسائی حاصل ہے۔ کسٹمر لاگ اِن اسکرین پر 'پاس ورڈ بھول گئے' کا استعمال کر سکتا ہے۔",
+    "هذا الحساب لديه حق الوصول بالفعل. يمكن للعميل استخدام 'نسيت كلمة المرور' في شاشة تسجيل الدخول."
+  ],
+  "Awaiting verification": ["تصدیق کا منتظر", "بانتظار التحقق"],
+  "Pending payments do not reduce the balance. Another authorised staff member must choose Verify payment, then Cleared after checking the funds. Cash received from the installment schedule is approved immediately by staff with verification permission.": [
+    "زیر التوا ادائیگیاں واجب الادا رقم کو کم نہیں کرتیں۔ کسی دوسرے مجاز عملے کو فنڈز کی تصدیق کے بعد 'ادائیگی کی تصدیق کریں' اور پھر 'کلیئر ہو گئی' کا انتخاب کرنا چاہیے۔ قسط کے شیڈول سے موصول ہونے والی نقد رقم تصدیقی اجازت والے عملے کی جانب سے فوری منظور کر دی جاتی ہے۔",
+    "المدفوعات المعلقة لا تخفض الرصيد المستحق. يجب على موظف معتمد آخر اختيار 'التحقق من الدفع' ثم 'تمت التسوية' بعد التحقق من الأموال. تتم الموافقة على النقد المستلم من جدول الأقساط فوراً من قبل الموظفين المخولين بالتحقق."
   ]
 }
