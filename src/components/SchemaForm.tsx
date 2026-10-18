@@ -11,7 +11,9 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Plus, Trash2 } from 'lucide-react';
 import { defaults, normalize, schemaType, validator } from '../lib/schema';
-import { humanize } from '../lib/format';
+import { humanize, moneyFields } from '../lib/format';
+import { MoneyInput } from './MoneyInput';
+import { PatternFormat } from 'react-number-format';
 import type { JsonSchema, Row } from '../lib/types';
 import { Button, ErrorState } from './ui';
 import { RelationSelect, relationPaths } from './RelationSelect';
@@ -22,7 +24,6 @@ import { fieldLabels, guidanceFor, imagePurpose } from '../lib/form-guidance';
 import { ImageUpload } from './ImageUpload';
 import { ImageGalleryUpload } from './ImageGalleryUpload';
 import { FeatureEditor } from './FeatureEditor';
-import { useAuth } from '../stores/auth';
 import { currencies, timezones } from '../lib/project-options';
 import { verificationErrors } from '../lib/ownership';
 import { OwnershipGuide } from './OwnershipVerification';
@@ -66,7 +67,9 @@ export function SchemaField({
       : guidanceFor(fieldKey, guidance.path);
   const fieldLabel = t(
     label ??
-      (fieldKey === 'charges' && guidance.path.includes('/transfers') ? 'Transfer fee' : undefined) ??
+      (fieldKey === 'charges' && guidance.path.includes('/transfers')
+        ? 'Transfer fee'
+        : undefined) ??
       (fieldKey === 'features' && !propertyForm ? 'Project features' : undefined) ??
       (fieldKey === 'photoId' && /\/customers(?:\/|$)/.test(guidance.path)
         ? 'Customer photo'
@@ -86,11 +89,13 @@ export function SchemaField({
   const method = form.watch('method');
   const propertyType = form.watch('type');
   const clearanceStatus = form.watch('verification.clearanceStatus');
+  const identityType = form.watch('identityType') ?? 'CNIC';
   const error = messageAt(form.formState.errors, name);
   const id = 'field-' + name;
   if (
     fieldKey === 'receivingAccountId' ||
     fieldKey === 'featureImages' ||
+    (fieldKey === 'measurementUnit' && propertyForm) ||
     (name.startsWith('verification.') &&
       (((fieldKey === 'clearanceReference' || fieldKey === 'clearanceValidUntil') &&
         clearanceStatus !== 'VERIFIED') ||
@@ -99,6 +104,56 @@ export function SchemaField({
     (fieldKey === 'methodDetails' && method !== 'OTHER')
   )
     return null;
+  if (fieldKey === 'size' && propertyForm) {
+    const unitName = parts.slice(0, -1).concat('measurementUnit').join('.');
+    return (
+      <div className="form-field">
+        <label htmlFor={id}>
+          {fieldLabel}
+          {required && <span className="required"> *</span>}
+        </label>
+        <div className="area-input">
+          <Controller
+            name={name}
+            control={form.control}
+            render={({ field }) => (
+              <input
+                {...field}
+                id={id}
+                value={String(field.value ?? '')}
+                inputMode="decimal"
+                placeholder={t('e.g. 5')}
+                aria-invalid={!!error}
+                disabled={disabled}
+              />
+            )}
+          />
+          <Controller
+            name={unitName}
+            control={form.control}
+            render={({ field }) => (
+              <Select
+                value={String(field.value ?? '')}
+                onChange={field.onChange}
+                aria-label={t('Area unit')}
+                disabled={disabled}
+                placeholder={t('Area unit')}
+                options={['marla', 'kanal', 'sq ft', 'sq yd', 'sq m', 'acre', 'hectare'].map(
+                  (value) => ({ value, label: humanize(value) }),
+                )}
+              />
+            )}
+          />
+        </div>
+        {hint && <small>{t(hint[1])}</small>}
+        {(error || messageAt(form.formState.errors, unitName)) && (
+          <p className="field-error" role="alert">
+            {error ?? messageAt(form.formState.errors, unitName)}
+          </p>
+        )}
+      </div>
+    );
+  }
   if (fieldKey === 'photoId' || fieldKey === 'proofImageId')
     return (
       <Controller
@@ -111,7 +166,12 @@ export function SchemaField({
               onChange={field.onChange}
               purpose={fieldKey === 'proofImageId' ? 'PAYMENT' : imagePurpose(guidance.path)}
               label={fieldLabel}
-              required={required || (fieldKey === 'proofImageId' && !!method && method !== 'CASH')}
+              required={
+                required ||
+                (fieldKey === 'proofImageId' &&
+                  !!method &&
+                  !['CASH', 'CHEQUE'].includes(String(method)))
+              }
               disabled={disabled}
               onBusy={(b) => guidance.uploading(name, b)}
             />
@@ -303,12 +363,50 @@ export function SchemaField({
                 disabled={disabled}
               />
             );
+          if (fieldKey === 'identity' && identityType === 'CNIC')
+            return (
+              <PatternFormat
+                id={id}
+                name={field.name}
+                getInputRef={field.ref}
+                onBlur={field.onBlur}
+                value={String(field.value ?? '')}
+                valueIsNumericString
+                format="#####-#######-#"
+                mask="_"
+                inputMode="numeric"
+                placeholder="35202-1234567-1"
+                disabled={disabled}
+                aria-invalid={!!error}
+                onValueChange={(v, source) => {
+                  if (source.source === 'event') field.onChange(v.value);
+                }}
+              />
+            );
+          if (moneyFields.test(fieldKey) && !schema.enum)
+            return (
+              <MoneyInput
+                id={id}
+                name={field.name}
+                ref={field.ref}
+                value={String(field.value ?? '')}
+                onValueChange={field.onChange}
+                onBlur={field.onBlur}
+                disabled={disabled}
+                aria-invalid={!!error}
+                placeholder={placeholder}
+              />
+            );
           if (schema.enum)
             return (
               <Select
                 {...field}
                 onChange={(value) => {
                   field.onChange(value);
+                  if (fieldKey === 'identityType') {
+                    form.setValue('identity', '');
+                    form.clearErrors('identity');
+                  }
                   if (fieldKey === 'clearanceStatus') {
                     for (const key of [
                       'clearanceReference',
@@ -449,10 +547,7 @@ export function SchemaForm({
 }) {
   useLocale();
   const [uploads, setUploads] = useState<Record<string, boolean>>({});
-  const managePortal = useAuth((s) =>
-    Boolean(s.user?.permissions.includes('customers.portal.manage')),
-  );
-  const customerCreate = operationPath.endsWith('/customers') && !!schema.properties?.password;
+  const customerCreate = operationPath.endsWith('/customers') && !!schema.properties?.identity;
   const baseSchema: JsonSchema = schema.properties?.photoIds
     ? {
         ...schema,
@@ -461,19 +556,7 @@ export function SchemaForm({
         ),
       }
     : schema;
-  const formSchema: JsonSchema = customerCreate
-    ? {
-        ...schema,
-        properties: {
-          ...Object.fromEntries(
-            Object.entries(schema.properties ?? {}).filter(
-              ([key]) => key !== 'password' || managePortal,
-            ),
-          ),
-          ...(managePortal ? { confirmPassword: { type: 'string', maxLength: 128 } } : {}),
-        },
-      }
-    : baseSchema;
+  const formSchema = baseSchema;
   const uploading = Object.values(uploads).some(Boolean);
   const [attemptError, setAttemptError] = useState<unknown>();
   const resolver = zodResolver(
@@ -496,9 +579,6 @@ export function SchemaForm({
                 : [],
           }
         : {}),
-      ...(customerCreate && managePortal && initial?.password
-        ? { confirmPassword: initial.password }
-        : {}),
     },
   });
   useEffect(() => {
@@ -506,7 +586,6 @@ export function SchemaForm({
       if (detail.path.length) form.setError(detail.path.join('.'), { message: detail.message });
   }, [error, form]);
   useUnsavedChanges(form.formState.isDirty || uploading);
-  const portalPassword = customerCreate && managePortal && Boolean(form.watch('password'));
   return (
     <Guidance.Provider
       value={{
@@ -531,23 +610,12 @@ export function SchemaForm({
                 return;
               }
             }
-            if (customerCreate && v.password) {
-              if (!v.email) {
-                form.setError('email', {
-                  message: t('Enter an email address to enable customer login.'),
-                });
-                return;
-              }
-              if (!v.confirmPassword) {
-                form.setError('confirmPassword', { message: t('Confirm the portal password.') });
-                return;
-              }
-              if (v.password !== v.confirmPassword) {
-                form.setError('confirmPassword', { message: t('Passwords do not match.') });
-                return;
-              }
-            } else if (customerCreate && v.confirmPassword) {
-              form.setError('password', { message: t('Passwords do not match.') });
+            if (
+              customerCreate &&
+              (v.identityType ?? 'CNIC') === 'CNIC' &&
+              !/^\d{13}$/.test(String(v.identity ?? '').replace(/[ -]/g, ''))
+            ) {
+              form.setError('identity', { message: t('Enter all 13 digits of the CNIC.') });
               return;
             }
             if (/\/units(?:\/|$)/.test(operationPath) && v.type === 'OTHER' && !v.typeDetails) {
@@ -558,9 +626,23 @@ export function SchemaForm({
               form.setError('methodDetails', { message: t('Describe how this payment was made.') });
               return;
             }
-            if (operationPath.endsWith('/payments') && v.method !== 'CASH' && !v.proofImageId) {
+            if (
+              operationPath.endsWith('/payments') &&
+              !['CASH', 'CHEQUE'].includes(String(v.method)) &&
+              !v.proofImageId
+            ) {
               form.setError('proofImageId', {
                 message: t('Upload a payment proof image for non-cash payments.'),
+              });
+              return;
+            }
+            if (
+              operationPath.endsWith('/payments') &&
+              ['BANK_TRANSFER', 'CHEQUE'].includes(String(v.method)) &&
+              !String(v.transactionReference ?? '').trim()
+            ) {
+              form.setError('transactionReference', {
+                message: t('Enter the cheque number or bank transaction ID.'),
               });
               return;
             }
@@ -580,7 +662,7 @@ export function SchemaForm({
                   key={key}
                   name={key}
                   schema={field}
-                  required={schema.required?.includes(key) || (key === 'email' && portalPassword)}
+                  required={schema.required?.includes(key)}
                   entityId={entityId}
                   disabled={busy || locked || uploading}
                 />
@@ -588,36 +670,11 @@ export function SchemaForm({
             {customerCreate && (
               <fieldset className="form-section">
                 <legend>{t('Customer portal login')}</legend>
-                {managePortal ? (
-                  <>
-                    <p className="muted">
-                      {t(
-                        'Set a password to let this customer sign in immediately. Leave both password fields blank to send an invitation later.',
-                      )}
-                    </p>
-                    <div className="form-grid">
-                      <SchemaField
-                        name="password"
-                        label="Portal password"
-                        schema={formSchema.properties!.password!}
-                        disabled={busy || locked || uploading}
-                      />
-                      <SchemaField
-                        name="confirmPassword"
-                        label="Confirm portal password"
-                        schema={formSchema.properties!.confirmPassword!}
-                        required={portalPassword}
-                        disabled={busy || locked || uploading}
-                      />
-                    </div>
-                  </>
-                ) : (
-                  <p className="muted">
-                    {t(
-                      'Portal access can be set up by a team member with permission to manage customer portal access.',
-                    )}
-                  </p>
-                )}
+                <p className="muted">
+                  {t(
+                    'A secure password is generated automatically. The customer ID, login email and password are emailed to the customer. Check their email address before saving.',
+                  )}
+                </p>
               </fieldset>
             )}
           </div>

@@ -30,6 +30,7 @@ export const fieldLabels: Record<string, string> = {
   roleIds: 'Roles and responsibilities',
   projectIds: 'Projects this person can access',
   identity: 'National ID or passport number',
+  identityType: 'Identity document type',
   identityLast4: 'ID ending in',
   downPaymentPercent: 'Minimum down payment (%)',
   ndcValidityDays: 'Clearance certificate validity (days)',

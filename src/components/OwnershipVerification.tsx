@@ -14,20 +14,46 @@ export function OwnershipParties({ bookingId, buyerId }: { bookingId: unknown; b
   useLocale();
   const projectId = usePreferences((state) => state.projectId);
   const booking = useQuery({
-    queryKey: ['ownership-booking', projectId, bookingId], enabled: typeof bookingId === 'string',
-    queryFn: ({ signal }) => api<Row>(resolvePath(projectRoot + '/bookings/{id}', { id: String(bookingId) }), { signal }),
+    queryKey: ['ownership-booking', projectId, bookingId],
+    enabled: typeof bookingId === 'string',
+    queryFn: ({ signal }) =>
+      api<Row>(resolvePath(projectRoot + '/bookings/{id}', { id: String(bookingId) }), { signal }),
   });
   const buyer = useQuery({
-    queryKey: ['ownership-buyer', projectId, buyerId], enabled: typeof buyerId === 'string',
-    queryFn: ({ signal }) => api<Row>(resolvePath(projectRoot + '/customers/{id}', { id: String(buyerId) }), { signal }),
+    queryKey: ['ownership-buyer', projectId, buyerId],
+    enabled: typeof buyerId === 'string',
+    queryFn: ({ signal }) =>
+      api<Row>(resolvePath(projectRoot + '/customers/{id}', { id: String(buyerId) }), { signal }),
   });
-  return <dl className="review-values ownership-parties">
-    <div><dt>{t('Booking')}</dt><dd>{String(booking.data?.reference ?? t('Selected booking'))}</dd></div>
-    <div><dt>{t('Property')}</dt><dd>{String(row(booking.data?.unit).number ?? '—')}</dd></div>
-    <div><dt>{t('Current customer')}</dt><dd>{String(row(booking.data?.customer).name ?? '—')}</dd></div>
-    {Boolean(buyerId) && <div><dt>{t('New owner')}</dt><dd>{String(buyer.data?.name ?? t('Selected customer'))}</dd></div>}
-    {(booking.isError || buyer.isError) && <div className="form-full"><p className="field-error">{t('Could not load party details. Go back to check your selection.')}</p></div>}
-  </dl>;
+  return (
+    <dl className="review-values ownership-parties">
+      <div>
+        <dt>{t('Booking')}</dt>
+        <dd>{String(booking.data?.reference ?? t('Selected booking'))}</dd>
+      </div>
+      <div>
+        <dt>{t('Property')}</dt>
+        <dd>{String(row(booking.data?.unit).number ?? '—')}</dd>
+      </div>
+      <div>
+        <dt>{t('Current customer')}</dt>
+        <dd>{String(row(booking.data?.customer).name ?? '—')}</dd>
+      </div>
+      {Boolean(buyerId) && (
+        <div>
+          <dt>{t('New owner')}</dt>
+          <dd>{String(buyer.data?.name ?? t('Selected customer'))}</dd>
+        </div>
+      )}
+      {(booking.isError || buyer.isError) && (
+        <div className="form-full">
+          <p className="field-error">
+            {t('Could not load party details. Go back to check your selection.')}
+          </p>
+        </div>
+      )}
+    </dl>
+  );
 }
 
 export function OwnershipGuide({

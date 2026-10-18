@@ -34,11 +34,7 @@ export default function AuthPage() {
     <div className="auth-page">
       <aside className="auth-story">
         <div className="auth-story-bg" aria-hidden="true">
-          <img
-            src="/login-hero.jpg"
-            alt=""
-            className="auth-hero-img"
-          />
+          <img src="/login-hero.jpg" alt="" className="auth-hero-img" />
           <div className="auth-story-overlay" />
         </div>
         <div className="auth-story-content">
@@ -46,9 +42,7 @@ export default function AuthPage() {
             <BrandLogo background="dark" className="auth-logo-full" decorative />
           </Link>
           <div className="auth-copy">
-            <div className="eyebrow">
-              {t('YOUR PROPERTY OPERATIONS, CONNECTED')}
-            </div>
+            <div className="eyebrow">{t('YOUR PROPERTY OPERATIONS, CONNECTED')}</div>
             <h1>
               {t('Big picture.')}
               <br />
@@ -82,9 +76,7 @@ export default function AuthPage() {
           <ShieldCheck size={18} />
         </div>
         <div className="auth-form">
-          <span className="auth-welcome">
-            {t('YOUR WORKSPACE AWAITS')}
-          </span>
+          <span className="auth-welcome">{t('YOUR WORKSPACE AWAITS')}</span>
           <h2>
             {mode === 'login'
               ? t('Welcome back.')

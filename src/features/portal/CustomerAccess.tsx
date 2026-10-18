@@ -18,7 +18,13 @@ export default function CustomerAccess({
   const [message, setMessage] = useState('');
   const query = useQuery({
     queryKey: ['customer-access', projectId, customerId],
-    queryFn: () => api<{ status: string; email: string | null; expiresAt: string | null }>(root),
+    queryFn: () =>
+      api<{
+        status: string;
+        email: string | null;
+        expiresAt: string | null;
+        canResendCredentials?: boolean;
+      }>(root),
   });
   const mutation = useMutation({
     mutationFn: (action: 'invite' | 'revoke') =>
@@ -32,6 +38,15 @@ export default function CustomerAccess({
         action === 'invite'
           ? 'Invitation queued for email delivery. The customer has 48 hours to activate access.'
           : 'Portal access and pending invitations revoked.',
+      );
+      void query.refetch();
+    },
+  });
+  const resend = useMutation({
+    mutationFn: () => api(root + '/resend-credentials', { method: 'POST', body: {} }),
+    onSuccess: () => {
+      setMessage(
+        'New credentials queued for email delivery. The previous password no longer works.',
       );
       void query.refetch();
     },
@@ -63,6 +78,12 @@ export default function CustomerAccess({
             </small>
           )}
           <div className="detail-actions">
+            {query.data?.canResendCredentials && (
+              <Button size="small" busy={resend.isPending} onClick={() => resend.mutate()}>
+                <Mail size={15} />
+                {t('Resend login credentials')}
+              </Button>
+            )}
             {!['ACTIVE', 'DISABLED'].includes(query.data?.status ?? '') && (
               <Button
                 size="small"
@@ -85,6 +106,20 @@ export default function CustomerAccess({
               </Button>
             )}
           </div>
+          {query.data?.canResendCredentials && (
+            <small>
+              {t(
+                'Available only until the customer first signs in. Resending generates a new password.',
+              )}
+            </small>
+          )}
+          {query.data?.status === 'ACTIVE' && !query.data.canResendCredentials && (
+            <small>
+              {t(
+                'This account already has access. The customer can use Forgot password on the login screen.',
+              )}
+            </small>
+          )}
         </>
       )}
       {confirm && (
@@ -109,6 +144,7 @@ export default function CustomerAccess({
         </div>
       )}
       {mutation.isError && <ErrorState error={mutation.error} />}
+      {resend.isError && <ErrorState error={resend.error} />}
       <p role="status">{t(message)}</p>
     </section>
   );

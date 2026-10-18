@@ -2,6 +2,8 @@ import { t, localeCode } from './i18n';
 import { fieldLabels } from './form-guidance';
 import { permissionLabel } from './permission-label';
 import Decimal from 'decimal.js';
+import { pakistanAmount } from './pakistan-number';
+export { pakistanAmount };
 import { usePreferences } from '../stores/preferences';
 export function humanize(value: string) {
   if (value === 'FULL_PAYMENT') return t('Full Payment');
@@ -28,8 +30,7 @@ export function money(
 ) {
   try {
     const n = new Decimal(String(value ?? 0));
-    if (compact && n.abs().gte(1000000)) return `${currency} ${n.div(1000000).toFixed(2)}m`;
-    if (compact && n.abs().gte(1000)) return `${currency} ${n.div(1000).toFixed(1)}k`;
+    if (compact && n.abs().gte(100000)) return `${currency} ${pakistanAmount(n)}`;
     const [whole, cents] = n.toFixed(2).split('.');
     return `${currency} ${whole!.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}.${cents}`;
   } catch {

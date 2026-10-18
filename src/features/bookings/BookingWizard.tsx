@@ -1,4 +1,5 @@
 import { t, useLocale } from '../../lib/i18n';
+import { MoneyInput } from '../../components/MoneyInput';
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useMutation, useQuery } from '@tanstack/react-query';
@@ -251,13 +252,12 @@ export default function BookingWizard() {
                 <>
                   <label className="form-field">
                     Property selling price
-                    <input
-                      type="number"
+                    <MoneyInput
                       min="0.01"
                       step="0.01"
                       disabled={!can('inventory.change_price')}
                       value={sellingPrice}
-                      onChange={(e) => setSellingPrice(e.target.value)}
+                      onValueChange={setSellingPrice}
                     />
                   </label>
                   <div className="form-field">
@@ -280,13 +280,12 @@ export default function BookingWizard() {
                   {applyDiscount && (
                     <label className="form-field">
                       {t('Discount amount')}
-                      <input
-                        type="number"
+                      <MoneyInput
                         min="0"
                         max={sellingPrice}
                         step="0.01"
                         value={discount}
-                        onChange={(e) => setDiscount(e.target.value)}
+                        onValueChange={setDiscount}
                       />
                     </label>
                   )}

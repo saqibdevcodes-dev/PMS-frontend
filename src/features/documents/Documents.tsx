@@ -14,6 +14,7 @@ import { date } from '../../lib/format';
 import { saveFile, captureDocument, platform } from '../../platform/adapter';
 import { Button, PageHeading, Modal, ErrorState, EmptyState, Skeleton } from '../../components/ui';
 import { RelationSelect } from '../../components/RelationSelect';
+import { Select } from '../../components/Select';
 import { confirmDiscard, useUnsavedChanges } from '../../hooks/use-unsaved';
 import { ProjectRequired, Unauthorized } from '../resources/ResourcePage';
 export default function Documents() {
@@ -26,6 +27,7 @@ export default function Documents() {
   const [documentName, setDocumentName] = useState('');
   const [customerId, setCustomerId] = useState(params.get('customerId') ?? '');
   const [bookingId, setBookingId] = useState(params.get('bookingId') ?? '');
+  const [audience, setAudience] = useState('STAFF_ONLY');
   const [error, setError] = useState<unknown>();
   const suffix = new URLSearchParams({
     page: String(page),
@@ -45,8 +47,11 @@ export default function Documents() {
       if (!documentName.trim()) throw new Error(t('Enter a document name.'));
       body.append('file', file);
       body.append('name', documentName.trim());
-      if (customerId) body.append('customerId', customerId);
-      if (bookingId) body.append('bookingId', bookingId);
+      body.append('audience', audience);
+      if (audience !== 'ALL_PROJECT_CUSTOMERS') {
+        if (customerId) body.append('customerId', customerId);
+        if (bookingId) body.append('bookingId', bookingId);
+      }
       return api(`/projects/${projectId}/documents`, { method: 'POST', body });
     },
     onSuccess: () => {
@@ -54,6 +59,7 @@ export default function Documents() {
       setUploading(false);
       setFile(undefined);
       setDocumentName('');
+      setAudience('STAFF_ONLY');
       void queryClient.invalidateQueries();
     },
     onError: setError,
@@ -71,7 +77,10 @@ export default function Documents() {
     mutationFn: (r: Row) =>
       api(`/projects/${projectId}/documents/${r.id}/portal-visibility`, {
         method: 'PATCH',
-        body: { portalVisible: !r.portalVisible },
+        body: {
+          portalVisible: !r.portalVisible,
+          allProjectCustomers: !r.customerId && !r.bookingId,
+        },
       }),
     onSuccess: () => {
       toast.success(t('Customer sharing updated'));
@@ -152,20 +161,31 @@ export default function Documents() {
               </div>
               <div className="document-info">
                 <h3 title={String(r.name)}>{String(r.name)}</h3>
-                {can('documents.manage') &&
-                  Boolean(r.customerId || r.bookingId) &&
-                  (!r.customerId || can('customers.view_sensitive')) && (
-                    <Button
-                      variant="ghost"
-                      size="small"
-                      busy={visibility.isPending && visibility.variables?.id === r.id}
-                      onClick={() => visibility.mutate(r)}
-                    >
-                      {r.portalVisible
-                        ? t('Withdraw from customer portal')
-                        : t('Share with customer portal')}
-                    </Button>
+                <small>
+                  {t(
+                    r.portalVisible
+                      ? r.allProjectCustomers
+                        ? 'Shared with all project customers'
+                        : 'Shared with selected customer'
+                      : 'Staff only',
                   )}
+                </small>
+                {can('documents.manage') && (!r.customerId || can('customers.view_sensitive')) && (
+                  <Button
+                    variant="ghost"
+                    size="small"
+                    busy={visibility.isPending && visibility.variables?.id === r.id}
+                    onClick={() => visibility.mutate(r)}
+                  >
+                    {r.portalVisible
+                      ? t('Withdraw from customer portal')
+                      : t(
+                          !r.customerId && !r.bookingId
+                            ? 'Share with all project customers'
+                            : 'Share with customer portal',
+                        )}
+                  </Button>
+                )}
                 <p>
                   {(Number(r.size) / 1024).toFixed(0)} {t('KB')} <span>·</span> {date(r.createdAt)}
                 </p>
@@ -215,6 +235,25 @@ export default function Documents() {
         description={t('PDF, JPEG, or PNG files up to 10 MiB.')}
       >
         <div className="modal-body">
+          <label className="form-field document-audience">
+            {t('Who can view this document?')}
+            <Select
+              value={audience}
+              onChange={setAudience}
+              options={[
+                { value: 'STAFF_ONLY', label: t('Staff only') },
+                { value: 'SELECTED_CUSTOMER', label: t('Selected customer or booking') },
+                { value: 'ALL_PROJECT_CUSTOMERS', label: t('All customers in this project') },
+              ]}
+            />
+            {audience === 'ALL_PROJECT_CUSTOMERS' && (
+              <small>
+                {t(
+                  'Visible to current and future customers linked to this project. Do not upload personal customer records here.',
+                )}
+              </small>
+            )}
+          </label>
           <label
             className="drop-zone"
             onDragOver={(e) => e.preventDefault()}
@@ -262,24 +301,28 @@ export default function Documents() {
                 )}
               </small>
             </div>
-            <div className="form-field">
-              <label htmlFor="upload-customer">{t('Customer (optional)')}</label>
-              <RelationSelect
-                id="upload-customer"
-                name="customerId"
-                value={customerId}
-                onChange={setCustomerId}
-              />
-            </div>
-            <div className="form-field">
-              <label htmlFor="upload-booking">{t('Booking (optional)')}</label>
-              <RelationSelect
-                id="upload-booking"
-                name="bookingId"
-                value={bookingId}
-                onChange={setBookingId}
-              />
-            </div>
+            {audience !== 'ALL_PROJECT_CUSTOMERS' && (
+              <>
+                <div className="form-field">
+                  <label htmlFor="upload-customer">{t('Customer (optional)')}</label>
+                  <RelationSelect
+                    id="upload-customer"
+                    name="customerId"
+                    value={customerId}
+                    onChange={setCustomerId}
+                  />
+                </div>
+                <div className="form-field">
+                  <label htmlFor="upload-booking">{t('Booking (optional)')}</label>
+                  <RelationSelect
+                    id="upload-booking"
+                    name="bookingId"
+                    value={bookingId}
+                    onChange={setBookingId}
+                  />
+                </div>
+              </>
+            )}
           </div>
           {Boolean(error) && <ErrorState error={error} />}
           <div className="form-footer">
@@ -289,7 +332,11 @@ export default function Documents() {
                 : t('Linked customer files require sensitive-data permission.')}
             </span>
             <Button
-              disabled={!file || !documentName.trim()}
+              disabled={
+                !file ||
+                !documentName.trim() ||
+                (audience === 'SELECTED_CUSTOMER' && !customerId && !bookingId)
+              }
               busy={upload.isPending}
               onClick={() => upload.mutate()}
             >

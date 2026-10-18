@@ -1,4 +1,72 @@
 @import 'tailwindcss' source('../');
+.money-input {
+  min-width: 0;
+  width: 100%;
+}
+.document-audience {
+  margin-bottom: 20px;
+}
+.booking-table-identity {
+  display: grid;
+  gap: 0.3rem;
+  min-width: 130px;
+}
+.booking-table-identity small {
+  color: var(--muted);
+  font-size: 0.75rem;
+}
+.installment-collection-summary {
+  display: grid;
+  gap: 8px;
+  padding: 20px;
+  margin-bottom: 22px;
+  background: var(--subtle);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+}
+.installment-collection-summary strong {
+  font-size: 25px;
+  color: var(--primary);
+}
+.money-input input {
+  width: 100%;
+}
+.money-input .amount-words {
+  display: block;
+  color: var(--primary);
+  font-size: 11px;
+  line-height: 1.6;
+  margin-top: 5px;
+  min-height: 1em;
+}
+.area-input {
+  display: flex;
+  align-items: stretch;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--panel);
+  min-width: 0;
+}
+.area-input > input {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  background: transparent;
+  border-radius: 8px 0 0 8px;
+  width: 50%;
+}
+.area-input > button {
+  width: 128px;
+  flex: 0 0 128px;
+  border: 0;
+  border-inline-start: 1px solid var(--border);
+  border-radius: 0 8px 8px 0;
+  box-shadow: none;
+}
+.area-input:focus-within {
+  outline: 2px solid var(--ring);
+  outline-offset: 1px;
+}
 @theme {
   --font-sans: 'Inter Variable', 'Inter', 'Segoe UI', sans-serif;
 }
@@ -826,6 +894,9 @@ code {
   text-align: left;
   box-shadow: var(--shadow);
   min-width: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
   transition:
     transform 0.15s,
     box-shadow 0.15s;
@@ -870,13 +941,30 @@ code {
   background: color-mix(in srgb, #d99e42 11%, transparent);
   color: #c18b31;
 }
+.kpi-value-block {
+  margin: 11px 0 13px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.kpi-card strong,
+.kpi-value-block > strong,
 .kpi-card > strong {
-  font-size: 25px;
-  letter-spacing: -0.8px;
-  font-weight: 640;
+  font-size: 22px;
+  letter-spacing: -0.6px;
+  font-weight: 650;
   display: block;
-  margin: 13px 0 14px;
+  margin: 0;
   font-variant-numeric: tabular-nums;
+  line-height: 1.25;
+}
+.kpi-words {
+  display: block;
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--muted);
+  letter-spacing: -0.1px;
+  line-height: 1.35;
 }
 .kpi-bottom {
   font-size: 9px;

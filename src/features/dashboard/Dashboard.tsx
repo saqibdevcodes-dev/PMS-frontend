@@ -20,7 +20,7 @@ import { api, queryString } from '../../lib/api';
 import { usePreferences } from '../../stores/preferences';
 import { useAuth, can } from '../../stores/auth';
 import { asRows, row, type Row } from '../../lib/types';
-import { date, humanize, money, calendarDay } from '../../lib/format';
+import { date, humanize, money, calendarDay, pakistanAmount } from '../../lib/format';
 import { Button, PageHeading, EmptyState, ErrorState, Skeleton } from '../../components/ui';
 import { DataTable } from '../../components/DataTable';
 import { Select } from '../../components/Select';
@@ -118,10 +118,21 @@ export default function Dashboard() {
       .reduce((acc, r) => acc.plus(String(r.outstanding)), new Decimal(0))
       .toNumber(),
   }));
+  const words = (value: unknown) => {
+    try {
+      const n = new Decimal(String(value ?? 0));
+      if (n.abs().lt(1000)) return undefined;
+      const text = pakistanAmount(n);
+      return text && text !== '0' ? text : undefined;
+    } catch {
+      return undefined;
+    }
+  };
   const cards = [
     {
       label: 'Total inventory',
       value: Number(s.totalInventory ?? 0).toLocaleString(),
+      words: undefined,
       note: t('{count} properties available', {
         count: s.inventory ? String(row(s.inventory).AVAILABLE ?? 0) : '0',
       }),
@@ -131,7 +142,8 @@ export default function Dashboard() {
     },
     {
       label: 'Net sales value',
-      value: money(s.netSales, currency, true),
+      value: money(s.netSales, currency),
+      words: words(s.netSales),
       note: t('{count} confirmed bookings', { count: s.confirmedBookings ?? 0 }),
       icon: ChartNoAxesCombined,
       url: '/bookings?status=CONFIRMED',
@@ -139,7 +151,8 @@ export default function Dashboard() {
     },
     {
       label: 'Verified collections',
-      value: money(s.verifiedCollections, currency, true),
+      value: money(s.verifiedCollections, currency),
+      words: words(s.verifiedCollections),
       note: 'Cleared payments · all time',
       icon: Wallet,
       url: '/collections?status=CLEARED',
@@ -147,8 +160,13 @@ export default function Dashboard() {
     },
     {
       label: 'Outstanding dues',
-      value: money(s.outstanding, currency, true),
-      note: t('{amount} overdue', { amount: money(s.overdue, currency, true) }),
+      value: money(s.outstanding, currency),
+      words: words(s.outstanding),
+      note: words(s.overdue)
+        ? t('{amount} overdue', {
+            amount: `${money(s.overdue, currency)} (${words(s.overdue)})`,
+          })
+        : t('{amount} overdue', { amount: money(s.overdue, currency) }),
       icon: CircleDollarSign,
       url: '/reports?kind=outstanding',
       tone: 'amber',
@@ -231,7 +249,10 @@ export default function Dashboard() {
               {summary.isLoading ? (
                 <span className="skeleton kpi-skeleton" />
               ) : (
-                <strong>{card.value}</strong>
+                <div className="kpi-value-block">
+                  <strong>{card.value}</strong>
+                  {card.words && <span className="kpi-words">{card.words}</span>}
+                </div>
               )}
               <div className="kpi-bottom">
                 <span>{t(card.note)}</span>

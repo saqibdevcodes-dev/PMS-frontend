@@ -86,11 +86,11 @@ reissue the API domain's certificate as part of this task.
 In the frontend repository, create a GitHub environment named `production` and
 restrict its deployment branches to `main`. Add these environment secrets:
 
-| Secret | Value |
-| --- | --- |
-| `VPS_HOST` | VPS IPv4 address or SSH hostname |
-| `VPS_USER` | Existing deployment account |
-| `VPS_SSH_KEY` | Dedicated deployment private key |
+| Secret            | Value                                      |
+| ----------------- | ------------------------------------------ |
+| `VPS_HOST`        | VPS IPv4 address or SSH hostname           |
+| `VPS_USER`        | Existing deployment account                |
+| `VPS_SSH_KEY`     | Dedicated deployment private key           |
 | `VPS_KNOWN_HOSTS` | Verified SSH host-key entry for `VPS_HOST` |
 
 For a nonstandard SSH port, set environment variable `VPS_PORT` to that port.

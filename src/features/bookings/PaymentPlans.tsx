@@ -17,6 +17,7 @@ import { Wallet, CalendarRange, CircleCheck, ArrowUpRight, ShieldCheck } from 'l
 import { ProjectRequired, Unauthorized } from '../resources/ResourcePage';
 import { previewPlan, initialTerms } from './PaymentFields';
 import { useUnsavedChanges } from '../../hooks/use-unsaved';
+import CollectInstallment from './CollectInstallment';
 
 export default function PaymentPlans() {
   const projectId = usePreferences((s) => s.projectId);
@@ -29,6 +30,7 @@ function PaymentPlanWorkspace() {
   const projectId = usePreferences((s) => s.projectId);
   const [params, setParams] = useSearchParams();
   const bookingId = params.get('booking') ?? '';
+  const [collect, setCollect] = useState<Row | null>(null);
   const [count, setCount] = useState(12),
     [interval, setInterval] = useState('1'),
     [first, setFirst] = useState(initialTerms().firstInstallmentDate),
@@ -192,6 +194,19 @@ function PaymentPlanWorkspace() {
                   data={installments}
                   columns={['label', 'dueDate', 'amount', 'paid', 'outstanding']}
                   controls={false}
+                  actions={(item) =>
+                    Number(item.outstanding) <= 0 ? (
+                      <Badge value="PAID" />
+                    ) : item.id === nextDue?.id &&
+                      booking.data?.status === 'CONFIRMED' &&
+                      can('payments.create') ? (
+                      <Button size="small" onClick={() => setCollect(item)}>
+                        {t('Receive installment')}
+                      </Button>
+                    ) : (
+                      <small className="muted">{t('Earlier installment first')}</small>
+                    )
+                  }
                 />
                 {can('payments.read') && (
                   <footer className="payment-schedule-footer">
@@ -347,6 +362,13 @@ function PaymentPlanWorkspace() {
           </form>
         )}
       </section>
+      {collect && (
+        <CollectInstallment
+          installment={collect}
+          bookingId={bookingId}
+          onClose={() => setCollect(null)}
+        />
+      )}
     </>
   );
 }

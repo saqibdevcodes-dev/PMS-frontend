@@ -3,7 +3,10 @@
   "Current customer": ["موجودہ کسٹمر", "العميل الحالي"],
   "Selected booking": ["منتخب بکنگ", "الحجز المحدد"],
   "Selected customer": ["منتخب کسٹمر", "العميل المحدد"],
-  "Could not load party details. Go back to check your selection.": ["فریقین کی تفصیلات لوڈ نہیں ہو سکیں۔ واپس جا کر اپنا انتخاب چیک کریں۔", "تعذر تحميل تفاصيل الأطراف. ارجع للتحقق من اختيارك."],
+  "Could not load party details. Go back to check your selection.": [
+    "فریقین کی تفصیلات لوڈ نہیں ہو سکیں۔ واپس جا کر اپنا انتخاب چیک کریں۔",
+    "تعذر تحميل تفاصيل الأطراف. ارجع للتحقق من اختيارك."
+  ],
   "Case document checks": ["کیس کے دستاویزات کی جانچ", "فحص مستندات المعاملة"],
   "Authority or housing society": [
     "متعلقہ ادارہ یا ہاؤسنگ سوسائٹی",

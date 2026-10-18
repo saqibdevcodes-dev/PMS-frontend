@@ -87,7 +87,7 @@ export function OperationDialog({
       ),
     onSuccess: (data, body) => {
       setDone(data ?? {});
-      setCustomerLoginEnabled(customerCreate && Boolean(body.password));
+      setCustomerLoginEnabled(customerCreate && Boolean(body.email));
       setDraft(undefined);
       setReview(null);
       toast.success(t('Saved successfully'));
@@ -133,7 +133,7 @@ export function OperationDialog({
               <p>
                 {customerLoginEnabled
                   ? t(
-                      'Customer portal access is active. The customer can sign in with their email and the password you set.',
+                      'Customer portal access is active. Their login ID and generated password are queued for email delivery.',
                     )
                   : t(
                       'Customer record saved. Send an invitation from Customer portal access when you want to enable login.',
@@ -193,31 +193,41 @@ export function OperationDialog({
             )}
             {Object.keys(reviewValues).length > 0 && (
               <>
-              {reviewValues.bookingId && /\/(transfers|possessions)(?:\/|$)/.test(operation.path) ? <OwnershipParties bookingId={reviewValues.bookingId} buyerId={reviewValues.buyerId} /> : null}
-              <dl className="review-values">
-                {Object.entries(reviewValues)
-                  .filter(([k]) => !/Ids?$/.test(k) && k !== 'updatedAt')
-                  .map(([k, v]) =>
-                    k === 'verification' ? (
-                      <div className="verification-review" key={k}>
-                        <VerificationSummary value={v} />
-                      </div>
-                    ) : (
-                      <div key={k}>
-                      <dt>{k === 'charges' && operation.path.includes('/transfers') ? t('Transfer fee') : humanize(k)}</dt>
-                        <dd>
-                          {/password|identity/i.test(k)
-                            ? '••••••••'
-                            : Array.isArray(v)
-                              ? t('{0} entries', { '0': v.length })
-                              : typeof v === 'object'
-                                ? t('Configured')
-                                : String(v)}
-                        </dd>
-                      </div>
-                    ),
-                  )}
-              </dl>
+                {reviewValues.bookingId &&
+                /\/(transfers|possessions)(?:\/|$)/.test(operation.path) ? (
+                  <OwnershipParties
+                    bookingId={reviewValues.bookingId}
+                    buyerId={reviewValues.buyerId}
+                  />
+                ) : null}
+                <dl className="review-values">
+                  {Object.entries(reviewValues)
+                    .filter(([k]) => !/Ids?$/.test(k) && k !== 'updatedAt')
+                    .map(([k, v]) =>
+                      k === 'verification' ? (
+                        <div className="verification-review" key={k}>
+                          <VerificationSummary value={v} />
+                        </div>
+                      ) : (
+                        <div key={k}>
+                          <dt>
+                            {k === 'charges' && operation.path.includes('/transfers')
+                              ? t('Transfer fee')
+                              : humanize(k)}
+                          </dt>
+                          <dd>
+                            {/password|identity/i.test(k)
+                              ? '••••••••'
+                              : Array.isArray(v)
+                                ? t('{0} entries', { '0': v.length })
+                                : typeof v === 'object'
+                                  ? t('Configured')
+                                  : String(v)}
+                          </dd>
+                        </div>
+                      ),
+                    )}
+                </dl>
               </>
             )}
             {mutation.error && <ErrorState error={mutation.error} />}

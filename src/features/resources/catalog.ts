@@ -83,7 +83,18 @@ export const resources: Resource[] = [
     group: 'Sales & customers',
     permission: 'bookings.read',
     description: 'Create bookings and track their payment status.',
-    columns: ['reference', 'customer', 'unit', 'paymentType', 'total', 'status', 'createdAt'],
+    columns: [
+      'reference',
+      'customer',
+      'unit',
+      'paymentType',
+      'total',
+      'paid',
+      'outstanding',
+      'nextDue',
+      'status',
+      'createdAt',
+    ],
   },
   {
     slug: 'payment-plans',
@@ -310,7 +321,16 @@ const stateRules: Record<string, string[]> = {
 export function allowedAction(op: Operation, record?: Row): boolean {
   if (!can(op.permission)) return false;
   if (!record) return true;
-  if (op.path.endsWith('/verify') && record.receivedBy === useAuth.getState().user?.id)
+  if (
+    /\/units\/\{id\}(?:\/price)?$/.test(op.path) &&
+    !['AVAILABLE', 'BLOCKED'].includes(String(record.status))
+  )
+    return false;
+  if (
+    op.path.endsWith('/verify') &&
+    record.receivedBy === useAuth.getState().user?.id &&
+    !can('users.manage')
+  )
     return false;
   if (op.path.endsWith('/lock') && record.locked) return false;
   if (op.path.includes('/journals/') && op.path.endsWith('/reverse')) return !record.reversedById;
@@ -340,6 +360,7 @@ export function actionTitle(op: Operation, resource?: Resource) {
   if (tail === 'verification') return 'Review case documents';
   if (tail === 'verify-fee') return 'Verify transfer fee';
   if (tail === 'complete' && resource?.slug === 'transfers') return 'Complete transfer';
+  if (tail === 'reverse' && resource?.slug === 'collections') return 'Reverse payment';
   if (op.method === 'patch') return 'Edit ' + (resource?.singular ?? 'record');
   if (op.method === 'delete') return 'Revoke session';
   const names: Record<string, string> = {

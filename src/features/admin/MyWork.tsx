@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { t, useLocale } from '../../lib/i18n';
 import { useQueries } from '@tanstack/react-query';
 import { Link, useNavigate } from 'react-router-dom';
@@ -5,15 +6,24 @@ import { ArrowRight } from 'lucide-react';
 import { useAuth, can } from '../../stores/auth';
 import { usePreferences } from '../../stores/preferences';
 import { api } from '../../lib/api';
-import { asRows } from '../../lib/types';
-import { PageHeading, ErrorState, EmptyState } from '../../components/ui';
+import { queryClient } from '../../lib/query';
+import { operation, projectRoot } from '../../lib/contract';
+import { allowedAction } from '../resources/catalog';
+import { asRows, type Operation, type Row } from '../../lib/types';
+import { PageHeading, ErrorState, EmptyState, Button } from '../../components/ui';
 import { DataTable } from '../../components/DataTable';
+import { OperationDialog } from '../../components/OperationDialog';
 import { ProjectRequired } from '../resources/ResourcePage';
 export default function MyWork() {
   useLocale();
   const projectId = usePreferences((s) => s.projectId);
   const user = useAuth((s) => s.user)!;
   const navigate = useNavigate();
+  const [action, setAction] = useState<{
+    operation: Operation;
+    title: string;
+    record?: Row;
+  } | null>(null);
   const groups = [
     {
       name: 'Recovery cases',
@@ -72,6 +82,29 @@ export default function MyWork() {
                   controls={false}
                   busy={queries[i]?.isLoading}
                   onRow={(r) => navigate('/' + group.slug + '?record=' + r.id)}
+                  actions={
+                    group.slug === 'collections'
+                      ? (r) => {
+                          const op = operation('post', projectRoot + '/payments/{id}/verify');
+                          return allowedAction(op, r) ? (
+                            <Button
+                              size="small"
+                              variant="secondary"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setAction({
+                                  operation: op,
+                                  title: t('Verify payment'),
+                                  record: r,
+                                });
+                              }}
+                            >
+                              {t('Verify payment')}
+                            </Button>
+                          ) : null;
+                        }
+                      : undefined
+                  }
                   empty={
                     <EmptyState
                       compact
@@ -92,6 +125,15 @@ export default function MyWork() {
             description={t('An administrator can assign the project permissions you need.')}
           />
         </div>
+      )}
+      {action && (
+        <OperationDialog
+          {...action}
+          onClose={() => {
+            setAction(null);
+            void queryClient.invalidateQueries();
+          }}
+        />
       )}
     </>
   );

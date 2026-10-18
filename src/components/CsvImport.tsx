@@ -1,7 +1,7 @@
 import { t, useLocale } from '../lib/i18n';
 import { useState } from 'react';
 import { Upload, Download } from 'lucide-react';
-import { parseCsv } from '../lib/csv';
+import { parseCsv, prepareInventoryRows, inventoryTemplate } from '../lib/csv';
 import { normalize, validator } from '../lib/schema';
 import type { JsonSchema, Row } from '../lib/types';
 import { Button, ErrorState } from './ui';
@@ -24,14 +24,7 @@ export function CsvImport({
         type="button"
         variant="secondary"
         onClick={() => {
-          const url = URL.createObjectURL(
-            new Blob(
-              [
-                'number,type,size,measurementUnit,price,phase,block,charges\nA-001,RESIDENTIAL_PLOT,5,marla,3500000.00,Phase 1,A,0.00\n',
-              ],
-              { type: 'text/csv' },
-            ),
-          );
+          const url = URL.createObjectURL(new Blob([inventoryTemplate], { type: 'text/csv' }));
           const a = document.createElement('a');
           a.href = url;
           a.download = 'inventory-template.csv';
@@ -56,7 +49,7 @@ export function CsvImport({
               if (!file) return;
               if (file.size > 2 * 1024 * 1024)
                 throw new Error(t('Use a CSV file smaller than 2 MiB.'));
-              const rows = parseCsv(await file.text());
+              const rows = prepareInventoryRows(parseCsv(await file.text()));
               const allowed = new Set(
                 Object.keys(schema.properties?.units?.items?.properties ?? {}),
               );

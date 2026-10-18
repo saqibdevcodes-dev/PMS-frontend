@@ -1,6 +1,7 @@
 import { t, useLocale } from '../../lib/i18n';
 import Decimal from 'decimal.js';
 import { Select } from '../../components/Select';
+import { MoneyInput } from '../../components/MoneyInput';
 import { money, calendarDay } from '../../lib/format';
 
 export type Terms = {
@@ -81,13 +82,12 @@ export function PaymentFields({
         <>
           <label className="form-field">
             {t('Down payment')}
-            <input
+            <MoneyInput
               aria-label="Down payment"
-              type="number"
               min="0"
               step="0.01"
               value={value.downPayment}
-              onChange={(e) => update({ downPayment: e.target.value })}
+              onValueChange={(downPayment) => update({ downPayment })}
             />
             <small>Project minimum: {money(minimum)}. This rule is set in Project settings.</small>
           </label>

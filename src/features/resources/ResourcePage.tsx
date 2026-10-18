@@ -27,7 +27,7 @@ import { can } from '../../stores/auth';
 import { platform, scanCode } from '../../platform/adapter';
 import { toast } from 'sonner';
 import { asRows, row, type Row, type Page, type Operation } from '../../lib/types';
-import { humanize, labelOf, money } from '../../lib/format';
+import { humanize, labelOf, money, date } from '../../lib/format';
 import { Button, PageHeading, ErrorState, EmptyState, Badge } from '../../components/ui';
 import { DataTable } from '../../components/DataTable';
 import { Select } from '../../components/Select';
@@ -69,6 +69,43 @@ export function Unauthorized() {
       }
     />
   );
+}
+function bookingCell(key: string, record: Row) {
+  if (key === 'customer' || key === 'unit') {
+    const item = row(record[key]);
+    const href = key === 'customer' ? '/customers?record=' : '/inventory?record=';
+    const label = String(item.name ?? item.number ?? '—');
+    const details =
+      key === 'customer'
+        ? String(item.phone ?? '')
+        : [item.size, item.measurementUnit, item.phase, item.block].filter(Boolean).join(' · ');
+    return (
+      <div className="booking-table-identity">
+        {item.id && can(key === 'customer' ? 'customers.read' : 'inventory.read') ? (
+          <Link to={href + item.id} onClick={(e) => e.stopPropagation()}>
+            {label}
+          </Link>
+        ) : (
+          <strong>{label}</strong>
+        )}
+        <small>{details}</small>
+      </div>
+    );
+  }
+  if (key === 'nextDue')
+    return record.status === 'CONFIRMED' && record.nextDue ? date(record.nextDue) : '—';
+  if (key === 'paid')
+    return (
+      <div className="booking-table-identity">
+        <strong>{money(record.paid)}</strong>
+        {Number(record.pendingPayments) > 0 && (
+          <small>
+            {t('Awaiting verification')}: {String(record.pendingPayments)}
+          </small>
+        )}
+      </div>
+    );
+  return undefined;
 }
 export default function ResourcePage({ slug }: { slug: string }) {
   const language = useLocale();
@@ -171,8 +208,21 @@ export default function ResourcePage({ slug }: { slug: string }) {
   function rowActions(record: Row) {
     const allowed = actionsFor(resource, record);
     const edit = slug === 'customers' ? allowed.find((op) => op.method === 'patch') : undefined;
+    const verify =
+      slug === 'collections' ? allowed.find((op) => op.path.endsWith('/verify')) : undefined;
     return (
       <div className="row-actions">
+        {verify && (
+          <Button
+            size="small"
+            variant="secondary"
+            onClick={() =>
+              setAction({ operation: verify, title: actionTitle(verify, resource), record })
+            }
+          >
+            {t('Verify payment')}
+          </Button>
+        )}
         {edit && (
           <Button
             variant="secondary"
@@ -204,7 +254,7 @@ export default function ResourcePage({ slug }: { slug: string }) {
             <ArrowUpRight size={14} />
           </Button>
         )}
-        {allowed.some((op) => op !== edit) && (
+        {allowed.some((op) => op !== edit && op !== verify) && (
           <DropdownMenu.Root modal={false} dir={language === 'en' ? 'ltr' : 'rtl'}>
             <DropdownMenu.Trigger asChild>
               <Button
@@ -226,7 +276,7 @@ export default function ResourcePage({ slug }: { slug: string }) {
                 loop
               >
                 {allowed
-                  .filter((op) => op !== edit)
+                  .filter((op) => op !== edit && op !== verify)
                   .map((op) => (
                     <DropdownMenu.Item
                       key={op.id}
@@ -294,6 +344,13 @@ export default function ResourcePage({ slug }: { slug: string }) {
       )}
       {(slug === 'transfers' || slug === 'possessions') && (
         <OwnershipGuide possession={slug === 'possessions'} />
+      )}
+      {slug === 'collections' && (
+        <div className="document-notice">
+          {t(
+            'Pending payments do not reduce the balance. Another authorised staff member must choose Verify payment, then Cleared after checking the funds. Cash received from the installment schedule is approved immediately by staff with verification permission.',
+          )}
+        </div>
       )}
       {related.length > 0 && (
         <div className="module-links">
@@ -472,7 +529,9 @@ export default function ResourcePage({ slug }: { slug: string }) {
               (key) => !['bookings', 'paymentStatus'].includes(key) || can('bookings.read'),
             )}
             renderCell={(key, record) =>
-              slug === 'projects' ? (
+              slug === 'bookings' ? (
+                bookingCell(key, record)
+              ) : slug === 'projects' ? (
                 projectCell(key, record)
               ) : key === 'bookings' && (slug === 'customers' || slug === 'inventory') ? (
                 <PortfolioLinks record={record} kind={slug} />
