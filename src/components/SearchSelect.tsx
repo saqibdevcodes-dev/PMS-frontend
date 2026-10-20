@@ -13,7 +13,7 @@ import { createPortal } from 'react-dom';
 import { Check, ChevronDown, Search } from 'lucide-react';
 import { t, useLocale } from '../lib/i18n';
 
-type Option = { value: string; label: string; group?: string };
+export type Option = { value: string; label: string; sublabel?: string; group?: string };
 export function SearchSelect({
   id,
   value,
@@ -296,8 +296,13 @@ export function SearchSelect({
                       onMouseMove={() => setActive(index)}
                       onClick={() => choose(option)}
                     >
-                      <span>{option.label}</span>
-                      {option.value === value && <Check size={15} />}
+                      <div className="select-option-content">
+                        <span className="select-option-label">{option.label}</span>
+                        {option.sublabel && (
+                          <small className="select-option-sublabel">{option.sublabel}</small>
+                        )}
+                      </div>
+                      {option.value === value && <Check size={15} style={{ flexShrink: 0, marginLeft: 8 }} />}
                     </button>
                   </Fragment>
                 ))

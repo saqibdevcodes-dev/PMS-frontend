@@ -120,7 +120,14 @@ export async function saveFile(url: string, name = 'document.pdf') {
   if (!mobile) {
     const parsed = new URL(url);
     if (!['http:', 'https:'].includes(parsed.protocol)) throw new Error('Unsupported file link.');
-    window.location.assign(parsed.href);
+    const a = document.createElement('a');
+    a.href = parsed.href;
+    a.download = name;
+    a.target = '_blank';
+    a.rel = 'noopener noreferrer';
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(() => a.remove(), 1000);
     return;
   }
   const { Filesystem, Directory } = await import('@capacitor/filesystem');

@@ -55,11 +55,11 @@ export default function CustomerAccess({
     <section className="portal-access-panel">
       <h3>
         <ShieldCheck size={18} />
-        {t('Customer portal access')}
+        {t('Member portal access')}
       </h3>
       <p>
         {t(
-          'Send access to the email saved on this customer. Verify the address belongs to them before inviting.',
+          'Send access to the email saved on this member. Verify the address belongs to them before inviting.',
         )}
       </p>
       {query.isLoading ? (
@@ -69,7 +69,7 @@ export default function CustomerAccess({
       ) : (
         <>
           <p>
-            {query.data?.email ?? t('Add a customer email address first.')}{' '}
+            {query.data?.email ?? t('Add a member email address first.')}{' '}
             <Badge value={query.data?.status} />
           </p>
           {query.data?.status === 'PENDING' && (
@@ -92,7 +92,7 @@ export default function CustomerAccess({
                 onClick={() => mutation.mutate('invite')}
               >
                 <Mail size={15} />
-                {query.data?.status === 'PENDING' ? t('Resend invitation') : t('Invite customer')}
+                {query.data?.status === 'PENDING' ? t('Resend invitation') : t('Invite member')}
               </Button>
             )}
             {['ACTIVE', 'DISABLED', 'PENDING'].includes(query.data?.status ?? '') && (

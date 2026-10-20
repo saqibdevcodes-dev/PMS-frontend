@@ -1,18 +1,21 @@
 import { t, useLocale } from '../lib/i18n';
 import { useEffect, useId, useRef, useState, type ReactNode } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { CheckCircle2, ImageOff, ImagePlus, LoaderCircle, X } from 'lucide-react';
+import { Camera, CheckCircle2, ImageOff, ImagePlus, LoaderCircle, X } from 'lucide-react';
 import { api } from '../lib/api';
 import { usePreferences } from '../stores/preferences';
-import { Button, ErrorState } from './ui';
+import { ErrorState } from './ui';
+
 export function RecordImage({
   id,
   alt = 'Record photo',
   fallback,
+  className = 'record-photo',
 }: {
   id?: string;
   alt?: string;
   fallback?: ReactNode;
+  className?: string;
 }) {
   useLocale();
   const [failedUrl, setFailedUrl] = useState('');
@@ -24,9 +27,16 @@ export function RecordImage({
     refetchInterval: 90000,
   });
   if (!id) return fallback ?? null;
+  if (query.isLoading) {
+    return (
+      <span className={`photo-placeholder photo-loading ${className}`} role="status" aria-label={t('Loading photo…')}>
+        <LoaderCircle size={20} className="spin" />
+      </span>
+    );
+  }
   return query.data && query.data.url !== failedUrl ? (
     <img
-      className="record-photo"
+      className={className}
       src={query.data.url}
       alt={t(alt)}
       loading="lazy"
@@ -34,12 +44,13 @@ export function RecordImage({
     />
   ) : (
     (fallback ?? (
-      <span className="photo-placeholder" role="img" aria-label={t('Photo unavailable')}>
+      <span className={`photo-placeholder ${className}`} role="img" aria-label={t('Photo unavailable')}>
         <ImageOff size={22} />
       </span>
     ))
   );
 }
+
 export function ImageUpload({
   value,
   onChange,
@@ -50,6 +61,8 @@ export function ImageUpload({
   onBusy,
   uploadPath = '/images',
   allowRemove = true,
+  aspectRatio,
+  minHeight,
 }: {
   value?: string;
   onChange: (value: string) => void;
@@ -60,6 +73,8 @@ export function ImageUpload({
   onBusy?: (busy: boolean) => void;
   uploadPath?: string;
   allowRemove?: boolean;
+  aspectRatio?: string;
+  minHeight?: number | string;
 }) {
   useLocale();
   const projectId = usePreferences((s) => s.projectId);
@@ -69,12 +84,14 @@ export function ImageUpload({
   const [preview, setPreview] = useState<{ url: string; name: string; size: number; file: File }>();
   const inputId = useId();
   const inFlight = useRef(false);
+
   useEffect(
     () => () => {
       if (preview) URL.revokeObjectURL(preview.url);
     },
     [preview],
   );
+
   async function upload(file?: File) {
     if (!file || disabled || inFlight.current) return;
     setError(undefined);
@@ -110,15 +127,24 @@ export function ImageUpload({
       onBusy?.(false);
     }
   }
+
+  const hasImage = Boolean(preview?.url || value);
+
   return (
     <div className="image-upload-field">
-      <label className="upload-label" htmlFor={inputId}>
-        {t(label)}
-        {required ? ' *' : ''}
-      </label>
+      {label && (
+        <label className="upload-label" htmlFor={inputId}>
+          {t(label)}
+          {required ? ' *' : ''}
+        </label>
+      )}
       <label
-        className={'image-upload' + (dragging ? ' is-dragging' : '')}
+        className={'image-upload' + (hasImage ? ' has-image' : '') + (dragging ? ' is-dragging' : '')}
         data-disabled={busy || disabled}
+        style={{
+          ...(aspectRatio ? { aspectRatio } : {}),
+          ...(minHeight !== undefined ? { minHeight } : {}),
+        }}
         htmlFor={inputId}
         onDragOver={(event) => {
           event.preventDefault();
@@ -133,13 +159,52 @@ export function ImageUpload({
           void upload(event.dataTransfer.files[0]);
         }}
       >
-        <span className="upload-art" aria-hidden="true">
-          <ImagePlus size={36} strokeWidth={1.5} />
-        </span>
-        <span className="upload-prompt">
-          {t('Drop your image here, or')} <strong>{t('browse')}</strong>
-        </span>
-        <small id={inputId + '-help'}>{t('JPEG, PNG or WebP. Maximum 5 MiB.')}</small>
+        {hasImage ? (
+          <div className="image-upload-preview-container">
+            {preview ? (
+              <img src={preview.url} alt={t(label)} className="image-upload-preview-img" />
+            ) : (
+              <RecordImage id={value} alt={label} className="image-upload-preview-img" />
+            )}
+            <div className="image-upload-overlay" aria-hidden="true">
+              <Camera size={22} />
+              <span>{t('Change photo')}</span>
+            </div>
+            {allowRemove && !busy && !disabled && (
+              <button
+                type="button"
+                className="image-upload-remove-btn"
+                title={t('Remove photo')}
+                aria-label={t('Remove photo')}
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  onChange('');
+                  setPreview(undefined);
+                  setError(undefined);
+                }}
+              >
+                <X size={15} />
+              </button>
+            )}
+            {busy && (
+              <div className="image-upload-busy-overlay">
+                <LoaderCircle size={26} className="spin" />
+                <span>{t('Uploading photo…')}</span>
+              </div>
+            )}
+          </div>
+        ) : (
+          <>
+            <span className="upload-art" aria-hidden="true">
+              <ImagePlus size={36} strokeWidth={1.5} />
+            </span>
+            <span className="upload-prompt">
+              {t('Drop your image here, or')} <strong>{t('browse')}</strong>
+            </span>
+            <small id={inputId + '-help'}>{t('JPEG, PNG or WebP. Maximum 5 MiB.')}</small>
+          </>
+        )}
         <input
           id={inputId}
           type="file"
@@ -153,48 +218,32 @@ export function ImageUpload({
           }}
         />
       </label>
-      {(value || busy) && (
-        <div className="upload-file" aria-busy={busy}>
-          <div className="upload-thumbnail">
-            {preview ? (
-              <img src={preview.url} alt={t(label)} />
+
+      {(hasImage || busy) && (
+        <div className="image-upload-meta">
+          <span className="image-upload-status" role="status">
+            {busy ? (
+              <>
+                <LoaderCircle size={14} className="spin" />
+                <span>{t('Uploading photo…')}</span>
+              </>
             ) : (
-              <RecordImage id={value} alt={label} />
+              <>
+                <CheckCircle2 size={14} className="upload-success-icon" />
+                <span className="image-upload-name" title={preview?.name ?? t('Photo uploaded')}>
+                  {preview?.name ?? t('Photo uploaded')}
+                </span>
+              </>
             )}
-          </div>
-          <div className="upload-file-info">
-            <strong title={preview?.name}>{preview?.name ?? t('Current photo')}</strong>
-            <small>
-              {preview ? `${(preview.size / 1024 / 1024).toFixed(2)} MiB` : t('Saved photo')}
-            </small>
-          </div>
-          <span className="upload-status" role="status">
-            {busy ? <LoaderCircle size={18} className="spin" /> : <CheckCircle2 size={18} />}
-            <span className="sr-only">{busy ? t('Uploading photo…') : t('Photo uploaded')}</span>
           </span>
-          {allowRemove && (
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon"
-              aria-label={t('Remove photo')}
-              disabled={busy || disabled}
-              onClick={() => {
-                onChange('');
-                setPreview(undefined);
-                setError(undefined);
-              }}
-            >
-              <X size={17} />
-            </Button>
-          )}
-          <progress
-            aria-label={busy ? t('Uploading photo…') : t('Photo uploaded')}
-            max={100}
-            value={busy ? undefined : 100}
-          />
+          {preview?.size ? (
+            <span className="image-upload-size">
+              {(preview.size / 1024 / 1024).toFixed(2)} MiB
+            </span>
+          ) : null}
         </div>
       )}
+
       {!!error && <ErrorState error={error} />}
     </div>
   );

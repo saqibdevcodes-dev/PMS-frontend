@@ -1,0 +1,166 @@
+/* ============================================================
+   Member QR & Digital Allotment Pass Page Styles
+   ============================================================ */
+
+.mqr-page {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  max-width: 1320px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+/* ── Hero Header Banner ── */
+.mqr-hero-banner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+  background: var(--surface, #ffffff);
+  border: 1px solid var(--border, #e2e8f0);
+  border-radius: 16px;
+  padding: 20px 24px;
+  box-shadow: 0 4px 18px -4px rgba(0, 0, 0, 0.05), 0 2px 6px -2px rgba(0, 0, 0, 0.03);
+  position: relative;
+  overflow: hidden;
+}
+
+.mqr-hero-banner::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #0284c7 0%, #0ea5e9 40%, #10b981 100%);
+}
+
+.mqr-hero-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  min-width: 0;
+}
+
+.mqr-icon-badge {
+  width: 50px;
+  height: 50px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, rgba(2, 132, 199, 0.1) 0%, rgba(16, 185, 129, 0.12) 100%);
+  border: 1px solid rgba(2, 132, 199, 0.2);
+  color: var(--primary, #0284c7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 4px 12px rgba(2, 132, 199, 0.1);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.mqr-hero-banner:hover .mqr-icon-badge {
+  transform: translateY(-1px) scale(1.02);
+}
+
+.mqr-hero-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.mqr-title-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.mqr-title {
+  font-size: 21px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--text, #0f172a);
+  margin: 0;
+  line-height: 1.25;
+}
+
+.mqr-live-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 10px;
+  border-radius: 9999px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  background: rgba(16, 185, 129, 0.1);
+  color: #059669;
+  border: 1px solid rgba(16, 185, 129, 0.25);
+}
+
+.mqr-live-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #10b981;
+  box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.3);
+  animation: mqr-pulse 2s infinite ease-in-out;
+}
+
+@keyframes mqr-pulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.3);
+    opacity: 0.6;
+  }
+}
+
+.mqr-subtitle {
+  font-size: 13px;
+  color: var(--text-muted, #64748b);
+  margin: 0;
+  line-height: 1.45;
+}
+
+.mqr-hero-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.mqr-selected-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  border-radius: 10px;
+  background: var(--surface-raised, #f8fafc);
+  border: 1px solid var(--border, #e2e8f0);
+  font-size: 12.5px;
+  color: var(--text, #0f172a);
+}
+.mqr-selected-chip strong {
+  font-weight: 600;
+}
+.mqr-chip-code {
+  font-family: monospace;
+  font-weight: 700;
+  font-size: 11px;
+  padding: 2px 6px;
+  border-radius: 6px;
+  background: rgba(2, 132, 199, 0.1);
+  color: var(--primary, #0284c7);
+}
+
+.id-card-father {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.85);
+  margin-top: -6px;
+  margin-bottom: 6px;
+  font-weight: 500;
+}

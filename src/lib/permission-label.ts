@@ -1,7 +1,7 @@
 import { t } from './i18n';
 
 export function permissionLabel(permission: string) {
-  if (permission === 'customers.portal.manage') return t('Manage customer portal access');
+  if (permission === 'customers.portal.manage') return t('Manage member portal access');
   const direct: Record<string, string> = {
     'bookings.approve': 'Confirm bookings',
     'discounts.approve': 'Apply discounts',
@@ -9,7 +9,7 @@ export function permissionLabel(permission: string) {
     'refunds.approve': 'Pay refunds',
     'ndc.approve': 'Issue clearance certificates',
     'possession.approve': 'Complete handovers',
-    'users.manage': 'Manage employees',
+    'users.manage': 'Manage system users',
   };
   if (direct[permission]) return t(direct[permission]);
   const [scope, action] = permission.split('.');

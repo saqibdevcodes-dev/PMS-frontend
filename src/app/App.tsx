@@ -29,6 +29,12 @@ const MyWork = lazy(() => import('../features/admin/MyWork'));
 const Settings = lazy(() => import('../features/admin/Settings'));
 const Portal = lazy(() => import('../features/portal/Portal'));
 const Activation = lazy(() => import('../features/portal/Activation'));
+const VerificationPage = lazy(() => import('../features/portal/VerificationPage'));
+const EmployeeDetailPage = lazy(() => import('../features/admin/EmployeeDetailPage'));
+const CustomerDetailPage = lazy(() => import('../features/crm/CustomerDetailPage'));
+const MemberRegistrationPage = lazy(() => import('../features/crm/MemberRegistrationPage'));
+const MemberLedgersPage = lazy(() => import('../features/crm/MemberLedgersPage'));
+const MemberQrPage = lazy(() => import('../features/crm/MemberQrPage'));
 function WorkspaceError() {
   useLocale();
   return (
@@ -64,6 +70,8 @@ function AppRoutes() {
           <Route path={path} key={path} element={<AuthPage />} />
         ))}
         <Route path="/portal/activate" element={<Activation />} />
+        <Route path="/verify" element={<VerificationPage />} />
+        <Route path="/verify/:ref" element={<VerificationPage />} />
         <Route
           path="/portal/*"
           element={
@@ -91,6 +99,15 @@ function AppRoutes() {
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/bookings/new" element={<BookingWizard />} />
           <Route path="/payment-plans" element={<PaymentPlans />} />
+          <Route path="/users/:id" element={<EmployeeDetailPage />} />
+          <Route path="/employees/:id" element={<EmployeeDetailPage />} />
+          <Route path="/customers/:id" element={<CustomerDetailPage />} />
+          <Route path="/members/register" element={<MemberRegistrationPage />} />
+          <Route path="/customers/register" element={<MemberRegistrationPage />} />
+          <Route path="/members/ledgers" element={<MemberLedgersPage />} />
+          <Route path="/customers/ledgers" element={<MemberLedgersPage />} />
+          <Route path="/members/qr" element={<MemberQrPage />} />
+          <Route path="/customers/qr" element={<MemberQrPage />} />
           {resources
             .filter((r) => r.slug !== 'payment-plans')
             .map((r) => (

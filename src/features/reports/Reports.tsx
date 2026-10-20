@@ -24,10 +24,11 @@ import { Select } from '../../components/Select';
 import { ProjectRequired, Unauthorized } from '../resources/ResourcePage';
 import { JobStatus } from '../../components/JobStatus';
 import { CustomerStatement, type AccountStatement } from './CustomerStatement';
+import { exportAndDownloadReport } from '../../lib/export-download';
 import { print } from '../../platform/adapter';
 export const reportGroups: Record<string, string[]> = {
-  'Sales & inventory': ['sales', 'inventory', 'collections', 'installments'],
-  'Customers & recovery': ['outstanding', 'ageing', 'customer-statement'],
+  'Sales & inventory': ['sales', 'inventory', 'collections', 'installments', 'dealer-sales'],
+  'Customers & recovery': ['outstanding', 'ageing', 'defaulters', 'customer-statement'],
   Ownership: ['ndcs', 'transfers', 'cancellations', 'refunds', 'possession'],
   'Financial statements': [
     'ledger',
@@ -64,15 +65,12 @@ export default function Reports() {
   });
   const exportJob = useMutation({
     mutationFn: (format: 'xlsx' | 'pdf') =>
-      api<Row>(`/projects/${projectId}/reports/exports`, {
-        method: 'POST',
-        body: { report: filters, format },
+      exportAndDownloadReport({
+        projectId: projectId!,
+        report: filters,
+        format,
+        filename: `estate-${kind}.${format}`,
       }),
-    onSuccess: (r, format) => {
-      setJobs((v) => [{ id: String(r.id), projectId, filename: `estate-${kind}.${format}` }, ...v]);
-      toast.success(t('Report generation started'));
-    },
-    onError: (e) => toast.error(errorMessage(e)),
   });
   if (!can('reports.read') || (financial && !can('finance.read'))) return <Unauthorized />;
   if (!projectId) return <ProjectRequired />;

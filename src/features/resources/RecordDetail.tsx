@@ -19,6 +19,7 @@ import { OperationDialog } from '../../components/OperationDialog';
 import CustomerAccess from '../portal/CustomerAccess';
 import { PortfolioLinks, PaymentStatus } from './Portfolio';
 import { VerificationSummary } from '../../components/OwnershipVerification';
+import { PropertyFileModal } from '../bookings/PropertyFileModal';
 import '../portal/portal.css';
 const hidden = new Set([
   'id',
@@ -60,6 +61,7 @@ export default function RecordDetail({
   const projectId = usePreferences((s) => s.projectId);
   const [tab, setTab] = useState('overview');
   const [receipt, setReceipt] = useState(false);
+  const [propertyFile, setPropertyFile] = useState(false);
   const [action, setAction] = useState<{
     operation: Operation;
     title: string;
@@ -159,7 +161,7 @@ export default function RecordDetail({
                 Array.isArray(detail.bookings) && (
                   <section className="detail-portfolio">
                     <h4>
-                      {t(resource.slug === 'customers' ? 'Booked properties' : 'Current customers')}
+                      {t(resource.slug === 'customers' ? 'Booked properties' : 'Current members')}
                     </h4>
                     {resource.slug === 'customers' && (
                       <PaymentStatus value={detail.paymentStatus} />
@@ -200,8 +202,28 @@ export default function RecordDetail({
                   ))}
               </dl>
               {detail.verification != null && <VerificationSummary value={detail.verification} />}
+              {resource.slug === 'users' && record.id && (
+                <div className="detail-links">
+                  <Link
+                    className="btn btn-primary btn-small"
+                    to={'/users/' + record.id}
+                    onClick={onClose}
+                  >
+                    <ArrowUpRight size={13} />
+                    {t('View user')}
+                  </Link>
+                </div>
+              )}
               {resource.slug === 'customers' && (
                 <div className="detail-links">
+                  <Link
+                    className="btn btn-secondary btn-small"
+                    to={'/customers/' + record.id}
+                    onClick={onClose}
+                  >
+                    <ArrowUpRight size={13} />
+                    {t('View member')}
+                  </Link>
                   {can('customers.view_sensitive') && (
                     <Button
                       variant="secondary"
@@ -231,7 +253,7 @@ export default function RecordDetail({
                       onClick={onClose}
                     >
                       <FileText size={15} />
-                      {t('Customer statement')}
+                      {t('Member statement')}
                       <ArrowUpRight size={13} />
                     </Link>
                   )}
@@ -241,7 +263,7 @@ export default function RecordDetail({
                       to={'/documents?customerId=' + record.id}
                       onClick={onClose}
                     >
-                      {t('Customer documents')}
+                      {t('Member documents')}
                     </Link>
                   )}
                 </div>
@@ -253,6 +275,10 @@ export default function RecordDetail({
               ) : null}
               {resource.slug === 'bookings' && (
                 <div className="detail-links">
+                  <Button variant="secondary" size="small" onClick={() => setPropertyFile(true)}>
+                    <FileText size={15} />
+                    {t('Computerized Property File')}
+                  </Button>
                   <Link
                     className="btn btn-secondary btn-small"
                     to={'/collections?bookingId=' + record.id}
@@ -363,6 +389,9 @@ export default function RecordDetail({
         </div>
       </Modal>
       {receipt && <Receipt id={String(row(detail.receipt).id)} onClose={() => setReceipt(false)} />}
+      {propertyFile && record.id && (
+        <PropertyFileModal bookingId={String(record.id)} onClose={() => setPropertyFile(false)} />
+      )}
       {action && <OperationDialog {...action} onClose={() => setAction(null)} />}
     </>
   );

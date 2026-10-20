@@ -21,12 +21,13 @@ import { usePreferences } from '../../stores/preferences';
 import { useAuth, can } from '../../stores/auth';
 import { asRows, row, type Row } from '../../lib/types';
 import { date, humanize, money, calendarDay, pakistanAmount } from '../../lib/format';
-import { Button, PageHeading, EmptyState, ErrorState, Skeleton } from '../../components/ui';
+import { Button, PageHeading, EmptyState, ErrorState, Skeleton, Modal } from '../../components/ui';
 import { DataTable } from '../../components/DataTable';
 import { Select } from '../../components/Select';
 import { ProjectRequired, Unauthorized } from '../resources/ResourcePage';
 import { chartColors as colors } from '../../lib/chart-colors';
 import { BrandLogo } from '../../components/BrandLogo';
+import { InstallmentCalendar } from './InstallmentCalendar';
 const CollectionChart = lazy(() =>
   import('./Charts').then((m) => ({ default: m.CollectionChart })),
 );
@@ -40,6 +41,9 @@ export default function Dashboard() {
   const navigate = useNavigate();
   const [phase, setPhase] = useState('');
   const [days, setDays] = useState(30);
+  const [drilldown, setDrilldown] = useState<
+    'booked' | 'receivables' | 'collections' | 'defaulters' | null
+  >(null);
   const to = calendarDay(new Date());
   const from = new Date(Date.parse(to + 'T00:00:00Z') - (days - 1) * 86400000)
     .toISOString()
@@ -49,6 +53,39 @@ export default function Dashboard() {
     queryKey: ['dashboard', projectId, phase],
     enabled: !!projectId && can('reports.read'),
     queryFn: ({ signal }) => api<Row>(root + '/dashboard' + queryString({ phase }), { signal }),
+  });
+  const drilldownQuery = useQuery<Row[]>({
+    queryKey: ['dashboard-drilldown', projectId, drilldown],
+    enabled: !!projectId && !!drilldown,
+    queryFn: async ({ signal }) => {
+      if (drilldown === 'booked') {
+        const res = await api<Row[] | { items: Row[] }>(
+          root + '/bookings?limit=50&status=CONFIRMED',
+          { signal },
+        );
+        return Array.isArray(res) ? res : (res?.items ?? []);
+      }
+      if (drilldown === 'receivables') {
+        const res = await api<{ rows: Row[] }>(root + '/reports?kind=outstanding', {
+          signal,
+        });
+        return res?.rows ?? [];
+      }
+      if (drilldown === 'collections') {
+        const res = await api<Row[] | { items: Row[] }>(
+          root + '/payments?status=CLEARED&limit=50',
+          { signal },
+        );
+        return Array.isArray(res) ? res : (res?.items ?? []);
+      }
+      if (drilldown === 'defaulters') {
+        const res = await api<{ rows: Row[] }>(root + '/reports?kind=defaulters', {
+          signal,
+        });
+        return res?.rows ?? [];
+      }
+      return [];
+    },
   });
   const collections = useQuery({
     queryKey: ['dashboard-collections', projectId, from, to, phase],
@@ -137,7 +174,7 @@ export default function Dashboard() {
         count: s.inventory ? String(row(s.inventory).AVAILABLE ?? 0) : '0',
       }),
       icon: Building2,
-      url: '/inventory',
+      onClick: () => navigate('/inventory'),
       tone: 'accent',
     },
     {
@@ -146,7 +183,7 @@ export default function Dashboard() {
       words: words(s.netSales),
       note: t('{count} confirmed bookings', { count: s.confirmedBookings ?? 0 }),
       icon: ChartNoAxesCombined,
-      url: '/bookings?status=CONFIRMED',
+      onClick: () => setDrilldown('booked'),
       tone: 'violet',
     },
     {
@@ -155,7 +192,7 @@ export default function Dashboard() {
       words: words(s.verifiedCollections),
       note: 'Cleared payments · all time',
       icon: Wallet,
-      url: '/collections?status=CLEARED',
+      onClick: () => setDrilldown('collections'),
       tone: 'green',
     },
     {
@@ -168,7 +205,7 @@ export default function Dashboard() {
           })
         : t('{amount} overdue', { amount: money(s.overdue, currency) }),
       icon: CircleDollarSign,
-      url: '/reports?kind=outstanding',
+      onClick: () => setDrilldown('receivables'),
       tone: 'amber',
     },
   ];
@@ -237,30 +274,92 @@ export default function Dashboard() {
       {summary.isError ? (
         <ErrorState error={summary.error} retry={() => void summary.refetch()} />
       ) : (
-        <div className="kpi-grid">
-          {cards.map((card) => (
-            <button className="kpi-card" key={t(card.label)} onClick={() => navigate(card.url)}>
-              <div className="kpi-top">
-                <span>{t(card.label)}</span>
-                <span className={'kpi-icon ' + card.tone}>
-                  <card.icon size={18} />
-                </span>
-              </div>
-              {summary.isLoading ? (
-                <span className="skeleton kpi-skeleton" />
-              ) : (
-                <div className="kpi-value-block">
-                  <strong>{card.value}</strong>
-                  {card.words && <span className="kpi-words">{card.words}</span>}
+        <>
+          <div className="kpi-grid">
+            {cards.map((card) => (
+              <button className="kpi-card" key={t(card.label)} onClick={card.onClick}>
+                <div className="kpi-top">
+                  <span>{t(card.label)}</span>
+                  <span className={'kpi-icon ' + card.tone}>
+                    <card.icon size={18} />
+                  </span>
                 </div>
-              )}
-              <div className="kpi-bottom">
-                <span>{t(card.note)}</span>
-                <ArrowUpRight size={14} />
-              </div>
+                {summary.isLoading ? (
+                  <span className="skeleton kpi-skeleton" />
+                ) : (
+                  <div className="kpi-value-block">
+                    <strong>{card.value}</strong>
+                    {card.words && <span className="kpi-words">{card.words}</span>}
+                  </div>
+                )}
+                <div className="kpi-bottom">
+                  <span>{t(card.note)}</span>
+                  <ArrowUpRight size={14} />
+                </div>
+              </button>
+            ))}
+          </div>
+
+          <div className="secondary-kpi-bar">
+            <button
+              type="button"
+              className="secondary-kpi-chip"
+              onClick={() => navigate('/inventory?status=AVAILABLE')}
+            >
+              <span>{t('Available Units')}:</span>
+              <strong>{String(s.availableProperties ?? row(s.inventory).AVAILABLE ?? 0)}</strong>
             </button>
-          ))}
-        </div>
+
+            <button
+              type="button"
+              className="secondary-kpi-chip"
+              onClick={() => setDrilldown('booked')}
+            >
+              <span>{t('Booked Units')}:</span>
+              <strong>{String(s.bookedProperties ?? row(s.inventory).BOOKED ?? 0)}</strong>
+            </button>
+
+            <button
+              type="button"
+              className="secondary-kpi-chip"
+              onClick={() => navigate('/inventory?status=SOLD')}
+            >
+              <span>{t('Sold Units')}:</span>
+              <strong>{String(s.soldProperties ?? row(s.inventory).SOLD ?? 0)}</strong>
+            </button>
+
+            <button
+              type="button"
+              className="secondary-kpi-chip chip-alert"
+              onClick={() => setDrilldown('receivables')}
+            >
+              <span>{t('Overdue Installments')}:</span>
+              <strong>
+                {String(s.overdueInstallments ?? 0)} ({money(s.overdue, currency)})
+              </strong>
+            </button>
+
+            <button
+              type="button"
+              className="secondary-kpi-chip"
+              onClick={() => navigate('/installments')}
+            >
+              <span>{t('Upcoming Obligations')}:</span>
+              <strong>
+                {String(s.upcomingInstallments ?? 0)} ({money(s.upcomingAmount, currency)})
+              </strong>
+            </button>
+
+            <button
+              type="button"
+              className="secondary-kpi-chip chip-alert"
+              onClick={() => setDrilldown('defaulters')}
+            >
+              <span>{t('Payment Defaulters')}:</span>
+              <strong>{String(s.defaulterCount ?? 0)}</strong>
+            </button>
+          </div>
+        </>
       )}
       <div className="dashboard-main-grid">
         <section className="panel chart-panel">
@@ -442,6 +541,76 @@ export default function Dashboard() {
             <AgeingChart data={ageingData} currency={currency} />
           </Suspense>
         </section>
+      )}
+
+      {/* Interactive Installment Due Calendar */}
+      <InstallmentCalendar />
+
+      {/* Interactive Drilldown Modal */}
+      {drilldown && (
+        <Modal
+          open
+          onOpenChange={(v) => !v && setDrilldown(null)}
+          title={
+            drilldown === 'booked'
+              ? t('Confirmed Bookings Breakdown')
+              : drilldown === 'receivables'
+                ? t('Total Receivables & Outstanding Balances')
+                : drilldown === 'collections'
+                  ? t('Verified Payment Collections')
+                  : t('Payment Defaulters List')
+          }
+          description={t('Real-time drilldown from project ledger records')}
+          wide
+        >
+          {drilldownQuery.isLoading ? (
+            <Skeleton rows={5} />
+          ) : drilldownQuery.isError ? (
+            <ErrorState error={drilldownQuery.error} />
+          ) : (
+            <div style={{ maxHeight: '60vh', overflowY: 'auto' }}>
+              <DataTable
+                data={asRows(drilldownQuery.data)}
+                columns={
+                  drilldown === 'booked'
+                    ? ['reference', 'customer', 'unit', 'total', 'paid', 'status', 'createdAt']
+                    : drilldown === 'receivables'
+                      ? [
+                          'reference',
+                          'customerName',
+                          'customerPhone',
+                          'unitNumber',
+                          'amount',
+                          'paid',
+                          'outstanding',
+                          'overdue',
+                        ]
+                      : drilldown === 'collections'
+                        ? ['booking', 'amount', 'method', 'paidAt', 'status']
+                        : [
+                            'reference',
+                            'customerName',
+                            'customerPhone',
+                            'propertyNumber',
+                            'overdueAmount',
+                            'overdueInstallmentsCount',
+                            'daysOverdue',
+                            'collectionStatus',
+                          ]
+                }
+                controls={false}
+                currency={currency}
+                onRow={(r) => {
+                  const targetId = r.bookingId || r.id;
+                  if (targetId) {
+                    setDrilldown(null);
+                    navigate(`/bookings?record=${targetId}`);
+                  }
+                }}
+              />
+            </div>
+          )}
+        </Modal>
       )}
     </>
   );

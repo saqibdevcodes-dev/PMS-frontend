@@ -5,7 +5,7 @@ import { useQuery, useMutation } from '@tanstack/react-query';
 import Decimal from 'decimal.js';
 import { api } from '../../lib/api';
 import { asRows, row, type Row } from '../../lib/types';
-import { money, date } from '../../lib/format';
+import { money, date, humanize } from '../../lib/format';
 import { usePreferences } from '../../stores/preferences';
 import { can } from '../../stores/auth';
 import { queryClient } from '../../lib/query';
@@ -139,8 +139,18 @@ function PaymentPlanWorkspace() {
                   </span>
                   <h2>{String(booking.data.reference)}</h2>
                   <p>
-                    {String(row(booking.data.customer).name)} · {t('Property')}{' '}
-                    {String(row(booking.data.unit).number)}
+                    <strong>{String(row(booking.data.customer).name)}</strong>
+                    {row(booking.data.customer).fatherName
+                      ? ` (S/O ${String(row(booking.data.customer).fatherName)})`
+                      : ''}
+                    {' · '}
+                    {t('Property')} {String(row(booking.data.unit).number)}
+                    {row(booking.data.unit).type
+                      ? ` (${humanize(String(row(booking.data.unit).type))})`
+                      : ''}
+                    {row(booking.data.customer).phone
+                      ? ` · ${String(row(booking.data.customer).phone)}`
+                      : ''}
                   </p>
                 </div>
                 <Badge value={booking.data.status} />

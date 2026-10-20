@@ -14,6 +14,10 @@ import {
   Plus,
   ArrowUpRight,
   WifiOff,
+  Users,
+  UserPlus,
+  FileSpreadsheet,
+  QrCode,
 } from 'lucide-react';
 import { useAuth, can } from '../../stores/auth';
 import { usePreferences } from '../../stores/preferences';
@@ -46,6 +50,17 @@ export default function Shell() {
   const [online, setOnline] = useState(navigator.onLine);
   const [quick, setQuick] = useState(false);
   const [action, setAction] = useState<{ operation: Operation; title: string } | null>(null);
+
+  const isMembersActive =
+    location.pathname.startsWith('/customers') ||
+    location.pathname.startsWith('/members');
+  const [membersOpen, setMembersOpen] = useState(isMembersActive);
+
+  useEffect(() => {
+    if (isMembersActive) {
+      setMembersOpen(true);
+    }
+  }, [isMembersActive]);
   const projects = useQuery({
     queryKey: ['projects-picker', projectSearch],
     enabled: can('projects.read'),
@@ -176,18 +191,91 @@ export default function Shell() {
               <div className="nav-label">{t(group)}</div>
               {navItems
                 .filter((n) => n.group === group && can(n.permission))
-                .map((n) => (
-                  <NavLink
-                    key={n.slug}
-                    to={'/' + n.slug}
-                    onClick={() => setMobile(false)}
-                    title={t(n.label)}
-                    className={({ isActive }) => 'nav-item ' + (isActive ? 'active' : '')}
-                  >
-                    <n.icon size={18} />
-                    <span>{t(n.label)}</span>
-                  </NavLink>
-                ))}
+                .map((n) => {
+                  if (n.slug === 'customers') {
+                    return (
+                      <div className={`nav-dropdown ${membersOpen ? 'open' : ''}`} key={n.slug}>
+                        <button
+                          type="button"
+                          className={`nav-item nav-dropdown-trigger ${isMembersActive ? 'active-parent' : ''} ${membersOpen ? 'open' : ''}`}
+                          onClick={() => {
+                            if (preferences.collapsed) {
+                              preferences.toggleSidebar();
+                              setMembersOpen(true);
+                            } else {
+                              setMembersOpen((prev) => !prev);
+                            }
+                          }}
+                          title={t(n.label)}
+                          aria-expanded={membersOpen}
+                        >
+                          <n.icon size={18} />
+                          <span>{t(n.label)}</span>
+                          <ChevronDown size={14} className="nav-chevron" />
+                        </button>
+                        {membersOpen && !preferences.collapsed && (
+                          <div className="nav-sub-menu">
+                            <NavLink
+                              to="/members/register"
+                              onClick={() => setMobile(false)}
+                              className={({ isActive }) =>
+                                'nav-sub-item ' + (isActive ? 'active' : '')
+                              }
+                            >
+                              <UserPlus size={14} />
+                              <span>{t('Member registration')}</span>
+                            </NavLink>
+                            <NavLink
+                              to="/customers"
+                              end
+                              onClick={() => setMobile(false)}
+                              className={({ isActive }) =>
+                                'nav-sub-item ' +
+                                (isActive || (location.pathname === '/customers' && !location.pathname.includes('/register') && !location.pathname.includes('/ledgers') && !location.pathname.includes('/qr')) ? 'active' : '')
+                              }
+                            >
+                              <Users size={14} />
+                              <span>{t('All members')}</span>
+                            </NavLink>
+                            <NavLink
+                              to="/members/ledgers"
+                              onClick={() => setMobile(false)}
+                              className={({ isActive }) =>
+                                'nav-sub-item ' + (isActive ? 'active' : '')
+                              }
+                            >
+                              <FileSpreadsheet size={14} />
+                              <span>{t('Member ledgers')}</span>
+                            </NavLink>
+                            <NavLink
+                              to="/members/qr"
+                              onClick={() => setMobile(false)}
+                              className={({ isActive }) =>
+                                'nav-sub-item ' + (isActive ? 'active' : '')
+                              }
+                            >
+                              <QrCode size={14} />
+                              <span>{t('Member QR codes')}</span>
+                            </NavLink>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  }
+
+                  return (
+                    <NavLink
+                      key={n.slug}
+                      to={'/' + n.slug}
+                      onClick={() => setMobile(false)}
+                      title={t(n.label)}
+                      className={({ isActive }) => 'nav-item ' + (isActive ? 'active' : '')}
+                    >
+                      <n.icon size={18} />
+                      <span>{t(n.label)}</span>
+                    </NavLink>
+                  );
+                })}
             </div>
           ))}
         </nav>

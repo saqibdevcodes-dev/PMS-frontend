@@ -72,7 +72,7 @@ export function SchemaField({
         : undefined) ??
       (fieldKey === 'features' && !propertyForm ? 'Project features' : undefined) ??
       (fieldKey === 'photoId' && /\/customers(?:\/|$)/.test(guidance.path)
-        ? 'Customer photo'
+        ? 'Member photo'
         : undefined) ??
       (fieldKey === 'code' && !/^\/projects(?:\/\{projectId\})?$/.test(guidance.path)
         ? 'Code'
@@ -383,6 +383,38 @@ export function SchemaField({
                 }}
               />
             );
+          if (fieldKey === 'phone' || fieldKey === 'secondaryPhone')
+            return (
+              <PatternFormat
+                id={id}
+                name={field.name}
+                getInputRef={field.ref}
+                onBlur={field.onBlur}
+                value={String(field.value ?? '')}
+                valueIsNumericString
+                format="####-#######"
+                mask="_"
+                inputMode="tel"
+                placeholder="0300-1234567"
+                disabled={disabled}
+                aria-invalid={!!error}
+                onValueChange={(v, source) => {
+                  if (source.source === 'event') {
+                    let val = v.value;
+                    if (val.startsWith('923') && val.length === 12) {
+                      val = '0' + val.slice(2);
+                    }
+                    if (!val) {
+                      field.onChange('');
+                      return;
+                    }
+                    const formatted =
+                      val.length > 4 ? `${val.slice(0, 4)}-${val.slice(4, 11)}` : val;
+                    field.onChange(formatted);
+                  }
+                }}
+              />
+            );
           if (moneyFields.test(fieldKey) && !schema.enum)
             return (
               <MoneyInput
@@ -647,7 +679,7 @@ export function SchemaForm({
               return;
             }
             try {
-              onSubmit(customerCreate ? (normalize(schema, v) as Row) : v);
+              onSubmit(normalize(schema, v) as Row);
             } catch (e) {
               setAttemptError(e);
             }
@@ -669,10 +701,10 @@ export function SchemaForm({
               ))}
             {customerCreate && (
               <fieldset className="form-section">
-                <legend>{t('Customer portal login')}</legend>
+                <legend>{t('Member portal login')}</legend>
                 <p className="muted">
                   {t(
-                    'A secure password is generated automatically. The customer ID, login email and password are emailed to the customer. Check their email address before saving.',
+                    'A secure password is generated automatically. The member ID, login email and password are emailed to the member. Check their email address before saving.',
                   )}
                 </p>
               </fieldset>

@@ -57,7 +57,7 @@ export function OperationDialog({
         Object.entries({
           [bookingConfirmation ? 'Booking number' : 'Reference']: record?.reference,
           Name: record?.name ?? record?.title ?? record?.number,
-          Customer: row(record?.customer).name,
+          Member: row(record?.customer).name,
           Property: row(record?.unit).number,
           Booking: row(record?.booking).reference,
           'New owner': row(record?.buyer).name,
@@ -133,10 +133,10 @@ export function OperationDialog({
               <p>
                 {customerLoginEnabled
                   ? t(
-                      'Customer portal access is active. Their login ID and generated password are queued for email delivery.',
+                      'Member portal access is active. Their login ID and generated password are queued for email delivery.',
                     )
                   : t(
-                      'Customer record saved. Send an invitation from Customer portal access when you want to enable login.',
+                      'Member record saved. Send an invitation from Member portal access when you want to enable login.',
                     )}
               </p>
             )}

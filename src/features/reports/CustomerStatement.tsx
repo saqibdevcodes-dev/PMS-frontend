@@ -1,12 +1,13 @@
 import { Info } from 'lucide-react';
 import { BrandLogo } from '../../components/BrandLogo';
+import { QRCode } from '../../components/QRCode';
 import { date, humanize, money } from '../../lib/format';
 import { t } from '../../lib/i18n';
 import './statement.css';
 
 export type AccountStatement = {
   project: { name: string; currency: string; timezone: string };
-  customer: { name: string; reference: string; email?: string | null; phone?: string | null };
+  customer: { id?: string; name: string; reference: string; email?: string | null; phone?: string | null };
   generatedAt: string;
   reference?: string;
   from?: string;
@@ -47,6 +48,17 @@ export function CustomerStatement({ statement: s }: { statement: AccountStatemen
           <span>
             {t('Currency')}: {s.project.currency}
           </span>
+          {s.customer.id && (
+            <div className="statement-qr">
+              <QRCode
+                value={`${window.location.origin}/verify?customer=${s.customer.id}`}
+                size={88}
+                color="#1e293b"
+                bgColor="#ffffff"
+              />
+              <span className="statement-qr-label">{t('Scan to verify')}</span>
+            </div>
+          )}
         </div>
       </header>
       <div className="statement-details">

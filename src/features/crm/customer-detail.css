@@ -1,0 +1,505 @@
+.customer-detail-page {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  max-width: 1280px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.customer-detail-nav {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.customer-detail-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.customer-detail-title-area {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}
+
+.customer-detail-avatar-wrap {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: var(--surface-raised, #f1f5f9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--primary, #0284c7);
+  border: 2px solid var(--border, #e2e8f0);
+}
+
+.customer-detail-avatar-wrap img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.customer-detail-info h1 {
+  font-size: 24px;
+  font-weight: 700;
+  margin: 0;
+  color: var(--text, #0f172a);
+}
+
+.customer-detail-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 4px;
+  font-size: 13px;
+  color: var(--text-muted, #64748b);
+  flex-wrap: wrap;
+}
+
+.customer-detail-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.customer-detail-grid {
+  display: grid;
+  grid-template-columns: 1fr 380px;
+  gap: 24px;
+  align-items: start;
+}
+
+@media (max-width: 960px) {
+  .customer-detail-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.customer-section-card {
+  background: var(--surface, #ffffff);
+  border: 1px solid var(--border, #e2e8f0);
+  border-radius: var(--radius-lg, 12px);
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.customer-section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--border, #e2e8f0);
+  padding-bottom: 12px;
+}
+
+.customer-section-header h3 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text, #0f172a);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.customer-fields-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+}
+
+.customer-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.customer-field label {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-muted, #64748b);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.customer-field span,
+.customer-field strong {
+  font-size: 14px;
+  color: var(--text, #0f172a);
+}
+
+/* Allottee ID Card Badge */
+.customer-id-card-wrapper {
+  background: var(--surface, #ffffff);
+  border: 1px solid var(--border, #e2e8f0);
+  border-radius: var(--radius-lg, 12px);
+  padding: 24px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.05);
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  position: sticky;
+  top: 24px;
+}
+
+.customer-id-card {
+  background: linear-gradient(145deg, #064e3b, #047857);
+  color: #ffffff;
+  border-radius: 14px;
+  padding: 24px;
+  box-shadow: 0 10px 25px -5px rgba(6, 78, 59, 0.35);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.customer-id-card .id-card-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  margin-bottom: 16px;
+  width: 100%;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  padding-bottom: 12px;
+}
+
+.customer-id-card .id-card-header .org-name {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #a7f3d0;
+}
+
+.customer-id-card .id-card-header .card-type {
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #d1fae5;
+}
+
+.customer-id-card .id-card-photo {
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  border: 3px solid #34d399;
+  overflow: hidden;
+  margin-bottom: 12px;
+  background: #065f46;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32px;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.customer-id-card .id-card-photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.customer-id-card .id-card-name {
+  font-size: 18px;
+  font-weight: 700;
+  margin: 0;
+  color: #ffffff;
+}
+
+.customer-id-card .id-card-role {
+  font-size: 12px;
+  color: #a7f3d0;
+  font-weight: 500;
+  margin-top: 2px;
+}
+
+.customer-id-card .id-card-code {
+  display: inline-block;
+  background: rgba(255, 255, 255, 0.15);
+  padding: 3px 10px;
+  border-radius: 4px;
+  font-family: monospace;
+  font-size: 12px;
+  letter-spacing: 0.05em;
+  margin-top: 8px;
+  color: #ffffff;
+}
+
+.customer-id-card .id-card-qr-box {
+  background: #ffffff;
+  padding: 12px;
+  border-radius: 8px;
+  margin-top: 16px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.customer-id-card .id-card-qr-box span {
+  font-size: 10px;
+  color: #064e3b;
+  font-weight: 600;
+  margin-top: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.customer-id-card .id-card-footer {
+  margin-top: 16px;
+  font-size: 11px;
+  color: #d1fae5;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Print styling for Customer Pass */
+@media print {
+  body.print-customer-badge-active * {
+    visibility: hidden;
+  }
+
+  body.print-customer-badge-active #printable-customer-badge,
+  body.print-customer-badge-active #printable-customer-badge * {
+    visibility: visible;
+  }
+
+  body.print-customer-badge-active #printable-customer-badge {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 320px;
+    box-shadow: none;
+    border: 1px solid #000;
+    color: #000 !important;
+    background: #ffffff !important;
+  }
+
+  body.print-customer-badge-active #printable-customer-badge .id-card-header .org-name {
+    color: #000 !important;
+  }
+
+  body.print-customer-badge-active #printable-customer-badge .id-card-name {
+    color: #000 !important;
+  }
+
+  body.print-customer-badge-active #printable-customer-badge .id-card-role {
+    color: #333 !important;
+  }
+
+  body.print-customer-badge-active #printable-customer-badge .id-card-code {
+    background: #eee !important;
+    color: #000 !important;
+  }
+
+  body.print-customer-badge-active #printable-customer-badge .id-card-footer {
+    color: #555 !important;
+  }
+}
+
+/* Tabs Navigation */
+.customer-detail-tabs {
+  display: flex;
+  gap: 8px;
+  border-bottom: 2px solid var(--border, #e2e8f0);
+  padding-bottom: 2px;
+  margin-top: 8px;
+  overflow-x: auto;
+}
+
+.customer-tab-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-muted, #64748b);
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border-radius: var(--radius-sm, 6px) var(--radius-sm, 6px) 0 0;
+  white-space: nowrap;
+}
+
+.customer-tab-btn:hover {
+  color: var(--text, #0f172a);
+  background: var(--surface-raised, #f8fafc);
+}
+
+.customer-tab-btn.active {
+  color: var(--primary, #0284c7);
+  border-bottom-color: var(--primary, #0284c7);
+  background: var(--surface, #ffffff);
+}
+
+.customer-tab-count {
+  font-size: 11px;
+  padding: 2px 7px;
+  border-radius: 9999px;
+  background: var(--surface-raised, #e2e8f0);
+  color: var(--text, #334155);
+}
+
+.customer-tab-btn.active .customer-tab-count {
+  background: var(--primary-subtle, #e0f2fe);
+  color: var(--primary, #0284c7);
+}
+
+/* Tab Panels */
+.customer-tab-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* Customer Documents Section */
+.customer-docs-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+}
+
+.customer-doc-card {
+  background: var(--surface, #ffffff);
+  border: 1px solid var(--border, #e2e8f0);
+  border-radius: var(--radius-md, 10px);
+  padding: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+}
+
+.customer-doc-card:hover {
+  border-color: var(--primary, #0284c7);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.08);
+}
+
+/* Print statement */
+@media print {
+  body.print-customer-statement-active * {
+    visibility: hidden;
+  }
+
+  body.print-customer-statement-active .customer-statement,
+  body.print-customer-statement-active .customer-statement * {
+    visibility: visible;
+  }
+
+  body.print-customer-statement-active .customer-statement {
+    display: block !important;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    color: #000 !important;
+    background: #fff !important;
+    padding: 20px;
+  }
+}
+
+/* Member Registration Tree Sub-Navigation */
+.member-registration-subnav {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  background: var(--surface, #ffffff);
+  border: 1px solid var(--border, #e2e8f0);
+  border-radius: var(--radius-md, 10px);
+  flex-wrap: wrap;
+  font-size: 13px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  margin-bottom: 8px;
+}
+
+.member-registration-subnav-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 700;
+  color: var(--primary, #0284c7);
+  padding-right: 12px;
+  margin-right: 4px;
+  border-right: 2px solid var(--border, #e2e8f0);
+}
+
+.member-subnav-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-muted, #475569);
+  background: var(--surface-raised, #f8fafc);
+  border: 1px solid var(--border, #cbd5e1);
+  cursor: pointer;
+  transition: all 0.15s ease-in-out;
+}
+
+.member-subnav-btn:hover {
+  color: var(--primary, #0284c7);
+  border-color: var(--primary, #0284c7);
+  background: var(--primary-subtle, #f0f9ff);
+  transform: translateY(-1px);
+}
+
+@keyframes pulseHighlight {
+  0% {
+    box-shadow: 0 0 0 4px rgba(2, 132, 199, 0.5);
+    border-color: var(--primary, #0284c7);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(2, 132, 199, 0);
+  }
+}
+
+.section-highlight {
+  animation: pulseHighlight 1.5s ease-out;
+}
+
+/* Member Photo Upload Box */
+.member-photo-upload-wrap {
+  width: 190px;
+  flex-shrink: 0;
+}
+
+.member-photo-upload-wrap .image-upload {
+  min-height: 220px;
+  aspect-ratio: 4 / 5;
+}
+
+@media (max-width: 640px) {
+  .member-photo-upload-wrap {
+    width: 100%;
+    max-width: 240px;
+    margin: 0 auto;
+  }
+}

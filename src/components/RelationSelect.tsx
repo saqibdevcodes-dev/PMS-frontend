@@ -6,11 +6,73 @@ import { api, queryString } from '../lib/api';
 import { operations, projectRoot, resolvePath, supportsQuery } from '../lib/contract';
 import { asRows, row, type Row, type Page } from '../lib/types';
 import { roleDescriptions, fieldLabels } from '../lib/form-guidance';
-import { labelOf, humanize } from '../lib/format';
+import { labelOf, humanize, money } from '../lib/format';
 import { usePreferences } from '../stores/preferences';
 import { can } from '../stores/auth';
 import { Button } from './ui';
 import { SearchSelect } from './SearchSelect';
+
+export function formatRelationOption(
+  record: Row,
+  name: string,
+): { label: string; sublabel?: string } {
+  if (name === 'bookingId' || (record.reference && (record.customer || record.unit))) {
+    const customer = (record.customer && typeof record.customer === 'object'
+      ? record.customer
+      : {}) as Record<string, unknown>;
+    const unit = (record.unit && typeof record.unit === 'object'
+      ? record.unit
+      : {}) as Record<string, unknown>;
+
+    const ref = String(record.reference ?? t('Booking'));
+    const custName = customer.name ? String(customer.name) : '';
+    const custFather = customer.fatherName ? String(customer.fatherName) : '';
+    const custDisplay = custName ? (custFather ? `${custName} (S/O ${custFather})` : custName) : '';
+    const unitNum = unit.number ? String(unit.number) : '';
+    const unitType = unit.type ? humanize(String(unit.type)) : '';
+    const phone = customer.phone ? String(customer.phone) : '';
+    const status = record.status ? humanize(String(record.status)) : '';
+
+    let label = ref;
+    if (custDisplay) {
+      label += ` — ${custDisplay}`;
+    }
+    if (unitNum) {
+      label += ` · ${t('Unit')} ${unitNum}`;
+    }
+
+    const subParts: string[] = [];
+    if (custName) {
+      subParts.push(
+        `${t('Member')}: ${custName}${customer.reference ? ` (${String(customer.reference)})` : ''}`,
+      );
+    }
+    if (unitNum) {
+      subParts.push(`${t('Unit')}: ${unitNum}${unitType ? ` (${unitType})` : ''}`);
+    }
+    if (phone) {
+      subParts.push(`${t('Phone')}: ${phone}`);
+    }
+    if (record.total) {
+      subParts.push(`${t('Total')}: ${money(record.total)}`);
+    }
+    if (status) {
+      subParts.push(`${t('Status')}: ${status}`);
+    }
+
+    return {
+      label,
+      sublabel: subParts.length > 0 ? subParts.join(' · ') : undefined,
+    };
+  }
+
+  const base = name === 'roleIds' ? t(labelOf(record)) : labelOf(record);
+  const status = record.status ? ` · ${humanize(String(record.status))}` : '';
+  return {
+    label: `${base}${status}`,
+  };
+}
+
 export const relationPaths: Record<string, string> = {
   customerId: 'customers',
   buyerId: 'customers',
@@ -75,7 +137,9 @@ export function RelationSelect({
           queryString({
             ...(statusFilter && supportsQuery(path, 'status') ? { status: statusFilter } : {}),
             ...(supportsQuery(path, 'page') ? { page, limit: 25 } : {}),
-            ...(supportsQuery(path, 'search') ? { search: debounced } : {}),
+            ...(debounced && (supportsQuery(path, 'search') || name === 'bookingId')
+              ? { search: debounced }
+              : {}),
           }),
         { signal },
       ),
@@ -87,10 +151,29 @@ export function RelationSelect({
       items = items.flatMap((p) =>
         asRows(p.versions).map((v) => ({ ...v, name: `${labelOf(p)} · v${v.version}`, plan: p })),
       );
-    if (debounced && !supportsQuery(path, 'search'))
+    if (debounced && !supportsQuery(path, 'search') && name !== 'bookingId')
       items = items.filter((r) => labelOf(r).toLowerCase().includes(debounced.toLowerCase()));
     return items;
   }, [query.data, name, source, debounced, path]);
+
+  // Single record fallback when initial value is set but not in items
+  const singleQuery = useQuery({
+    queryKey: ['relation-single', projectId, source, value],
+    enabled: Boolean(permitted && value && !selectedRecord && !items.some((i) => i.id === value)),
+    queryFn: ({ signal }) => {
+      const singlePath = source?.startsWith('/')
+        ? `${source}/${value}`
+        : `${projectRoot}/${source}/${value}`;
+      return api<Row>(resolvePath(singlePath), { signal });
+    },
+  });
+
+  useEffect(() => {
+    if (singleQuery.data && (!selectedRecord || selectedRecord.id !== singleQuery.data.id)) {
+      setSelectedRecord(singleQuery.data);
+    }
+  }, [singleQuery.data, selectedRecord]);
+
   useEffect(() => {
     const match = items.find((item) => item.id === value);
     if (match) setSelectedRecord(match);
@@ -98,8 +181,6 @@ export function RelationSelect({
   const selected =
     items.find((item) => item.id === value) ??
     (selectedRecord?.id === value ? selectedRecord : undefined);
-  const optionLabel = (record: Row) =>
-    `${name === 'roleIds' ? t(labelOf(record)) : labelOf(record)}${record.status ? ` · ${humanize(String(record.status))}` : ''}`;
   const totalPages = (query.data as Page | undefined)?.pagination?.totalPages ?? 1;
   if (!permitted)
     return (
@@ -119,18 +200,30 @@ export function RelationSelect({
         disabled={disabled}
         search={search}
         onSearch={setSearch}
-        searchLabel={t('Search {0}…', { '0': t(fieldLabels[name] ?? 'records') })}
-        options={items.map((record) => ({ value: record.id!, label: optionLabel(record) }))}
+        searchLabel={
+          name === 'bookingId'
+            ? t('Search booking #, member, unit, or phone…')
+            : t('Search {0}…', { '0': t(fieldLabels[name] ?? 'records') })
+        }
+        options={items.map((record) => {
+          const opt = formatRelationOption(record, name);
+          return { value: record.id!, label: opt.label, sublabel: opt.sublabel };
+        })}
         selectedLabel={
-          value ? (selected ? optionLabel(selected) : t('Selected record')) : undefined
+          value
+            ? (selected ? formatRelationOption(selected, name).label : t('Selected record'))
+            : undefined
         }
         loading={query.isFetching || search !== debounced}
         error={query.isError}
         onRetry={() => void query.refetch()}
-        onChange={(value) => {
-          onChange(value);
-          const item = items.find((r) => r.id === value);
-          if (item) onRecord?.(item);
+        onChange={(val) => {
+          onChange(val);
+          const item = items.find((r) => r.id === val);
+          if (item) {
+            setSelectedRecord(item);
+            onRecord?.(item);
+          }
         }}
         footer={
           totalPages > 1 && (

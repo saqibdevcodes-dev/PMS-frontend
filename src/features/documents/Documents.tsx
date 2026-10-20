@@ -14,6 +14,7 @@ import { date } from '../../lib/format';
 import { saveFile, captureDocument, platform } from '../../platform/adapter';
 import { Button, PageHeading, Modal, ErrorState, EmptyState, Skeleton } from '../../components/ui';
 import { RelationSelect } from '../../components/RelationSelect';
+import { DocumentUploadModal } from '../../components/DocumentUploadModal';
 import { Select } from '../../components/Select';
 import { confirmDiscard, useUnsavedChanges } from '../../hooks/use-unsaved';
 import { ProjectRequired, Unauthorized } from '../resources/ResourcePage';
@@ -220,131 +221,14 @@ export default function Documents() {
           </Button>
         </div>
       )}
-      <Modal
+      <DocumentUploadModal
         open={uploading}
-        beforeClose={async () => !upload.isPending && (await confirmDiscard())}
-        onOpenChange={(open) => {
-          setUploading(open);
-          if (!open) {
-            setFile(undefined);
-            setDocumentName('');
-            setError(undefined);
-          }
-        }}
-        title={t('Add a document')}
-        description={t('PDF, JPEG, or PNG files up to 10 MiB.')}
-      >
-        <div className="modal-body">
-          <label className="form-field document-audience">
-            {t('Who can view this document?')}
-            <Select
-              value={audience}
-              onChange={setAudience}
-              options={[
-                { value: 'STAFF_ONLY', label: t('Staff only') },
-                { value: 'SELECTED_CUSTOMER', label: t('Selected customer or booking') },
-                { value: 'ALL_PROJECT_CUSTOMERS', label: t('All customers in this project') },
-              ]}
-            />
-            {audience === 'ALL_PROJECT_CUSTOMERS' && (
-              <small>
-                {t(
-                  'Visible to current and future customers linked to this project. Do not upload personal customer records here.',
-                )}
-              </small>
-            )}
-          </label>
-          <label
-            className="drop-zone"
-            onDragOver={(e) => e.preventDefault()}
-            onDrop={(e) => {
-              e.preventDefault();
-              choose(e.dataTransfer.files[0]);
-            }}
-          >
-            <UploadCloud size={32} />
-            <strong>{file ? file.name : t('Drop a document here')}</strong>
-            <span>
-              {file ? t('Click to choose another file') : t('or click to browse your files')}
-            </span>
-            <input
-              type="file"
-              accept="application/pdf,image/jpeg,image/png"
-              aria-label={t('Choose document')}
-              onChange={(e) => choose(e.target.files?.[0])}
-            />
-          </label>
-          {platform.mobile && (
-            <Button
-              variant="secondary"
-              onClick={() => {
-                void captureDocument().then(choose).catch(setError);
-              }}
-            >
-              <Camera size={16} />
-              {t('Capture document')}
-            </Button>
-          )}
-          <div className="form-grid">
-            <div className="form-field form-full">
-              <label htmlFor="document-name">{t('Document name *')}</label>
-              <input
-                id="document-name"
-                value={documentName}
-                onChange={(e) => setDocumentName(e.target.value)}
-                placeholder={t('e.g. Booking agreement – A-104')}
-                maxLength={180}
-              />
-              <small>
-                {t(
-                  'This name is shown in the library and used when downloading the file. Its file extension is added automatically.',
-                )}
-              </small>
-            </div>
-            {audience !== 'ALL_PROJECT_CUSTOMERS' && (
-              <>
-                <div className="form-field">
-                  <label htmlFor="upload-customer">{t('Customer (optional)')}</label>
-                  <RelationSelect
-                    id="upload-customer"
-                    name="customerId"
-                    value={customerId}
-                    onChange={setCustomerId}
-                  />
-                </div>
-                <div className="form-field">
-                  <label htmlFor="upload-booking">{t('Booking (optional)')}</label>
-                  <RelationSelect
-                    id="upload-booking"
-                    name="bookingId"
-                    value={bookingId}
-                    onChange={setBookingId}
-                  />
-                </div>
-              </>
-            )}
-          </div>
-          {Boolean(error) && <ErrorState error={error} />}
-          <div className="form-footer">
-            <span>
-              {upload.isPending
-                ? t('Uploading and validating your document…')
-                : t('Linked customer files require sensitive-data permission.')}
-            </span>
-            <Button
-              disabled={
-                !file ||
-                !documentName.trim() ||
-                (audience === 'SELECTED_CUSTOMER' && !customerId && !bookingId)
-              }
-              busy={upload.isPending}
-              onClick={() => upload.mutate()}
-            >
-              {t('Upload document')}
-            </Button>
-          </div>
-        </div>
-      </Modal>
+        onOpenChange={setUploading}
+        context="documents"
+        customerId={customerId}
+        bookingId={bookingId}
+        onSuccess={() => void query.refetch()}
+      />
     </>
   );
 }

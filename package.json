@@ -56,6 +56,8 @@
     "decimal.js": "^10.6.0",
     "electron-updater": "^6.8.9",
     "lucide-react": "^1.47.0",
+    "mammoth": "^1.13.0",
+    "qrcode.react": "^4.2.0",
     "react": "^19.3.0",
     "react-dom": "^19.3.0",
     "react-hook-form": "^7.88.0",

@@ -8,9 +8,9 @@ export const portfolioGroups = [
   {
     value: '',
     key: 'ALL',
-    label: 'All customers',
+    label: 'All members',
     icon: Users,
-    description: 'Every customer in this project',
+    description: 'Every member in this project',
   },
   {
     value: 'INSTALLMENTS',
@@ -78,11 +78,7 @@ export function PortfolioLinks({ record, kind }: { record: Row; kind: 'customers
             )
           ) : (
             asRows(booking.customers).map((customer) => (
-              <Link
-                className="record-link"
-                key={customer.id}
-                to={'/customers?record=' + customer.id}
-              >
+              <Link className="record-link" key={customer.id} to={'/customers/' + customer.id}>
                 {String(customer.name)}
                 <ArrowUpRight size={13} />
               </Link>
@@ -113,7 +109,7 @@ export function CustomerGroups({
   const active = portfolioGroups.find((g) => g.value === selected) ?? portfolioGroups[0]!;
   return (
     <div className="portfolio-filter">
-      <div className="portfolio-groups" aria-label={t('Customer groups')}>
+      <div className="portfolio-groups" aria-label={t('Member groups')}>
         {portfolioGroups.map((group) => (
           <button
             key={group.key}

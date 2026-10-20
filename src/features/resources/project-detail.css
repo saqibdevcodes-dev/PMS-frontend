@@ -323,7 +323,7 @@
 .project-photo-card .record-gallery .record-photo,
 .project-photo-card .record-gallery .photo-placeholder {
   width: 100%;
-  height: 100px;
+  height: 20rem;
   object-fit: cover;
   border-radius: 9px;
 }

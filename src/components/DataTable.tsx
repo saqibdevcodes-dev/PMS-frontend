@@ -195,23 +195,61 @@ export function DataTable({
                   </div>
                 ) : directory && key === 'name' ? (
                   <div className="customer-identity">
-                    <span className="customer-avatar" aria-hidden="true">
-                      <RecordImage
-                        id={r.original.photoId ? String(r.original.photoId) : undefined}
-                        alt={labelOf(r.original)}
-                        fallback={labelOf(r.original)
-                          .split(/\s+/)
-                          .slice(0, 2)
-                          .map((part) => part[0])
-                          .join('')
-                          .toUpperCase()}
-                      />
-                    </span>
+                    {onRow ? (
+                      <button
+                        type="button"
+                        className="customer-avatar customer-avatar-btn"
+                        onClick={() => onRow(r.original)}
+                        aria-label={labelOf(r.original)}
+                      >
+                        <RecordImage
+                          id={r.original.photoId ? String(r.original.photoId) : undefined}
+                          alt={labelOf(r.original)}
+                          fallback={labelOf(r.original)
+                            .split(/\s+/)
+                            .slice(0, 2)
+                            .map((part) => part[0])
+                            .join('')
+                            .toUpperCase()}
+                        />
+                      </button>
+                    ) : (
+                      <span className="customer-avatar" aria-hidden="true">
+                        <RecordImage
+                          id={r.original.photoId ? String(r.original.photoId) : undefined}
+                          alt={labelOf(r.original)}
+                          fallback={labelOf(r.original)
+                            .split(/\s+/)
+                            .slice(0, 2)
+                            .map((part) => part[0])
+                            .join('')
+                            .toUpperCase()}
+                        />
+                      </span>
+                    )}
                     <div>
                       <button className="record-link" onClick={() => onRow?.(r.original)}>
-                        {String(getValue())}
+                        <span className="customer-name-text">{String(getValue())}</span>
+                        {r.original.fatherName ? (
+                          <span className="customer-father-name">
+                            {' '}
+                            <span className="customer-relation-tag">
+                              {/^(s\/o|d\/o|w\/o|so|do|wo)\b/i.test(String(r.original.fatherName).trim())
+                                ? ''
+                                : 'S/O '}
+                            </span>
+                            {String(r.original.fatherName)}
+                          </span>
+                        ) : null}
                       </button>
-                      <small>{String(r.original.reference ?? '')}</small>
+                      <small>
+                        <span>{String(r.original.reference ?? '')}</span>
+                        {r.original.fatherName ? (
+                          <span className="customer-father-sub">
+                            {' '}· {t('Guardian')}: {String(r.original.fatherName)}
+                          </span>
+                        ) : null}
+                      </small>
                     </div>
                   </div>
                 ) : index === 0 && onRow ? (
@@ -349,7 +387,21 @@ export function DataTable({
             </thead>
             <tbody>
               {table.getRowModel().rows.map((r) => (
-                <tr key={r.id} data-selected={r.getIsSelected()}>
+                <tr
+                  key={r.id}
+                  data-selected={r.getIsSelected()}
+                  className={onRow ? 'interactive-row' : undefined}
+                  onClick={(e) => {
+                    const el = e.target as HTMLElement | null;
+                    if (
+                      el?.closest(
+                        'button, a, input, select, textarea, [role="menuitem"], .actions-menu-trigger',
+                      )
+                    )
+                      return;
+                    onRow?.(r.original);
+                  }}
+                >
                   {r.getVisibleCells().map((cell) => (
                     <td key={cell.id} data-column={cell.column.id}>
                       {flexRender(cell.column.columnDef.cell, cell.getContext())}

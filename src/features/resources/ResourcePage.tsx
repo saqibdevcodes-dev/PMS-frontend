@@ -18,6 +18,7 @@ import {
   Grid3X3,
   ScanLine,
   Pencil,
+  Receipt,
 } from 'lucide-react';
 import { resources, resourcePath, actionsFor, actionTitle } from './catalog';
 import { operations, projectRoot, resolvePath } from '../../lib/contract';
@@ -73,7 +74,7 @@ export function Unauthorized() {
 function bookingCell(key: string, record: Row) {
   if (key === 'customer' || key === 'unit') {
     const item = row(record[key]);
-    const href = key === 'customer' ? '/customers?record=' : '/inventory?record=';
+    const href = key === 'customer' ? '/customers/' : '/inventory?record=';
     const label = String(item.name ?? item.number ?? '—');
     const details =
       key === 'customer'
@@ -174,11 +175,19 @@ export default function ResourcePage({ slug }: { slug: string }) {
   useEffect(() => {
     const id = params.get('record');
     if (id) {
+      if (slug === 'customers') {
+        navigate(`/customers/${id}`, { replace: true });
+        return;
+      }
+      if (slug === 'users') {
+        navigate(`/users/${id}`, { replace: true });
+        return;
+      }
       const records = resource.report ? asRows(row(query.data).rows) : asRows(query.data);
       const found = records.find((r) => r.id === id);
       setDetail(found ?? { id });
     }
-  }, [params, query.data, resource.report]);
+  }, [params, query.data, resource.report, slug, navigate]);
   function update(key: string, value: string) {
     const next = new URLSearchParams(params);
     if (value) next.set(key, value);
@@ -234,6 +243,26 @@ export default function ResourcePage({ slug }: { slug: string }) {
           >
             <Pencil size={13} />
             {t('Edit')}
+          </Button>
+        )}
+        {slug === 'users' && record.id && (
+          <Button
+            variant="secondary"
+            size="small"
+            onClick={() => navigate(`/users/${record.id}`)}
+          >
+            <ArrowUpRight size={13} />
+            {t('View user')}
+          </Button>
+        )}
+        {slug === 'customers' && record.id && (
+          <Button
+            variant="secondary"
+            size="small"
+            onClick={() => navigate(`/customers/${record.id}`)}
+          >
+            <ArrowUpRight size={13} />
+            {t('View member')}
           </Button>
         )}
         {slug === 'projects' && (
@@ -321,16 +350,26 @@ export default function ResourcePage({ slug }: { slug: string }) {
                 </Link>
               </Button>
             )}
-            {createActions.map((op) => (
-              <Button
-                key={op.id}
-                variant={op.path === resourcePath(resource) ? 'primary' : 'secondary'}
-                onClick={() => setAction({ operation: op, title: actionTitle(op, resource) })}
-              >
-                <Plus size={16} />
-                {t(actionTitle(op, resource))}
+            {slug === 'customers' && can('customers.create') && (
+              <Button asChild>
+                <Link to="/members/register">
+                  <Plus size={17} />
+                  {t('Register member')}
+                </Link>
               </Button>
-            ))}
+            )}
+            {createActions
+              .filter((op) => !(slug === 'customers' && op.path === resourcePath(resource)))
+              .map((op) => (
+                <Button
+                  key={op.id}
+                  variant={op.path === resourcePath(resource) ? 'primary' : 'secondary'}
+                  onClick={() => setAction({ operation: op, title: actionTitle(op, resource) })}
+                >
+                  <Plus size={16} />
+                  {t(actionTitle(op, resource))}
+                </Button>
+              ))}
           </>
         }
       />
@@ -540,7 +579,15 @@ export default function ResourcePage({ slug }: { slug: string }) {
               ) : undefined
             }
             busy={query.isLoading}
-            onRow={setDetail}
+            onRow={(record) => {
+              if (slug === 'customers' && record.id) {
+                navigate(`/customers/${record.id}`);
+              } else if (slug === 'users' && record.id) {
+                navigate(`/users/${record.id}`);
+              } else {
+                setDetail(record);
+              }
+            }}
             actions={rowActions}
             page={page}
             total={total}
@@ -590,7 +637,22 @@ export default function ResourcePage({ slug }: { slug: string }) {
             }}
           />
         ))}
-      {action && <OperationDialog {...action} onClose={() => setAction(null)} />}
+      {action && (
+        <OperationDialog
+          {...action}
+          onClose={() => setAction(null)}
+          onSuccess={(res) => {
+            const createdId = (res as { id?: string })?.id;
+            if (slug === 'customers' && createdId) {
+              setAction(null);
+              navigate(`/customers/${createdId}`);
+            } else if (slug === 'users' && createdId) {
+              setAction(null);
+              navigate(`/users/${createdId}`);
+            }
+          }}
+        />
+      )}
     </>
   );
 }
