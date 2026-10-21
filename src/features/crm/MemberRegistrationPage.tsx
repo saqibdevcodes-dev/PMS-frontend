@@ -182,8 +182,8 @@ export default function MemberRegistrationPage() {
                 : t('This email address is already registered. Please use another email.'),
             );
           }
-        } catch (e: any) {
-          if (e.message && e.message.includes('already registered')) throw e;
+        } catch (e: unknown) {
+          if (e instanceof Error && e.message.includes('already registered')) throw e;
         }
       }
 

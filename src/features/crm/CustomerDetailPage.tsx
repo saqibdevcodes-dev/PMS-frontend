@@ -10,9 +10,6 @@ import {
   ExternalLink,
   ShieldCheck,
   UserCheck,
-  Phone,
-  Mail,
-  MapPin,
   CheckCircle2,
   Lock,
   ArrowUpRight,
@@ -20,7 +17,6 @@ import {
   FileUp,
   Download,
   Trash2,
-  Plus,
   FileSpreadsheet,
   X,
 } from 'lucide-react';
@@ -28,11 +24,11 @@ import { toast } from 'sonner';
 import { api } from '../../lib/api';
 import { operations } from '../../lib/contract';
 import { t, useLocale } from '../../lib/i18n';
-import { date, money, humanize } from '../../lib/format';
+import { date, money } from '../../lib/format';
 import { errorMessage } from '../../lib/error-messages';
 import { can } from '../../stores/auth';
 import { usePreferences } from '../../stores/preferences';
-import { Button, Badge, Skeleton, ErrorState, Modal } from '../../components/ui';
+import { Button, Badge, Skeleton, ErrorState } from '../../components/ui';
 import { QRCode } from '../../components/QRCode';
 import { RecordImage } from '../../components/ImageUpload';
 import { OperationDialog } from '../../components/OperationDialog';
@@ -124,11 +120,6 @@ export default function CustomerDetailPage() {
   const [propertyFileBookingId, setPropertyFileBookingId] = useState<string | null>(null);
   const [uploadDocOpen, setUploadDocOpen] = useState(false);
 
-  // Upload Form
-  const [uploadFile, setUploadFile] = useState<File | null>(null);
-  const [uploadDocName, setUploadDocName] = useState('');
-  const [uploadAudience, setUploadAudience] = useState<'SELECTED_CUSTOMER' | 'STAFF_ONLY'>('SELECTED_CUSTOMER');
-
   // Customer Profile Query
   const customerQuery = useQuery({
     queryKey: ['customer-detail', projectId, id],
@@ -178,32 +169,6 @@ export default function CustomerDetailPage() {
       }),
   });
 
-  // Upload Document Mutation
-  const uploadDocMutation = useMutation({
-    mutationFn: async () => {
-      if (!uploadFile) throw new Error(t('Select a file.'));
-      if (!uploadDocName.trim()) throw new Error(t('Enter a document name.'));
-
-      const body = new FormData();
-      body.append('file', uploadFile);
-      body.append('name', uploadDocName.trim());
-      body.append('customerId', id!);
-      body.append('audience', uploadAudience);
-
-      return api(`/projects/${projectId}/documents`, {
-        method: 'POST',
-        body,
-      });
-    },
-    onSuccess: () => {
-      toast.success(t('Document uploaded successfully'));
-      setUploadDocOpen(false);
-      setUploadFile(null);
-      setUploadDocName('');
-      void queryClient.invalidateQueries({ queryKey: ['customer-documents', projectId, id] });
-    },
-    onError: (e) => toast.error(errorMessage(e)),
-  });
 
   // Delete Document Mutation
   const deleteDocMutation = useMutation({

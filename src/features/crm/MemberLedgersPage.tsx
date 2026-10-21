@@ -1,27 +1,20 @@
-import { useState, useEffect } from 'react';
-import { useSearchParams, useNavigate, Link } from 'react-router-dom';
+import { useEffect } from 'react';
+import { useSearchParams, Link } from 'react-router-dom';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import {
   Receipt,
-  Search,
   Printer,
   Download,
   FileSpreadsheet,
   X,
-  User,
-  Building2,
-  ArrowUpRight,
   UserCheck,
-  Calendar,
 } from 'lucide-react';
-import { toast } from 'sonner';
 import { api } from '../../lib/api';
 import { t, useLocale } from '../../lib/i18n';
-import { errorMessage } from '../../lib/error-messages';
 import { usePreferences } from '../../stores/preferences';
 import { can } from '../../stores/auth';
-import { asRows, type Row, type Page } from '../../lib/types';
-import { Button, Skeleton, Badge } from '../../components/ui';
+import { asRows, type Page } from '../../lib/types';
+import { Button, Skeleton } from '../../components/ui';
 import { CustomerStatement, type AccountStatement } from '../reports/CustomerStatement';
 import { exportAndDownloadReport } from '../../lib/export-download';
 import './customer-detail.css';
@@ -37,15 +30,12 @@ interface CustomerItem {
 
 export default function MemberLedgersPage() {
   useLocale();
-  const navigate = useNavigate();
   const [params, setParams] = useSearchParams();
   const projectId = usePreferences((s) => s.projectId);
-  const currency = usePreferences((s) => s.currency);
 
   const activeCustomerId = params.get('customerId') ?? '';
   const fromDate = params.get('from') ?? '';
   const toDate = params.get('to') ?? '';
-  const [memberSearch, setMemberSearch] = useState('');
 
   // 1. Query all project members
   const membersQuery = useQuery({
@@ -118,18 +108,6 @@ export default function MemberLedgersPage() {
       return next;
     });
   };
-
-  const filteredMembers = members.filter((m) => {
-    if (!memberSearch.trim()) return true;
-    const term = memberSearch.toLowerCase();
-    return (
-      m.name.toLowerCase().includes(term) ||
-      (m.phone && m.phone.toLowerCase().includes(term)) ||
-      (m.email && m.email.toLowerCase().includes(term)) ||
-      (m.identityLast4 && m.identityLast4.includes(term)) ||
-      m.id.toLowerCase().includes(term)
-    );
-  });
 
   const statement = statementQuery.data?.statement;
 

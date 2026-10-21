@@ -3,9 +3,7 @@ import {
   UploadCloud,
   FileText,
   Image as ImageIcon,
-  CheckCircle2,
   AlertCircle,
-  X,
   ExternalLink,
   Trash2,
   Eye,
@@ -20,7 +18,7 @@ import { api } from '../lib/api';
 import { t, useLocale } from '../lib/i18n';
 import { errorMessage } from '../lib/error-messages';
 import { usePreferences } from '../stores/preferences';
-import { Button, Modal, Skeleton } from './ui';
+import { Button, Modal } from './ui';
 import { RelationSelect } from './RelationSelect';
 import './document-upload-modal.css';
 

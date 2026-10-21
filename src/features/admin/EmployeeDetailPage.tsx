@@ -25,8 +25,7 @@ import { t, useLocale } from '../../lib/i18n';
 import { date } from '../../lib/format';
 import { errorMessage } from '../../lib/error-messages';
 import { can } from '../../stores/auth';
-import { usePreferences } from '../../stores/preferences';
-import { Button, Badge, Skeleton, ErrorState, Modal } from '../../components/ui';
+import { Button, Badge, Skeleton, ErrorState } from '../../components/ui';
 import { QRCode } from '../../components/QRCode';
 import { RecordImage } from '../../components/ImageUpload';
 import { OperationDialog } from '../../components/OperationDialog';
@@ -80,18 +79,12 @@ export default function EmployeeDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const globalProjectId = usePreferences((s) => s.projectId);
 
   // Tab State: Overview & Access and Documents (no ledger for internal system users)
   const [activeTab, setActiveTab] = useState<'overview' | 'documents'>('overview');
 
   // Modals
   const [uploadDocOpen, setUploadDocOpen] = useState(false);
-
-  // Document Upload Form State
-  const [docFile, setDocFile] = useState<File | null>(null);
-  const [docName, setDocName] = useState('');
-  const [docProjectId, setDocProjectId] = useState('');
 
   // Role / Access Dialog
   const [action, setAction] = useState<{
@@ -136,40 +129,6 @@ export default function EmployeeDetailPage() {
     onError: (e) => toast.error(errorMessage(e)),
   });
 
-  const uploadDocMutation = useMutation({
-    mutationFn: async () => {
-      if (!docFile) throw new Error(t('Select a file.'));
-      if (!docName.trim()) throw new Error(t('Enter a document name.'));
-
-      const targetProjectId =
-        docProjectId ||
-        employee?.projects?.[0]?.project.id ||
-        globalProjectId;
-
-      if (!targetProjectId) {
-        throw new Error(t('Associated project') + ': ' + t('Select a file.'));
-      }
-
-      const body = new FormData();
-      body.append('file', docFile);
-      body.append('name', docName.trim());
-      body.append('userId', id!);
-      body.append('audience', 'STAFF_ONLY');
-
-      return api(`/projects/${targetProjectId}/documents`, {
-        method: 'POST',
-        body,
-      });
-    },
-    onSuccess: () => {
-      toast.success(t('Document uploaded successfully'));
-      setUploadDocOpen(false);
-      setDocFile(null);
-      setDocName('');
-      void queryClient.invalidateQueries({ queryKey: ['employee-documents', id] });
-    },
-    onError: (e) => toast.error(errorMessage(e)),
-  });
 
   const deleteDocMutation = useMutation({
     mutationFn: (docId: string) =>

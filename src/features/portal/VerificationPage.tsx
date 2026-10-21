@@ -8,11 +8,6 @@ import {
   Building2,
   CheckCircle2,
   ArrowRight,
-  Printer,
-  Receipt,
-  ExternalLink,
-  FileText,
-  BadgeAlert,
 } from 'lucide-react';
 import { api } from '../../lib/api';
 import { BrandLogo } from '../../components/BrandLogo';

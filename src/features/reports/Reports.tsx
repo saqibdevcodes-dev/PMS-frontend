@@ -1,4 +1,3 @@
-import { errorMessage } from '../../lib/error-messages';
 import { t, useLocale } from '../../lib/i18n';
 import { useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
@@ -11,7 +10,6 @@ import {
   CheckCircle2,
   Printer,
 } from 'lucide-react';
-import { toast } from 'sonner';
 import { api, queryString } from '../../lib/api';
 import { humanize, money } from '../../lib/format';
 import { asRows, type Row } from '../../lib/types';
@@ -46,7 +44,7 @@ export default function Reports() {
   const [params, setParams] = useSearchParams();
   const [draft, setDraft] = useState<Record<string, string>>(() => Object.fromEntries(params));
   const [page, setPage] = useState(1);
-  const [jobs, setJobs] = useState<{ id: string; projectId: string; filename: string }[]>([]);
+  const [jobs, _setJobs] = useState<{ id: string; projectId: string; filename: string }[]>([]);
   const filters = { ...Object.fromEntries(params), kind: params.get('kind') || 'sales' };
   const kind = filters.kind;
   const needsCustomer = kind === 'customer-statement' && !params.get('customerId');

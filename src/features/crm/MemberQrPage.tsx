@@ -5,7 +5,6 @@ import {
   QrCode,
   Search,
   Printer,
-  ExternalLink,
   UserCheck,
   CheckCircle2,
   X,
@@ -20,7 +19,7 @@ import { t, useLocale } from '../../lib/i18n';
 import { usePreferences } from '../../stores/preferences';
 import { can } from '../../stores/auth';
 import { asRows, type Page } from '../../lib/types';
-import { Button, Skeleton, Badge } from '../../components/ui';
+import { Button, Skeleton } from '../../components/ui';
 import { QRCode } from '../../components/QRCode';
 import { RecordImage } from '../../components/ImageUpload';
 import './customer-detail.css';

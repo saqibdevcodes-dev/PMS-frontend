@@ -18,7 +18,6 @@ import {
   Grid3X3,
   ScanLine,
   Pencil,
-  Receipt,
 } from 'lucide-react';
 import { resources, resourcePath, actionsFor, actionTitle } from './catalog';
 import { operations, projectRoot, resolvePath } from '../../lib/contract';

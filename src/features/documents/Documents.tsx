@@ -3,20 +3,16 @@ import { t, useLocale } from '../../lib/i18n';
 import { useState } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
 import { useQuery, useMutation } from '@tanstack/react-query';
-import { UploadCloud, Download, FileText, Image, Upload, Camera } from 'lucide-react';
+import { Download, FileText, Image, Upload } from 'lucide-react';
 import { toast } from 'sonner';
 import { api } from '../../lib/api';
-import { queryClient } from '../../lib/query';
 import { usePreferences } from '../../stores/preferences';
 import { can } from '../../stores/auth';
 import { asRows, type Page, type Row } from '../../lib/types';
 import { date } from '../../lib/format';
-import { saveFile, captureDocument, platform } from '../../platform/adapter';
-import { Button, PageHeading, Modal, ErrorState, EmptyState, Skeleton } from '../../components/ui';
-import { RelationSelect } from '../../components/RelationSelect';
+import { saveFile } from '../../platform/adapter';
+import { Button, PageHeading, ErrorState, EmptyState, Skeleton } from '../../components/ui';
 import { DocumentUploadModal } from '../../components/DocumentUploadModal';
-import { Select } from '../../components/Select';
-import { confirmDiscard, useUnsavedChanges } from '../../hooks/use-unsaved';
 import { ProjectRequired, Unauthorized } from '../resources/ResourcePage';
 export default function Documents() {
   useLocale();
@@ -24,12 +20,8 @@ export default function Documents() {
   const [params] = useSearchParams();
   const [page, setPage] = useState(1);
   const [uploading, setUploading] = useState(false);
-  const [file, setFile] = useState<File>();
-  const [documentName, setDocumentName] = useState('');
-  const [customerId, setCustomerId] = useState(params.get('customerId') ?? '');
-  const [bookingId, setBookingId] = useState(params.get('bookingId') ?? '');
-  const [audience, setAudience] = useState('STAFF_ONLY');
-  const [error, setError] = useState<unknown>();
+  const customerId = params.get('customerId') ?? '';
+  const bookingId = params.get('bookingId') ?? '';
   const suffix = new URLSearchParams({
     page: String(page),
     limit: '24',
@@ -40,30 +32,6 @@ export default function Documents() {
     queryKey: ['documents', projectId, suffix.toString()],
     enabled: !!projectId && can('documents.read'),
     queryFn: ({ signal }) => api<Page>(`/projects/${projectId}/documents?${suffix}`, { signal }),
-  });
-  const upload = useMutation({
-    mutationFn: () => {
-      if (!file) throw new Error(t('Select a file.'));
-      const body = new FormData();
-      if (!documentName.trim()) throw new Error(t('Enter a document name.'));
-      body.append('file', file);
-      body.append('name', documentName.trim());
-      body.append('audience', audience);
-      if (audience !== 'ALL_PROJECT_CUSTOMERS') {
-        if (customerId) body.append('customerId', customerId);
-        if (bookingId) body.append('bookingId', bookingId);
-      }
-      return api(`/projects/${projectId}/documents`, { method: 'POST', body });
-    },
-    onSuccess: () => {
-      toast.success(t('Document uploaded'));
-      setUploading(false);
-      setFile(undefined);
-      setDocumentName('');
-      setAudience('STAFF_ONLY');
-      void queryClient.invalidateQueries();
-    },
-    onError: setError,
   });
   const download = useMutation({
     mutationFn: (r: Row) =>
@@ -89,22 +57,8 @@ export default function Documents() {
     },
     onError: (e: Error) => toast.error(errorMessage(e)),
   });
-  useUnsavedChanges(uploading && Boolean(file || documentName.trim()));
   if (!can('documents.read')) return <Unauthorized />;
   if (!projectId) return <ProjectRequired />;
-  function choose(selected?: File) {
-    setError(undefined);
-    if (!selected) return;
-    if (
-      !['application/pdf', 'image/jpeg', 'image/png'].includes(selected.type) ||
-      selected.size > 10 * 1024 * 1024
-    ) {
-      setError(new Error(t('Choose a PDF, JPEG, or PNG up to 10 MiB.')));
-      return;
-    }
-    setFile(selected);
-    if (!documentName) setDocumentName(selected.name.replace(/\.[^.]+$/, ''));
-  }
   return (
     <>
       <PageHeading
@@ -123,7 +77,6 @@ export default function Documents() {
               <Button
                 onClick={() => {
                   setUploading(true);
-                  setError(undefined);
                 }}
               >
                 <Upload size={16} />

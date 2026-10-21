@@ -37,14 +37,12 @@ export async function exportAndDownloadReport({
       `estate-${report.kind || 'report'}-${Date.now().toString().slice(-6)}.${format}`;
 
     // 2. Poll job status until COMPLETED (with up to 25 attempts, 500ms delay)
-    let isComplete = false;
     for (let i = 0; i < 25; i++) {
       const statusRes = await api<{ status: string; error?: string }>(
         `/projects/${projectId}/jobs/${job.id}`
       );
 
       if (statusRes.status === 'COMPLETED') {
-        isComplete = true;
         break;
       }
       if (statusRes.status === 'FAILED') {
