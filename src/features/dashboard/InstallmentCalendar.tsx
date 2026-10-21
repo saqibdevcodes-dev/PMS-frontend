@@ -252,7 +252,7 @@ export function InstallmentCalendar() {
           })}
           wide
         >
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }} className='m-4'>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <span style={{ fontSize: 13, fontWeight: 600 }}>
                 {t('Total Obligations')}: {dayInstallments.length}
