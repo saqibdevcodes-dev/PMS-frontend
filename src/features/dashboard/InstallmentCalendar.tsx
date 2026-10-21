@@ -83,19 +83,23 @@ export function InstallmentCalendar() {
   const todayStr = new Date().toISOString().slice(0, 10);
 
   // Installments for the selected day modal
+  const dayInstallments = useMemo(
+    () => (selectedDay ? (byDate.get(selectedDay) ?? []) : []),
+    [selectedDay, byDate],
+  );
+
   const filteredDayInstallments = useMemo(() => {
-    const list = selectedDay ? (byDate.get(selectedDay) ?? []) : [];
     if (filterStatus === 'unpaid') {
-      return list.filter((i) => Number(i.outstanding) > 0);
+      return dayInstallments.filter((i) => Number(i.outstanding) > 0);
     }
     if (filterStatus === 'overdue') {
-      return list.filter((i) => Number(i.overdue) > 0);
+      return dayInstallments.filter((i) => Number(i.overdue) > 0);
     }
     if (filterStatus === 'paid') {
-      return list.filter((i) => Number(i.outstanding) === 0);
+      return dayInstallments.filter((i) => Number(i.outstanding) === 0);
     }
-    return list;
-  }, [selectedDay, byDate, filterStatus]);
+    return dayInstallments;
+  }, [dayInstallments, filterStatus]);
 
   return (
     <section className="calendar-panel" aria-label={t('Installment Due Calendar')}>
