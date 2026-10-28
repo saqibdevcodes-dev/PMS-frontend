@@ -7,6 +7,7 @@ import {
   CreditCard,
   ReceiptText,
   HandCoins,
+  Coins,
   UserRoundCheck,
   ShieldCheck,
   ArrowLeftRight,
@@ -235,14 +236,36 @@ export const resources: Resource[] = [
   },
   {
     slug: 'vendors',
-    label: 'Vendors',
+    label: 'Sellers & suppliers',
     singular: 'vendor',
     api: 'vendors',
     icon: Store,
     group: 'Accounts & administration',
     permission: 'finance.read',
-    description: 'Manage project contractors and service providers.',
-    columns: ['name', 'phone'],
+    description: 'Manage sellers, suppliers and contractors for this project.',
+    columns: ['name', 'category', 'phone', 'email', 'address'],
+  },
+  {
+    slug: 'property-purchases',
+    label: 'Property purchases',
+    singular: 'property purchase',
+    api: 'property-purchases',
+    icon: Building2,
+    group: 'Accounts & administration',
+    permission: 'finance.read',
+    description:
+      'Record property acquisitions for resale or development, review costs and post seller obligations.',
+    columns: [
+      'reference',
+      'title',
+      'unit',
+      'vendor',
+      'purchaseDate',
+      'price',
+      'otherCosts',
+      'total',
+      'status',
+    ],
   },
   {
     slug: 'document-templates',
@@ -299,6 +322,13 @@ export const specialNav = [
     group: 'Workspace',
     permission: 'reports.read',
   },
+  {
+    slug: 'property-lifecycle',
+    label: 'Property Lifecycle',
+    icon: Coins,
+    group: 'Workspace',
+    permission: 'inventory.read',
+  },
   { slug: 'my-work', label: 'My work', icon: ListTodo, group: 'Workspace', permission: '' },
   {
     slug: 'documents',
@@ -341,6 +371,8 @@ export const primarySlugs = new Set([
   'transfers',
   'possessions',
   'journals',
+  'vendors',
+  'property-purchases',
   'users',
 ]);
 export const navItems = [
@@ -369,6 +401,10 @@ const stateRules: Record<string, string[]> = {
 export function allowedAction(op: Operation, record?: Row): boolean {
   if (!can(op.permission)) return false;
   if (!record) return true;
+  if (op.path.includes('/property-purchases/')) {
+    if (op.method === 'patch' || op.path.endsWith('/post')) return record.status === 'DRAFT';
+    if (op.path.endsWith('/void')) return record.status !== 'VOIDED';
+  }
   if (
     /\/units\/\{id\}(?:\/price)?$/.test(op.path) &&
     !['AVAILABLE', 'BLOCKED'].includes(String(record.status))
@@ -405,6 +441,8 @@ export function actionsFor(resource: Resource, record?: Row) {
 }
 export function actionTitle(op: Operation, resource?: Resource) {
   const tail = op.path.split('/').at(-1)!;
+  if (op.path.includes('/property-purchases/') && tail === 'post') return 'Post purchase';
+  if (op.path.includes('/property-purchases/') && tail === 'void') return 'Void purchase';
   if (tail === 'verification') return 'Review case documents';
   if (tail === 'verify-fee') return 'Verify transfer fee';
   if (tail === 'complete' && resource?.slug === 'transfers') return 'Complete transfer';

@@ -112,7 +112,33 @@ export async function openExternal(url: string) {
   }
   window.open(url, '_blank', 'noopener,noreferrer');
 }
-export function print() {
+export async function print() {
+  // Signed image URLs resolve asynchronously. Wait for document branding before
+  // opening print preview, including the actual image download and decoding.
+  const deadline = Date.now() + 15000;
+  while (document.querySelector('.project-logo[aria-busy="true"], .project-logo .photo-loading')) {
+    if (Date.now() > deadline)
+      throw new Error('The project logo is still loading. Please try printing again.');
+    await new Promise((resolve) => setTimeout(resolve, 100));
+  }
+  await Promise.all(
+    Array.from(document.querySelectorAll<HTMLImageElement>('.project-logo img')).map(
+      async (image) => {
+        const decoded = image.decode().catch(() => undefined);
+        await Promise.race([
+          decoded,
+          new Promise<never>((_, reject) => {
+            const timer = setTimeout(
+              () =>
+                reject(new Error('The project logo is still loading. Please try printing again.')),
+              15000,
+            );
+            void decoded.finally(() => clearTimeout(timer));
+          }),
+        ]);
+      },
+    ),
+  );
   return desktop ? desktop.print() : window.print();
 }
 export async function saveFile(url: string, name = 'document.pdf') {

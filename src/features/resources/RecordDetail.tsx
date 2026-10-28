@@ -8,18 +8,20 @@ import { api } from '../../lib/api';
 import { errorMessage } from '../../lib/error-messages';
 import { operations, resolvePath, operation, projectRoot } from '../../lib/contract';
 import { asRows, row, type Row, type Operation } from '../../lib/types';
-import { labelOf, humanize } from '../../lib/format';
+import { labelOf, humanize, money } from '../../lib/format';
 import { can } from '../../stores/auth';
 import { usePreferences } from '../../stores/preferences';
 import { type Resource, resourcePath, actionsFor, actionTitle } from './catalog';
 import { Button, Modal, Skeleton, ErrorState } from '../../components/ui';
 import { DataTable, DisplayValue } from '../../components/DataTable';
 import { Receipt } from './Receipt';
+import { JournalVoucher } from './JournalVoucher';
 import { OperationDialog } from '../../components/OperationDialog';
 import CustomerAccess from '../portal/CustomerAccess';
 import { PortfolioLinks, PaymentStatus } from './Portfolio';
 import { VerificationSummary } from '../../components/OwnershipVerification';
 import { PropertyFileModal } from '../bookings/PropertyFileModal';
+import { PropertyPurchaseWizard } from './PropertyPurchaseWizard';
 import '../portal/portal.css';
 const hidden = new Set([
   'id',
@@ -61,6 +63,7 @@ export default function RecordDetail({
   const projectId = usePreferences((s) => s.projectId);
   const [tab, setTab] = useState('overview');
   const [receipt, setReceipt] = useState(false);
+  const [voucher, setVoucher] = useState(false);
   const [propertyFile, setPropertyFile] = useState(false);
   const [action, setAction] = useState<{
     operation: Operation;
@@ -112,6 +115,13 @@ export default function RecordDetail({
               <h3>{labelOf(detail)}</h3>
             </div>
             <div className="detail-actions">
+              {(resource.slug === 'journals' ||
+                (resource.slug === 'property-purchases' && Boolean(detail.journalId))) &&
+                can('finance.read') && (
+                  <Button size="small" variant="secondary" onClick={() => setVoucher(true)}>
+                    {t('Print voucher')}
+                  </Button>
+                )}
               {actionsFor(resource, detail)
                 .filter((op) => !op.path.endsWith('/reschedule'))
                 .map((op) => (
@@ -182,6 +192,29 @@ export default function RecordDetail({
                 can('customers.portal.manage') &&
                 record.id &&
                 projectId && <CustomerAccess projectId={projectId} customerId={record.id} />}
+              {resource.slug === 'property-purchases' && detail.status === 'DRAFT' && (
+                <div className="document-notice" style={{ marginBottom: 16 }}>
+                  <strong>{t('Draft Status: Not yet recorded in financial accounts')}</strong>
+                  <p style={{ margin: '4px 0 0', fontSize: 12 }}>
+                    {t(
+                      'This acquisition draft is saved. Review the purchase cost and click "Post purchase" above to record the property into inventory assets and generate the accounting voucher.',
+                    )}
+                  </p>
+                </div>
+              )}
+              {resource.slug === 'property-purchases' && detail.status === 'POSTED' && (
+                <div
+                  className="document-notice"
+                  style={{ marginBottom: 16, borderInlineStartColor: 'var(--success, #16a34a)' }}
+                >
+                  <strong>{t('Finalized & Posted')}</strong>
+                  <p style={{ margin: '4px 0 0', fontSize: 12 }}>
+                    {t(
+                      'This purchase is officially recorded in project ledger accounts. Click "Print voucher" above to view or print the accounting debit/credit breakdown.',
+                    )}
+                  </p>
+                </div>
+              )}
               <dl className="detail-grid">
                 {Object.entries(detail)
                   .filter(
@@ -190,7 +223,11 @@ export default function RecordDetail({
                       !hidden.has(k) &&
                       (!/Id$/.test(k) || /photoId|proofImageId/.test(k)) &&
                       v !== null &&
-                      (typeof v !== 'object' || ['customer', 'unit', 'booking'].includes(k)),
+                      k !== 'expenseItems' &&
+                      (typeof v !== 'object' ||
+                        ['customer', 'unit', 'booking', 'vendor', 'journal', 'reversal', 'dealer'].includes(
+                          k,
+                        )),
                   )
                   .map(([k, v]) => (
                     <div key={k}>
@@ -201,6 +238,39 @@ export default function RecordDetail({
                     </div>
                   ))}
               </dl>
+              {resource.slug === 'property-purchases' &&
+                Array.isArray(detail.expenseItems) &&
+                detail.expenseItems.length > 0 && (
+                  <section className="detail-section" style={{ marginTop: 20 }}>
+                    <h4 style={{ fontSize: 14, fontWeight: 600, marginBottom: 10 }}>
+                      {t('Renovation & Building Expenses')} ({detail.expenseItems.length})
+                    </h4>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                      {(detail.expenseItems as Array<{ id?: string; name: string; amount: string | number }>).map(
+                        (item, i) => (
+                          <div
+                            key={item.id || i}
+                            style={{
+                              display: 'flex',
+                              justifyContent: 'space-between',
+                              alignItems: 'center',
+                              padding: '8px 12px',
+                              borderRadius: 6,
+                              background: 'var(--surface-active, #f8fafc)',
+                              border: '1px solid var(--border)',
+                              fontSize: 13,
+                            }}
+                          >
+                            <span style={{ fontWeight: 500 }}>{item.name}</span>
+                            <span style={{ fontWeight: 600, color: 'var(--primary, #0284c7)' }}>
+                              {money(item.amount)}
+                            </span>
+                          </div>
+                        ),
+                      )}
+                    </div>
+                  </section>
+                )}
               {detail.verification != null && <VerificationSummary value={detail.verification} />}
               {resource.slug === 'users' && record.id && (
                 <div className="detail-links">
@@ -389,10 +459,38 @@ export default function RecordDetail({
         </div>
       </Modal>
       {receipt && <Receipt id={String(row(detail.receipt).id)} onClose={() => setReceipt(false)} />}
+      {voucher && record.id && (
+        <JournalVoucher
+          id={String(resource.slug === 'property-purchases' ? detail.journalId : record.id)}
+          onClose={() => setVoucher(false)}
+        />
+      )}
       {propertyFile && record.id && (
         <PropertyFileModal bookingId={String(record.id)} onClose={() => setPropertyFile(false)} />
       )}
-      {action && <OperationDialog {...action} onClose={() => setAction(null)} />}
+      {action &&
+        (resource.slug === 'property-purchases' &&
+        ((action.operation.method === 'post' && !action.operation.path.endsWith('/post')) ||
+          action.operation.method === 'patch') ? (
+          <PropertyPurchaseWizard
+            operation={action.operation}
+            record={action.record}
+            onClose={() => setAction(null)}
+            onSuccess={() => {
+              setAction(null);
+              query.refetch();
+            }}
+          />
+        ) : (
+          <OperationDialog
+            {...action}
+            onClose={() => setAction(null)}
+            onSuccess={() => {
+              setAction(null);
+              query.refetch();
+            }}
+          />
+        ))}
     </>
   );
 }

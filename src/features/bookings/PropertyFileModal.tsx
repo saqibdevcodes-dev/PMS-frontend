@@ -7,7 +7,10 @@ import { asRows, row, type Row } from '../../lib/types';
 import { money, date, humanize } from '../../lib/format';
 import { Button, Modal, Skeleton, ErrorState } from '../../components/ui';
 import { QRCode } from '../../components/QRCode';
-import { BrandLogo } from '../../components/BrandLogo';
+import { ProjectLogo } from '../../components/ProjectLogo';
+import { print } from '../../platform/adapter';
+import { toast } from 'sonner';
+import { errorMessage } from '../../lib/error-messages';
 import './property-file.css';
 
 export function PropertyFileModal({
@@ -38,7 +41,7 @@ export function PropertyFileModal({
   const verifyUrl = `${window.location.origin}/verify?ref=${encodeURIComponent(String(booking.reference ?? ''))}`;
 
   const handlePrint = () => {
-    window.print();
+    void print().catch((error) => toast.error(errorMessage(error)));
   };
 
   return (
@@ -82,9 +85,7 @@ export function PropertyFileModal({
             {/* Header */}
             <div className="sheet-header">
               <div className="sheet-branding">
-                <div style={{ width: 42, height: 42, display: 'flex', alignItems: 'center' }}>
-                  <BrandLogo variant="symbol" decorative />
-                </div>
+                <ProjectLogo projectId={projectId} name={projectName} />
                 <div>
                   <h2>{projectName || t('Real Estate Development')}</h2>
                   <p>{t('Computerized Property Management & Allotment File')}</p>

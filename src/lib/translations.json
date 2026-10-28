@@ -1,5 +1,88 @@
 {
-  "Member ledgers": [
+  "Acquisition cost summary": ["خریداری کی لاگت کا خلاصہ", "ملخص تكلفة الاقتناء"],
+  "Additional acquisition costs": ["خریداری کے اضافی اخراجات", "تكاليف الاقتناء الإضافية"],
+  "Total acquisition cost": ["خریداری کی کل لاگت", "إجمالي تكلفة الاقتناء"],
+  "Sellers & suppliers": ["فروخت کنندگان اور سپلائرز", "البائعون والموردون"],
+  "Manage sellers, suppliers and contractors for this project.": ["اس منصوبے کے فروخت کنندگان، سپلائرز اور ٹھیکیداروں کا انتظام کریں۔", "إدارة البائعين والموردين والمقاولين لهذا المشروع."],
+  "Property purchases": ["جائیداد کی خریداری", "مشتريات العقارات"],
+  "Add property purchase": ["جائیداد کی خریداری شامل کریں", "إضافة شراء عقار"],
+  "Edit property purchase": ["جائیداد کی خریداری میں ترمیم کریں", "تعديل شراء عقار"],
+  "Record property acquisitions for resale or development, review costs and post seller obligations.": ["دوبارہ فروخت یا تعمیر کے لیے خریداری درج کریں، لاگت کا جائزہ لیں اور فروخت کنندہ کی واجب الادا رقم کھاتوں میں درج کریں۔", "سجل اقتناء العقارات لإعادة البيع أو التطوير وراجع التكاليف ورحّل التزامات البائعين."],
+  "Post purchase": ["خریداری کھاتوں میں درج کریں", "ترحيل الشراء"],
+  "Void purchase": ["خریداری منسوخ کریں", "إلغاء الشراء"],
+  "Seller or supplier": ["فروخت کنندہ یا سپلائر", "البائع أو المورد"],
+  "Purchase agreement reference": ["خریداری کے معاہدے کا حوالہ", "مرجع اتفاقية الشراء"],
+  "Purchase date": ["خریداری کی تاریخ", "تاريخ الشراء"],
+  "Purchase price": ["قیمت خرید", "سعر الشراء"],
+  "Non-recoverable acquisition taxes": ["خریداری کے ناقابل واپسی ٹیکس", "ضرائب الاقتناء غير القابلة للاسترداد"],
+  "Acquisition legal fees": ["خریداری کی قانونی فیس", "الرسوم القانونية للاقتناء"],
+  "Acquisition brokerage": ["خریداری کی دلالی فیس", "عمولة وساطة الاقتناء"],
+  "Other direct acquisition costs": ["خریداری کے دیگر براہ راست اخراجات", "تكاليف الاقتناء المباشرة الأخرى"],
+  "Seller": ["فروخت کنندہ", "البائع"],
+  "Supplier": ["سپلائر", "المورد"],
+  "Contractor": ["ٹھیکیدار", "المقاول"],
+  "Multi role": ["متعدد کردار", "متعدد الأدوار"],
+  "Posted": ["کھاتوں میں درج", "مرحّل"],
+  "Voided": ["منسوخ", "ملغى"],
+  "The agreed property price owed to the seller, excluding the additional acquisition costs below.": ["فروخت کنندہ کو ادا کی جانے والی طے شدہ قیمت، نیچے درج اضافی اخراجات کے بغیر۔", "سعر العقار المتفق عليه المستحق للبائع دون تكاليف الاقتناء الإضافية أدناه."],
+  "Choose the seller": ["فروخت کنندہ منتخب کریں", "اختر البائع"],
+  "Add the seller under Sellers & suppliers first. Choose Seller or Multi-role as their category.": ["پہلے فروخت کنندگان اور سپلائرز میں رابطہ شامل کریں۔ زمرہ فروخت کنندہ یا متعدد کردار منتخب کریں۔", "أضف البائع أولاً ضمن البائعين والموردين واختر فئة البائع أو متعدد الأدوار."],
+  "Only include direct acquisition costs. Exclude recoverable taxes, selling costs and general administration.": ["صرف براہ راست خریداری کے اخراجات درج کریں۔ قابل واپسی ٹیکس، فروخت اور عمومی انتظامی اخراجات شامل نہ کریں۔", "أدرج تكاليف الاقتناء المباشرة فقط دون الضرائب القابلة للاسترداد وتكاليف البيع والإدارة العامة."],
+  "For property acquired for resale or development. Save a draft, review the costs, then post it to the accounts. The purchase price becomes payable to the seller; additional direct costs are accrued separately. No cash payment is recorded here.": ["دوبارہ فروخت یا تعمیر کے لیے خریدی گئی جائیداد کی خاطر۔ مسودہ محفوظ کریں، لاگت کا جائزہ لیں، پھر کھاتوں میں درج کریں۔ قیمت فروخت کنندہ کو واجب الادا ہوگی اور اضافی اخراجات الگ واجب الادا ہوں گے۔ یہاں نقد ادائیگی درج نہیں ہوتی۔", "للعقارات المشتراة لإعادة البيع أو التطوير. احفظ مسودة وراجع التكاليف ثم رحّلها إلى الحسابات. يصبح السعر مستحقًا للبائع وتُستحق التكاليف المباشرة الإضافية بشكل منفصل. لا يُسجّل دفع نقدي هنا."],
+  "Posting records inventory and unpaid acquisition obligations. It does not pay the seller. Posted costs can only be corrected through a reversal.": ["کھاتوں میں درج کرنے سے اثاثہ اور غیر ادا شدہ واجبات بنتے ہیں۔ فروخت کنندہ کو ادائیگی نہیں ہوتی۔ درج شدہ لاگت صرف الٹی اندراج سے درست کی جا سکتی ہے۔", "يسجل الترحيل المخزون والتزامات الاقتناء غير المدفوعة ولا يدفع للبائع. تصحح التكاليف المرحلة بقيد عكسي فقط."],
+  "Project logo": [
+    "منصوبے کا لوگو",
+    "شعار المشروع"
+  ],
+  "Project logo saved": [
+    "منصوبے کا لوگو محفوظ ہو گیا",
+    "تم حفظ شعار المشروع"
+  ],
+  "Project branding": [
+    "منصوبے کی شناخت",
+    "هوية المشروع"
+  ],
+  "Use this logo on project receipts, vouchers, statements and generated documents.": [
+    "یہ لوگو منصوبے کی رسیدوں، واؤچرز، گوشواروں اور تیار کردہ دستاویزات پر استعمال ہوگا۔",
+    "يُستخدم هذا الشعار في إيصالات المشروع وقسائمه وكشوفه ومستنداته."
+  ],
+  "Document preview": [
+    "دستاویز کا پیش نظارہ",
+    "معاينة المستند"
+  ],
+  "The Etihad logo is used when no project logo is selected.": [
+    "منصوبے کا لوگو منتخب نہ ہونے پر اتحاد کا لوگو استعمال ہوگا۔",
+    "يُستخدم شعار الاتحاد عند عدم اختيار شعار للمشروع."
+  ],
+  "Save project logo": [
+    "منصوبے کا لوگو محفوظ کریں",
+    "حفظ شعار المشروع"
+  ],
+  "Choose a PNG or JPEG logo up to 5 MiB.": [
+    "پانچ میبی بائٹ تک کا PNG یا JPEG لوگو منتخب کریں۔",
+    "اختر شعار PNG أو JPEG بحجم أقصى 5 MiB."
+  ],
+  "PNG or JPEG. Maximum 5 MiB. Use a logo suitable for a white page.": [
+    "PNG یا JPEG، زیادہ سے زیادہ 5 MiB۔ سفید صفحے کے لیے موزوں لوگو استعمال کریں۔",
+    "PNG أو JPEG، بحد أقصى 5 MiB. استخدم شعارًا مناسبًا لصفحة بيضاء."
+  ],
+  "Journal voucher": [
+    "جرنل واؤچر",
+    "سند قيد يومية"
+  ],
+  "Print voucher": [
+    "واؤچر پرنٹ کریں",
+    "طباعة السند"
+  ],
+  "Reversed by": [
+    "منسوخی کا واؤچر",
+    "عُكس بواسطة"
+  ],
+  "Reversal of": [
+    "اس واؤچر کی منسوخی",
+    "عكس السند"
+  ],
+"Member ledgers": [
     "ممبر لیجرز",
     "دفاتر الأستاذ للأعضاء"
   ],

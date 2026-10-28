@@ -45,12 +45,14 @@ export function OperationDialog({
   const [customerLoginEnabled, setCustomerLoginEnabled] = useState(false);
   const customerCreate = operation.method === 'post' && operation.path.endsWith('/customers');
   const bodySchema = operation.body ?? { type: 'object', properties: {} };
+  const purchasePosting = operation.path.endsWith('/property-purchases/{id}/post');
   const confirmationOnly =
-    bodySchema.type === 'object' &&
-    !Object.keys(bodySchema.properties ?? {}).length &&
-    !bodySchema.anyOf &&
-    !bodySchema.allOf &&
-    !bodySchema.$ref;
+    purchasePosting ||
+    (bodySchema.type === 'object' &&
+      !Object.keys(bodySchema.properties ?? {}).length &&
+      !bodySchema.anyOf &&
+      !bodySchema.allOf &&
+      !bodySchema.$ref);
   const bookingConfirmation = operation.path.endsWith('/bookings/{id}/confirm');
   const reviewValues = confirmationOnly
     ? Object.fromEntries(
@@ -58,6 +60,16 @@ export function OperationDialog({
           [bookingConfirmation ? 'Booking number' : 'Reference']: record?.reference,
           Name: record?.name ?? record?.title ?? record?.number,
           Member: row(record?.customer).name,
+          ...(purchasePosting
+            ? {
+                Seller: row(record?.vendor).name,
+                'Purchase price': money(record?.price),
+                'Non-recoverable acquisition taxes': money(record?.taxes),
+                'Acquisition legal fees': money(record?.legalFees),
+                'Acquisition brokerage': money(record?.brokerage),
+                'Other direct acquisition costs': money(record?.otherCosts),
+              }
+            : {}),
           Property: row(record?.unit).number,
           Booking: row(record?.booking).reference,
           'New owner': row(record?.buyer).name,
@@ -81,7 +93,9 @@ export function OperationDialog({
         }),
         {
           method: operation.method.toUpperCase(),
-          body,
+          body: purchasePosting
+            ? { expectedTotal: String(record?.total), expectedUpdatedAt: record?.updatedAt }
+            : body,
           idempotencyKey: hasIdempotency ? key : undefined,
         },
       ),
@@ -124,6 +138,13 @@ export function OperationDialog({
       className={customerCreate ? 'customer-dialog' : undefined}
     >
       <div className="modal-body">
+        {purchasePosting && !done && (
+          <p className="document-notice">
+            {t(
+              'Posting records inventory and unpaid acquisition obligations. It does not pay the seller. Posted costs can only be corrected through a reversal.',
+            )}
+          </p>
+        )}
         {done ? (
           <div className="success-panel">
             <CheckCircle2 size={40} />

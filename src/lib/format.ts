@@ -76,4 +76,4 @@ export const labelOf = (record: Record<string, unknown>) =>
       t('Record'),
   );
 export const moneyFields =
-  /^(price|charges|amount|total|discount|deduction|refundable|debit|credit|balance|paid|outstanding|overdue|collected|unallocated|downPayment|netSales|verifiedCollections|commission|promiseAmount|netIncome|assets|liabilities|equity)$/i;
+  /^(price|taxes|legalFees|brokerage|otherCosts|charges|amount|total|discount|deduction|refundable|debit|credit|balance|paid|outstanding|overdue|collected|unallocated|downPayment|netSales|verifiedCollections|commission|promiseAmount|netIncome|assets|liabilities|equity)$/i;

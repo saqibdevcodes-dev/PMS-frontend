@@ -1,3 +1,5 @@
+import './brand-logo.css';
+
 const artwork = {
   full: {
     light: { src: '/Logos/EtihadRealEstate-white-bg.png', width: 2220, height: 1018 },
@@ -28,8 +30,40 @@ export function BrandLogo({
       aria-label={decorative ? undefined : 'Etihad Real Estate'}
       aria-hidden={decorative || undefined}
     >
-      <img className="brand-logo-light" {...art.light} alt="" />
-      <img className="brand-logo-dark" {...art.dark} alt="" />
+      {background === 'dark' ? (
+        <img
+          className="brand-logo-dark"
+          src={art.dark.src}
+          alt=""
+          loading="eager"
+          draggable={false}
+        />
+      ) : background === 'light' ? (
+        <img
+          className="brand-logo-light"
+          src={art.light.src}
+          alt=""
+          loading="eager"
+          draggable={false}
+        />
+      ) : (
+        <>
+          <img
+            className="brand-logo-light"
+            src={art.light.src}
+            alt=""
+            loading="eager"
+            draggable={false}
+          />
+          <img
+            className="brand-logo-dark"
+            src={art.dark.src}
+            alt=""
+            loading="eager"
+            draggable={false}
+          />
+        </>
+      )}
     </span>
   );
 }

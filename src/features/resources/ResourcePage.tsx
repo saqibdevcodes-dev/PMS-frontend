@@ -18,6 +18,8 @@ import {
   Grid3X3,
   ScanLine,
   Pencil,
+  CheckCircle2,
+  FileText,
 } from 'lucide-react';
 import { resources, resourcePath, actionsFor, actionTitle } from './catalog';
 import { operations, projectRoot, resolvePath } from '../../lib/contract';
@@ -33,8 +35,11 @@ import { DataTable } from '../../components/DataTable';
 import { Select } from '../../components/Select';
 import { OperationDialog } from '../../components/OperationDialog';
 import RecordDetail from './RecordDetail';
+import { PropertyPurchaseWizard } from './PropertyPurchaseWizard';
+import { JournalVoucher } from './JournalVoucher';
 import { CustomerGroups, PaymentStatus, PortfolioLinks } from './Portfolio';
 import { ProjectTableHeading, projectCell, projectColumnLabels } from './ProjectTable';
+import { PropertyPurchaseGuide, purchaseCell, purchaseColumnLabels } from './PurchaseTable';
 export function ProjectRequired() {
   useLocale();
   return (
@@ -121,6 +126,7 @@ export default function ResourcePage({ slug }: { slug: string }) {
     record?: Row;
   } | null>(null);
   const [detail, setDetail] = useState<Row | null>(null);
+  const [voucherJournalId, setVoucherJournalId] = useState<string | null>(null);
   const path = resource.report ? projectRoot + '/reports' : resourcePath(resource);
   const get = operations.find((op) => op.path === path && op.method === 'get');
   const queryParams = useMemo(
@@ -218,6 +224,10 @@ export default function ResourcePage({ slug }: { slug: string }) {
     const edit = slug === 'customers' ? allowed.find((op) => op.method === 'patch') : undefined;
     const verify =
       slug === 'collections' ? allowed.find((op) => op.path.endsWith('/verify')) : undefined;
+    const postPurchase =
+      slug === 'property-purchases' ? allowed.find((op) => op.path.endsWith('/post')) : undefined;
+    const editPurchase =
+      slug === 'property-purchases' ? allowed.find((op) => op.method === 'patch') : undefined;
     return (
       <div className="row-actions">
         {verify && (
@@ -231,6 +241,51 @@ export default function ResourcePage({ slug }: { slug: string }) {
             {t('Verify payment')}
           </Button>
         )}
+        {postPurchase && (
+          <Button
+            size="small"
+            variant="primary"
+            onClick={() =>
+              setAction({
+                operation: postPurchase,
+                title: actionTitle(postPurchase, resource),
+                record,
+              })
+            }
+          >
+            <CheckCircle2 size={13} />
+            {t('Post purchase')}
+          </Button>
+        )}
+        {editPurchase && (
+          <Button
+            variant="secondary"
+            size="small"
+            aria-label={t('Edit {name}', { name: labelOf(record) })}
+            onClick={() =>
+              setAction({
+                operation: editPurchase,
+                title: actionTitle(editPurchase, resource),
+                record,
+              })
+            }
+          >
+            <Pencil size={13} />
+            {t('Edit')}
+          </Button>
+        )}
+        {slug === 'property-purchases' &&
+          Boolean(record.journalId) &&
+          can('finance.read') && (
+            <Button
+              size="small"
+              variant="secondary"
+              onClick={() => setVoucherJournalId(String(record.journalId))}
+            >
+              <FileText size={13} />
+              {t('Print voucher')}
+            </Button>
+          )}
         {edit && (
           <Button
             variant="secondary"
@@ -245,11 +300,7 @@ export default function ResourcePage({ slug }: { slug: string }) {
           </Button>
         )}
         {slug === 'users' && record.id && (
-          <Button
-            variant="secondary"
-            size="small"
-            onClick={() => navigate(`/users/${record.id}`)}
-          >
+          <Button variant="secondary" size="small" onClick={() => navigate(`/users/${record.id}`)}>
             <ArrowUpRight size={13} />
             {t('View user')}
           </Button>
@@ -282,7 +333,10 @@ export default function ResourcePage({ slug }: { slug: string }) {
             <ArrowUpRight size={14} />
           </Button>
         )}
-        {allowed.some((op) => op !== edit && op !== verify) && (
+        {allowed.some(
+          (op) =>
+            op !== edit && op !== verify && op !== postPurchase && op !== editPurchase,
+        ) && (
           <DropdownMenu.Root modal={false} dir={language === 'en' ? 'ltr' : 'rtl'}>
             <DropdownMenu.Trigger asChild>
               <Button
@@ -304,7 +358,13 @@ export default function ResourcePage({ slug }: { slug: string }) {
                 loop
               >
                 {allowed
-                  .filter((op) => op !== edit && op !== verify)
+                  .filter(
+                    (op) =>
+                      op !== edit &&
+                      op !== verify &&
+                      op !== postPurchase &&
+                      op !== editPurchase,
+                  )
                   .map((op) => (
                     <DropdownMenu.Item
                       key={op.id}
@@ -383,6 +443,7 @@ export default function ResourcePage({ slug }: { slug: string }) {
       {(slug === 'transfers' || slug === 'possessions') && (
         <OwnershipGuide possession={slug === 'possessions'} />
       )}
+      {slug === 'property-purchases' && <PropertyPurchaseGuide />}
       {slug === 'collections' && (
         <div className="document-notice">
           {t(
@@ -558,7 +619,13 @@ export default function ResourcePage({ slug }: { slug: string }) {
         ) : (
           <DataTable
             directory={slug === 'customers'}
-            columnLabels={slug === 'projects' ? projectColumnLabels : undefined}
+            columnLabels={
+              slug === 'projects'
+                ? projectColumnLabels
+                : slug === 'property-purchases'
+                  ? purchaseColumnLabels
+                  : undefined
+            }
             imageIdentity={
               slug === 'projects' ? 'name' : slug === 'inventory' ? 'number' : undefined
             }
@@ -571,6 +638,8 @@ export default function ResourcePage({ slug }: { slug: string }) {
                 bookingCell(key, record)
               ) : slug === 'projects' ? (
                 projectCell(key, record)
+              ) : slug === 'property-purchases' ? (
+                purchaseCell(key, record, (jId) => setVoucherJournalId(jId))
               ) : key === 'bookings' && (slug === 'customers' || slug === 'inventory') ? (
                 <PortfolioLinks record={record} kind={slug} />
               ) : key === 'paymentStatus' ? (
@@ -636,20 +705,39 @@ export default function ResourcePage({ slug }: { slug: string }) {
             }}
           />
         ))}
-      {action && (
-        <OperationDialog
-          {...action}
-          onClose={() => setAction(null)}
-          onSuccess={(res) => {
-            const createdId = (res as { id?: string })?.id;
-            if (slug === 'customers' && createdId) {
+      {action &&
+        (slug === 'property-purchases' &&
+        ((action.operation.method === 'post' && !action.operation.path.endsWith('/post')) ||
+          action.operation.method === 'patch') ? (
+          <PropertyPurchaseWizard
+            operation={action.operation}
+            record={action.record}
+            onClose={() => setAction(null)}
+            onSuccess={() => {
               setAction(null);
-              navigate(`/customers/${createdId}`);
-            } else if (slug === 'users' && createdId) {
-              setAction(null);
-              navigate(`/users/${createdId}`);
-            }
-          }}
+              query.refetch();
+            }}
+          />
+        ) : (
+          <OperationDialog
+            {...action}
+            onClose={() => setAction(null)}
+            onSuccess={(res) => {
+              const createdId = (res as { id?: string })?.id;
+              if (slug === 'customers' && createdId) {
+                setAction(null);
+                navigate(`/customers/${createdId}`);
+              } else if (slug === 'users' && createdId) {
+                setAction(null);
+                navigate(`/users/${createdId}`);
+              }
+            }}
+          />
+        ))}
+      {voucherJournalId && (
+        <JournalVoucher
+          id={voucherJournalId}
+          onClose={() => setVoucherJournalId(null)}
         />
       )}
     </>

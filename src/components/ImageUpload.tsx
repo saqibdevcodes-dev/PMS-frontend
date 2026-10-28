@@ -11,11 +11,13 @@ export function RecordImage({
   alt = 'Record photo',
   fallback,
   className = 'record-photo',
+  loading = 'lazy',
 }: {
   id?: string;
   alt?: string;
   fallback?: ReactNode;
   className?: string;
+  loading?: 'lazy' | 'eager';
 }) {
   useLocale();
   const [failedUrl, setFailedUrl] = useState('');
@@ -29,7 +31,11 @@ export function RecordImage({
   if (!id) return fallback ?? null;
   if (query.isLoading) {
     return (
-      <span className={`photo-placeholder photo-loading ${className}`} role="status" aria-label={t('Loading photo…')}>
+      <span
+        className={`photo-placeholder photo-loading ${className}`}
+        role="status"
+        aria-label={t('Loading photo…')}
+      >
         <LoaderCircle size={20} className="spin" />
       </span>
     );
@@ -39,12 +45,16 @@ export function RecordImage({
       className={className}
       src={query.data.url}
       alt={t(alt)}
-      loading="lazy"
+      loading={loading}
       onError={() => setFailedUrl(query.data!.url)}
     />
   ) : (
     (fallback ?? (
-      <span className={`photo-placeholder ${className}`} role="img" aria-label={t('Photo unavailable')}>
+      <span
+        className={`photo-placeholder ${className}`}
+        role="img"
+        aria-label={t('Photo unavailable')}
+      >
         <ImageOff size={22} />
       </span>
     ))
@@ -96,10 +106,20 @@ export function ImageUpload({
     if (!file || disabled || inFlight.current) return;
     setError(undefined);
     if (
-      !['image/jpeg', 'image/png', 'image/webp'].includes(file.type) ||
+      !(
+        purpose === 'PROJECT_LOGO'
+          ? ['image/jpeg', 'image/png']
+          : ['image/jpeg', 'image/png', 'image/webp']
+      ).includes(file.type) ||
       file.size > 5 * 1024 * 1024
     ) {
-      setError(new Error(t('Choose a JPEG, PNG or WebP image up to 5 MiB.')));
+      setError(
+        new Error(
+          purpose === 'PROJECT_LOGO'
+            ? t('Choose a PNG or JPEG logo up to 5 MiB.')
+            : t('Choose a JPEG, PNG or WebP image up to 5 MiB.'),
+        ),
+      );
       return;
     }
     const candidate = { url: URL.createObjectURL(file), name: file.name, size: file.size, file };
@@ -113,7 +133,8 @@ export function ImageUpload({
       body.append('file', file);
       if (uploadPath === '/images') {
         body.append('purpose', purpose);
-        if (!['PROJECT', 'USER'].includes(purpose)) body.append('projectId', projectId);
+        if (!['PROJECT', 'PROJECT_LOGO', 'USER'].includes(purpose))
+          body.append('projectId', projectId);
       }
       const result = await api<{ id: string }>(uploadPath, { method: 'POST', body });
       onChange(result.id);
@@ -139,7 +160,9 @@ export function ImageUpload({
         </label>
       )}
       <label
-        className={'image-upload' + (hasImage ? ' has-image' : '') + (dragging ? ' is-dragging' : '')}
+        className={
+          'image-upload' + (hasImage ? ' has-image' : '') + (dragging ? ' is-dragging' : '')
+        }
         data-disabled={busy || disabled}
         style={{
           ...(aspectRatio ? { aspectRatio } : {}),
@@ -202,7 +225,11 @@ export function ImageUpload({
             <span className="upload-prompt">
               {t('Drop your image here, or')} <strong>{t('browse')}</strong>
             </span>
-            <small id={inputId + '-help'}>{t('JPEG, PNG or WebP. Maximum 5 MiB.')}</small>
+            <small id={inputId + '-help'}>
+              {purpose === 'PROJECT_LOGO'
+                ? t('PNG or JPEG. Maximum 5 MiB. Use a logo suitable for a white page.')
+                : t('JPEG, PNG or WebP. Maximum 5 MiB.')}
+            </small>
           </>
         )}
         <input
@@ -210,7 +237,9 @@ export function ImageUpload({
           type="file"
           aria-label={t(label)}
           aria-describedby={inputId + '-help'}
-          accept="image/jpeg,image/png,image/webp"
+          accept={
+            purpose === 'PROJECT_LOGO' ? 'image/jpeg,image/png' : 'image/jpeg,image/png,image/webp'
+          }
           disabled={busy || disabled}
           onChange={(e) => {
             void upload(e.target.files?.[0]);
@@ -237,9 +266,7 @@ export function ImageUpload({
             )}
           </span>
           {preview?.size ? (
-            <span className="image-upload-size">
-              {(preview.size / 1024 / 1024).toFixed(2)} MiB
-            </span>
+            <span className="image-upload-size">{(preview.size / 1024 / 1024).toFixed(2)} MiB</span>
           ) : null}
         </div>
       )}

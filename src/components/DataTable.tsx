@@ -30,7 +30,7 @@ export function DisplayValue({
   if (value === null || value === undefined || value === '')
     return <span className="muted">—</span>;
   if (name === 'verification') return <VerificationSummary value={value} />;
-  if (name === 'photoId' || name === 'proofImageId' || name === 'imageId')
+  if (name === 'photoId' || name === 'proofImageId' || name === 'imageId' || name === 'logoId')
     return <RecordImage id={String(value)} />;
   if (name === 'photoIds' && Array.isArray(value))
     return (
@@ -234,7 +234,9 @@ export function DataTable({
                           <span className="customer-father-name">
                             {' '}
                             <span className="customer-relation-tag">
-                              {/^(s\/o|d\/o|w\/o|so|do|wo)\b/i.test(String(r.original.fatherName).trim())
+                              {/^(s\/o|d\/o|w\/o|so|do|wo)\b/i.test(
+                                String(r.original.fatherName).trim(),
+                              )
                                 ? ''
                                 : 'S/O '}
                             </span>
@@ -246,7 +248,8 @@ export function DataTable({
                         <span>{String(r.original.reference ?? '')}</span>
                         {r.original.fatherName ? (
                           <span className="customer-father-sub">
-                            {' '}· {t('Guardian')}: {String(r.original.fatherName)}
+                            {' '}
+                            · {t('Guardian')}: {String(r.original.fatherName)}
                           </span>
                         ) : null}
                       </small>

@@ -1,5 +1,13 @@
 import { ownershipLabels, ownershipHelp } from './ownership';
 export const fieldLabels: Record<string, string> = {
+  logoId: 'Project logo',
+  vendorId: 'Seller or supplier',
+  fileReference: 'Purchase agreement reference',
+  purchaseDate: 'Purchase date',
+  taxes: 'Non-recoverable acquisition taxes',
+  legalFees: 'Acquisition legal fees',
+  brokerage: 'Acquisition brokerage',
+  otherCosts: 'Other direct acquisition costs',
   ...ownershipLabels,
   createdAt: 'Creation Time',
   location: 'Location',
@@ -136,6 +144,21 @@ export const fieldHelp: Record<string, [string, string]> = {
   ],
 };
 export function guidanceFor(field: string, path: string): [string, string] | undefined {
+  if (field === 'price' && path.includes('/property-purchases'))
+    return [
+      'e.g. 5000000.00',
+      'The agreed property price owed to the seller, excluding the additional acquisition costs below.',
+    ];
+  if (field === 'vendorId' && path.includes('/property-purchases'))
+    return [
+      'Choose the seller',
+      'Add the seller under Sellers & suppliers first. Choose Seller or Multi-role as their category.',
+    ];
+  if (field === 'otherCosts' && path.includes('/property-purchases'))
+    return [
+      '0',
+      'Only include direct acquisition costs. Exclude recoverable taxes, selling costs and general administration.',
+    ];
   if (field === 'name' && /^\/projects(?:\/\{projectId\})?$/.test(path))
     return ['e.g. Garden Homes', 'Use the name customers and staff know this project by.'];
   if (field === 'name' && /payment-plans|document-templates|accounts|roles/.test(path))

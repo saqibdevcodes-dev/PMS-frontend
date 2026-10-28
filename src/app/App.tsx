@@ -18,6 +18,7 @@ import { BrandedLoader, Button, EmptyState } from '../components/ui';
 const Shell = lazy(() => import('../components/layout/Shell'));
 const AuthPage = lazy(() => import('../features/auth/AuthPage'));
 const Dashboard = lazy(() => import('../features/dashboard/Dashboard'));
+const PropertyLifecycleHub = lazy(() => import('../features/lifecycle/PropertyLifecycleHub'));
 const ResourcePage = lazy(() => import('../features/resources/ResourcePage'));
 const PaymentPlans = lazy(() => import('../features/bookings/PaymentPlans'));
 const BookingWizard = lazy(() => import('../features/bookings/BookingWizard'));
@@ -97,6 +98,7 @@ function AppRoutes() {
         >
           <Route index element={<Navigate to="/dashboard" replace />} />
           <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/property-lifecycle" element={<PropertyLifecycleHub />} />
           <Route path="/bookings/new" element={<BookingWizard />} />
           <Route path="/payment-plans" element={<PaymentPlans />} />
           <Route path="/users/:id" element={<EmployeeDetailPage />} />

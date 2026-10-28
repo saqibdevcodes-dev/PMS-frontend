@@ -105,12 +105,10 @@ export function InstallmentCalendar() {
     <section className="calendar-panel" aria-label={t('Installment Due Calendar')}>
       <div className="calendar-header">
         <div className="calendar-title-wrap">
-          <CalendarDays size={20} style={{ color: 'var(--primary)' }} />
+          <CalendarDays size={18} style={{ color: 'var(--primary)' }} />
           <div>
             <h3>{t('Installment Due Calendar')}</h3>
-            <p style={{ margin: 0, fontSize: 12, color: 'var(--text-muted)' }}>
-              {t('Track daily payment obligations and due installment schedules')}
-            </p>
+            <p>{t('Daily payment obligations & schedule')}</p>
           </div>
         </div>
 
@@ -121,11 +119,11 @@ export function InstallmentCalendar() {
             onClick={prevMonth}
             aria-label={t('Previous Month')}
           >
-            <ChevronLeft size={16} />
+            <ChevronLeft size={14} />
           </Button>
           <span className="calendar-month-label">{currentMonthName}</span>
           <Button variant="secondary" size="icon" onClick={nextMonth} aria-label={t('Next Month')}>
-            <ChevronRight size={16} />
+            <ChevronRight size={14} />
           </Button>
           <Button
             variant="ghost"
@@ -193,19 +191,19 @@ export function InstallmentCalendar() {
                     <div className="day-badge-stack">
                       {overdueCount > 0 && (
                         <span className="day-due-badge badge-overdue">
-                          <AlertTriangle size={10} />
+                          <AlertTriangle size={9} />
                           {overdueCount} {t('overdue')}
                         </span>
                       )}
                       {pendingCount > 0 && (
                         <span className="day-due-badge badge-pending">
-                          <Clock3 size={10} />
+                          <Clock3 size={9} />
                           {pendingCount} {t('due')}
                         </span>
                       )}
                       {clearedCount > 0 && overdueCount === 0 && pendingCount === 0 && (
                         <span className="day-due-badge badge-cleared">
-                          <CheckCircle2 size={10} />
+                          <CheckCircle2 size={9} />
                           {clearedCount} {t('paid')}
                         </span>
                       )}
@@ -216,27 +214,22 @@ export function InstallmentCalendar() {
             })}
           </div>
 
-          <footer
-            style={{
-              display: 'flex',
-              gap: 16,
-              fontSize: 12,
-              color: 'var(--text-muted)',
-              marginTop: 8,
-            }}
-          >
-            <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-              <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#ef4444' }} />
-              {t('Overdue')}
-            </span>
-            <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-              <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#f59e0b' }} />
-              {t('Due / Upcoming')}
-            </span>
-            <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-              <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#22c55e' }} />
-              {t('Cleared')}
-            </span>
+          <footer className="calendar-footer">
+            <div className="calendar-legend">
+              <span className="calendar-legend-item">
+                <span className="calendar-legend-dot" style={{ background: '#ef4444' }} />
+                {t('Overdue')}
+              </span>
+              <span className="calendar-legend-item">
+                <span className="calendar-legend-dot" style={{ background: '#f59e0b' }} />
+                {t('Due')}
+              </span>
+              <span className="calendar-legend-item">
+                <span className="calendar-legend-dot" style={{ background: '#22c55e' }} />
+                {t('Cleared')}
+              </span>
+            </div>
+            <span>{t('Click date to inspect')}</span>
           </footer>
         </>
       )}

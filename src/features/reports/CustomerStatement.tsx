@@ -1,13 +1,25 @@
 import { Info } from 'lucide-react';
-import { BrandLogo } from '../../components/BrandLogo';
+import { ProjectLogo } from '../../components/ProjectLogo';
 import { QRCode } from '../../components/QRCode';
 import { date, humanize, money } from '../../lib/format';
 import { t } from '../../lib/i18n';
 import './statement.css';
 
 export type AccountStatement = {
-  project: { name: string; currency: string; timezone: string };
-  customer: { id?: string; name: string; reference: string; email?: string | null; phone?: string | null };
+  project: {
+    id?: string;
+    logoId?: string | null;
+    name: string;
+    currency: string;
+    timezone: string;
+  };
+  customer: {
+    id?: string;
+    name: string;
+    reference: string;
+    email?: string | null;
+    phone?: string | null;
+  };
   generatedAt: string;
   reference?: string;
   from?: string;
@@ -36,7 +48,11 @@ export function CustomerStatement({ statement: s }: { statement: AccountStatemen
     <article className="customer-statement" aria-label={t('Customer account statement')}>
       <header className="statement-header">
         <div>
-          <BrandLogo className="statement-logo" />
+          <ProjectLogo
+            logoId={s.project.logoId ?? null}
+            name={s.project.name}
+            className="statement-logo"
+          />
           <h2>{t('Account statement')}</h2>
           <p>{s.project.name}</p>
         </div>

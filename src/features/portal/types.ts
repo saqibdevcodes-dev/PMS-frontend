@@ -1,4 +1,10 @@
-export type PortalProject = { id: string; name: string; currency: string; timezone: string };
+export type PortalProject = {
+  id: string;
+  logoId?: string | null;
+  name: string;
+  currency: string;
+  timezone: string;
+};
 export type Position = {
   bookings: number;
   total: string;

@@ -588,6 +588,14 @@
 .badge-deduction { background: #fee2e2; color: #991b1b; }
 .badge-adjustment { background: #f1f5f9; color: #475569; }
 
+:root[data-theme='dark'] .badge-salary { background: rgba(59, 130, 246, 0.2); color: #93c5fd; }
+:root[data-theme='dark'] .badge-commission { background: rgba(16, 185, 129, 0.2); color: #6ee7b7; }
+:root[data-theme='dark'] .badge-advance { background: rgba(245, 158, 11, 0.2); color: #fcd34d; }
+:root[data-theme='dark'] .badge-bonus { background: rgba(168, 85, 247, 0.2); color: #d8b4fe; }
+:root[data-theme='dark'] .badge-expense { background: rgba(99, 102, 241, 0.2); color: #a5b4fc; }
+:root[data-theme='dark'] .badge-deduction { background: rgba(239, 68, 68, 0.2); color: #fca5a5; }
+:root[data-theme='dark'] .badge-adjustment { background: rgba(255, 255, 255, 0.1); color: #cbd5e1; }
+
 /* Documents Section */
 .employee-docs-grid {
   display: grid;

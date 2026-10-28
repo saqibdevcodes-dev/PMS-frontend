@@ -28,6 +28,7 @@ import { ProjectRequired, Unauthorized } from '../resources/ResourcePage';
 import { chartColors as colors } from '../../lib/chart-colors';
 import { BrandLogo } from '../../components/BrandLogo';
 import { InstallmentCalendar } from './InstallmentCalendar';
+import { PropertyDealProfitability } from './PropertyDealProfitability';
 const CollectionChart = lazy(() =>
   import('./Charts').then((m) => ({ default: m.CollectionChart })),
 );
@@ -459,6 +460,86 @@ export default function Dashboard() {
           </div>
         </section>
       </div>
+      <div className="dashboard-schedule-grid">
+        {/* Interactive Installment Due Calendar */}
+        <InstallmentCalendar />
+
+        {/* Outstanding dues ageing */}
+        <section className="panel ageing-panel">
+          <div className="panel-heading">
+            <div>
+              <h2>{t('Outstanding dues ageing')}</h2>
+              <p>{t('Overdue balances by project-local due date')}</p>
+            </div>
+            <Button
+              variant="ghost"
+              size="icon"
+              aria-label={t('View ageing report')}
+              onClick={() => navigate('/reports?kind=ageing')}
+            >
+              <ArrowUpRight size={17} />
+            </Button>
+          </div>
+
+          <div className="ageing-metric-strip">
+            <button
+              type="button"
+              className="ageing-metric-item"
+              onClick={() => setDrilldown('receivables')}
+              title={t('Click to inspect overdue accounts')}
+            >
+              <span>{t('Total overdue')}</span>
+              <strong className="ageing-amount-danger">{money(s.overdue, currency)}</strong>
+            </button>
+            <button
+              type="button"
+              className="ageing-metric-item"
+              onClick={() => navigate('/installments')}
+              title={t('View installments')}
+            >
+              <span>{t('Overdue installments')}</span>
+              <strong>{String(s.overdueInstallments ?? 0)}</strong>
+            </button>
+            <button
+              type="button"
+              className="ageing-metric-item"
+              onClick={() => setDrilldown('defaulters')}
+              title={t('Click to view defaulters')}
+            >
+              <span>{t('Payment defaulters')}</span>
+              <strong className="ageing-badge-defaulter">{String(s.defaulterCount ?? 0)}</strong>
+            </button>
+          </div>
+
+          {ageing.isError ? (
+            <ErrorState error={ageing.error} />
+          ) : ageing.isLoading ? (
+            <Skeleton rows={3} />
+          ) : ageingData.length === 0 ? (
+            <div className="ageing-empty-box">
+              <ShieldCheck size={32} className="ageing-healthy-icon" />
+              <strong>{t('No overdue dues')}</strong>
+              <p>{t('All customer payment obligations are on track.')}</p>
+            </div>
+          ) : (
+            <Suspense fallback={<Skeleton rows={3} />}>
+              <AgeingChart data={ageingData} currency={currency} />
+            </Suspense>
+          )}
+
+          <footer className="chart-foot">
+            <span>
+              <Clock3 size={13} />
+              {t('{count} overdue records', { count: overdueRows.length })}
+            </span>
+            <Link to="/reports?kind=ageing">
+              {t('Explore overdue report')}
+              <ArrowRight size={13} />
+            </Link>
+          </footer>
+        </section>
+      </div>
+
       <div className="dashboard-bottom-grid">
         <section className="panel recent-panel">
           <div className="panel-heading">
@@ -529,22 +610,9 @@ export default function Dashboard() {
           </Link>
         </section>
       </div>
-      {asRows(ageing.data?.rows).length > 0 && (
-        <section className="panel ageing-panel">
-          <div className="panel-heading">
-            <div>
-              <h2>{t('Outstanding dues ageing')}</h2>
-              <p>{t('Overdue balances by project-local due date')}</p>
-            </div>
-          </div>
-          <Suspense fallback={<Skeleton />}>
-            <AgeingChart data={ageingData} currency={currency} />
-          </Suspense>
-        </section>
-      )}
 
-      {/* Interactive Installment Due Calendar */}
-      <InstallmentCalendar />
+      {/* Property Acquisition, Expenses & Resale Profitability Engine */}
+      <PropertyDealProfitability />
 
       {/* Interactive Drilldown Modal */}
       {drilldown && (

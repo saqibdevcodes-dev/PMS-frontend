@@ -81,19 +81,24 @@ export default function Shell() {
     refetchInterval: 60000,
   });
   const unread = asRows(notifications.data).filter((r) => !r.readAt).length;
+  const currentProjectId = usePreferences((s) => s.projectId);
+  const setProject = usePreferences((s) => s.setProject);
   useEffect(() => {
-    if (preferences.projectId && !user.projects.some((p) => p.projectId === preferences.projectId))
-      preferences.setProject('', '');
-    else if (!preferences.projectId && projects.data?.items[0]) {
-      const p = projects.data.items[0];
-      preferences.setProject(
-        String(p.id),
-        String(p.name),
-        String(p.currency ?? 'PKR'),
-        String(p.timezone ?? 'Asia/Karachi'),
-      );
+    const userProjectIds = new Set((user?.projects ?? []).map((p) => p.projectId));
+    if (currentProjectId && userProjectIds.size > 0 && !userProjectIds.has(currentProjectId)) {
+      setProject('', '');
+    } else if (!currentProjectId && projects.data?.items) {
+      const allowed = projects.data.items.find((p) => userProjectIds.has(String(p.id)));
+      if (allowed) {
+        setProject(
+          String(allowed.id),
+          String(allowed.name),
+          String(allowed.currency ?? 'PKR'),
+          String(allowed.timezone ?? 'Asia/Karachi'),
+        );
+      }
     }
-  }, [projects.data, user.projects, preferences]);
+  }, [projects.data, user?.projects, currentProjectId, setProject]);
   useEffect(() => {
     const key = (e: KeyboardEvent) => {
       if ((e.ctrlKey || e.metaKey) && e.key === 'k') {

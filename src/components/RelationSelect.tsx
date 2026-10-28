@@ -17,12 +17,13 @@ export function formatRelationOption(
   name: string,
 ): { label: string; sublabel?: string } {
   if (name === 'bookingId' || (record.reference && (record.customer || record.unit))) {
-    const customer = (record.customer && typeof record.customer === 'object'
-      ? record.customer
-      : {}) as Record<string, unknown>;
-    const unit = (record.unit && typeof record.unit === 'object'
-      ? record.unit
-      : {}) as Record<string, unknown>;
+    const customer = (
+      record.customer && typeof record.customer === 'object' ? record.customer : {}
+    ) as Record<string, unknown>;
+    const unit = (record.unit && typeof record.unit === 'object' ? record.unit : {}) as Record<
+      string,
+      unknown
+    >;
 
     const ref = String(record.reference ?? t('Booking'));
     const custName = customer.name ? String(customer.name) : '';
@@ -101,6 +102,7 @@ export function RelationSelect({
   onRecord,
   disabled,
   statusFilter,
+  roleFilter,
 }: {
   name: string;
   value: string;
@@ -110,6 +112,7 @@ export function RelationSelect({
   entityId?: string;
   disabled?: boolean;
   statusFilter?: string;
+  roleFilter?: 'SELLER';
 }) {
   useLocale();
   const projectId = usePreferences((s) => s.projectId);
@@ -129,13 +132,14 @@ export function RelationSelect({
   const op = operations.find((o) => o.path === path && o.method === 'get');
   const permitted = Boolean(op && can(op.permission) && (source?.startsWith('/') || projectId));
   const query = useQuery({
-    queryKey: ['relation', projectId, name, debounced, page, statusFilter],
+    queryKey: ['relation', projectId, name, debounced, page, statusFilter, roleFilter],
     enabled: permitted,
     queryFn: ({ signal }) =>
       api(
         resolvePath(path) +
           queryString({
             ...(statusFilter && supportsQuery(path, 'status') ? { status: statusFilter } : {}),
+            ...(roleFilter && supportsQuery(path, 'role') ? { role: roleFilter } : {}),
             ...(supportsQuery(path, 'page') ? { page, limit: 25 } : {}),
             ...(debounced && (supportsQuery(path, 'search') || name === 'bookingId')
               ? { search: debounced }
@@ -211,7 +215,9 @@ export function RelationSelect({
         })}
         selectedLabel={
           value
-            ? (selected ? formatRelationOption(selected, name).label : t('Selected record'))
+            ? selected
+              ? formatRelationOption(selected, name).label
+              : t('Selected record')
             : undefined
         }
         loading={query.isFetching || search !== debounced}

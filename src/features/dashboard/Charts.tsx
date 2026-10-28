@@ -108,25 +108,41 @@ export function AgeingChart({
 }) {
   useLocale();
   return (
-    <ResponsiveContainer width="100%" height={180}>
-      <BarChart data={data}>
+    <ResponsiveContainer width="100%" height={175}>
+      <BarChart data={data} margin={{ top: 8, right: 12, left: -14, bottom: 0 }}>
         <CartesianGrid strokeDasharray="3 5" vertical={false} stroke="var(--border)" />
         <XAxis
           dataKey="label"
-          tick={{ fontSize: 11, fill: 'var(--muted)' }}
+          tick={{ fontSize: 10.5, fill: 'var(--muted)' }}
           tickLine={false}
           axisLine={false}
         />
-        <YAxis hide />
+        <YAxis
+          tickFormatter={(v: number) =>
+            v >= 1000000 ? `${v / 1000000}m` : v >= 1000 ? `${v / 1000}k` : String(v)
+          }
+          width={40}
+          axisLine={false}
+          tickLine={false}
+          tick={{ fontSize: 10, fill: 'var(--muted)' }}
+        />
         <Tooltip
           formatter={(v) => money(v, currency)}
           contentStyle={{
             background: 'var(--panel)',
             border: '1px solid var(--border)',
             borderRadius: 10,
+            fontSize: '11px',
+            color: 'var(--text)',
           }}
         />
-        <Bar dataKey="amount" name={t('Overdue amount')} fill="#e8ad57" radius={[5, 5, 0, 0]} />
+        <Bar
+          dataKey="amount"
+          name={t('Overdue amount')}
+          fill="#e8ad57"
+          radius={[4, 4, 0, 0]}
+          maxBarSize={40}
+        />
       </BarChart>
     </ResponsiveContainer>
   );

@@ -25,7 +25,14 @@ import { CustomerStatement, type AccountStatement } from './CustomerStatement';
 import { exportAndDownloadReport } from '../../lib/export-download';
 import { print } from '../../platform/adapter';
 export const reportGroups: Record<string, string[]> = {
-  'Sales & inventory': ['sales', 'inventory', 'collections', 'installments', 'dealer-sales'],
+  'Sales & inventory': [
+    'sales',
+    'inventory',
+    'collections',
+    'installments',
+    'dealer-sales',
+    'deal-profitability',
+  ],
   'Customers & recovery': ['outstanding', 'ageing', 'defaulters', 'customer-statement'],
   Ownership: ['ndcs', 'transfers', 'cancellations', 'refunds', 'possession'],
   'Financial statements': [

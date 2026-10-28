@@ -1,7 +1,8 @@
 import { errorMessage } from '../../lib/error-messages';
 import { t, useLocale } from '../../lib/i18n';
 import { useQuery } from '@tanstack/react-query';
-import { Printer, ShieldCheck } from 'lucide-react';
+import { Printer } from 'lucide-react';
+import { ProjectLogo } from '../../components/ProjectLogo';
 import { toast } from 'sonner';
 import { api } from '../../lib/api';
 import { row, type Row } from '../../lib/types';
@@ -32,7 +33,7 @@ export function Receipt({ id, onClose }: { id: string; onClose: () => void }) {
         ) : (
           <>
             <div className="receipt-brand">
-              <ShieldCheck size={30} />
+              <ProjectLogo projectId={projectId} name={projectName} />
               <div>
                 <h2>{projectName}</h2>
                 <p>{String(receipt.data?.reference ?? 'Receipt')}</p>

@@ -1,0 +1,480 @@
+/* ==========================================================================
+   Property Purchase Wizard - Premium Modern UI Styles
+   ========================================================================== */
+
+.pw-wizard {
+  display: flex;
+  flex-direction: column;
+  gap: 26px;
+  padding: 26px 32px 32px 32px;
+  color: var(--text, #1e293b);
+  animation: pwFadeIn 0.25s ease-out;
+  box-sizing: border-box;
+}
+
+@keyframes pwFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Step Body & Layout Utilities
+   -------------------------------------------------------------------------- */
+.pw-step-body {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.pw-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.pw-grid-3 {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 16px;
+}
+
+/* --------------------------------------------------------------------------
+   Stepper Navigation
+   -------------------------------------------------------------------------- */
+.pw-stepper {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--subtle, #f8fafc);
+  border: 1px solid var(--border, #e2e8f0);
+  border-radius: 14px;
+  padding: 14px 20px;
+  gap: 14px;
+  margin-bottom: 2px;
+}
+
+.pw-step-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: transparent;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: start;
+}
+
+.pw-step-item:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+.pw-step-item:not(:disabled):hover {
+  background: var(--hover, #eef2f6);
+}
+
+.pw-step-badge {
+  width: 36px;
+  height: 36px;
+  border-radius: 11px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 13.5px;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  flex-shrink: 0;
+}
+
+.pw-step-badge.pending {
+  background: var(--surface, #ffffff);
+  border: 1px solid var(--border, #cbd5e1);
+  color: var(--muted, #64748b);
+}
+
+.pw-step-badge.active {
+  background: var(--primary, #355e85);
+  color: #ffffff;
+  box-shadow: 0 4px 14px rgba(53, 94, 133, 0.35);
+  transform: scale(1.05);
+}
+
+.pw-step-badge.completed {
+  background: var(--success, #10b981);
+  color: #ffffff;
+}
+
+.pw-step-text-title {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--text, #0f172a);
+}
+
+.pw-step-text-sub {
+  font-size: 11.5px;
+  color: var(--muted, #64748b);
+  margin-top: 2px;
+}
+
+.pw-step-connector {
+  flex: 1;
+  height: 2px;
+  background: var(--border, #e2e8f0);
+  border-radius: 999px;
+  transition: background 0.3s ease;
+  margin: 0 4px;
+}
+
+.pw-step-connector.active {
+  background: var(--primary, #355e85);
+}
+
+/* --------------------------------------------------------------------------
+   Card Selection (Step 1 Mode & Step 3 Choices)
+   -------------------------------------------------------------------------- */
+.pw-choice-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+  margin-bottom: 4px;
+}
+
+.pw-choice-card {
+  display: flex;
+  flex-direction: column;
+  padding: 20px 22px;
+  border-radius: 14px;
+  border: 2px solid var(--border);
+  background: var(--surface);
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  text-align: start;
+  position: relative;
+  overflow: hidden;
+}
+
+.pw-choice-card:hover {
+  border-color: var(--ring);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow);
+}
+
+.pw-choice-card.selected {
+  border-color: var(--primary);
+  background: color-mix(in srgb, var(--primary) 10%, transparent);
+  box-shadow: 0 6px 22px color-mix(in srgb, var(--primary) 20%, transparent);
+}
+
+.pw-choice-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.pw-choice-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 11px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--subtle);
+  color: var(--primary);
+  transition: all 0.2s ease;
+}
+
+.pw-choice-card.selected .pw-choice-icon {
+  background: var(--primary);
+  color: var(--on-primary);
+}
+
+.pw-choice-title {
+  font-size: 14.5px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.pw-choice-desc {
+  font-size: 12.5px;
+  color: var(--muted);
+  line-height: 1.55;
+  margin-top: 6px;
+}
+
+/* --------------------------------------------------------------------------
+   Hero Cost Input
+   -------------------------------------------------------------------------- */
+.pw-hero-input-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  border: 2px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface);
+  transition: all 0.2s ease;
+  overflow: hidden;
+  height: 52px;
+}
+
+.pw-hero-input-wrap:focus-within {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 20%, transparent);
+}
+
+.pw-currency-prefix {
+  padding: 0 18px;
+  font-weight: 700;
+  font-size: 15px;
+  color: var(--muted);
+  background: var(--subtle);
+  border-inline-end: 1px solid var(--border);
+  height: 100%;
+  display: flex;
+  align-items: center;
+}
+
+.pw-hero-input {
+  flex: 1;
+  border: none;
+  outline: none;
+  padding: 12px 18px;
+  font-size: 19px;
+  font-weight: 700;
+  color: var(--text);
+  background: transparent;
+}
+
+/* --------------------------------------------------------------------------
+   Inputs & Form Controls
+   -------------------------------------------------------------------------- */
+.pw-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.pw-label {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.pw-req {
+  color: var(--danger);
+  margin-inline-start: 3px;
+}
+
+.pw-input {
+  padding: 11px 15px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  font-size: 13.5px;
+  color: var(--text);
+  outline: none;
+  min-height: 44px;
+  box-sizing: border-box;
+  transition: all 0.2s ease;
+}
+
+.pw-input:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 20%, transparent);
+}
+
+.pw-select {
+  padding: 11px 15px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  font-size: 13.5px;
+  color: var(--text);
+  outline: none;
+  min-height: 44px;
+  box-sizing: border-box;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.pw-select:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 20%, transparent);
+}
+
+/* --------------------------------------------------------------------------
+   Inline Expandable Quick Add Card (Replaces awkward 2nd modal)
+   -------------------------------------------------------------------------- */
+.pw-inline-card {
+  background: var(--subtle, #f8fafc);
+  border: 1.5px dashed var(--primary, #355e85);
+  border-radius: 12px;
+  padding: 20px 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin: 4px 0;
+  animation: pwSlideDown 0.2s ease-out;
+}
+
+@keyframes pwSlideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.pw-inline-title {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--primary, #355e85);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* --------------------------------------------------------------------------
+   iOS-Style Toggle Switch
+   -------------------------------------------------------------------------- */
+.pw-switch-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  background: var(--subtle, #f8fafc);
+  border: 1px solid var(--border, #e2e8f0);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.pw-switch-wrap:hover {
+  background: var(--hover, #f1f5f9);
+}
+
+.pw-switch {
+  width: 46px;
+  height: 26px;
+  background: #cbd5e1;
+  border-radius: 999px;
+  position: relative;
+  transition: background 0.25s ease;
+  flex-shrink: 0;
+}
+
+.pw-switch.on {
+  background: var(--primary, #355e85);
+}
+
+.pw-switch-thumb {
+  width: 20px;
+  height: 20px;
+  background: #ffffff;
+  border-radius: 50%;
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.18);
+}
+
+.pw-switch.on .pw-switch-thumb {
+  transform: translateX(20px);
+}
+
+/* --------------------------------------------------------------------------
+   Renovation Expense Row Items
+   -------------------------------------------------------------------------- */
+.pw-expense-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 14px;
+  transition: all 0.15s ease;
+}
+
+.pw-expense-row:hover {
+  border-color: var(--ring);
+}
+
+.pw-preset-chip {
+  font-size: 11.5px;
+  font-weight: 500;
+  padding: 5px 12px;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.pw-preset-chip:hover {
+  background: var(--primary);
+  color: var(--on-primary);
+  border-color: var(--primary);
+}
+
+/* --------------------------------------------------------------------------
+   Grand Total Banner
+   -------------------------------------------------------------------------- */
+.pw-grand-total {
+  background: linear-gradient(135deg, #182331 0%, #203348 100%);
+  border-radius: 14px;
+  padding: 20px 24px;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 8px 24px rgba(24, 35, 49, 0.25);
+  margin-top: 4px;
+}
+
+.pw-grand-label {
+  font-size: 14.5px;
+  font-weight: 600;
+  color: #cbd5e1;
+}
+
+.pw-grand-sub {
+  font-size: 11.5px;
+  color: #94a3b8;
+  margin-top: 4px;
+}
+
+.pw-grand-amount {
+  font-size: 25px;
+  font-weight: 800;
+  color: #38bdf8;
+  letter-spacing: -0.5px;
+}
+
+/* --------------------------------------------------------------------------
+   Wizard Footer
+   -------------------------------------------------------------------------- */
+.pw-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 1px solid var(--border, #e2e8f0);
+  padding-top: 22px;
+  margin-top: 6px;
+}

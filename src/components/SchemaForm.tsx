@@ -13,6 +13,7 @@ import { Plus, Trash2 } from 'lucide-react';
 import { defaults, normalize, schemaType, validator } from '../lib/schema';
 import { humanize, moneyFields } from '../lib/format';
 import { MoneyInput } from './MoneyInput';
+import { PurchaseCostSummary } from './PurchaseCostSummary';
 import { PatternFormat } from 'react-number-format';
 import type { JsonSchema, Row } from '../lib/types';
 import { Button, ErrorState } from './ui';
@@ -67,6 +68,12 @@ export function SchemaField({
       : guidanceFor(fieldKey, guidance.path);
   const fieldLabel = t(
     label ??
+      (fieldKey === 'price' && guidance.path.includes('/property-purchases')
+        ? 'Purchase price'
+        : undefined) ??
+      (fieldKey === 'vendorId' && guidance.path.includes('/property-purchases')
+        ? 'Seller'
+        : undefined) ??
       (fieldKey === 'charges' && guidance.path.includes('/transfers')
         ? 'Transfer fee'
         : undefined) ??
@@ -154,7 +161,7 @@ export function SchemaField({
       </div>
     );
   }
-  if (fieldKey === 'photoId' || fieldKey === 'proofImageId')
+  if (fieldKey === 'photoId' || fieldKey === 'proofImageId' || fieldKey === 'logoId')
     return (
       <Controller
         name={name}
@@ -164,7 +171,13 @@ export function SchemaField({
             <ImageUpload
               value={String(field.value ?? '')}
               onChange={field.onChange}
-              purpose={fieldKey === 'proofImageId' ? 'PAYMENT' : imagePurpose(guidance.path)}
+              purpose={
+                fieldKey === 'logoId'
+                  ? 'PROJECT_LOGO'
+                  : fieldKey === 'proofImageId'
+                    ? 'PAYMENT'
+                    : imagePurpose(guidance.path)
+              }
               label={fieldLabel}
               required={
                 required ||
@@ -474,6 +487,11 @@ export function SchemaField({
                 value={String(field.value ?? '')}
                 onChange={field.onChange}
                 entityId={entityId}
+                roleFilter={
+                  fieldKey === 'vendorId' && guidance.path.includes('/property-purchases')
+                    ? 'SELLER'
+                    : undefined
+                }
                 statusFilter={
                   fieldKey === 'bookingId' &&
                   /\/(transfers|possessions)(?:\/|$)/.test(guidance.path)
@@ -687,6 +705,7 @@ export function SchemaForm({
           noValidate
         >
           <div className="form-grid">
+            {operationPath.includes('/property-purchases') && <PurchaseCostSummary />}
             {Object.entries(formSchema.properties ?? {})
               .filter(([key]) => !customerCreate || !['password', 'confirmPassword'].includes(key))
               .map(([key, field]) => (

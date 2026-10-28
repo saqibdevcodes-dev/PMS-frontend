@@ -34,6 +34,7 @@ import { Modal, ModalClose, Button, ErrorState } from '../../components/ui';
 import { DataTable, DisplayValue } from '../../components/DataTable';
 import { OperationDialog } from '../../components/OperationDialog';
 import './project-detail.css';
+import { ProjectLogo } from '../../components/ProjectLogo';
 
 export function ProjectDetail({ record, onClose }: { record: Row; onClose: () => void }) {
   useLocale();
@@ -295,6 +296,10 @@ export function ProjectDetail({ record, onClose }: { record: Row; onClose: () =>
                           <Images size={17} />
                           {t('Project photos')}
                         </h3>
+                        <ProjectLogo
+                          logoId={detail.logoId ? String(detail.logoId) : null}
+                          name={String(detail.name)}
+                        />
                         {photos.length > 0 && <DisplayValue name="photoIds" value={photos} />}
                         {featurePhotos.length > 0 && (
                           <div className="project-feature-photos">

@@ -173,8 +173,8 @@ async function setup(
         };
       }
       data = currentProject;
-    } else if (path === '/users')
-      data = isWrite ? { id: id(91), ...writes.at(-1)?.body } : list([]);
+    } else if (path === '/projects/' + project.id + '/branding') data = currentProject;
+    else if (path === '/users') data = isWrite ? { id: id(91), ...writes.at(-1)?.body } : list([]);
     else if (path === '/roles')
       data = {
         roles: [
@@ -367,6 +367,205 @@ async function fillCaseChecks(d: Locator, possession = false) {
   ])
     await d.getByRole('checkbox', { name: field }).check();
 }
+for (const width of [1280, 390])
+  test(`property purchase draft review and posting at ${width}px`, async ({ page }) => {
+    await setup(page);
+    await page.setViewportSize({ width, height: 900 });
+    const seller = {
+      id: id(80),
+      name: 'Lahore Land Seller',
+      phone: '03001234567',
+      category: 'SELLER',
+    };
+    let purchase: Record<string, unknown> | undefined;
+    let confirmation: Record<string, unknown> | undefined;
+    const stamp = '2026-10-24T09:00:00.000Z';
+    await page.route('**/api/v1/projects/*/vendors**', (route) =>
+      route.fulfill({ json: { success: true, data: list([seller]) } }),
+    );
+    await page.route('**/api/v1/projects/*/property-purchases**', async (route) => {
+      const req = route.request(),
+        url = new URL(req.url());
+      if (req.method() === 'POST' && url.pathname.endsWith('/property-purchases'))
+        purchase = {
+          ...req.postDataJSON(),
+          id: id(81),
+          reference: 'PUR-00000001',
+          vendor: seller,
+          status: 'DRAFT',
+          total: '1050000.00',
+          updatedAt: stamp,
+          journalId: null,
+        };
+      if (req.method() === 'POST' && url.pathname.endsWith('/post')) {
+        confirmation = req.postDataJSON();
+        purchase = {
+          ...purchase,
+          status: 'POSTED',
+          journalId: id(82),
+          journal: { id: id(82), reference: 'JV-00000001' },
+        };
+      }
+      await route.fulfill({
+        json: {
+          success: true,
+          data:
+            req.method() === 'GET' && url.pathname.endsWith('/property-purchases')
+              ? list(purchase ? [purchase] : [])
+              : purchase,
+        },
+      });
+    });
+    await page.goto('/property-purchases');
+    await page.getByRole('button', { name: 'Add property purchase', exact: true }).click();
+    const form = page.getByRole('dialog', { name: 'Add property purchase', exact: true });
+    await chooseOption(form.getByRole('combobox', { name: /^Seller/ }), seller.id);
+    await form.getByRole('textbox', { name: /^Title/ }).fill('Land for Garden Homes');
+    await form.getByRole('textbox', { name: /^Location/ }).fill('Lahore');
+    await form.getByLabel('Purchase date', { exact: false }).fill('2026-10-24');
+    await form.getByRole('textbox', { name: /^Purchase price/ }).fill('1000000');
+    await form.getByRole('textbox', { name: /^Non-recoverable acquisition taxes/ }).fill('50000');
+    await form.getByRole('textbox', { name: /^Purchase agreement reference/ }).fill('DEED-100');
+    await expect(form.locator('.purchase-cost-summary')).toContainText('PKR 1,050,000.00');
+    expect(await form.evaluate((el) => el.scrollWidth <= el.clientWidth)).toBe(true);
+    await page.screenshot({
+      path: `test-results/portal/purchase-draft-${width}.png`,
+      fullPage: true,
+    });
+    await form.getByRole('button', { name: 'Review changes', exact: true }).click();
+    await form.getByRole('button', { name: 'Confirm & submit', exact: true }).click();
+    await expect.poll(() => purchase?.status).toBe('DRAFT');
+    await page.goto('/property-purchases?record=' + id(81));
+    await page.getByRole('button', { name: 'Post purchase', exact: true }).click();
+    const review = page.getByRole('dialog', { name: 'Post purchase', exact: true });
+    await expect(review.getByText('Lahore Land Seller', { exact: true })).toBeVisible();
+    await expect(review.getByText('PKR 1,050,000.00', { exact: true })).toBeVisible();
+    await review.getByRole('button', { name: 'Post purchase', exact: true }).click();
+    await expect
+      .poll(() => confirmation)
+      .toEqual({ expectedTotal: '1050000.00', expectedUpdatedAt: stamp });
+    await page.goto('/property-purchases?record=' + id(81));
+    await expect(page.getByRole('button', { name: 'Post purchase', exact: true })).toHaveCount(0);
+    await expect(
+      page.getByRole('button', { name: 'Edit property purchase', exact: true }),
+    ).toHaveCount(0);
+    await expect(page.getByRole('button', { name: 'Print voucher', exact: true })).toBeVisible();
+  });
+
+test('project branding is available on creation and saves a separate logo', async ({ page }) => {
+  const { writes } = await setup(page);
+  await page.goto('/projects');
+  await page.getByRole('button', { name: 'Add project', exact: true }).click();
+  const d = page.getByRole('dialog', { name: 'Add project', exact: true });
+  await d.getByRole('textbox', { name: /^Name/ }).fill('Garden Extension');
+  await d.getByRole('textbox', { name: /^Location/ }).fill('Lahore');
+  await d.getByLabel('Project logo', { exact: true }).setInputFiles(photo);
+  await expect(d.getByRole('img', { name: 'Project logo', exact: true })).toBeVisible();
+  expect(writes.find((w) => w.path === '/images')?.raw).toContain('PROJECT_LOGO');
+  await d.getByRole('button', { name: /Review changes|Continue/ }).click();
+  await d.getByRole('button', { name: 'Confirm & submit', exact: true }).click();
+  await expect.poll(() => writes.find((w) => w.path === '/projects')?.body.logoId).toBe(id(20));
+});
+for (const width of [1280, 390])
+  test(`project branding settings replace, cancel and remove a logo at ${width}px`, async ({
+    page,
+  }) => {
+    const { writes } = await setup(page);
+    await page.setViewportSize({ width, height: 900 });
+    await page.goto('/settings');
+    const card = page.locator('.project-branding-card');
+    await expect(card.getByRole('heading', { name: 'Project branding' })).toBeVisible();
+    await card.getByLabel('Project logo', { exact: true }).setInputFiles(photo);
+    await card.getByRole('button', { name: 'Save project logo' }).click();
+    await expect
+      .poll(() => writes.filter((w) => w.path === '/projects/' + project.id).at(-1)?.body.logoId)
+      .toBe(id(20));
+    await expect(card.getByRole('button', { name: 'Save project logo' })).toBeDisabled();
+    await card
+      .getByLabel('Project logo', { exact: true })
+      .setInputFiles({ ...photo, name: 'replacement.png' });
+    await card.getByRole('button', { name: 'Cancel', exact: true }).click();
+    await expect(card.getByRole('button', { name: 'Save project logo' })).toBeDisabled();
+    await card
+      .getByLabel('Project logo', { exact: true })
+      .setInputFiles({ ...photo, name: 'replacement.png' });
+    await card.getByRole('button', { name: 'Save project logo' }).click();
+    await expect
+      .poll(() => writes.filter((w) => w.path === '/projects/' + project.id).at(-1)?.body.logoId)
+      .toBe(id(22));
+    await expect(card.getByRole('button', { name: 'Save project logo' })).toBeDisabled();
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(
+      true,
+    );
+    await page.screenshot({
+      path: `test-results/portal/project-branding-${width}.png`,
+      fullPage: true,
+    });
+    await card.getByRole('button', { name: 'Remove photo', exact: true }).click();
+    await card.getByRole('button', { name: 'Save project logo' }).click();
+    await expect
+      .poll(() => writes.filter((w) => w.path === '/projects/' + project.id).at(-1)?.body.logoId)
+      .toBeNull();
+  });
+test('project branding appears on a printable journal voucher', async ({ page }) => {
+  await setup(page);
+  const artwork = readFileSync(
+    new URL('../../public/logos/EtihadRealEstate-white-bg.png', import.meta.url),
+  );
+  await page.route('**/api/v1/images/*', (route) =>
+    route.fulfill({
+      json: {
+        success: true,
+        data: { url: 'data:image/png;base64,' + artwork.toString('base64') },
+      },
+    }),
+  );
+  const voucher = {
+    id: id(70),
+    reference: 'JV-000001',
+    description: 'Capital contribution',
+    postedAt: '2026-10-24',
+    project: { ...project, logoId: id(20) },
+    reversal: null,
+    reversalOf: null,
+    lines: [
+      {
+        id: id(71),
+        account: { code: '1000', name: 'Cash' },
+        vendor: null,
+        debit: '500000',
+        credit: '0',
+      },
+      {
+        id: id(72),
+        account: { code: '3000', name: 'Capital' },
+        vendor: null,
+        debit: '0',
+        credit: '500000',
+      },
+    ],
+  };
+  await page.route('**/api/v1/projects/*/journals**', (route) =>
+    route.fulfill({
+      json: {
+        success: true,
+        data: route.request().url().includes(id(70)) ? voucher : list([voucher]),
+      },
+    }),
+  );
+  await page.goto('/journals?record=' + id(70));
+  await page.getByRole('button', { name: 'Print voucher', exact: true }).click();
+  const d = page.getByRole('dialog', { name: 'Journal voucher', exact: true });
+  await expect(d.getByRole('img', { name: project.name, exact: true })).toBeVisible();
+  await expect(d.getByRole('cell', { name: '1000 · Cash', exact: true })).toBeVisible();
+  await expect(d.locator('tfoot')).toContainText('PKR 500,000.00');
+  await page.screenshot({ path: 'test-results/portal/project-branded-voucher.png' });
+  await page.emulateMedia({ media: 'print' });
+  await expect(d.getByRole('cell', { name: '1000 · Cash', exact: true })).toBeVisible();
+  await expect(d.getByRole('img', { name: project.name, exact: true })).toBeVisible();
+  await expect(d.getByRole('button', { name: 'Print voucher', exact: true })).toBeHidden();
+  await page.screenshot({ path: 'test-results/portal/project-branded-voucher-print.png' });
+});
 for (const width of [1280, 390]) {
   test(`ownership transfer checklist, clearance and review work at ${width}px`, async ({
     page,
@@ -1329,7 +1528,10 @@ test('photo drop area uploads files, rejects unsupported files, and removes the 
     },
     [...png],
   );
-  await dialog.locator('.image-upload').dispatchEvent('drop', { dataTransfer: transfer });
+  await dialog
+    .locator('.image-upload')
+    .filter({ has: dialog.getByLabel('Project photos', { exact: true }) })
+    .dispatchEvent('drop', { dataTransfer: transfer });
   await expect(dialog.locator('.gallery-photo')).toHaveCount(1);
   await expect(dialog.getByRole('img', { name: 'Project photos 1', exact: true })).toBeVisible();
   expect(writes.filter((write) => write.path === '/images')).toHaveLength(1);
@@ -1364,7 +1566,10 @@ test('project gallery accepts five photos, rejects excessive and duplicate batch
     },
     [...png],
   );
-  await d.locator('.image-upload').dispatchEvent('drop', { dataTransfer: transfer });
+  await d
+    .locator('.image-upload')
+    .filter({ has: page.getByLabel('Project photos', { exact: true }) })
+    .dispatchEvent('drop', { dataTransfer: transfer });
   await expect(d.getByText(/This photo is already selected/)).toBeVisible();
   expect(writes.filter((w) => w.path === '/images')).toHaveLength(0);
   await transfer.dispose();

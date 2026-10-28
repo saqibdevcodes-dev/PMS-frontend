@@ -35,6 +35,8 @@
 
 .sheet-header {
   display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
   justify-content: space-between;
   align-items: flex-start;
   padding-bottom: 20px;
@@ -44,6 +46,7 @@
 
 .sheet-branding {
   display: flex;
+  flex-wrap: wrap;
   gap: 16px;
   align-items: center;
 }
@@ -256,7 +259,7 @@
 }
 
 @media print {
-  body * {
+  body:has(.property-file-sheet) * {
     visibility: hidden;
   }
   .property-file-sheet,

@@ -12,6 +12,7 @@ import { ProjectRequired, Unauthorized } from '../resources/ResourcePage';
 import { LanguageSelector } from '../../components/LanguageSelector';
 import { SlidersHorizontal, Percent, CalendarCheck, Pencil } from 'lucide-react';
 import { Skeleton } from '../../components/ui';
+import { ProjectBranding } from './ProjectBranding';
 export default function Settings() {
   useLocale();
   const projectId = usePreferences((s) => s.projectId);
@@ -37,6 +38,14 @@ export default function Settings() {
           </div>
           <LanguageSelector />
         </section>
+      )}
+      {projectId && project.data && (
+        <ProjectBranding
+          key={projectId}
+          projectId={projectId}
+          name={String(project.data.name)}
+          initialLogo={project.data.logoId ? String(project.data.logoId) : null}
+        />
       )}
       {!projectId ? (
         <ProjectRequired />
