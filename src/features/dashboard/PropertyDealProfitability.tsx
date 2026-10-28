@@ -109,7 +109,7 @@ export function PropertyDealProfitability() {
   });
 
   const currency = data?.currency || preferredCurrency;
-  const deals = data?.deals ?? [];
+  const deals = useMemo(() => data?.deals ?? [], [data?.deals]);
   const summary = data?.summary ?? {
     totalAcquisitions: 0,
     soldCount: 0,

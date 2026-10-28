@@ -1,24 +1,17 @@
-import React, { useState, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import {
   Building2,
-  UserCheck,
   Hammer,
   Plus,
   Trash2,
   CheckCircle2,
   ArrowRight,
   ArrowLeft,
-  Coins,
-  FileText,
-  Search,
   UserPlus,
   Check,
   MapPin,
-  FileSpreadsheet,
   X,
-  Briefcase,
-  ShieldAlert,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { api, ApiError } from '../../lib/api';
@@ -46,7 +39,7 @@ const EXPENSE_PRESETS = [
 ];
 
 export function PropertyPurchaseWizard({
-  operation,
+  operation: _operation,
   record,
   onClose,
   onSuccess,

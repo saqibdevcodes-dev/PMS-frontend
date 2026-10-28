@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -10,7 +10,6 @@ import {
   Search,
   CheckCircle2,
   Clock,
-  Layers,
   Eye,
   FileSpreadsheet,
   RefreshCw,
@@ -18,21 +17,13 @@ import {
   Sparkles,
   ArrowUpRight,
   Tag,
-  DollarSign,
-  AlertCircle,
-  XCircle,
   UserCheck,
-  Check,
-  FileText,
   Lock,
-  Unlock,
-  Store,
-  Briefcase,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { api, ApiError } from '../../lib/api';
 import { usePreferences } from '../../stores/preferences';
-import { money, date, humanize } from '../../lib/format';
+import { money, date } from '../../lib/format';
 import { Button, Modal, Skeleton, EmptyState, ErrorState, Badge } from '../../components/ui';
 import { PropertyPurchaseWizard } from '../resources/PropertyPurchaseWizard';
 import { JournalVoucher } from '../resources/JournalVoucher';
@@ -137,7 +128,7 @@ export default function PropertyLifecycleHub() {
   });
 
   const currency = data?.currency || preferredCurrency;
-  const deals = data?.deals ?? [];
+  const deals = useMemo(() => data?.deals ?? [], [data?.deals]);
   const summary = data?.summary ?? {
     totalAcquisitions: 0,
     soldCount: 0,
