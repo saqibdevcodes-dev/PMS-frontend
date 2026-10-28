@@ -23,6 +23,7 @@ import { Button, Skeleton } from '../../components/ui';
 import { QRCode } from '../../components/QRCode';
 import { RecordImage } from '../../components/ImageUpload';
 import './customer-detail.css';
+import './member-qr.css';
 
 interface CustomerItem {
   id: string;
@@ -109,7 +110,7 @@ export default function MemberQrPage() {
       {/* Header */}
       <div className="customer-page-header">
         <div className="customer-header-left">
-          <div className="customer-avatar-badge" style={{ background: 'var(--primary-subtle, #ecfdf5)', color: 'var(--primary, #059669)' }}>
+          <div className="customer-avatar-badge" style={{ background: 'color-mix(in srgb, var(--primary) 12%, transparent)', color: 'var(--primary)' }}>
             <QrCode size={26} />
           </div>
           <div>
@@ -150,11 +151,11 @@ export default function MemberQrPage() {
         {/* Left Column: Member Directory & Search */}
         <div className="customer-section-card" style={{ gap: 16 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12 }}>
-            <h3 style={{ margin: 0, fontSize: 17, display: 'flex', alignItems: 'center', gap: 8 }}>
+            <h3 style={{ margin: 0, fontSize: 17, display: 'flex', alignItems: 'center', gap: 8, color: 'var(--text)' }}>
               <UserCheck size={18} color="var(--primary)" />
               {t('Select member')}
             </h3>
-            <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>
+            <span style={{ fontSize: 12, color: 'var(--muted)' }}>
               {t('Showing')} {filteredMembers.length} {t('members')}
             </span>
           </div>
@@ -168,13 +169,22 @@ export default function MemberQrPage() {
                 left: 12,
                 top: '50%',
                 transform: 'translateY(-50%)',
-                color: 'var(--text-muted)',
+                color: 'var(--muted)',
               }}
             />
             <input
               type="text"
-              className="form-control"
-              style={{ paddingLeft: 36, paddingRight: search ? 36 : 12, height: 40 }}
+              style={{
+                paddingLeft: 36,
+                paddingRight: search ? 36 : 12,
+                height: 40,
+                background: 'var(--panel)',
+                color: 'var(--text)',
+                border: '1px solid var(--border)',
+                borderRadius: 8,
+                width: '100%',
+                boxSizing: 'border-box',
+              }}
               placeholder={t('Search by name, phone, CNIC or member ID...')}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
@@ -191,7 +201,7 @@ export default function MemberQrPage() {
                   background: 'transparent',
                   border: 'none',
                   cursor: 'pointer',
-                  color: 'var(--text-muted)',
+                  color: 'var(--muted)',
                 }}
               >
                 <X size={15} />
@@ -203,10 +213,10 @@ export default function MemberQrPage() {
           {membersQuery.isLoading ? (
             <Skeleton rows={6} />
           ) : filteredMembers.length === 0 ? (
-            <div style={{ textAlign: 'center', padding: '40px 16px', color: 'var(--text-muted)' }}>
+            <div style={{ textAlign: 'center', padding: '40px 16px', color: 'var(--muted)' }}>
               <QrCode size={36} style={{ margin: '0 auto 12px', opacity: 0.4 }} />
-              <p style={{ margin: 0, fontWeight: 500 }}>{t('No members found')}</p>
-              <p style={{ margin: '4px 0 0', fontSize: 13 }}>
+              <p style={{ margin: 0, fontWeight: 500, color: 'var(--text)' }}>{t('No members found')}</p>
+              <p style={{ margin: '4px 0 0', fontSize: 13, color: 'var(--muted)' }}>
                 {t('Try searching with a different name or ID')}
               </p>
             </div>
@@ -236,13 +246,15 @@ export default function MemberQrPage() {
                       borderRadius: 10,
                       cursor: 'pointer',
                       border: isSelected
-                        ? '2px solid var(--primary, #059669)'
-                        : '1px solid var(--border-color, #e2e8f0)',
+                        ? '2px solid var(--primary)'
+                        : '1px solid var(--border)',
                       background: isSelected
-                        ? 'var(--primary-subtle, #ecfdf5)'
-                        : 'var(--card-bg, #ffffff)',
+                        ? 'color-mix(in srgb, var(--primary) 12%, var(--panel))'
+                        : 'var(--panel)',
                       transition: 'all 0.15s ease',
-                      boxShadow: isSelected ? '0 4px 12px rgba(5, 150, 105, 0.12)' : 'none',
+                      boxShadow: isSelected
+                        ? '0 4px 12px color-mix(in srgb, var(--primary) 20%, transparent)'
+                        : 'none',
                     }}
                   >
                     <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
@@ -251,8 +263,8 @@ export default function MemberQrPage() {
                           width: 44,
                           height: 44,
                           borderRadius: '50%',
-                          background: isSelected ? '#059669' : '#0f172a',
-                          color: '#fff',
+                          background: isSelected ? 'var(--primary)' : 'var(--subtle)',
+                          color: isSelected ? 'var(--on-primary)' : 'var(--text)',
                           fontWeight: 700,
                           fontSize: 16,
                           display: 'flex',
@@ -260,6 +272,7 @@ export default function MemberQrPage() {
                           justifyContent: 'center',
                           overflow: 'hidden',
                           flexShrink: 0,
+                          border: isSelected ? 'none' : '1px solid var(--border)',
                         }}
                       >
                         {m.photoId ? (
@@ -269,7 +282,7 @@ export default function MemberQrPage() {
                         )}
                       </div>
                       <div>
-                        <div style={{ fontWeight: 600, fontSize: 14, color: 'var(--text-color)' }}>
+                        <div style={{ fontWeight: 600, fontSize: 14, color: 'var(--text)' }}>
                           {m.name}
                         </div>
                         <div
@@ -279,7 +292,7 @@ export default function MemberQrPage() {
                             gap: 10,
                             marginTop: 3,
                             fontSize: 12,
-                            color: 'var(--text-muted)',
+                            color: 'var(--muted)',
                           }}
                         >
                           <span style={{ fontFamily: 'monospace', fontWeight: 600 }}>{mCode}</span>
@@ -304,8 +317,13 @@ export default function MemberQrPage() {
                         style={{
                           padding: '6px 10px',
                           borderRadius: 6,
-                          background: isSelected ? 'rgba(5, 150, 105, 0.15)' : 'var(--bg-subtle, #f1f5f9)',
-                          color: isSelected ? 'var(--primary, #059669)' : 'var(--text-muted)',
+                          background: isSelected
+                            ? 'color-mix(in srgb, var(--primary) 18%, transparent)'
+                            : 'var(--subtle)',
+                          color: isSelected ? 'var(--primary)' : 'var(--muted)',
+                          border: isSelected
+                            ? '1px solid color-mix(in srgb, var(--primary) 30%, transparent)'
+                            : '1px solid var(--border)',
                           display: 'flex',
                           alignItems: 'center',
                           gap: 4,
@@ -373,11 +391,11 @@ export default function MemberQrPage() {
           ) : (
             <div
               className="customer-section-card"
-              style={{ textAlign: 'center', padding: '60px 20px', color: 'var(--text-muted)' }}
+              style={{ textAlign: 'center', padding: '60px 20px', color: 'var(--muted)' }}
             >
               <QrCode size={48} style={{ margin: '0 auto 16px', opacity: 0.3 }} />
-              <h4 style={{ margin: 0, fontSize: 16 }}>{t('No member selected')}</h4>
-              <p style={{ margin: '8px 0 0', fontSize: 13 }}>
+              <h4 style={{ margin: 0, fontSize: 16, color: 'var(--text)' }}>{t('No member selected')}</h4>
+              <p style={{ margin: '8px 0 0', fontSize: 13, color: 'var(--muted)' }}>
                 {t('Select a member from the directory to view and print their QR allotment pass')}
               </p>
             </div>

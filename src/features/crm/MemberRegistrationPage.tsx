@@ -486,13 +486,13 @@ export default function MemberRegistrationPage() {
                 />
                 <div className="mreg-input-icon">
                   {isCheckingEmail ? (
-                    <Loader2 size={15} className="mreg-spin" style={{ color: 'var(--text-muted)' }} />
+                    <Loader2 size={15} className="mreg-spin" style={{ color: 'var(--muted)' }} />
                   ) : emailCheckResult?.available ? (
-                    <CheckCircle2 size={15} style={{ color: '#10b981' }} />
+                    <CheckCircle2 size={15} style={{ color: 'var(--success)' }} />
                   ) : emailCheckResult?.exists ? (
-                    <AlertCircle size={15} style={{ color: '#ef4444' }} />
+                    <AlertCircle size={15} style={{ color: 'var(--danger)' }} />
                   ) : (
-                    <Mail size={15} style={{ color: 'var(--text-muted)' }} />
+                    <Mail size={15} style={{ color: 'var(--muted)' }} />
                   )}
                 </div>
               </div>

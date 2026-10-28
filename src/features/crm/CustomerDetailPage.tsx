@@ -605,8 +605,8 @@ export default function CustomerDetailPage() {
                     <div
                       key={nom.id}
                       style={{
-                        background: 'var(--surface-raised, #f8fafc)',
-                        border: '1px solid var(--border, #e2e8f0)',
+                        background: 'var(--subtle)',
+                        border: '1px solid var(--border)',
                         padding: '14px 18px',
                         borderRadius: 8,
                       }}
@@ -637,7 +637,7 @@ export default function CustomerDetailPage() {
                   ))}
                 </div>
               ) : (
-                <p style={{ color: 'var(--text-muted)', margin: 0 }}>
+                <p style={{ color: 'var(--muted)', margin: 0 }}>
                   {t('No nominee information recorded.')}
                 </p>
               )}
@@ -657,8 +657,8 @@ export default function CustomerDetailPage() {
                     <div
                       key={bkg.id}
                       style={{
-                        background: 'var(--surface-raised, #f8fafc)',
-                        border: '1px solid var(--border, #e2e8f0)',
+                        background: 'var(--subtle)',
+                        border: '1px solid var(--border)',
                         borderRadius: 8,
                         padding: '16px',
                         display: 'flex',
@@ -675,7 +675,7 @@ export default function CustomerDetailPage() {
                           <strong style={{ fontSize: 15 }}>{bkg.reference}</strong>
                           <Badge value={bkg.status} />
                         </div>
-                        <div style={{ fontSize: 13, color: 'var(--text-muted)' }}>
+                        <div style={{ fontSize: 13, color: 'var(--muted)' }}>
                           {bkg.unit ? (
                             <>
                               {t('Property')} <strong>{bkg.unit.number}</strong> ({bkg.unit.type}) ·{' '}
@@ -721,7 +721,7 @@ export default function CustomerDetailPage() {
                   ))}
                 </div>
               ) : (
-                <p style={{ color: 'var(--text-muted)', margin: 0 }}>
+                <p style={{ color: 'var(--muted)', margin: 0 }}>
                   {t('No property bookings found for this member.')}
                 </p>
               )}
@@ -789,7 +789,7 @@ export default function CustomerDetailPage() {
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12 }}>
               <div>
                 <h3 style={{ margin: 0, fontSize: 18 }}>{t('Member Statement & Account Ledger')}</h3>
-                <p style={{ margin: '4px 0 0', fontSize: 13, color: 'var(--text-muted)' }}>
+                <p style={{ margin: '4px 0 0', fontSize: 13, color: 'var(--muted)' }}>
                   {t('All member bookings, payment schedules, and verified records')}
                 </p>
               </div>
@@ -830,20 +830,22 @@ export default function CustomerDetailPage() {
                 gap: 12,
                 flexWrap: 'wrap',
                 padding: '12px 16px',
-                background: 'var(--surface-raised, #f8fafc)',
+                background: 'var(--subtle)',
                 borderRadius: 8,
-                border: '1px solid var(--border, #e2e8f0)',
+                border: '1px solid var(--border)',
               }}
             >
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13 }}>
-                <label style={{ fontWeight: 600, color: 'var(--text-muted)' }}>{t('From date')}</label>
+                <label style={{ fontWeight: 600, color: 'var(--muted)' }}>{t('From date')}</label>
                 <input
                   type="date"
                   value={fromDate}
                   onChange={(e) => setFromDate(e.target.value)}
                   style={{
                     padding: '6px 10px',
-                    border: '1px solid var(--border, #cbd5e1)',
+                    border: '1px solid var(--border)',
+                    background: 'var(--panel)',
+                    color: 'var(--text)',
                     borderRadius: 6,
                     fontSize: 13,
                   }}
@@ -851,14 +853,16 @@ export default function CustomerDetailPage() {
               </div>
 
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13 }}>
-                <label style={{ fontWeight: 600, color: 'var(--text-muted)' }}>{t('To date')}</label>
+                <label style={{ fontWeight: 600, color: 'var(--muted)' }}>{t('To date')}</label>
                 <input
                   type="date"
                   value={toDate}
                   onChange={(e) => setToDate(e.target.value)}
                   style={{
                     padding: '6px 10px',
-                    border: '1px solid var(--border, #cbd5e1)',
+                    border: '1px solid var(--border)',
+                    background: 'var(--panel)',
+                    color: 'var(--text)',
                     borderRadius: 6,
                     fontSize: 13,
                   }}
@@ -885,7 +889,7 @@ export default function CustomerDetailPage() {
             ) : statement ? (
               <CustomerStatement statement={statement} />
             ) : (
-              <div style={{ textAlign: 'center', padding: '40px 20px', color: 'var(--text-muted)' }}>
+              <div style={{ textAlign: 'center', padding: '40px 20px', color: 'var(--muted)' }}>
                 <Receipt size={40} style={{ opacity: 0.3, marginBottom: 12 }} />
                 <h4 style={{ margin: '0 0 6px', color: 'var(--text)' }}>
                   {t('No statement available for this member.')}
@@ -903,7 +907,7 @@ export default function CustomerDetailPage() {
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12 }}>
               <div>
                 <h3 style={{ margin: 0, fontSize: 18 }}>{t('Attachments & Documents')}</h3>
-                <p style={{ margin: '4px 0 0', fontSize: 13, color: 'var(--text-muted)' }}>
+                <p style={{ margin: '4px 0 0', fontSize: 13, color: 'var(--muted)' }}>
                   {t('Upload allotment forms, CNIC copies, receipts, or legal affidavits.')}
                 </p>
               </div>
@@ -919,7 +923,7 @@ export default function CustomerDetailPage() {
             {documentsQuery.isLoading ? (
               <Skeleton rows={4} />
             ) : docItems.length === 0 ? (
-              <div style={{ textAlign: 'center', padding: '40px 20px', color: 'var(--text-muted)' }}>
+              <div style={{ textAlign: 'center', padding: '40px 20px', color: 'var(--muted)' }}>
                 <FileText size={40} style={{ opacity: 0.3, marginBottom: 12 }} />
                 <h4 style={{ margin: '0 0 6px', color: 'var(--text)' }}>
                   {t('No attachments uploaded for this member.')}
@@ -965,7 +969,7 @@ export default function CustomerDetailPage() {
                           >
                             {String(doc.name)}
                           </strong>
-                          <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>
+                          <span style={{ fontSize: 11, color: 'var(--muted)' }}>
                             {sizeKb} KB · {doc.createdAt ? date(String(doc.createdAt)) : ''}
                           </span>
                         </div>

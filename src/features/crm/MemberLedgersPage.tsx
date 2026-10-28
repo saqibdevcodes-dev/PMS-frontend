@@ -125,7 +125,7 @@ export default function MemberLedgersPage() {
           <h1 style={{ fontSize: 24, fontWeight: 800, margin: 0, color: 'var(--text)' }}>
             {t('Member Statement & Account Ledgers')}
           </h1>
-          <p style={{ margin: '4px 0 0', fontSize: 14, color: 'var(--text-muted)' }}>
+          <p style={{ margin: '4px 0 0', fontSize: 14, color: 'var(--muted)' }}>
             {t('All member bookings, payment schedules, and verified records')}
           </p>
         </div>
@@ -178,7 +178,6 @@ export default function MemberLedgersPage() {
           display: 'flex',
           flexDirection: 'column',
           gap: 16,
-          background: 'var(--surface, #ffffff)',
         }}
       >
         <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -193,10 +192,10 @@ export default function MemberLedgersPage() {
               style={{
                 flex: 1,
                 padding: '9px 12px',
-                border: '1px solid var(--border, #cbd5e1)',
+                border: '1px solid var(--border)',
                 borderRadius: 8,
                 fontSize: 14,
-                background: 'var(--surface, #ffffff)',
+                background: 'var(--panel)',
                 color: 'var(--text)',
               }}
             >
@@ -217,7 +216,7 @@ export default function MemberLedgersPage() {
           {/* Date Range Filters */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13 }}>
-              <label style={{ fontWeight: 600, color: 'var(--text-muted)' }}>{t('From date')}</label>
+              <label style={{ fontWeight: 600, color: 'var(--muted)' }}>{t('From date')}</label>
               <input
                 type="date"
                 value={fromDate}
@@ -232,7 +231,9 @@ export default function MemberLedgersPage() {
                 }}
                 style={{
                   padding: '7px 10px',
-                  border: '1px solid var(--border, #cbd5e1)',
+                  border: '1px solid var(--border)',
+                  background: 'var(--panel)',
+                  color: 'var(--text)',
                   borderRadius: 6,
                   fontSize: 13,
                 }}
@@ -240,7 +241,7 @@ export default function MemberLedgersPage() {
             </div>
 
             <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13 }}>
-              <label style={{ fontWeight: 600, color: 'var(--text-muted)' }}>{t('To date')}</label>
+              <label style={{ fontWeight: 600, color: 'var(--muted)' }}>{t('To date')}</label>
               <input
                 type="date"
                 value={toDate}
@@ -255,7 +256,9 @@ export default function MemberLedgersPage() {
                 }}
                 style={{
                   padding: '7px 10px',
-                  border: '1px solid var(--border, #cbd5e1)',
+                  border: '1px solid var(--border)',
+                  background: 'var(--panel)',
+                  color: 'var(--text)',
                   borderRadius: 6,
                   fontSize: 13,
                 }}
@@ -291,7 +294,7 @@ export default function MemberLedgersPage() {
           ) : statement ? (
             <CustomerStatement statement={statement} />
           ) : (
-            <div style={{ textAlign: 'center', padding: '48px 20px', color: 'var(--text-muted)' }}>
+            <div style={{ textAlign: 'center', padding: '48px 20px', color: 'var(--muted)' }}>
               <Receipt size={48} style={{ opacity: 0.3, marginBottom: 12 }} />
               <h4 style={{ margin: '0 0 6px', color: 'var(--text)', fontSize: 16 }}>
                 {t('No statement available for this member.')}

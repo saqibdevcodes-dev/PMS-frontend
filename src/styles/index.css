@@ -95,6 +95,14 @@
   --warning: #a87622;
   --danger: #bf4a50;
   --ring: #8aaacb;
+  --surface: var(--panel);
+  --surface-raised: var(--subtle);
+  --card-bg: var(--panel);
+  --text-muted: var(--muted);
+  --text-color: var(--text);
+  --border-color: var(--border);
+  --primary-subtle: color-mix(in srgb, var(--primary) 12%, transparent);
+  --bg-subtle: var(--subtle);
 }
 :root[data-theme='dark'] {
   color-scheme: dark;
@@ -113,6 +121,14 @@
   --warning: #ebbd6b;
   --danger: #f1858b;
   --ring: #8eafd1;
+  --surface: var(--panel);
+  --surface-raised: var(--subtle);
+  --card-bg: var(--panel);
+  --text-muted: var(--muted);
+  --text-color: var(--text);
+  --border-color: var(--border);
+  --primary-subtle: color-mix(in srgb, var(--primary) 15%, transparent);
+  --bg-subtle: var(--subtle);
 }
 * {
   box-sizing: border-box;
