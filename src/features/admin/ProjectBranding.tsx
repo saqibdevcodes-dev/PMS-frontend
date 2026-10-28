@@ -35,32 +35,40 @@ export function ProjectBranding({
   });
   return (
     <section className="panel project-branding-card">
-      <div>
+      <div className="project-branding-header">
         <h2>{t('Project branding')}</h2>
         <p>
           {t('Use this logo on project receipts, vouchers, statements and generated documents.')}
         </p>
       </div>
       <div className="project-branding-grid">
-        <ImageUpload
-          key={uploadKey}
-          purpose="PROJECT_LOGO"
-          value={logo}
-          onChange={setLogo}
-          label={t('Project logo')}
-          disabled={save.isPending}
-          onBusy={setBusy}
-          minHeight={160}
-        />
+        <div className="project-branding-upload">
+          <ImageUpload
+            key={uploadKey}
+            purpose="PROJECT_LOGO"
+            value={logo}
+            onChange={setLogo}
+            label={t('Project logo')}
+            disabled={save.isPending}
+            onBusy={setBusy}
+            minHeight={160}
+          />
+        </div>
         <div className="project-branding-preview">
-          <small>{t('Document preview')}</small>
-          <ProjectLogo logoId={logo || null} name={name} />
-          <strong>{name}</strong>
-          <span>{t('The Etihad logo is used when no project logo is selected.')}</span>
+          <small className="project-branding-preview-label">{t('Document preview')}</small>
+          <div className="project-branding-preview-box">
+            <ProjectLogo logoId={logo || null} name={name} className="project-branding-logo" />
+            <div className="project-branding-meta">
+              <strong className="project-branding-name">{name}</strong>
+              <span className="project-branding-hint">
+                {t('The Etihad logo is used when no project logo is selected.')}
+              </span>
+            </div>
+          </div>
         </div>
       </div>
       {save.error && <ErrorState error={save.error} />}
-      <footer>
+      <footer className="project-branding-footer">
         <Button
           variant="secondary"
           disabled={!dirty || busy || save.isPending}

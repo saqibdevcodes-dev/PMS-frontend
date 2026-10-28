@@ -9,11 +9,13 @@ export function ProjectLogo({
   logoId,
   name,
   className = '',
+  background = 'theme',
 }: {
   projectId?: string;
   logoId?: string | null;
   name?: string;
   className?: string;
+  background?: 'theme' | 'light' | 'dark';
 }) {
   const branding = useQuery({
     queryKey: ['project-branding', projectId],
@@ -35,7 +37,7 @@ export function ProjectLogo({
           fallback={<span className="project-logo-name">{projectName}</span>}
         />
       ) : (
-        <BrandLogo background="light" />
+        <BrandLogo background={background} />
       )}
     </span>
   );
