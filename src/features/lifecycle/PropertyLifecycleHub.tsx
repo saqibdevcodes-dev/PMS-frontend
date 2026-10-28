@@ -23,6 +23,7 @@ import {
 import { toast } from 'sonner';
 import { api, ApiError } from '../../lib/api';
 import { usePreferences } from '../../stores/preferences';
+import { t } from '../../lib/i18n';
 import { money, date } from '../../lib/format';
 import { Button, Modal, Skeleton, EmptyState, ErrorState, Badge } from '../../components/ui';
 import { PropertyPurchaseWizard } from '../resources/PropertyPurchaseWizard';
@@ -240,9 +241,11 @@ export default function PropertyLifecycleHub() {
             <Coins size={26} />
           </div>
           <div>
-            <h1>Property Lifecycle & Financial Workflow Hub</h1>
+            <h1>{t('Property Lifecycle & Financial Workflow Hub')}</h1>
             <p>
-              Unified acquisition-to-resale management: Registration $\rightarrow$ Seller Purchase $\rightarrow$ Expense Management $\rightarrow$ Listed for Sale $\rightarrow$ Customer Booking $\rightarrow$ Sold P&L.
+              {t(
+                'Unified acquisition-to-resale management: Registration → Seller Purchase → Expense Management → Listed for Sale → Customer Booking → Sold P&L.',
+              )}
             </p>
           </div>
         </div>

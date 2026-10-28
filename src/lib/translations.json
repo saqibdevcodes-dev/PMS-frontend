@@ -7790,5 +7790,13 @@
   "{count} overdue records": [
     "{count} واجب الادا ریکارڈز",
     "{count} سجلات متأخرة"
+  ],
+  "Property Lifecycle & Financial Workflow Hub": [
+    "پراپرٹی لائف سائیکل اور فنانشل ورک فلو ہب",
+    "مركز دورة حياة العقار وسير العمل المالي"
+  ],
+  "Unified acquisition-to-resale management: Registration → Seller Purchase → Expense Management → Listed for Sale → Customer Booking → Sold P&L.": [
+    "حصول سے دوبارہ فروخت تک کا متحد انتظام: رجسٹریشن ← فروخت کنندہ سے خریداری ← اخراجات کا انتظام ← فروخت کے لیے پیشکش ← گاہک کی بکنگ ← فروخت کا نفع و نقصان۔",
+    "إدارة موحدة من الاقتناء حتى إعادة البيع: التسجيل ← الشراء من البائع ← إدارة المصاريف ← العرض للبيع ← حجز العميل ← أرباح وخسائر البيع."
   ]
 }
