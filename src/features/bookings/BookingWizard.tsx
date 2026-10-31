@@ -1,7 +1,8 @@
+import { Money } from '../../components/Money';
 import { t, useLocale } from '../../lib/i18n';
 import { MoneyInput } from '../../components/MoneyInput';
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import Decimal from 'decimal.js';
 import { CheckCircle2, Building2, UserRound, ArrowRight, ShieldCheck } from 'lucide-react';
@@ -11,7 +12,7 @@ import { queryClient } from '../../lib/query';
 import { usePreferences } from '../../stores/preferences';
 import { can } from '../../stores/auth';
 import { row, type Row } from '../../lib/types';
-import { money, labelOf, calendarDay } from '../../lib/format';
+import { labelOf, calendarDay, moneyWithWords } from '../../lib/format';
 import { RelationSelect } from '../../components/RelationSelect';
 import { Button, PageHeading, ErrorState } from '../../components/ui';
 import { OperationDialog } from '../../components/OperationDialog';
@@ -23,6 +24,14 @@ import { PaymentFields, initialTerms, previewPlan, type Terms } from './PaymentF
 export default function BookingWizard() {
   useLocale();
   const projectId = usePreferences((s) => s.projectId);
+  const [params] = useSearchParams();
+  const requestedUnitId = params.get('unitId') ?? '';
+  const requestedUnit = useQuery({
+    queryKey: ['booking-requested-unit', projectId, requestedUnitId],
+    enabled: Boolean(projectId && requestedUnitId && can('inventory.read')),
+    queryFn: ({ signal }) =>
+      api<Row>(`/projects/${projectId}/units/${requestedUnitId}`, { signal }),
+  });
   const [step, setStep] = useState(0);
   const [customer, setCustomer] = useState<Row>({});
   const [unit, setUnit] = useState<Row>({});
@@ -48,7 +57,13 @@ export default function BookingWizard() {
     setTerms(initialTerms());
     setCreated(undefined);
     setError(undefined);
-  }, [projectId]);
+  }, [projectId, requestedUnitId]);
+  useEffect(() => {
+    if (requestedUnit.data?.id === requestedUnitId && requestedUnit.data.status === 'AVAILABLE') {
+      setUnit(requestedUnit.data);
+      setSellingPrice(String(requestedUnit.data.price));
+    }
+  }, [requestedUnit.data, requestedUnitId]);
   useUnsavedChanges(Boolean((customer.id || unit.id) && !created));
   const price = new Decimal(sellingPrice || 0);
   const effectiveDiscount = new Decimal(applyDiscount ? discount || 0 : 0);
@@ -81,7 +96,7 @@ export default function BookingWizard() {
   if (!projectId) return <ProjectRequired />;
   function next() {
     setError(undefined);
-    if (step === 0 && (!customer.id || !unit.id))
+    if (step === 0 && (!customer.id || !unit.id || unit.status !== 'AVAILABLE'))
       return setError(new Error('Choose a customer and an available property.'));
     if (
       step === 1 &&
@@ -102,7 +117,7 @@ export default function BookingWizard() {
       )
         return setError(
           new Error(
-            `Down payment must be at least ${money(minimum)} and less than the total. Choose valid installment amounts and a current or future first due date.`,
+            `Down payment must be at least ${moneyWithWords(minimum)} and less than the total. Choose valid installment amounts and a current or future first due date.`,
           ),
         );
     }
@@ -152,6 +167,16 @@ export default function BookingWizard() {
         title="Create booking"
         description="Choose the customer, property and payment plan, then review the booking."
       />
+      {requestedUnit.isError && (
+        <ErrorState error={requestedUnit.error} retry={() => void requestedUnit.refetch()} />
+      )}
+      {requestedUnit.data && requestedUnit.data.status !== 'AVAILABLE' && (
+        <ErrorState
+          error={
+            new Error('The selected property is no longer available. Choose another property.')
+          }
+        />
+      )}
       <section className="booking-workspace">
         <ol className="setup-steps">
           {['Customer & property', 'Price & discount', 'Payment type', 'Review & confirm'].map(
@@ -262,7 +287,9 @@ export default function BookingWizard() {
                   </label>
                   <div className="form-field">
                     <span>{t('Additional property fees')}</span>
-                    <strong>{money(unit.charges)}</strong>
+                    <strong>
+                      <Money value={unit.charges} />
+                    </strong>
                   </div>
                   {can('discounts.approve') && (
                     <label className="check-field form-full">
@@ -290,7 +317,10 @@ export default function BookingWizard() {
                     </label>
                   )}
                   <p className="form-full">
-                    Total payable: <strong>{money(total)}</strong>
+                    Total payable:{' '}
+                    <strong>
+                      <Money value={total} />
+                    </strong>
                   </p>
                 </>
               )}
@@ -312,15 +342,15 @@ export default function BookingWizard() {
                     {Object.entries({
                       Customer: labelOf(customer),
                       Property: labelOf(unit),
-                      'Selling price': money(price),
-                      Fees: money(unit.charges),
-                      Discount: money(effectiveDiscount),
-                      'Total payable': money(total),
+                      'Selling price': moneyWithWords(price),
+                      Fees: moneyWithWords(unit.charges),
+                      Discount: moneyWithWords(effectiveDiscount),
+                      'Total payable': moneyWithWords(total),
                       'Payment type':
                         terms.paymentType === 'FULL_PAYMENT' ? 'Full Payment' : 'Installment Plan',
                       ...(terms.paymentType === 'INSTALLMENTS'
                         ? {
-                            'Down payment': money(terms.downPayment),
+                            'Down payment': moneyWithWords(terms.downPayment),
                             Installments: String(terms.installmentCount),
                             'First installment': terms.firstInstallmentDate,
                           }
@@ -389,21 +419,23 @@ export default function BookingWizard() {
             <dl className="booking-costs">
               <div>
                 <dt>{t('Selling price')}</dt>
-                <dd>{unit.id ? money(price) : '—'}</dd>
+                <dd>{unit.id ? <Money value={price} /> : '—'}</dd>
               </div>
               <div>
                 <dt>{t('Additional property fees')}</dt>
-                <dd>{unit.id ? money(unit.charges) : '—'}</dd>
+                <dd>{unit.id ? <Money value={unit.charges} /> : '—'}</dd>
               </div>
               {applyDiscount && (
                 <div>
                   <dt>{t('Discount')}</dt>
-                  <dd>−{money(effectiveDiscount)}</dd>
+                  <dd>
+                    −<Money value={effectiveDiscount} />
+                  </dd>
                 </div>
               )}
               <div className="booking-grand-total">
                 <dt>{t('Total payable')}</dt>
-                <dd>{unit.id ? money(total) : '—'}</dd>
+                <dd>{unit.id ? <Money value={total} /> : '—'}</dd>
               </div>
             </dl>
             {step >= 2 && (

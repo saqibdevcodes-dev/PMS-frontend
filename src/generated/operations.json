@@ -2749,6 +2749,49 @@
     "multipart": false
   },
   {
+    "id": "delete__projects__projectId_units__id",
+    "path": "/projects/{projectId}/units/{id}",
+    "method": "delete",
+    "summary": "Permanently delete an uncommitted property with administrator password confirmation",
+    "permission": "users.manage",
+    "public": false,
+    "body": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "properties": {
+        "password": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "password"
+      ],
+      "additionalProperties": false
+    },
+    "parameters": [
+      {
+        "name": "projectId",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        }
+      },
+      {
+        "name": "id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        }
+      }
+    ],
+    "multipart": false
+  },
+  {
     "id": "post__projects__projectId_units__id_status",
     "path": "/projects/{projectId}/units/{id}/status",
     "method": "post",
@@ -3842,11 +3885,199 @@
     "multipart": false
   },
   {
+    "id": "delete__projects__projectId_bookings__id",
+    "path": "/projects/{projectId}/bookings/{id}",
+    "method": "delete",
+    "summary": "Permanently delete an empty draft or unpaid cancelled booking with administrator password confirmation",
+    "permission": "users.manage",
+    "public": false,
+    "body": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "properties": {
+        "password": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "password"
+      ],
+      "additionalProperties": false
+    },
+    "parameters": [
+      {
+        "name": "projectId",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        }
+      },
+      {
+        "name": "id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        }
+      }
+    ],
+    "multipart": false
+  },
+  {
     "id": "post__projects__projectId_bookings__id_confirm",
     "path": "/projects/{projectId}/bookings/{id}/confirm",
     "method": "post",
     "summary": "Confirm booking",
     "permission": "bookings.approve",
+    "public": false,
+    "parameters": [
+      {
+        "name": "projectId",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        }
+      },
+      {
+        "name": "id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        }
+      }
+    ],
+    "multipart": false
+  },
+  {
+    "id": "post__projects__projectId_bookings__id_unassign",
+    "path": "/projects/{projectId}/bookings/{id}/unassign",
+    "method": "post",
+    "summary": "Retract booking and unassign property with full or custom refund",
+    "permission": "bookings.cancel",
+    "public": false,
+    "body": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "properties": {
+        "refundMode": {
+          "type": "string",
+          "enum": [
+            "FULL",
+            "CUSTOM"
+          ]
+        },
+        "customRefundAmount": {
+          "type": "string",
+          "pattern": "^(0|[1-9]\\d{0,15})(\\.\\d{1,2})?$"
+        },
+        "customDeduction": {
+          "type": "string",
+          "pattern": "^(0|[1-9]\\d{0,15})(\\.\\d{1,2})?$"
+        },
+        "reason": {
+          "type": "string",
+          "maxLength": 1000
+        }
+      },
+      "required": [
+        "refundMode"
+      ],
+      "additionalProperties": false
+    },
+    "parameters": [
+      {
+        "name": "projectId",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        }
+      },
+      {
+        "name": "id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        }
+      }
+    ],
+    "multipart": false
+  },
+  {
+    "id": "post__projects__projectId_units__id_unassign",
+    "path": "/projects/{projectId}/units/{id}/unassign",
+    "method": "post",
+    "summary": "Retract active booking and unassign property with full or custom refund",
+    "permission": "bookings.cancel",
+    "public": false,
+    "body": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "properties": {
+        "refundMode": {
+          "type": "string",
+          "enum": [
+            "FULL",
+            "CUSTOM"
+          ]
+        },
+        "customRefundAmount": {
+          "type": "string",
+          "pattern": "^(0|[1-9]\\d{0,15})(\\.\\d{1,2})?$"
+        },
+        "customDeduction": {
+          "type": "string",
+          "pattern": "^(0|[1-9]\\d{0,15})(\\.\\d{1,2})?$"
+        },
+        "reason": {
+          "type": "string",
+          "maxLength": 1000
+        }
+      },
+      "required": [
+        "refundMode"
+      ],
+      "additionalProperties": false
+    },
+    "parameters": [
+      {
+        "name": "projectId",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        }
+      },
+      {
+        "name": "id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        }
+      }
+    ],
+    "multipart": false
+  },
+  {
+    "id": "get__projects__projectId_units__id_unassign_preview",
+    "path": "/projects/{projectId}/units/{id}/unassign-preview",
+    "method": "get",
+    "summary": "Preview unassign data: active booking, collections and customer",
+    "permission": "bookings.read",
     "public": false,
     "parameters": [
       {
@@ -4299,7 +4530,7 @@
     "id": "get__verify_file__reference",
     "path": "/verify/file/{reference}",
     "method": "get",
-    "summary": "Public computerized property file verification without sensitive customer data",
+    "summary": "Verify a property file without disclosing customer or financial data",
     "public": true,
     "parameters": [
       {
@@ -4307,46 +4538,43 @@
         "in": "path",
         "required": true,
         "schema": {
-          "type": "string",
-          "format": "uuid"
+          "type": "string"
         }
       }
     ],
     "multipart": false
   },
   {
-    "id": "get__verify_employee__id",
-    "path": "/verify/employee/{id}",
+    "id": "get__verify_employee__identifier",
+    "path": "/verify/employee/{identifier}",
     "method": "get",
-    "summary": "Public employee verification by employee ID or employee code",
+    "summary": "Verify staff registration using a UUID or complete printed code",
     "public": true,
     "parameters": [
       {
-        "name": "id",
+        "name": "identifier",
         "in": "path",
         "required": true,
         "schema": {
-          "type": "string",
-          "format": "uuid"
+          "type": "string"
         }
       }
     ],
     "multipart": false
   },
   {
-    "id": "get__verify_customer__id",
-    "path": "/verify/customer/{id}",
+    "id": "get__verify_customer__identifier",
+    "path": "/verify/customer/{identifier}",
     "method": "get",
-    "summary": "Public customer verification by customer ID or customer code",
+    "summary": "Verify customer registration without exposing identity or financial records",
     "public": true,
     "parameters": [
       {
-        "name": "id",
+        "name": "identifier",
         "in": "path",
         "required": true,
         "schema": {
-          "type": "string",
-          "format": "uuid"
+          "type": "string"
         }
       }
     ],
@@ -6075,6 +6303,30 @@
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
       "properties": {
+        "unitId": {
+          "anyOf": [
+            {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "dealerId": {
+          "anyOf": [
+            {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
         "vendorId": {
           "type": "string",
           "format": "uuid",
@@ -6082,7 +6334,7 @@
         },
         "title": {
           "type": "string",
-          "minLength": 3,
+          "minLength": 2,
           "maxLength": 200
         },
         "location": {
@@ -6118,6 +6370,35 @@
           "default": "0",
           "type": "string",
           "pattern": "^(0|[1-9]\\d{0,15})(\\.\\d{1,2})?$"
+        },
+        "expenseItems": {
+          "default": [],
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 200
+              },
+              "category": {
+                "default": "Renovation & Building",
+                "type": "string"
+              },
+              "amount": {
+                "type": "string",
+                "pattern": "^(0|[1-9]\\d{0,15})(\\.\\d{1,2})?$"
+              }
+            },
+            "required": [
+              "name",
+              "amount"
+            ]
+          }
         },
         "fileReference": {
           "type": "string",
@@ -6193,6 +6474,30 @@
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
       "properties": {
+        "unitId": {
+          "anyOf": [
+            {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "dealerId": {
+          "anyOf": [
+            {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
         "vendorId": {
           "type": "string",
           "format": "uuid",
@@ -6200,7 +6505,7 @@
         },
         "title": {
           "type": "string",
-          "minLength": 3,
+          "minLength": 2,
           "maxLength": 200
         },
         "location": {
@@ -6236,6 +6541,35 @@
           "default": "0",
           "type": "string",
           "pattern": "^(0|[1-9]\\d{0,15})(\\.\\d{1,2})?$"
+        },
+        "expenseItems": {
+          "default": [],
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 200
+              },
+              "category": {
+                "default": "Renovation & Building",
+                "type": "string"
+              },
+              "amount": {
+                "type": "string",
+                "pattern": "^(0|[1-9]\\d{0,15})(\\.\\d{1,2})?$"
+              }
+            },
+            "required": [
+              "name",
+              "amount"
+            ]
+          }
         },
         "fileReference": {
           "type": "string",
@@ -6348,6 +6682,49 @@
       },
       "required": [
         "reason"
+      ],
+      "additionalProperties": false
+    },
+    "parameters": [
+      {
+        "name": "projectId",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        }
+      },
+      {
+        "name": "id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        }
+      }
+    ],
+    "multipart": false
+  },
+  {
+    "id": "post__projects__projectId_property_purchases__id_list_for_sale",
+    "path": "/projects/{projectId}/property-purchases/{id}/list-for-sale",
+    "method": "post",
+    "summary": "Move an investment-finalized property to active selling inventory with asking price",
+    "permission": "inventory.create",
+    "public": false,
+    "body": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "properties": {
+        "askingPrice": {
+          "type": "string",
+          "pattern": "^(0|[1-9]\\d{0,15})(\\.\\d{1,2})?$"
+        }
+      },
+      "required": [
+        "askingPrice"
       ],
       "additionalProperties": false
     },
@@ -7689,6 +8066,126 @@
     "multipart": false
   },
   {
+    "id": "get__projects__projectId_installment_calendar",
+    "path": "/projects/{projectId}/installment-calendar",
+    "method": "get",
+    "summary": "Aggregate every installment in a calendar month without a row cap",
+    "permission": "reports.read",
+    "public": false,
+    "parameters": [
+      {
+        "name": "projectId",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        }
+      },
+      {
+        "name": "from",
+        "in": "query",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "date",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))$"
+        }
+      },
+      {
+        "name": "to",
+        "in": "query",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "date",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))$"
+        }
+      }
+    ],
+    "multipart": false
+  },
+  {
+    "id": "get__projects__projectId_installment_calendar_day",
+    "path": "/projects/{projectId}/installment-calendar/day",
+    "method": "get",
+    "summary": "Browse a complete day of installment obligations",
+    "permission": "reports.read",
+    "public": false,
+    "parameters": [
+      {
+        "name": "projectId",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        }
+      },
+      {
+        "name": "page",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "default": 1,
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9007199254740991
+        }
+      },
+      {
+        "name": "limit",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "default": 25,
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100
+        }
+      },
+      {
+        "name": "sort",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "default": "desc",
+          "type": "string",
+          "enum": [
+            "asc",
+            "desc"
+          ]
+        }
+      },
+      {
+        "name": "date",
+        "in": "query",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "date",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))$"
+        }
+      },
+      {
+        "name": "status",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "default": "all",
+          "type": "string",
+          "enum": [
+            "all",
+            "unpaid",
+            "overdue",
+            "paid"
+          ]
+        }
+      }
+    ],
+    "multipart": false
+  },
+  {
     "id": "get__projects__projectId_dashboard",
     "path": "/projects/{projectId}/dashboard",
     "method": "get",
@@ -7712,6 +8209,26 @@
         "schema": {
           "type": "string",
           "maxLength": 100
+        }
+      }
+    ],
+    "multipart": false
+  },
+  {
+    "id": "get__projects__projectId_deal_profitability",
+    "path": "/projects/{projectId}/deal-profitability",
+    "method": "get",
+    "summary": "Property acquisition, renovation expenses, buyer resale prices, and profit margins",
+    "permission": "reports.read",
+    "public": false,
+    "parameters": [
+      {
+        "name": "projectId",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid"
         }
       }
     ],
@@ -7761,7 +8278,8 @@
             "bank-book",
             "trial-balance",
             "income-statement",
-            "balance-sheet"
+            "balance-sheet",
+            "deal-profitability"
           ]
         }
       },
@@ -7884,7 +8402,8 @@
                 "bank-book",
                 "trial-balance",
                 "income-statement",
-                "balance-sheet"
+                "balance-sheet",
+                "deal-profitability"
               ]
             },
             "from": {

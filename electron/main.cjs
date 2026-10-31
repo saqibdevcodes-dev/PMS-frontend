@@ -28,7 +28,7 @@ let mainWindow, apiBase, refreshFile, installationId, flight;
 let update = { status: 'unconfigured', version: app.getVersion() };
 let updater;
 const csp =
-  "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'none'; frame-src 'none'";
+  "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'none'; frame-src blob:";
 async function authRequest(endpoint, body) {
   const response = await net.fetch(apiBase + endpoint, {
     method: 'POST',

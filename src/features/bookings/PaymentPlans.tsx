@@ -1,3 +1,4 @@
+import { Money } from '../../components/Money';
 import { t, useLocale } from '../../lib/i18n';
 import { useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
@@ -5,7 +6,7 @@ import { useQuery, useMutation } from '@tanstack/react-query';
 import Decimal from 'decimal.js';
 import { api } from '../../lib/api';
 import { asRows, row, type Row } from '../../lib/types';
-import { money, date, humanize } from '../../lib/format';
+import { date, humanize } from '../../lib/format';
 import { usePreferences } from '../../stores/preferences';
 import { can } from '../../stores/auth';
 import { queryClient } from '../../lib/query';
@@ -161,21 +162,27 @@ function PaymentPlanWorkspace() {
                     <Wallet size={16} />
                     {t('Total price')}
                   </dt>
-                  <dd>{money(booking.data.total)}</dd>
+                  <dd>
+                    <Money value={booking.data.total} />
+                  </dd>
                 </div>
                 <div>
                   <dt>
                     <CircleCheck size={16} />
                     {t('Verified payments')}
                   </dt>
-                  <dd>{money(position.collected)}</dd>
+                  <dd>
+                    <Money value={position.collected} />
+                  </dd>
                 </div>
                 <div>
                   <dt>
                     <CalendarRange size={16} />
                     {t('Remaining balance')}
                   </dt>
-                  <dd>{money(position.outstanding)}</dd>
+                  <dd>
+                    <Money value={position.outstanding} />
+                  </dd>
                 </div>
               </dl>
               <div className="payment-progress-label">
@@ -235,7 +242,9 @@ function PaymentPlanWorkspace() {
                 <h2>{t(nextDue ? 'Next payment' : 'Schedule complete')}</h2>
                 {nextDue ? (
                   <>
-                    <strong className="next-payment-amount">{money(nextDue.outstanding)}</strong>
+                    <strong className="next-payment-amount">
+                      <Money value={nextDue.outstanding} />
+                    </strong>
                     <p>
                       {String(nextDue.label)} · {date(nextDue.dueDate)}
                     </p>
@@ -261,7 +270,7 @@ function PaymentPlanWorkspace() {
                       <>
                         <p>
                           <strong>
-                            {t('Down payment')}: {money(booking.data.downPayment)}
+                            {t('Down payment')}: <Money value={booking.data.downPayment} />
                           </strong>
                           {t(
                             collected.lt(String(booking.data.downPayment))
@@ -353,7 +362,9 @@ function PaymentPlanWorkspace() {
                 />
               </label>
             </div>
-            <h3>Schedule preview · {money(balance)}</h3>
+            <h3>
+              Schedule preview · <Money value={balance} />
+            </h3>
             <DataTable data={preview} columns={['label', 'dueDate', 'amount']} controls={false} />
             {save.error && <ErrorState error={save.error} />}
             <div className="form-footer">

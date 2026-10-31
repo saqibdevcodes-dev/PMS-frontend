@@ -301,9 +301,9 @@ test('customer documents, requests, profile, and notifications render', async ({
 test('staff can invite a customer from their record', async ({ page }) => {
   const requests = await mockApi(page, { authenticated: true, staff: true });
   await page.goto('/customers?record=customer-a');
-  const dialog = page.getByRole('dialog');
-  await expect(dialog.getByRole('heading', { name: 'Customer portal access' })).toBeVisible();
-  await dialog.getByRole('button', { name: 'Invite customer' }).click();
+  const dialog = page.locator('.customer-detail-page');
+  await expect(dialog.getByRole('heading', { name: 'Member portal access' })).toBeVisible();
+  await dialog.getByRole('button', { name: 'Invite member' }).click();
   await expect(dialog.getByRole('status')).toHaveText(
     'Invitation queued for email delivery. The customer has 48 hours to activate access.',
   );
@@ -434,4 +434,36 @@ test('a failed customer photo upload retains the saved photo', async ({ page }) 
   await expect(page.locator('.portal-header').getByRole('img')).toBeVisible();
   expect(requests).toContain('/images/' + originalPhotoId);
   expect(requests).not.toContain('/images/' + updatedPhotoId);
+});
+
+test('payment receipt prints with light colors and aligned details from dark mode', async ({
+  page,
+}) => {
+  await page.addInitScript(() =>
+    localStorage.setItem(
+      'estate-preferences-v1',
+      JSON.stringify({ state: { theme: 'dark' }, version: 0 }),
+    ),
+  );
+  await mockApi(page);
+  await page.goto('/portal/payments');
+  await page.getByRole('button', { name: 'RCP-00102', exact: true }).click();
+  const receipt = page.getByRole('dialog');
+  await expect(receipt.locator('.amount-words')).toHaveText('1 lac 25 thousand PKR');
+  await page.emulateMedia({ media: 'print' });
+  await expect(page.locator('html')).toHaveCSS('color-scheme', 'light');
+  await expect(receipt.locator('.printable-receipt')).toHaveCSS(
+    'background-color',
+    'rgb(255, 255, 255)',
+  );
+  await expect(receipt).toHaveCSS('position', 'static');
+  await expect(receipt.getByRole('button', { name: 'Print / save PDF' })).toBeHidden();
+  await page.pdf({
+    path: 'test-results/portal/payment-receipt-print.pdf',
+    preferCSSPageSize: true,
+    printBackground: true,
+  });
+  await page.emulateMedia({ media: 'screen' });
+  await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
+  await expect(page.locator('html')).toHaveCSS('color-scheme', 'dark');
 });

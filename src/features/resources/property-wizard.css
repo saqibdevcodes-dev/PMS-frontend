@@ -102,14 +102,14 @@
 
 .pw-step-badge.active {
   background: var(--primary, #355e85);
-  color: #ffffff;
+  color: var(--on-primary);
   box-shadow: 0 4px 14px rgba(53, 94, 133, 0.35);
   transform: scale(1.05);
 }
 
 .pw-step-badge.completed {
   background: var(--success, #10b981);
-  color: #ffffff;
+  color: var(--on-success);
 }
 
 .pw-step-text-title {
@@ -216,13 +216,13 @@
 .pw-hero-input-wrap {
   position: relative;
   display: flex;
-  align-items: center;
+  align-items: stretch;
   border: 2px solid var(--border);
   border-radius: 12px;
   background: var(--surface);
   transition: all 0.2s ease;
   overflow: hidden;
-  height: 52px;
+  min-height: 52px;
 }
 
 .pw-hero-input-wrap:focus-within {
@@ -237,7 +237,7 @@
   color: var(--muted);
   background: var(--subtle);
   border-inline-end: 1px solid var(--border);
-  height: 100%;
+  min-height: 52px;
   display: flex;
   align-items: center;
 }
@@ -251,6 +251,13 @@
   font-weight: 700;
   color: var(--text);
   background: transparent;
+}
+.pw-hero-input-wrap .amount-words {
+  margin-top: 0;
+  padding: 0 18px 10px;
+}
+.pw-expense-row > .money-input {
+  flex: 1;
 }
 
 /* --------------------------------------------------------------------------
@@ -465,6 +472,66 @@
   font-weight: 800;
   color: #38bdf8;
   letter-spacing: -0.5px;
+}
+.pw-grand-total .amount-words {
+  color: #cbd5e1;
+}
+
+@container modal (max-width: 650px) {
+  .pw-wizard {
+    padding: 20px;
+  }
+  .pw-grid-2,
+  .pw-grid-3,
+  .pw-choice-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .pw-stepper {
+    padding: 10px;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+  .pw-step-item {
+    min-width: 0;
+    padding: 6px;
+    gap: 6px;
+  }
+  .pw-step-connector {
+    display: none;
+  }
+  .pw-expense-row {
+    display: grid;
+    grid-template-columns: 22px minmax(0, 1fr) 28px;
+    align-items: start;
+    gap: 10px;
+    padding: 12px;
+  }
+  .pw-expense-row > input,
+  .pw-expense-row > div {
+    grid-column: 2;
+    min-width: 0;
+  }
+  .pw-expense-row > button {
+    grid-column: 3;
+    grid-row: 1 / 3;
+  }
+  .pw-grand-total {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+    padding: 18px;
+  }
+  .pw-grand-amount {
+    max-width: 100%;
+    font-size: 20px;
+  }
+  .pw-footer {
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .pw-footer .btn {
+    white-space: normal;
+  }
 }
 
 /* --------------------------------------------------------------------------

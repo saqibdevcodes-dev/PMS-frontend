@@ -1,3 +1,8 @@
+import { allPages } from '../../lib/pages';
+import { exactMoney, moneyPayload } from '../../lib/exact-money';
+import { useUnsavedChanges, confirmDiscard } from '../../hooks/use-unsaved';
+import { MoneyInput } from '../../components/MoneyInput';
+import { Money } from '../../components/Money';
 import { useState, useMemo } from 'react';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import {
@@ -14,12 +19,13 @@ import {
   X,
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { can } from '../../stores/auth';
 import { api, ApiError } from '../../lib/api';
 import { usePreferences } from '../../stores/preferences';
 import { t, useLocale } from '../../lib/i18n';
-import { money } from '../../lib/format';
-import { Button, Modal } from '../../components/ui';
-import type { Page, Row, Operation } from '../../lib/types';
+
+import { Button, Modal, ErrorState, Skeleton } from '../../components/ui';
+import type { Row, Operation } from '../../lib/types';
 import './property-wizard.css';
 
 export type ExpenseItem = {
@@ -38,7 +44,46 @@ const EXPENSE_PRESETS = [
   'Woodwork & Tiling',
 ];
 
-export function PropertyPurchaseWizard({
+type PurchaseProps = {
+  operation?: Operation;
+  record?: Row;
+  onClose: () => void;
+  onSuccess?: () => void;
+};
+export function PropertyPurchaseWizard(props: PurchaseProps) {
+  const projectId = usePreferences((state) => state.projectId);
+  const full = useQuery({
+    queryKey: ['purchase-edit-record', projectId, props.record?.id],
+    enabled: Boolean(props.record?.id && projectId),
+    queryFn: ({ signal }) =>
+      api<Row>(`/projects/${projectId}/property-purchases/${props.record!.id}`, { signal }),
+  });
+  if (props.record?.id && !full.data)
+    return (
+      <Modal
+        open
+        onOpenChange={(open) => !open && props.onClose()}
+        title="Edit Property Purchase Draft"
+      >
+        <div className="modal-body">
+          {full.isError ? (
+            <ErrorState error={full.error} retry={() => void full.refetch()} />
+          ) : (
+            <Skeleton />
+          )}
+        </div>
+      </Modal>
+    );
+  return (
+    <PurchaseEditor
+      key={`${projectId}:${props.record?.id ?? 'new'}`}
+      {...props}
+      record={full.data ?? props.record}
+    />
+  );
+}
+
+function PurchaseEditor({
   operation: _operation,
   record,
   onClose,
@@ -60,7 +105,13 @@ export function PropertyPurchaseWizard({
   // Form State - Step 1
   const initialUnitId = record ? String(record.unitId ?? (record.unit as Row)?.id ?? '') : '';
   const [propertyMode, setPropertyMode] = useState<'inventory' | 'custom'>(() =>
-    record ? (initialUnitId ? 'inventory' : 'custom') : 'inventory',
+    record
+      ? initialUnitId
+        ? 'inventory'
+        : 'custom'
+      : can('inventory.read')
+        ? 'inventory'
+        : 'custom',
   );
   const [selectedUnitId, setSelectedUnitId] = useState<string>(initialUnitId);
   const [title, setTitle] = useState(() => (record?.title ? String(record.title) : ''));
@@ -69,7 +120,9 @@ export function PropertyPurchaseWizard({
     record?.fileReference ? String(record.fileReference) : '',
   );
   const [purchaseDate, setPurchaseDate] = useState(() =>
-    record?.purchaseDate ? String(record.purchaseDate).slice(0, 10) : new Date().toISOString().slice(0, 10),
+    record?.purchaseDate
+      ? String(record.purchaseDate).slice(0, 10)
+      : new Date().toISOString().slice(0, 10),
   );
 
   // Form State - Step 2
@@ -79,10 +132,6 @@ export function PropertyPurchaseWizard({
   const [price, setPrice] = useState(() => (record?.price != null ? String(record.price) : ''));
   const initialDealerId = record ? String(record.dealerId ?? (record.dealer as Row)?.id ?? '') : '';
   const initialBrokerage = record?.brokerage != null ? String(record.brokerage) : '0';
-  const [hasDealer, setHasDealer] = useState(() =>
-    Boolean(initialDealerId || Number(initialBrokerage) > 0),
-  );
-  const [dealerId, setDealerId] = useState(initialDealerId);
   const [brokerage, setBrokerage] = useState(initialBrokerage);
   const [taxes, setTaxes] = useState(() => (record?.taxes != null ? String(record.taxes) : '0'));
   const [legalFees, setLegalFees] = useState(() =>
@@ -93,10 +142,6 @@ export function PropertyPurchaseWizard({
   const [showQuickAddSeller, setShowQuickAddSeller] = useState(false);
   const [newSellerName, setNewSellerName] = useState('');
   const [newSellerPhone, setNewSellerPhone] = useState('');
-
-  const [showQuickAddDealer, setShowQuickAddDealer] = useState(false);
-  const [newDealerName, setNewDealerName] = useState('');
-  const [newDealerPhone, setNewDealerPhone] = useState('');
 
   // Form State - Step 3 (Expenses)
   const initialExpenses: ExpenseItem[] = useMemo(() => {
@@ -118,18 +163,20 @@ export function PropertyPurchaseWizard({
   // Calculate base other costs (excluding renovation expenses)
   const baseOtherCosts = useMemo(() => {
     if (!record) return '0';
-    const totalOther = Number(record.otherCosts) || 0;
-    const initialExpSum = initialExpenses.reduce((acc, i) => acc + (Number(i.amount) || 0), 0);
-    return String(Math.max(0, totalOther - initialExpSum));
+    const totalOther = exactMoney(record.otherCosts);
+    const initialExpSum = initialExpenses.reduce(
+      (acc, i) => acc.plus(exactMoney(i.amount)),
+      exactMoney(0),
+    );
+    return totalOther.minus(initialExpSum).toFixed(2);
   }, [record, initialExpenses]);
 
   // Fetch Units for this project
   const unitsQuery = useQuery({
     queryKey: ['units-for-purchase', projectId],
-    enabled: Boolean(projectId),
+    enabled: Boolean(projectId && can('inventory.read')),
     retry: false,
-    queryFn: ({ signal }) =>
-      api<Page<Row>>(`/projects/${projectId}/units?limit=100`, { signal }),
+    queryFn: ({ signal }) => allPages<Row>(`/projects/${projectId}/units`, signal),
   });
 
   // Fetch existing property purchases to prevent selecting already acquired properties
@@ -137,14 +184,13 @@ export function PropertyPurchaseWizard({
     queryKey: ['property-purchases-for-units', projectId],
     enabled: Boolean(projectId),
     retry: false,
-    queryFn: ({ signal }) =>
-      api<Page<Row>>(`/projects/${projectId}/property-purchases?limit=250`, { signal }),
+    queryFn: ({ signal }) => allPages<Row>(`/projects/${projectId}/property-purchases`, signal),
   });
 
   // Map of units that already have an active/draft purchase
   const purchasedUnitsMap = useMemo(() => {
     const map = new Map<string, { id: string; reference: string }>();
-    for (const p of purchasesQuery.data?.items ?? []) {
+    for (const p of purchasesQuery.data ?? []) {
       const uId = p.unitId || (p.unit as Row)?.id;
       // Do not mark as already purchased if it was voided, or if it is the current record being edited
       if (uId && p.status !== 'VOIDED' && (!record || String(p.id) !== String(record.id))) {
@@ -162,30 +208,20 @@ export function PropertyPurchaseWizard({
     queryKey: ['vendors-for-purchase', projectId],
     enabled: Boolean(projectId),
     retry: false,
-    queryFn: ({ signal }) =>
-      api<Page<Row>>(`/projects/${projectId}/vendors?limit=100`, { signal }),
+    queryFn: ({ signal }) => allPages<Row>(`/projects/${projectId}/vendors?role=SELLER`, signal),
   });
 
-  // Fetch Dealers
-  const dealersQuery = useQuery({
-    queryKey: ['dealers-for-purchase', projectId],
-    enabled: Boolean(projectId),
-    retry: false,
-    queryFn: ({ signal }) =>
-      api<Page<Row>>(`/projects/${projectId}/dealers?limit=100`, { signal }),
-  });
-
-  const availableUnits = useMemo(() => unitsQuery.data?.items ?? [], [unitsQuery.data]);
-  const sellerVendors = useMemo(
-    () => (vendorsQuery.data?.items ?? []).filter((v) => ['SELLER', 'MULTI_ROLE'].includes(String(v.category))),
-    [vendorsQuery.data],
-  );
-  const dealersList = useMemo(() => dealersQuery.data?.items ?? [], [dealersQuery.data]);
+  const availableUnits = useMemo(() => unitsQuery.data ?? [], [unitsQuery.data]);
+  const sellerVendors = useMemo(() => vendorsQuery.data ?? [], [vendorsQuery.data]);
 
   // When a unit is chosen from inventory, auto-fill property title and location
   function handleSelectUnit(unitId: string) {
     if (purchasedUnitsMap.has(unitId)) {
-      toast.error(t('This property has already been acquired in another purchase and cannot be selected again.'));
+      toast.error(
+        t(
+          'This property has already been acquired in another purchase and cannot be selected again.',
+        ),
+      );
       return;
     }
     setSelectedUnitId(unitId);
@@ -232,32 +268,6 @@ export function PropertyPurchaseWizard({
     },
   });
 
-  // Quick Add Dealer Mutation
-  const createDealerMutation = useMutation({
-    mutationFn: async () => {
-      return api<Row>(`/projects/${projectId}/dealers`, {
-        method: 'POST',
-        body: {
-          name: newDealerName.trim(),
-          phone: newDealerPhone.trim(),
-          commissionPercent: '0',
-        },
-      });
-    },
-    onSuccess: (created) => {
-      toast.success(t('Dealer registered successfully'));
-      dealersQuery.refetch();
-      if (created?.id) setDealerId(String(created.id));
-      setNewDealerName('');
-      setNewDealerPhone('');
-      setShowQuickAddDealer(false);
-    },
-    onError: (err: unknown) => {
-      const msg = err instanceof ApiError ? err.message : t('Failed to create dealer');
-      toast.error(msg);
-    },
-  });
-
   // Expense item handlers
   function addExpenseItem(presetName?: string) {
     const newItem: ExpenseItem = {
@@ -279,34 +289,58 @@ export function PropertyPurchaseWizard({
     setExpenseItems((prev) => prev.filter((item) => item.id !== id));
   }
 
-  // Cost Calculations
-  const numPrice = Number(price) || 0;
-  const numBrokerage = hasDealer ? Number(brokerage) || 0 : 0;
-  const numTaxes = Number(taxes) || 0;
-  const numLegal = Number(legalFees) || 0;
-  const numBaseOther = Number(baseOtherCosts) || 0;
+  const numPrice = exactMoney(price);
+  const numBrokerage = exactMoney(brokerage);
+  const numTaxes = exactMoney(taxes);
+  const numLegal = exactMoney(legalFees);
+  const numBaseOther = exactMoney(baseOtherCosts);
   const numRenovationSum = hasRenovation
-    ? expenseItems.reduce((acc, item) => acc + (Number(item.amount) || 0), 0)
-    : 0;
-
-  const totalAcquisitionCost =
-    numPrice + numBrokerage + numTaxes + numLegal + numBaseOther + numRenovationSum;
+    ? expenseItems.reduce((acc, item) => acc.plus(exactMoney(item.amount)), exactMoney(0))
+    : exactMoney(0);
+  const totalAcquisitionCost = numPrice
+    .plus(numBrokerage)
+    .plus(numTaxes)
+    .plus(numLegal)
+    .plus(numBaseOther)
+    .plus(numRenovationSum);
+  const currentDraft = JSON.stringify({
+    propertyMode,
+    selectedUnitId,
+    title,
+    location,
+    fileReference,
+    purchaseDate,
+    vendorId,
+    price,
+    brokerage,
+    taxes,
+    legalFees,
+    notes,
+    expenseItems,
+    hasRenovation,
+    newSellerName,
+    newSellerPhone,
+  });
+  const [initialDraft] = useState(currentDraft);
+  const dirty = currentDraft !== initialDraft;
+  useUnsavedChanges(dirty);
 
   // Validation
   const isStep1Valid = Boolean(
     (propertyMode === 'custom' || (selectedUnitId && !purchasedUnitsMap.has(selectedUnitId))) &&
-      title.trim().length >= 2 &&
-      location.trim().length >= 2 &&
-      fileReference.trim().length >= 2 &&
-      purchaseDate,
+    title.trim().length >= 2 &&
+    location.trim().length >= 2 &&
+    fileReference.trim().length >= 2 &&
+    purchaseDate,
   );
 
   const isStep2Valid = Boolean(
     vendorId &&
-      numPrice > 0 &&
-      (!hasDealer || (dealerId && numBrokerage >= 0)) &&
-      numTaxes >= 0 &&
-      numLegal >= 0,
+    numPrice.isFinite() &&
+    numPrice.gt(0) &&
+    numBrokerage.gte(0) &&
+    numTaxes.gte(0) &&
+    numLegal.gte(0),
   );
 
   // Submit Draft Acquisition
@@ -314,24 +348,24 @@ export function PropertyPurchaseWizard({
     mutationFn: async () => {
       const payload = {
         unitId: propertyMode === 'inventory' && selectedUnitId ? selectedUnitId : null,
-        dealerId: hasDealer && dealerId ? dealerId : null,
+        dealerId: initialDealerId || null,
         vendorId,
         title: title.trim(),
         location: location.trim(),
         purchaseDate,
-        price: String(numPrice),
-        brokerage: String(numBrokerage),
-        taxes: String(numTaxes),
-        legalFees: String(numLegal),
-        otherCosts: String(numBaseOther),
+        price: moneyPayload(numPrice),
+        brokerage: moneyPayload(numBrokerage),
+        taxes: moneyPayload(numTaxes),
+        legalFees: moneyPayload(numLegal),
+        otherCosts: moneyPayload(numBaseOther),
         expenseItems: hasRenovation
           ? expenseItems
-              .filter((i) => i.name.trim() && Number(i.amount) > 0)
+              .filter((i) => i.name.trim() && exactMoney(i.amount).gt(0))
               .map((i) => ({
                 id: i.id,
                 name: i.name.trim(),
                 category: i.category,
-                amount: String(Number(i.amount) || 0),
+                amount: moneyPayload(i.amount),
               }))
           : [],
         fileReference: fileReference.trim(),
@@ -369,11 +403,14 @@ export function PropertyPurchaseWizard({
     <Modal
       open
       onOpenChange={(open) => !open && onClose()}
+      beforeClose={async () => !submitMutation.isPending && (!dirty || (await confirmDiscard()))}
       title={isEdit ? t('Edit Property Purchase Draft') : t('New Property Purchase')}
       description={
         isEdit
           ? t('Review and update property details, prices, dealer fees & renovation expenses')
-          : t('Step-by-step acquisition workflow: property selection, price, dealer fee & building expenses')
+          : t(
+              'Step-by-step acquisition workflow: property selection, price, dealer fee & building expenses',
+            )
       }
       wide
     >
@@ -381,11 +418,7 @@ export function PropertyPurchaseWizard({
         {/* Modern Stepper Navigation */}
         <div className="pw-stepper">
           {/* Step 1 */}
-          <button
-            type="button"
-            className="pw-step-item"
-            onClick={() => setStep(1)}
-          >
+          <button type="button" className="pw-step-item" onClick={() => setStep(1)}>
             <div
               className={`pw-step-badge ${
                 step === 1 ? 'active' : step > 1 ? 'completed' : 'pending'
@@ -417,7 +450,7 @@ export function PropertyPurchaseWizard({
             </div>
             <div>
               <div className="pw-step-text-title">{t('2. Price & Parties')}</div>
-              <div className="pw-step-text-sub">{t('Seller, price & dealer')}</div>
+              <div className="pw-step-text-sub">{t('Seller, price & costs')}</div>
             </div>
           </button>
 
@@ -430,13 +463,7 @@ export function PropertyPurchaseWizard({
             disabled={!isStep1Valid || !isStep2Valid}
             onClick={() => isStep1Valid && isStep2Valid && setStep(3)}
           >
-            <div
-              className={`pw-step-badge ${
-                step === 3 ? 'active' : 'pending'
-              }`}
-            >
-              3
-            </div>
+            <div className={`pw-step-badge ${step === 3 ? 'active' : 'pending'}`}>3</div>
             <div>
               <div className="pw-step-text-title">{t('3. Expenses & Finish')}</div>
               <div className="pw-step-text-sub">{t('Renovation & building')}</div>
@@ -453,7 +480,7 @@ export function PropertyPurchaseWizard({
             <div className="pw-choice-grid">
               <div
                 className={`pw-choice-card ${propertyMode === 'inventory' ? 'selected' : ''}`}
-                onClick={() => setPropertyMode('inventory')}
+                onClick={() => can('inventory.read') && setPropertyMode('inventory')}
               >
                 <div className="pw-choice-header">
                   <div className="pw-choice-icon">
@@ -467,7 +494,9 @@ export function PropertyPurchaseWizard({
                 </div>
                 <div className="pw-choice-title">{t('Select from Project Inventory')}</div>
                 <div className="pw-choice-desc">
-                  {t('Link directly to an existing unit, plot, apartment or commercial space registered in this project.')}
+                  {t(
+                    'Link directly to an existing unit, plot, apartment or commercial space registered in this project.',
+                  )}
                 </div>
               </div>
 
@@ -487,7 +516,9 @@ export function PropertyPurchaseWizard({
                 </div>
                 <div className="pw-choice-title">{t('Custom / Unlisted Land Parcel')}</div>
                 <div className="pw-choice-desc">
-                  {t('Acquire external raw land, bulk acreage or unlisted parcel for future plotting.')}
+                  {t(
+                    'Acquire external raw land, bulk acreage or unlisted parcel for future plotting.',
+                  )}
                 </div>
               </div>
             </div>
@@ -511,7 +542,9 @@ export function PropertyPurchaseWizard({
                     const isPurchased = Boolean(purchased);
                     const num = String(u.number ?? '');
                     const typ = String(u.type ?? '');
-                    const sz = u.size ? `(${String(u.size)} ${String(u.measurementUnit ?? '')})` : '';
+                    const sz = u.size
+                      ? `(${String(u.size)} ${String(u.measurementUnit ?? '')})`
+                      : '';
                     const blk = u.block ? `[Block ${String(u.block)}]` : '';
                     const st = String(u.status ?? '');
                     return (
@@ -525,7 +558,9 @@ export function PropertyPurchaseWizard({
                 </select>
                 {availableUnits.length === 0 && (
                   <div style={{ fontSize: 12, color: 'var(--muted)', marginTop: 4 }}>
-                    {t('No units found in project. Switch to "Custom / Unlisted Land Parcel" above if not yet added.')}
+                    {t(
+                      'No units found in project. Switch to "Custom / Unlisted Land Parcel" above if not yet added.',
+                    )}
                   </div>
                 )}
               </div>
@@ -541,6 +576,7 @@ export function PropertyPurchaseWizard({
                 <input
                   className="pw-input"
                   placeholder={t('e.g. Plot 42, Block B or 10-Kanal Commercial Land')}
+                  aria-label={t('Property Title / Description')}
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
                 />
@@ -554,6 +590,7 @@ export function PropertyPurchaseWizard({
                 <input
                   className="pw-input"
                   placeholder={t('e.g. Main Boulevard, Sector C or GT Road Khasra 412')}
+                  aria-label={t('Location / Site Details')}
                   value={location}
                   onChange={(e) => setLocation(e.target.value)}
                 />
@@ -570,6 +607,7 @@ export function PropertyPurchaseWizard({
                 <input
                   className="pw-input"
                   placeholder={t('e.g. AGR-2026-LND-01 or FILE-889')}
+                  aria-label={t('Agreement / File Reference')}
                   value={fileReference}
                   onChange={(e) => setFileReference(e.target.value)}
                 />
@@ -586,6 +624,7 @@ export function PropertyPurchaseWizard({
                 <input
                   type="date"
                   className="pw-input"
+                  aria-label={t('Acquisition Date')}
                   value={purchaseDate}
                   onChange={(e) => setPurchaseDate(e.target.value)}
                 />
@@ -601,7 +640,9 @@ export function PropertyPurchaseWizard({
           <div className="pw-step-body">
             {/* Seller Selection with Smooth In-line Quick Add */}
             <div className="pw-form-group">
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div
+                style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
+              >
                 <label className="pw-label">
                   <span>{t('Seller / Landowner')}</span>
                   <span className="pw-req">*</span>
@@ -631,7 +672,13 @@ export function PropertyPurchaseWizard({
               {/* In-line Quick Add Seller Form */}
               {showQuickAddSeller ? (
                 <div className="pw-inline-card">
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div
+                    style={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                    }}
+                  >
                     <div className="pw-inline-title">
                       <UserPlus size={14} />
                       {t('Register New Seller Contact')}
@@ -639,7 +686,12 @@ export function PropertyPurchaseWizard({
                     <button
                       type="button"
                       onClick={() => setShowQuickAddSeller(false)}
-                      style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--muted)' }}
+                      style={{
+                        background: 'none',
+                        border: 'none',
+                        cursor: 'pointer',
+                        color: 'var(--muted)',
+                      }}
                     >
                       <X size={15} />
                     </button>
@@ -658,14 +710,24 @@ export function PropertyPurchaseWizard({
                       onChange={(e) => setNewSellerPhone(e.target.value)}
                     />
                   </div>
-                  <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 4 }}>
-                    <Button size="small" variant="ghost" onClick={() => setShowQuickAddSeller(false)}>
+                  <div
+                    style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 4 }}
+                  >
+                    <Button
+                      size="small"
+                      variant="ghost"
+                      onClick={() => setShowQuickAddSeller(false)}
+                    >
                       {t('Cancel')}
                     </Button>
                     <Button
                       size="small"
                       variant="primary"
-                      disabled={createSellerMutation.isPending || !newSellerName.trim() || !newSellerPhone.trim()}
+                      disabled={
+                        createSellerMutation.isPending ||
+                        !newSellerName.trim() ||
+                        !newSellerPhone.trim()
+                      }
                       onClick={() => createSellerMutation.mutate()}
                     >
                       {createSellerMutation.isPending ? t('Saving...') : t('Save & Select Seller')}
@@ -675,6 +737,7 @@ export function PropertyPurchaseWizard({
               ) : (
                 <select
                   className="pw-select"
+                  aria-label={t('Seller / Landowner')}
                   value={vendorId}
                   onChange={(e) => setVendorId(e.target.value)}
                 >
@@ -690,20 +753,20 @@ export function PropertyPurchaseWizard({
 
             {/* Purchase Price Hero Input */}
             <div className="pw-form-group">
-              <label className="pw-label">
+              <label className="pw-label" htmlFor="purchase-price">
                 <span>{t('Agreed Purchase Price')}</span>
                 <span className="pw-req">*</span>
               </label>
               <div className="pw-hero-input-wrap">
                 <div className="pw-currency-prefix">{currency}</div>
-                <input
-                  type="number"
+                <MoneyInput
                   min="1"
                   step="any"
                   className="pw-hero-input"
                   placeholder="0.00"
+                  id="purchase-price"
                   value={price}
-                  onChange={(e) => setPrice(e.target.value)}
+                  onValueChange={setPrice}
                 />
               </div>
               <span style={{ fontSize: 12, color: 'var(--muted)' }}>
@@ -711,166 +774,56 @@ export function PropertyPurchaseWizard({
               </span>
             </div>
 
-            {/* Middleman / Dealer Section (iOS-style switch) */}
-            <div style={{ border: '1px solid var(--border)', borderRadius: 12, overflow: 'hidden' }}>
-              <div
-                className="pw-switch-wrap"
-                onClick={() => {
-                  const next = !hasDealer;
-                  setHasDealer(next);
-                  if (!next) {
-                    setDealerId('');
-                    setBrokerage('0');
-                    setShowQuickAddDealer(false);
-                  }
-                }}
-              >
-                <div>
-                  <div style={{ fontWeight: 700, fontSize: 13, color: 'var(--text)' }}>
-                    {t('Is there a dealer or broker in between?')}
-                  </div>
-                  <div style={{ fontSize: 12, color: 'var(--muted)', marginTop: 2 }}>
-                    {t('Record middleman dealer details and commission fee given against this property')}
-                  </div>
-                </div>
-                <div className={`pw-switch ${hasDealer ? 'on' : ''}`}>
-                  <div className="pw-switch-thumb" />
-                </div>
-              </div>
-
-              {hasDealer && (
-                <div style={{ padding: '16px 18px', background: 'var(--subtle, #f8fafc)', borderTop: '1px solid var(--border)' }}>
-                  {showQuickAddDealer ? (
-                    <div className="pw-inline-card" style={{ marginBottom: 12 }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <div className="pw-inline-title">
-                          <UserPlus size={14} />
-                          {t('Register New Dealer')}
-                        </div>
-                        <button
-                          type="button"
-                          onClick={() => setShowQuickAddDealer(false)}
-                          style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--muted)' }}
-                        >
-                          <X size={15} />
-                        </button>
-                      </div>
-                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-                        <input
-                          className="pw-input"
-                          placeholder={t('Dealer name / agency')}
-                          value={newDealerName}
-                          onChange={(e) => setNewDealerName(e.target.value)}
-                        />
-                        <input
-                          className="pw-input"
-                          placeholder={t('Dealer phone number')}
-                          value={newDealerPhone}
-                          onChange={(e) => setNewDealerPhone(e.target.value)}
-                        />
-                      </div>
-                      <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 4 }}>
-                        <Button size="small" variant="ghost" onClick={() => setShowQuickAddDealer(false)}>
-                          {t('Cancel')}
-                        </Button>
-                        <Button
-                          size="small"
-                          variant="primary"
-                          disabled={createDealerMutation.isPending || !newDealerName.trim() || !newDealerPhone.trim()}
-                          onClick={() => createDealerMutation.mutate()}
-                        >
-                          {createDealerMutation.isPending ? t('Saving...') : t('Save & Select Dealer')}
-                        </Button>
-                      </div>
-                    </div>
-                  ) : null}
-
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
-                    <div className="pw-form-group">
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <label className="pw-label">
-                          <span>{t('Select Dealer')}</span>
-                          <span className="pw-req">*</span>
-                        </label>
-                        {!showQuickAddDealer && (
-                          <button
-                            type="button"
-                            onClick={() => setShowQuickAddDealer(true)}
-                            style={{
-                              background: 'none',
-                              border: 'none',
-                              color: 'var(--primary, #355e85)',
-                              fontSize: 11,
-                              fontWeight: 600,
-                              cursor: 'pointer',
-                            }}
-                          >
-                            + {t('Add New')}
-                          </button>
-                        )}
-                      </div>
-                      <select
-                        className="pw-select"
-                        value={dealerId}
-                        onChange={(e) => setDealerId(e.target.value)}
-                      >
-                        <option value="">{t('-- Choose Dealer --')}</option>
-                        {dealersList.map((d) => (
-                          <option key={String(d.id)} value={String(d.id)}>
-                            {`${String(d.name ?? '')} (${String(d.phone ?? '')})`}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-
-                    <div className="pw-form-group">
-                      <label className="pw-label">
-                        <span>{t('Dealer Fee / Brokerage')} ({currency})</span>
-                      </label>
-                      <input
-                        type="number"
-                        min="0"
-                        step="any"
-                        className="pw-input"
-                        placeholder="0.00"
-                        value={brokerage}
-                        onChange={(e) => setBrokerage(e.target.value)}
-                      />
-                    </div>
-                  </div>
-                </div>
-              )}
+            <div className="pw-form-group">
+              <label className="pw-label" htmlFor="purchase-brokerage">
+                {t('Acquisition brokerage')} ({currency})
+              </label>
+              <MoneyInput
+                id="purchase-brokerage"
+                className="pw-input"
+                value={brokerage}
+                onValueChange={setBrokerage}
+              />
+              <small>
+                {t(
+                  'Include any direct brokerage cost in the acquisition. Record payee details in the agreement notes.',
+                )}
+              </small>
             </div>
 
             {/* Direct Taxes & Legal Fees */}
             <div className="pw-grid-2">
               <div className="pw-form-group">
-                <label className="pw-label">
-                  <span>{t('Non-recoverable Taxes / Stamp Duty')} ({currency})</span>
+                <label className="pw-label" htmlFor="purchase-taxes">
+                  <span>
+                    {t('Non-recoverable Taxes / Stamp Duty')} ({currency})
+                  </span>
                 </label>
-                <input
-                  type="number"
+                <MoneyInput
                   min="0"
                   step="any"
                   className="pw-input"
                   placeholder="0.00"
+                  id="purchase-taxes"
                   value={taxes}
-                  onChange={(e) => setTaxes(e.target.value)}
+                  onValueChange={setTaxes}
                 />
               </div>
 
               <div className="pw-form-group">
-                <label className="pw-label">
-                  <span>{t('Legal & Documentation Fees')} ({currency})</span>
+                <label className="pw-label" htmlFor="purchase-legalFees">
+                  <span>
+                    {t('Legal & Documentation Fees')} ({currency})
+                  </span>
                 </label>
-                <input
-                  type="number"
+                <MoneyInput
                   min="0"
                   step="any"
                   className="pw-input"
                   placeholder="0.00"
+                  id="purchase-legalFees"
                   value={legalFees}
-                  onChange={(e) => setLegalFees(e.target.value)}
+                  onValueChange={setLegalFees}
                 />
               </div>
             </div>
@@ -900,7 +853,9 @@ export function PropertyPurchaseWizard({
                 </div>
                 <div className="pw-choice-title">{t('Make This Done (No Extra Expenses)')}</div>
                 <div className="pw-choice-desc">
-                  {t('Acquisition finalized as-is without adding extra renovation, construction or building costs.')}
+                  {t(
+                    'Acquisition finalized as-is without adding extra renovation, construction or building costs.',
+                  )}
                 </div>
               </div>
 
@@ -923,7 +878,9 @@ export function PropertyPurchaseWizard({
                 </div>
                 <div className="pw-choice-title">{t('Add Renovation & Building Expenses')}</div>
                 <div className="pw-choice-desc">
-                  {t('Add variable line items for civil work, building construction, paint, plumbing & materials.')}
+                  {t(
+                    'Add variable line items for civil work, building construction, paint, plumbing & materials.',
+                  )}
                 </div>
               </div>
             </div>
@@ -941,15 +898,13 @@ export function PropertyPurchaseWizard({
                   gap: 14,
                 }}
               >
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div
+                  style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
+                >
                   <div style={{ fontWeight: 700, fontSize: 13, color: 'var(--text)' }}>
                     {t('Renovation & Building Line Items')} ({expenseItems.length})
                   </div>
-                  <Button
-                    size="small"
-                    variant="secondary"
-                    onClick={() => addExpenseItem()}
-                  >
+                  <Button size="small" variant="secondary" onClick={() => addExpenseItem()}>
                     <Plus size={13} style={{ marginRight: 4 }} />
                     {t('Add Expense Item')}
                   </Button>
@@ -957,7 +912,14 @@ export function PropertyPurchaseWizard({
 
                 {/* Quick Presets Chips */}
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
-                  <span style={{ fontSize: 11, color: 'var(--muted)', alignSelf: 'center', marginRight: 4 }}>
+                  <span
+                    style={{
+                      fontSize: 11,
+                      color: 'var(--muted)',
+                      alignSelf: 'center',
+                      marginRight: 4,
+                    }}
+                  >
                     {t('Quick Presets')}:
                   </span>
                   {EXPENSE_PRESETS.map((preset) => (
@@ -976,27 +938,33 @@ export function PropertyPurchaseWizard({
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginTop: 4 }}>
                   {expenseItems.map((item, idx) => (
                     <div key={item.id} className="pw-expense-row">
-                      <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--muted)', width: 22 }}>
+                      <span
+                        style={{ fontSize: 12, fontWeight: 700, color: 'var(--muted)', width: 22 }}
+                      >
                         {idx + 1}.
                       </span>
                       <input
                         className="pw-input"
-                        placeholder={t('Expense description / category (e.g. Paint, Plumbing, Structure)')}
+                        placeholder={t(
+                          'Expense description / category (e.g. Paint, Plumbing, Structure)',
+                        )}
                         value={item.name}
                         onChange={(e) => updateExpenseItem(item.id, 'name', e.target.value)}
                         style={{ flex: 2, padding: '7px 10px' }}
                       />
                       <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: 6 }}>
-                        <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--muted)' }}>{currency}</span>
-                        <input
-                          type="number"
+                        <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--muted)' }}>
+                          {currency}
+                        </span>
+                        <MoneyInput
                           min="0"
                           step="any"
                           className="pw-input"
                           placeholder="0.00"
+                          aria-label={t('Amount')}
                           value={item.amount}
-                          onChange={(e) => updateExpenseItem(item.id, 'amount', e.target.value)}
                           style={{ width: '100%', padding: '7px 10px', fontWeight: 700 }}
+                          onValueChange={(value) => updateExpenseItem(item.id, 'amount', value)}
                         />
                       </div>
                       <button
@@ -1031,7 +999,7 @@ export function PropertyPurchaseWizard({
                     {t('Renovation & Building Subtotal')}:
                   </span>
                   <span style={{ fontWeight: 800, fontSize: 15, color: 'var(--primary, #355e85)' }}>
-                    {money(numRenovationSum)}
+                    <Money value={numRenovationSum.toFixed(2)} />
                   </span>
                 </div>
               </div>
@@ -1045,7 +1013,9 @@ export function PropertyPurchaseWizard({
               <textarea
                 className="pw-input"
                 rows={2}
-                placeholder={t('Optional notes regarding seller agreement, possession, or development plan...')}
+                placeholder={t(
+                  'Optional notes regarding seller agreement, possession, or development plan...',
+                )}
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
               />
@@ -1060,7 +1030,7 @@ export function PropertyPurchaseWizard({
                 </div>
               </div>
               <div className="pw-grand-amount">
-                {money(totalAcquisitionCost)}
+                <Money value={totalAcquisitionCost.toFixed(2)} />
               </div>
             </div>
           </div>
@@ -1075,7 +1045,10 @@ export function PropertyPurchaseWizard({
                 {t('Back')}
               </Button>
             ) : (
-              <Button variant="ghost" onClick={onClose}>
+              <Button
+                variant="ghost"
+                onClick={() => void confirmDiscard().then((discard) => discard && onClose())}
+              >
                 {t('Cancel')}
               </Button>
             )}

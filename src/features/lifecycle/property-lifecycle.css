@@ -1,467 +1,522 @@
-/* ==========================================================================
-   Property Purchase-to-Sale Complete Lifecycle Hub Styles
-   ========================================================================== */
-
 .lifecycle-page {
   display: flex;
   flex-direction: column;
   gap: 24px;
-  padding: 0 0 40px;
+  padding-bottom: 32px;
+  min-width: 0;
+  container: lifecycle / inline-size;
 }
-
-/* --------------------------------------------------------------------------
-   Top Master Header & Stage Progress Pipeline
-   -------------------------------------------------------------------------- */
-.lifecycle-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 20px;
-  background: var(--surface);
+.lifecycle-page .page-heading {
+  margin-bottom: 0;
+}
+.lifecycle-guide {
   border: 1px solid var(--border);
-  border-radius: 16px;
-  padding: 24px 28px;
-  box-shadow: var(--shadow);
-}
-
-.lifecycle-header-title-box {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-}
-
-.lifecycle-header-icon {
-  display: grid;
-  place-items: center;
-  width: 48px;
-  height: 48px;
   border-radius: 12px;
-  background: var(--badge-blue-bg);
-  color: var(--badge-blue-text);
-  border: 1px solid var(--badge-blue-border);
+  background: var(--panel);
+  padding: 20px;
 }
-
-.lifecycle-header h1 {
-  font-size: 20px;
-  font-weight: 750;
-  color: var(--text);
-  margin: 0;
-  letter-spacing: -0.3px;
-}
-
-.lifecycle-header p {
-  font-size: 13px;
-  color: var(--muted);
-  margin: 4px 0 0;
-  line-height: 1.4;
-}
-
-.lifecycle-header-actions {
+.lifecycle-guide-heading {
   display: flex;
-  align-items: center;
-  gap: 12px;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px 20px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
 }
-
-/* Visual 6-Step Pipeline Track */
+.lifecycle-guide-heading h2 {
+  font-size: 15px;
+  font-weight: 600;
+}
+.lifecycle-guide-heading p {
+  color: var(--muted);
+  font-size: 12px;
+}
 .lifecycle-pipeline-track {
   display: grid;
-  grid-template-columns: repeat(6, 1fr);
+  grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 12px;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 14px;
-  padding: 16px 20px;
-  box-shadow: var(--shadow);
 }
-
-@media (max-width: 1100px) {
-  .lifecycle-pipeline-track {
-    grid-template-columns: repeat(3, 1fr);
-  }
-}
-
-@media (max-width: 600px) {
-  .lifecycle-pipeline-track {
-    grid-template-columns: 1fr;
-  }
-}
-
 .pipeline-step-node {
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  padding: 10px 14px;
-  border-radius: 10px;
+  gap: 8px;
+  text-align: start;
+  padding: 16px;
   background: var(--subtle);
+  color: var(--text);
   border: 1px solid var(--border);
-  position: relative;
-  transition: all 0.2s ease;
+  border-radius: 9px;
+  transition:
+    border-color 150ms,
+    background 150ms;
+  min-width: 0;
 }
-
+.pipeline-step-node:hover {
+  background: var(--hover);
+  border-color: var(--primary);
+}
 .pipeline-step-node.active-stage {
   background: var(--badge-blue-bg);
   border-color: var(--primary);
-  box-shadow: 0 0 0 1px var(--primary);
+  box-shadow: inset 0 0 0 1px var(--primary);
 }
-
 .pipeline-step-badge {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  font-size: 10px;
-  font-weight: 750;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
   color: var(--muted);
 }
-
 .pipeline-step-badge .step-num {
   display: grid;
   place-items: center;
-  width: 18px;
-  height: 18px;
+  width: 26px;
+  height: 26px;
   border-radius: 50%;
-  background: var(--border);
-  color: var(--text);
-  font-size: 10px;
-  font-weight: 700;
+  border: 1px solid var(--border);
+  background: var(--panel);
+  color: var(--primary);
+  font-weight: 600;
 }
-
-.pipeline-step-node.active-stage .pipeline-step-badge .step-num {
+.active-stage .step-num {
   background: var(--primary);
   color: var(--on-primary);
+  border-color: var(--primary);
 }
-
 .pipeline-step-title {
-  font-size: 12.5px;
-  font-weight: 700;
-  color: var(--text);
+  font-size: 13px;
+  font-weight: 600;
 }
-
 .pipeline-step-desc {
-  font-size: 11px;
+  font-size: 12px;
+  line-height: 1.6;
   color: var(--muted);
-  line-height: 1.3;
 }
-
-/* --------------------------------------------------------------------------
-   KPI Metric Summaries
-   -------------------------------------------------------------------------- */
 .lifecycle-kpi-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 16px;
 }
-
-@media (max-width: 900px) {
-  .lifecycle-kpi-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
-@media (max-width: 550px) {
-  .lifecycle-kpi-grid {
-    grid-template-columns: 1fr;
-  }
-}
-
 .lifecycle-kpi-card {
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  padding: 18px 20px;
-  background: var(--surface);
+  gap: 10px;
+  min-width: 0;
+  padding: 20px;
+  background: var(--panel);
   border: 1px solid var(--border);
-  border-radius: 12px;
+  border-radius: 11px;
   box-shadow: var(--shadow);
 }
-
 .lifecycle-kpi-card .kpi-label {
   display: flex;
-  align-items: center;
   justify-content: space-between;
-  font-size: 11px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
   color: var(--muted);
+  font-weight: 500;
 }
-
+.lifecycle-kpi-card .kpi-label svg {
+  flex-shrink: 0;
+}
 .lifecycle-kpi-card .kpi-val {
-  font-size: 21px;
-  font-weight: 750;
-  color: var(--text);
+  font-size: clamp(17px, 1.6vw, 22px);
+  font-weight: 650;
   font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
 }
-
 .lifecycle-kpi-card .kpi-sub {
-  font-size: 11.5px;
-  color: var(--muted);
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 6px;
+  font-size: 11px;
+  color: var(--muted);
+  line-height: 1.6;
 }
-
-/* --------------------------------------------------------------------------
-   Filter Tabs & Controls
-   -------------------------------------------------------------------------- */
 .lifecycle-panel {
-  background: var(--surface);
+  min-width: 0;
+  background: var(--panel);
   border: 1px solid var(--border);
-  border-radius: 14px;
-  box-shadow: var(--shadow);
+  border-radius: 12px;
   overflow: hidden;
+  box-shadow: var(--shadow);
 }
-
 .lifecycle-tabs-bar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  padding: 16px 24px;
+  padding: 14px 20px;
   border-bottom: 1px solid var(--border);
-  background: var(--surface);
-  flex-wrap: wrap;
 }
-
 .lifecycle-tabs-group {
   display: flex;
-  align-items: center;
-  gap: 6px;
   flex-wrap: wrap;
+  gap: 6px;
 }
-
 .lifecycle-tab-btn {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 8px 14px;
-  border-radius: 8px;
-  font-size: 12.5px;
-  font-weight: 600;
+  gap: 7px;
   border: 1px solid transparent;
-  background: transparent;
+  border-radius: 7px;
+  padding: 8px 10px;
+  font-size: 12px;
+  font-weight: 500;
   color: var(--muted);
-  cursor: pointer;
-  transition: all 0.15s ease;
+  background: transparent;
 }
-
 .lifecycle-tab-btn:hover {
   background: var(--hover);
   color: var(--text);
 }
-
 .lifecycle-tab-btn.active {
   background: var(--badge-blue-bg);
-  color: var(--badge-blue-text);
+  color: var(--primary);
   border-color: var(--badge-blue-border);
-  font-weight: 700;
 }
-
 .lifecycle-tab-badge {
-  padding: 1px 6px;
-  border-radius: 10px;
-  font-size: 10.5px;
-  font-weight: 700;
-  background: var(--badge-gray-bg);
-  color: var(--badge-gray-text);
+  padding: 2px 6px;
+  border-radius: 5px;
+  background: var(--subtle);
+  color: var(--muted);
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
 }
-
 .lifecycle-tab-btn.active .lifecycle-tab-badge {
   background: var(--primary);
   color: var(--on-primary);
 }
-
+.lifecycle-table-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding: 20px;
+}
+.lifecycle-table-toolbar h2 {
+  font-size: 15px;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+.lifecycle-table-toolbar p {
+  color: var(--muted);
+  font-size: 12px;
+}
 .lifecycle-search {
   display: flex;
   align-items: center;
   gap: 8px;
-  background: var(--surface-raised);
   border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 7px 12px;
-  width: 280px;
+  border-radius: 7px;
+  padding-inline: 12px;
+  width: min(100%, 320px);
+  background: var(--panel);
 }
-
+.lifecycle-search:focus-within {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+.lifecycle-search svg {
+  flex-shrink: 0;
+}
 .lifecycle-search input {
-  border: none;
-  outline: none;
+  border: 0;
+  padding-inline: 0;
   background: transparent;
-  font-size: 12.5px;
-  width: 100%;
-  color: var(--text);
-  min-height: auto;
-  padding: 0;
+  box-shadow: none;
 }
-
-/* --------------------------------------------------------------------------
-   Stage-Based Data Table
-   -------------------------------------------------------------------------- */
 .lifecycle-table-wrap {
-  overflow-x: auto;
+  max-height: 720px;
+  overflow: auto;
+  border-top: 1px solid var(--border);
 }
-
+.lifecycle-table-wrap:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: -2px;
+}
 .lifecycle-table {
   width: 100%;
-  border-collapse: collapse;
+  min-width: 1345px;
+  border-spacing: 0;
+  border-collapse: separate;
+  table-layout: fixed;
   font-size: 12px;
-  text-align: left;
+  text-align: start;
+  white-space: normal;
 }
-
-.lifecycle-table th {
-  padding: 12px 18px;
-  font-size: 10.5px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  color: var(--muted);
+.lifecycle-table .lc-property-col {
+  width: 210px;
+}
+.lifecycle-table .lc-stage-col {
+  width: 160px;
+}
+.lifecycle-table .lc-people-col {
+  width: 175px;
+}
+.lifecycle-table .lc-cost-col {
+  width: 220px;
+}
+.lifecycle-table .lc-sale-col {
+  width: 200px;
+}
+.lifecycle-table .lc-profit-col {
+  width: 180px;
+}
+.lifecycle-table .lc-actions-col {
+  width: 200px;
+}
+.lifecycle-table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
   background: var(--subtle);
+  color: var(--muted);
+  padding: 14px 20px;
   border-bottom: 1px solid var(--border);
+  font-size: 11px;
+  font-weight: 600;
+  text-align: start;
   white-space: nowrap;
 }
-
-.lifecycle-table td {
-  padding: 14px 18px;
+.lifecycle-table tbody td,
+.lifecycle-table tbody th {
+  padding: 20px;
   border-bottom: 1px solid var(--border);
-  vertical-align: middle;
+  vertical-align: top;
+  text-align: start;
   color: var(--text);
+  font-weight: 400;
+  line-height: 1.5;
 }
-
-.lifecycle-table tbody tr:hover {
+.lifecycle-table tbody tr:last-child > * {
+  border-bottom: 0;
+}
+.lifecycle-table tbody tr:hover > * {
   background: var(--hover);
 }
-
-/* Cell Elements */
-.deal-stage-pill {
+.lifecycle-table .lc-number {
+  text-align: end;
+  font-variant-numeric: tabular-nums;
+}
+.lc-cell-stack {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+}
+.lc-number .lc-cell-stack {
+  align-items: flex-end;
+}
+.lc-amount {
+  font-size: 12px;
+  font-weight: 650;
+  white-space: nowrap;
+}
+.lc-secondary {
+  display: block;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 400;
+  line-height: 1.6;
+}
+.lc-number .lc-secondary {
+  white-space: nowrap;
+}
+.lc-property-link {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+  border: 0;
+  background: transparent;
+  padding: 0;
+  text-align: start;
+  overflow-wrap: anywhere;
+  margin-bottom: 7px;
+  width: 100%;
+  white-space: normal;
+}
+.lc-property-link:hover {
+  color: var(--primary);
+  text-decoration: underline;
+}
+.lc-unit {
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  padding: 4px 10px;
-  border-radius: 7px;
+  color: var(--primary);
   font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.2px;
-  width: fit-content;
+  font-weight: 500;
+  margin-bottom: 4px;
 }
-
+.lc-property-cell code {
+  margin-top: 4px;
+}
+.lc-property-cell {
+  letter-spacing: normal;
+}
+.lc-label {
+  display: block;
+  font-size: 10px;
+  color: var(--muted);
+  margin-bottom: 2px;
+}
+.lc-parties > div {
+  max-width: 100%;
+  overflow-wrap: anywhere;
+}
+.lc-parties strong {
+  font-weight: 500;
+}
+.lc-expense-link {
+  background: transparent;
+  color: var(--primary);
+  border: 0;
+  padding: 0;
+  font-size: 11px;
+  text-align: end;
+  white-space: nowrap;
+}
+.lc-expense-link:hover {
+  text-decoration: underline;
+}
+.deal-stage-pill {
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 10px;
+  font-weight: 500;
+  white-space: nowrap;
+}
 .deal-stage-pill.step-draft {
   background: var(--badge-amber-bg);
   color: var(--badge-amber-text);
-  border: 1px solid var(--badge-amber-border);
+  border-color: var(--badge-amber-border);
 }
-
-.deal-stage-pill.step-listed {
-  background: var(--badge-green-bg);
-  color: var(--badge-green-text);
-  border: 1px solid var(--badge-green-border);
-}
-
-.deal-stage-pill.step-booked {
-  background: var(--badge-blue-bg);
-  color: var(--badge-blue-text);
-  border: 1px solid var(--badge-blue-border);
-}
-
+.deal-stage-pill.step-listed,
 .deal-stage-pill.step-sold {
   background: var(--badge-green-bg);
   color: var(--badge-green-text);
-  border: 1px solid var(--badge-green-border);
+  border-color: var(--badge-green-border);
 }
-
-/* --------------------------------------------------------------------------
-   Action Dialogs & Forms
-   -------------------------------------------------------------------------- */
-.dialog-flow-body {
+.deal-stage-pill.step-booked {
+  background: var(--badge-blue-bg);
+  color: var(--badge-blue-text);
+  border-color: var(--badge-blue-border);
+}
+.lc-row-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: stretch;
+}
+.lc-row-actions .btn {
+  justify-content: flex-start;
+  padding-inline: 10px;
+  white-space: normal;
+  text-align: start;
+}
+.lifecycle-table-note {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px 16px;
+  flex-wrap: wrap;
+  padding: 14px 20px;
+  border-top: 1px solid var(--border);
+  color: var(--muted);
+  font-size: 11px;
+}
+.lifecycle-dialog .dialog-flow-body {
   display: flex;
   flex-direction: column;
   gap: 20px;
-  padding: 20px 24px;
 }
-
-.form-group-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 14px;
+.lifecycle-dialog .form-field label {
+  font-size: 12px;
+  font-weight: 600;
 }
-
-@media (max-width: 600px) {
-  .form-group-grid {
-    grid-template-columns: 1fr;
-  }
-}
-
-.form-field {
+.lifecycle-dialog .calc-box-highlight {
+  padding: 16px;
   display: flex;
-  flex-direction: column;
-  gap: 5px;
-}
-
-.form-field label {
-  font-size: 11.5px;
-  font-weight: 650;
-  color: var(--text);
-}
-
-.form-field input,
-.form-field select,
-.form-field textarea {
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
   border: 1px solid var(--border);
   border-radius: 8px;
-  padding: 8px 12px;
-  font-size: 13px;
-  color: var(--text);
-  background: var(--surface);
-  outline: none;
-  transition: border-color 0.15s ease;
+  background: var(--subtle);
 }
-
-.form-field input:focus,
-.form-field select:focus,
-.form-field textarea:focus {
-  border-color: var(--primary);
-  box-shadow: 0 0 0 2px color-mix(in srgb, var(--primary) 20%, transparent);
+.lifecycle-dialog .calc-box-highlight.profit-good {
+  background: var(--badge-green-bg);
+  border-color: var(--badge-green-border);
 }
-
-/* Expenses Item Table */
-.expense-items-table {
+.lifecycle-dialog .expense-items-table {
   width: 100%;
   border-collapse: collapse;
   font-size: 12px;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  overflow: hidden;
 }
-
-.expense-items-table th {
-  padding: 8px 12px;
-  background: var(--subtle);
+.lifecycle-dialog .expense-items-table th,
+.lifecycle-dialog .expense-items-table td {
+  padding: 10px 12px;
+  text-align: start;
+  border-bottom: 1px solid var(--border);
+}
+.lifecycle-dialog .expense-items-table th {
   color: var(--muted);
-  font-weight: 650;
-  text-align: left;
-  border-bottom: 1px solid var(--border);
-}
-
-.expense-items-table td {
-  padding: 8px 12px;
-  border-bottom: 1px solid var(--border);
-  color: var(--text);
-}
-
-.calc-box-highlight {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 12px 16px;
   background: var(--subtle);
-  border: 1.5px dashed var(--border);
-  border-radius: 10px;
-  font-size: 13px;
-  color: var(--text);
 }
-
-.calc-box-highlight.profit-good {
-  background: var(--badge-green-bg);
-  border-color: var(--badge-green-border);
-  border-style: solid;
+@container lifecycle (min-width: 900px) {
+  .lifecycle-table .lc-property-cell {
+    position: sticky;
+    inset-inline-start: 0;
+    z-index: 1;
+    background: var(--panel);
+    border-inline-end: 1px solid var(--border);
+  }
+  .lifecycle-table tbody tr:hover .lc-property-cell {
+    background: var(--hover);
+  }
+}
+@container lifecycle (max-width: 1000px) {
+  .lifecycle-kpi-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@container lifecycle (max-width: 700px) {
+  .lifecycle-pipeline-track {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .lifecycle-search {
+    width: 100%;
+  }
+  .lifecycle-guide,
+  .lifecycle-table-toolbar {
+    padding: 16px;
+  }
+  .lifecycle-tabs-bar {
+    padding: 12px;
+  }
+}
+@container lifecycle (max-width: 420px) {
+  .lifecycle-kpi-grid,
+  .lifecycle-pipeline-track {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .pipeline-step-node {
+    padding: 12px;
+  }
+}
+@container modal (max-width: 650px) {
+  .lifecycle-dialog .deal-lifecycle-strip {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .lifecycle-dialog .deal-lifecycle-strip > svg {
+    transform: rotate(90deg);
+  }
+  .lifecycle-dialog .deal-pnl-row {
+    gap: 12px;
+    flex-wrap: wrap;
+  }
 }

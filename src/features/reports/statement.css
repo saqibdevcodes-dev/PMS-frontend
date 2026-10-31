@@ -140,6 +140,9 @@
   color: inherit;
   opacity: 0.9;
 }
+.statement-metric-emphasis .amount-words {
+  color: inherit;
+}
 .statement-notes {
   display: flex;
   gap: 12px;

@@ -1,14 +1,15 @@
+import { Money } from '../../components/Money';
 import { t, useLocale } from '../../lib/i18n';
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
-import { ArrowUpRight, FileText } from 'lucide-react';
+import { ArrowUpRight, FileText, RotateCcw, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { api } from '../../lib/api';
 import { errorMessage } from '../../lib/error-messages';
 import { operations, resolvePath, operation, projectRoot } from '../../lib/contract';
 import { asRows, row, type Row, type Operation } from '../../lib/types';
-import { labelOf, humanize, money } from '../../lib/format';
+import { labelOf, humanize } from '../../lib/format';
 import { can } from '../../stores/auth';
 import { usePreferences } from '../../stores/preferences';
 import { type Resource, resourcePath, actionsFor, actionTitle } from './catalog';
@@ -22,6 +23,8 @@ import { PortfolioLinks, PaymentStatus } from './Portfolio';
 import { VerificationSummary } from '../../components/OwnershipVerification';
 import { PropertyFileModal } from '../bookings/PropertyFileModal';
 import { PropertyPurchaseWizard } from './PropertyPurchaseWizard';
+import { DeleteWithPasswordModal } from '../../components/DeleteWithPasswordModal';
+import { UnassignPropertyModal } from '../bookings/UnassignPropertyModal';
 import '../portal/portal.css';
 const hidden = new Set([
   'id',
@@ -65,6 +68,8 @@ export default function RecordDetail({
   const [receipt, setReceipt] = useState(false);
   const [voucher, setVoucher] = useState(false);
   const [propertyFile, setPropertyFile] = useState(false);
+  const [unassignOpen, setUnassignOpen] = useState(false);
+  const [deleteOpen, setDeleteOpen] = useState(false);
   const [action, setAction] = useState<{
     operation: Operation;
     title: string;
@@ -122,6 +127,33 @@ export default function RecordDetail({
                     {t('Print voucher')}
                   </Button>
                 )}
+              {resource.slug === 'inventory' &&
+                can('bookings.cancel') &&
+                (['BOOKED', 'SOLD'].includes(String(detail.status)) ||
+                  (Array.isArray(detail.bookings) && detail.bookings.length > 0)) && (
+                  <Button
+                    size="small"
+                    variant="secondary"
+                    onClick={() => setUnassignOpen(true)}
+                    style={{ gap: 5 }}
+                  >
+                    <RotateCcw size={14} />
+                    {t('Unassign property')}
+                  </Button>
+                )}
+              {resource.slug === 'bookings' &&
+                can('bookings.cancel') &&
+                ['CONFIRMED', 'DRAFT'].includes(String(detail.status)) && (
+                  <Button
+                    size="small"
+                    variant="secondary"
+                    onClick={() => setUnassignOpen(true)}
+                    style={{ gap: 5 }}
+                  >
+                    <RotateCcw size={14} />
+                    {t('Retract booking')}
+                  </Button>
+                )}
               {actionsFor(resource, detail)
                 .filter((op) => !op.path.endsWith('/reschedule'))
                 .map((op) => (
@@ -136,6 +168,28 @@ export default function RecordDetail({
                     {t(actionTitle(op, resource))}
                   </Button>
                 ))}
+              {resource.slug === 'inventory' && can('users.manage') && can('inventory.update') && (
+                <Button
+                  size="small"
+                  variant="danger"
+                  onClick={() => setDeleteOpen(true)}
+                  style={{ gap: 5 }}
+                >
+                  <Trash2 size={14} />
+                  {t('Delete property')}
+                </Button>
+              )}
+              {resource.slug === 'bookings' && can('users.manage') && (
+                <Button
+                  size="small"
+                  variant="danger"
+                  onClick={() => setDeleteOpen(true)}
+                  style={{ gap: 5 }}
+                >
+                  <Trash2 size={14} />
+                  {t('Delete booking')}
+                </Button>
+              )}
             </div>
           </div>
           <div className="tabs" role="tablist">
@@ -171,7 +225,7 @@ export default function RecordDetail({
                 Array.isArray(detail.bookings) && (
                   <section className="detail-portfolio">
                     <h4>
-                      {t(resource.slug === 'customers' ? 'Booked properties' : 'Current members')}
+                      {t(resource.slug === 'customers' ? 'Booked properties' : 'Current customers')}
                     </h4>
                     {resource.slug === 'customers' && (
                       <PaymentStatus value={detail.paymentStatus} />
@@ -225,9 +279,15 @@ export default function RecordDetail({
                       v !== null &&
                       k !== 'expenseItems' &&
                       (typeof v !== 'object' ||
-                        ['customer', 'unit', 'booking', 'vendor', 'journal', 'reversal', 'dealer'].includes(
-                          k,
-                        )),
+                        [
+                          'customer',
+                          'unit',
+                          'booking',
+                          'vendor',
+                          'journal',
+                          'reversal',
+                          'dealer',
+                        ].includes(k)),
                   )
                   .map(([k, v]) => (
                     <div key={k}>
@@ -246,28 +306,32 @@ export default function RecordDetail({
                       {t('Renovation & Building Expenses')} ({detail.expenseItems.length})
                     </h4>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                      {(detail.expenseItems as Array<{ id?: string; name: string; amount: string | number }>).map(
-                        (item, i) => (
-                          <div
-                            key={item.id || i}
-                            style={{
-                              display: 'flex',
-                              justifyContent: 'space-between',
-                              alignItems: 'center',
-                              padding: '8px 12px',
-                              borderRadius: 6,
-                              background: 'var(--surface-active, #f8fafc)',
-                              border: '1px solid var(--border)',
-                              fontSize: 13,
-                            }}
-                          >
-                            <span style={{ fontWeight: 500 }}>{item.name}</span>
-                            <span style={{ fontWeight: 600, color: 'var(--primary, #0284c7)' }}>
-                              {money(item.amount)}
-                            </span>
-                          </div>
-                        ),
-                      )}
+                      {(
+                        detail.expenseItems as Array<{
+                          id?: string;
+                          name: string;
+                          amount: string | number;
+                        }>
+                      ).map((item, i) => (
+                        <div
+                          key={item.id || i}
+                          style={{
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'center',
+                            padding: '8px 12px',
+                            borderRadius: 6,
+                            background: 'var(--surface-active, #f8fafc)',
+                            border: '1px solid var(--border)',
+                            fontSize: 13,
+                          }}
+                        >
+                          <span style={{ fontWeight: 500 }}>{item.name}</span>
+                          <span style={{ fontWeight: 600, color: 'var(--primary, #0284c7)' }}>
+                            <Money value={item.amount} />
+                          </span>
+                        </div>
+                      ))}
                     </div>
                   </section>
                 )}
@@ -292,7 +356,7 @@ export default function RecordDetail({
                     onClick={onClose}
                   >
                     <ArrowUpRight size={13} />
-                    {t('View member')}
+                    {t('View customer')}
                   </Link>
                   {can('customers.view_sensitive') && (
                     <Button
@@ -323,7 +387,7 @@ export default function RecordDetail({
                       onClick={onClose}
                     >
                       <FileText size={15} />
-                      {t('Member statement')}
+                      {t('Customer statement')}
                       <ArrowUpRight size={13} />
                     </Link>
                   )}
@@ -333,7 +397,7 @@ export default function RecordDetail({
                       to={'/documents?customerId=' + record.id}
                       onClick={onClose}
                     >
-                      {t('Member documents')}
+                      {t('Customer documents')}
                     </Link>
                   )}
                 </div>
@@ -470,15 +534,17 @@ export default function RecordDetail({
       )}
       {action &&
         (resource.slug === 'property-purchases' &&
-        ((action.operation.method === 'post' && !action.operation.path.endsWith('/post')) ||
-          action.operation.method === 'patch') ? (
+        ((action.operation.method === 'post' &&
+          action.operation.path.endsWith('/property-purchases')) ||
+          (action.operation.method === 'patch' &&
+            action.operation.path.endsWith('/property-purchases/{id}'))) ? (
           <PropertyPurchaseWizard
             operation={action.operation}
             record={action.record}
             onClose={() => setAction(null)}
             onSuccess={() => {
               setAction(null);
-              query.refetch();
+              if (hasDetail) void query.refetch();
             }}
           />
         ) : (
@@ -487,10 +553,52 @@ export default function RecordDetail({
             onClose={() => setAction(null)}
             onSuccess={() => {
               setAction(null);
-              query.refetch();
+              if (hasDetail) void query.refetch();
             }}
           />
         ))}
+      {unassignOpen && (
+        <UnassignPropertyModal
+          open={unassignOpen}
+          onClose={() => setUnassignOpen(false)}
+          onSuccess={() => {
+            if (hasDetail) void query.refetch();
+          }}
+          unitId={resource.slug === 'inventory' ? String(detail.id) : undefined}
+          unitNumber={resource.slug === 'inventory' ? String(detail.number) : undefined}
+          bookingId={resource.slug === 'bookings' ? String(detail.id) : undefined}
+          bookingReference={resource.slug === 'bookings' ? String(detail.reference) : undefined}
+          customerName={
+            resource.slug === 'bookings' ? String(row(detail.customer).name ?? '') : undefined
+          }
+          initialCollected={
+            resource.slug === 'bookings'
+              ? String(row(detail.position).collected ?? detail.paid ?? '0')
+              : undefined
+          }
+        />
+      )}
+      {deleteOpen && (
+        <DeleteWithPasswordModal
+          open={deleteOpen}
+          onClose={() => setDeleteOpen(false)}
+          onSuccess={() => {
+            onClose();
+          }}
+          title={resource.slug === 'inventory' ? t('Delete property') : t('Delete booking')}
+          itemType={resource.slug === 'inventory' ? 'property' : 'booking'}
+          itemName={
+            resource.slug === 'inventory'
+              ? String(detail.number ?? detail.id)
+              : String(detail.reference ?? detail.id)
+          }
+          apiPath={
+            resource.slug === 'inventory'
+              ? `/projects/${projectId}/units/${detail.id}`
+              : `/projects/${projectId}/bookings/${detail.id}`
+          }
+        />
+      )}
     </>
   );
 }

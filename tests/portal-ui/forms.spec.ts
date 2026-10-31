@@ -418,28 +418,29 @@ for (const width of [1280, 390])
     });
     await page.goto('/property-purchases');
     await page.getByRole('button', { name: 'Add property purchase', exact: true }).click();
-    const form = page.getByRole('dialog', { name: 'Add property purchase', exact: true });
-    await chooseOption(form.getByRole('combobox', { name: /^Seller/ }), seller.id);
-    await form.getByRole('textbox', { name: /^Title/ }).fill('Land for Garden Homes');
-    await form.getByRole('textbox', { name: /^Location/ }).fill('Lahore');
-    await form.getByLabel('Purchase date', { exact: false }).fill('2026-10-24');
-    await form.getByRole('textbox', { name: /^Purchase price/ }).fill('1000000');
-    await form.getByRole('textbox', { name: /^Non-recoverable acquisition taxes/ }).fill('50000');
-    await form.getByRole('textbox', { name: /^Purchase agreement reference/ }).fill('DEED-100');
-    await expect(form.locator('.purchase-cost-summary')).toContainText('PKR 1,050,000.00');
+    const form = page.getByRole('dialog');
+    await form.getByText('Custom / Unlisted Land Parcel', { exact: true }).click();
+    await form.getByLabel('Property Title / Description').fill('Land for Garden Homes');
+    await form.getByLabel('Location / Site Details').fill('Lahore');
+    await form.getByLabel('Acquisition Date').fill('2026-10-24');
+    await form.getByLabel('Agreement / File Reference').fill('DEED-100');
+    await form.getByRole('button', { name: 'Continue to Next Step' }).click();
+    await form.getByLabel('Seller / Landowner').selectOption(seller.id);
+    await form.getByLabel('Agreed Purchase Price').fill('1000000');
+    await form.getByLabel(/Non-recoverable Taxes/).fill('50000');
+    await form.getByRole('button', { name: 'Continue to Next Step' }).click();
     expect(await form.evaluate((el) => el.scrollWidth <= el.clientWidth)).toBe(true);
     await page.screenshot({
       path: `test-results/portal/purchase-draft-${width}.png`,
       fullPage: true,
     });
-    await form.getByRole('button', { name: 'Review changes', exact: true }).click();
-    await form.getByRole('button', { name: 'Confirm & submit', exact: true }).click();
+    await form.getByRole('button', { name: 'Save Draft Acquisition' }).click();
     await expect.poll(() => purchase?.status).toBe('DRAFT');
     await page.goto('/property-purchases?record=' + id(81));
     await page.getByRole('button', { name: 'Post purchase', exact: true }).click();
     const review = page.getByRole('dialog', { name: 'Post purchase', exact: true });
     await expect(review.getByText('Lahore Land Seller', { exact: true })).toBeVisible();
-    await expect(review.getByText('PKR 1,050,000.00', { exact: true })).toBeVisible();
+    await expect(review).toContainText('PKR 1,050,000.00');
     await review.getByRole('button', { name: 'Post purchase', exact: true }).click();
     await expect
       .poll(() => confirmation)
@@ -508,6 +509,12 @@ for (const width of [1280, 390])
       .toBeNull();
   });
 test('project branding appears on a printable journal voucher', async ({ page }) => {
+  await page.addInitScript(() =>
+    localStorage.setItem(
+      'estate-preferences-v1',
+      JSON.stringify({ state: { theme: 'dark' }, version: 0 }),
+    ),
+  );
   await setup(page);
   const artwork = readFileSync(
     new URL('../../public/logos/EtihadRealEstate-white-bg.png', import.meta.url),
@@ -557,14 +564,26 @@ test('project branding appears on a printable journal voucher', async ({ page })
   await page.getByRole('button', { name: 'Print voucher', exact: true }).click();
   const d = page.getByRole('dialog', { name: 'Journal voucher', exact: true });
   await expect(d.getByRole('img', { name: project.name, exact: true })).toBeVisible();
-  await expect(d.getByRole('cell', { name: '1000 · Cash', exact: true })).toBeVisible();
+  await expect(d.locator('.voucher-account-entry').filter({ hasText: 'Cash' })).toContainText(
+    '1000',
+  );
+  await expect(d.locator('.voucher-account-name').filter({ hasText: 'Cash' })).toBeVisible();
   await expect(d.locator('tfoot')).toContainText('PKR 500,000.00');
+  await expect(d.locator('tfoot .amount-words').first()).toHaveText('5 lac PKR');
   await page.screenshot({ path: 'test-results/portal/project-branded-voucher.png' });
   await page.emulateMedia({ media: 'print' });
-  await expect(d.getByRole('cell', { name: '1000 · Cash', exact: true })).toBeVisible();
+  await expect(d.locator('.voucher-account-entry').filter({ hasText: 'Cash' })).toBeVisible();
+  await expect(d.locator('tfoot .amount-words').first()).toBeVisible();
   await expect(d.getByRole('img', { name: project.name, exact: true })).toBeVisible();
   await expect(d.getByRole('button', { name: 'Print voucher', exact: true })).toBeHidden();
   await page.screenshot({ path: 'test-results/portal/project-branded-voucher-print.png' });
+  await expect(page.locator('html')).toHaveCSS('color-scheme', 'light');
+  await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
+  await page.pdf({
+    path: 'test-results/portal/journal-voucher-print.pdf',
+    preferCSSPageSize: true,
+    printBackground: true,
+  });
 });
 for (const width of [1280, 390]) {
   test(`ownership transfer checklist, clearance and review work at ${width}px`, async ({
@@ -699,13 +718,13 @@ for (const width of [1280, 390]) {
     const relation = page.locator('.portfolio-relation').first();
     await expect(relation).toContainText('Pending booking');
     await relation.getByRole('link', { name: customer.name }).click();
-    const customerDetail = page.getByRole('dialog', { name: customer.name, exact: true });
+    const customerDetail = page.locator('.customer-detail-page');
     await expect(customerDetail).toBeVisible();
-    await expect(customerDetail.locator('.detail-portfolio')).toContainText('Installments');
+    await expect(customerDetail).toContainText('BK-001');
     await customerDetail.getByRole('link', { name: 'Property A-104', exact: true }).click();
     await expect(page.getByRole('dialog', { name: /A-104/ })).toBeVisible();
     await page.goto('/customers');
-    await expect(page.locator('.portfolio-groups')).toContainText('All customers3');
+    await expect(page.locator('.portfolio-groups')).toContainText('All members3');
     await page.locator('.portfolio-groups').getByRole('button', { name: 'Installments' }).click();
     await expect(page.locator('tbody tr')).toHaveCount(1);
     await expect(page.locator('tbody')).toContainText(customer.name);
@@ -1161,7 +1180,7 @@ test('employee photos are required, roles explain permissions, and project pictu
 }) => {
   await setup(page);
   await page.goto('/users');
-  await page.getByRole('button', { name: 'Add employee' }).click();
+  await page.getByRole('button', { name: 'Add system user' }).click();
   const d = page.getByRole('dialog');
   await expect(d.getByText('Photo *', { exact: true })).toBeVisible();
   await d.getByRole('button', { name: 'Add Roles and responsibilities' }).click();
@@ -1435,11 +1454,19 @@ for (const width of [1440, 390])
       fullPage: true,
       animations: 'disabled',
     });
+    await page.evaluate(() => (document.documentElement.dataset.theme = 'dark'));
     await page.emulateMedia({ media: 'print' });
+    await expect(page.locator('html')).toHaveCSS('color-scheme', 'light');
     await expect(page.locator('.report-filters')).toBeHidden();
     await expect(statement).toBeVisible();
     await expect(statement.locator('.brand-logo-light')).toBeVisible();
     await expect(statement.locator('.brand-logo-dark')).toBeHidden();
+    await expect(statement.locator('tbody').first()).toHaveCSS('display', 'table-row-group');
+    await page.pdf({
+      path: `test-results/portal/account-statement-print-${width}.pdf`,
+      preferCSSPageSize: true,
+      printBackground: true,
+    });
     await page.emulateMedia({ media: 'screen' });
     await page.getByLabel('From date').fill('2090-01-01');
     await page.getByRole('button', { name: 'Apply filters' }).click();
@@ -1501,6 +1528,7 @@ test('staff without administration access has no language picker', async ({ page
   await page.goto('/customers');
   await expect(page.getByRole('heading', { name: 'Customers', exact: true })).toBeVisible();
   await expect(page.locator('.language-selector')).toHaveCount(0);
+  await page.goto('/bookings/new');
   await page.getByRole('button', { name: 'Add customer', exact: true }).click();
   await expect(page.getByRole('dialog').locator('.language-selector')).toHaveCount(0);
 });
@@ -1530,7 +1558,7 @@ test('photo drop area uploads files, rejects unsupported files, and removes the 
   );
   await dialog
     .locator('.image-upload')
-    .filter({ has: dialog.getByLabel('Project photos', { exact: true }) })
+    .filter({ has: page.getByLabel('Project photos', { exact: true }) })
     .dispatchEvent('drop', { dataTransfer: transfer });
   await expect(dialog.locator('.gallery-photo')).toHaveCount(1);
   await expect(dialog.getByRole('img', { name: 'Project photos 1', exact: true })).toBeVisible();
@@ -1655,8 +1683,10 @@ for (const resource of ['project', 'property'] as const)
     await expect(edit.locator('.gallery-photo')).toHaveCount(5);
     await edit.getByRole('button', { name: 'Review changes' }).click();
     await edit.getByRole('button', { name: 'Confirm & submit' }).click();
-    edit = page.getByRole('dialog', { name: 'Request completed', exact: true });
-    await expect(edit.getByText('Saved to your project')).toBeVisible();
+    if (resource === 'project') {
+      edit = page.getByRole('dialog', { name: 'Request completed', exact: true });
+      await expect(edit.getByText('Saved to your project')).toBeVisible();
+    } else await expect(edit).toHaveCount(0);
     const path = '/projects/' + project.id + (resource === 'property' ? '/units/' + unit.id : '');
     const firstId = resource === 'project' ? 60 : 65;
     const upload = writes.find((w) => w.path === '/images')!;
@@ -1668,7 +1698,8 @@ for (const resource of ['project', 'property'] as const)
     expect(writes.find((w) => w.path === path)?.body.photoIds).toEqual(
       [firstId + 1, firstId + 2, firstId + 3, firstId + 4, 20].map(id),
     );
-    await edit.getByRole('button', { name: 'Done', exact: true }).click();
+    if (resource === 'project')
+      await edit.getByRole('button', { name: 'Done', exact: true }).click();
     detail = page.getByRole('dialog');
     await detail.getByRole('button', { name: 'Close dialog' }).click();
     await page
@@ -1687,8 +1718,10 @@ for (const resource of ['project', 'property'] as const)
       await edit.getByRole('button', { name: 'Remove photo 1', exact: true }).click();
     await edit.getByRole('button', { name: 'Review changes' }).click();
     await edit.getByRole('button', { name: 'Confirm & submit' }).click();
-    edit = page.getByRole('dialog', { name: 'Request completed', exact: true });
-    await expect(edit.getByText('Saved to your project')).toBeVisible();
+    if (resource === 'project') {
+      edit = page.getByRole('dialog', { name: 'Request completed', exact: true });
+      await expect(edit.getByText('Saved to your project')).toBeVisible();
+    } else await expect(edit).toHaveCount(0);
     expect(writes.filter((w) => w.path === path).at(-1)?.body.photoIds).toEqual([]);
   });
 
@@ -2069,7 +2102,7 @@ for (const width of [1280, 847, 390]) {
       path: `test-results/portal/project-ready-${width}.png`,
       animations: 'disabled',
     });
-    await page.goto('/customers');
+    await page.goto('/bookings/new');
     await page.getByRole('button', { name: 'Add customer', exact: true }).click();
     const bounds = (await page.getByRole('dialog').boundingBox())!;
     expect(bounds.width).toBeLessThanOrEqual(Math.min(width, 700));
@@ -2146,3 +2179,443 @@ test('payment plan changes preview exact totals and save in one action', async (
     reason: 'Agreed revised dates',
   });
 });
+
+for (const width of [1280, 390]) {
+  test(`delete property dialog has padded, contained controls in dark mode at ${width}px`, async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width, height: 850 });
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await page.addInitScript(() => {
+      localStorage.setItem(
+        'estate-preferences-v1',
+        JSON.stringify({ state: { theme: 'dark' }, version: 0 }),
+      );
+    });
+    const { writes } = await setup(page);
+    await page.goto('/inventory?record=' + unit.id);
+    const parent = page.locator('.modal[data-modal-depth="0"]');
+    await parent.getByRole('button', { name: 'Delete property', exact: true }).click();
+    const dialog = page.getByRole('dialog', { name: 'Delete property', exact: true });
+    await expect(dialog).toBeVisible();
+    await expect(dialog).toHaveAttribute('data-modal-depth', '1');
+    expect(await dialog.evaluate((el) => el.scrollWidth <= el.clientWidth)).toBe(true);
+    const body = dialog.locator('.modal-body');
+    expect(
+      await body.evaluate((el) => parseFloat(getComputedStyle(el).paddingInlineStart)),
+    ).toBeGreaterThanOrEqual(16);
+    const password = dialog.getByLabel('Confirm by entering your administrator password:', {
+      exact: true,
+    });
+    await expect(password).toHaveAttribute('autocomplete', 'current-password');
+    await expect(dialog.getByRole('button', { name: 'Delete permanently' })).toBeDisabled();
+    await password.fill('unsaved-test-password');
+    await expect(dialog.getByRole('button', { name: 'Delete permanently' })).toBeEnabled();
+    await page.screenshot({ path: `test-results/portal/delete-dark-${width}.png`, fullPage: true });
+    await dialog.getByRole('button', { name: 'Cancel', exact: true }).click();
+    await expect(dialog).toHaveCount(0);
+    await expect(parent).toBeVisible();
+    await parent.getByRole('button', { name: 'Delete property', exact: true }).click();
+    await expect(password).toHaveValue('');
+    expect(writes).toHaveLength(0);
+  });
+}
+
+for (const [width, theme] of [
+  [1920, 'light'],
+  [1920, 'dark'],
+  [390, 'dark'],
+] as const) {
+  test(`lifecycle explains stages and aligns financial columns in ${theme} mode at ${width}px`, async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width, height: 1100 });
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await page.addInitScript((theme) => {
+      localStorage.setItem(
+        'estate-preferences-v1',
+        JSON.stringify({ state: { theme }, version: 0 }),
+      );
+    }, theme);
+    const { writes } = await setup(page);
+    const deals = ['DRAFT', 'AVAILABLE', 'BOOKED', 'SOLD'].map((stage, index) => ({
+      id: id(200 + index),
+      reference: `PUR-00${index + 1}`,
+      fileReference: `FILE-00${index + 1}`,
+      title: [
+        'Garden Homes residential plot with a long property name',
+        'Corner commercial plot',
+        'Lake View apartment',
+        'Central Avenue villa',
+      ][index],
+      location: 'Lahore',
+      purchaseDate: '2026-10-01',
+      status: index ? 'POSTED' : 'DRAFT',
+      seller: { id: id(220), name: 'Ahmed Property Sellers', phone: '03001234567' },
+      buyPrice: '1000000.00',
+      totalCost: '1100000.00',
+      expenses: {
+        taxes: '40000',
+        legalFees: '20000',
+        brokerage: '30000',
+        otherCosts: '10000',
+        total: '100000.00',
+        items: [],
+      },
+      unit: {
+        ...unit,
+        id: id(240 + index),
+        number: `A-${100 + index}`,
+        listedPrice: '1500000.00',
+        status: index === 3 ? 'SOLD' : index === 2 ? 'BOOKED' : 'AVAILABLE',
+      },
+      buyer:
+        index > 1
+          ? {
+              id: customer.id,
+              name: customer.name,
+              phone: customer.phone,
+              bookingId: id(250 + index),
+              bookingReference: `BK-00${index}`,
+              bookingStatus: index === 3 ? 'CONFIRMED' : 'DRAFT',
+            }
+          : null,
+      salePrice: index === 3 ? '1000000.00' : null,
+      projectedProfit: index > 1 ? '-100000.00' : null,
+      collected: index === 3 ? '1000000.00' : index === 2 ? '500000.00' : '0.00',
+      netProfit: index === 3 ? '-100000.00' : null,
+      profitMarginPercent: index === 3 ? '-9.09' : null,
+      dealStatus: stage,
+    }));
+    await page.route('**/api/v1/projects/*/deal-profitability', (route) =>
+      route.fulfill({
+        json: {
+          success: true,
+          data: {
+            currency: 'PKR',
+            deals,
+            summary: {
+              totalAcquisitions: 4,
+              soldCount: 1,
+              availableCount: 1,
+              totalBuyPrice: '4000000.00',
+              totalExpenses: '400000.00',
+              totalInvestedCost: '4400000.00',
+              totalSalesRevenue: '1000000.00',
+              totalRealizedProfit: '-100000.00',
+              averageMarginPercent: '-9.1',
+            },
+          },
+        },
+      }),
+    );
+    await page.goto('/property-lifecycle');
+    await expect(
+      page.getByRole('heading', { name: 'Property lifecycle', exact: true }),
+    ).toBeVisible();
+    const table = page.locator('.lifecycle-table');
+    await expect(table.locator('tbody tr')).toHaveCount(4);
+    const propertyTitle = table.locator('.lc-property-link').first();
+    expect(await propertyTitle.evaluate((el) => el.scrollWidth <= el.clientWidth)).toBe(true);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(
+      true,
+    );
+    await expect(table.locator('tbody tr').first().locator('.amount-words').first()).toContainText(
+      '11 lac PKR',
+    );
+    const numericHeaders = table.locator('thead .lc-number');
+    await expect(numericHeaders).toHaveCount(3);
+    for (const header of await numericHeaders.all())
+      await expect(header).toHaveCSS('text-align', 'end');
+    for (const cell of await table.locator('tbody tr:first-child .lc-number').all())
+      await expect(cell).toHaveCSS('text-align', 'end');
+    const headerEdge = await numericHeaders
+      .first()
+      .evaluate(
+        (el) => el.getBoundingClientRect().right - parseFloat(getComputedStyle(el).paddingRight),
+      );
+    const amountEdge = await table
+      .locator('tbody tr:first-child td.lc-number .lc-amount')
+      .first()
+      .evaluate((el) => el.getBoundingClientRect().right);
+    expect(Math.abs(headerEdge - amountEdge)).toBeLessThan(2);
+    const soldRow = table.getByRole('row').filter({ hasText: 'Central Avenue villa' });
+    await expect(
+      table.getByRole('row').filter({ hasText: 'Lake View apartment' }).locator('.profit-text-red'),
+    ).toHaveCount(0);
+    await expect(soldRow.locator('.profit-text-red')).toContainText('100,000.00');
+    await expect(soldRow).toContainText('-9.09% ROI');
+    await expect(soldRow).not.toContainText('+-');
+    await page.screenshot({
+      path: `test-results/portal/lifecycle-${theme}-${width}.png`,
+      fullPage: true,
+    });
+    await page.locator('.pipeline-step-node').filter({ hasText: 'Available for sale' }).click();
+    await expect(table.locator('tbody tr')).toHaveCount(1);
+    await expect(table.getByRole('button', { name: 'Book property', exact: true })).toBeVisible();
+    await table.getByRole('button', { name: 'View breakdown' }).click();
+    const detail = page.getByRole('dialog');
+    await expect(detail.getByText('Comprehensive Profit & Loss Waterfall')).toBeVisible();
+    await expect(detail.locator('.deal-lifecycle-strip')).toHaveCSS('display', 'grid');
+    expect(await detail.evaluate((el) => el.scrollWidth <= el.clientWidth)).toBe(true);
+    await page.screenshot({
+      path: `test-results/portal/lifecycle-breakdown-${theme}-${width}.png`,
+      fullPage: true,
+    });
+    await detail.getByRole('button', { name: 'Close dialog' }).click();
+    await table.getByRole('button', { name: 'Set asking price', exact: true }).click();
+    const askingDialog = page.getByRole('dialog');
+    await askingDialog.getByRole('textbox', { name: /Expected Selling Price/ }).fill('2500000.50');
+    await expect(askingDialog.locator('.money-input .amount-words')).toHaveText(
+      '25 lac 50/100 PKR',
+    );
+    await askingDialog.getByRole('button', { name: 'Cancel', exact: true }).click();
+    await page.getByRole('searchbox', { name: 'Search properties' }).fill('not-a-real-property');
+    await expect(page.getByText('Try another search or choose All properties.')).toBeVisible();
+    await page.getByRole('button', { name: 'Clear filters', exact: true }).click();
+    await expect(table.locator('tbody tr')).toHaveCount(4);
+    expect(writes).toHaveLength(0);
+  });
+}
+
+for (const width of [1280, 390]) {
+  test(`Properties navigation groups the purchase workflow in order at ${width}px`, async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width, height: 900 });
+    await setup(page);
+    await page.goto('/inventory');
+    if (width === 390)
+      await page.getByRole('button', { name: 'Open navigation', exact: true }).click();
+    const nav = page.getByRole('navigation', { name: 'Main navigation', exact: true });
+    const trigger = nav.getByRole('button', { name: 'Properties', exact: true });
+    await expect(trigger).toHaveAttribute('aria-expanded', 'true');
+    const submenu = nav.locator('#properties-submenu');
+    await expect(submenu.getByRole('link')).toHaveText([
+      'Property Lifecycle',
+      'Sellers & suppliers',
+      'Property purchases',
+      'All properties',
+    ]);
+    await expect(
+      submenu.getByRole('link', { name: 'All properties', exact: true }),
+    ).toHaveAttribute('aria-current', 'page');
+    await expect(
+      nav.locator(
+        '.nav-item[href="/property-lifecycle"], .nav-item[href="/vendors"], .nav-item[href="/property-purchases"]',
+      ),
+    ).toHaveCount(0);
+    await trigger.click();
+    await expect(trigger).toHaveAttribute('aria-expanded', 'false');
+    await trigger.click();
+    await submenu.getByRole('link', { name: 'Sellers & suppliers', exact: true }).click();
+    await expect(page).toHaveURL(/\/vendors$/);
+    if (width === 390) {
+      await expect(page.locator('.sidebar')).not.toHaveClass(/mobile-open/);
+      await page.getByRole('button', { name: 'Open navigation', exact: true }).click();
+    }
+    await expect(
+      submenu.getByRole('link', { name: 'Sellers & suppliers', exact: true }),
+    ).toHaveAttribute('aria-current', 'page');
+    await expect(submenu.locator('.active')).toHaveCount(1);
+    await expect(submenu.locator('.active')).toHaveCSS('background-color', 'rgb(53, 94, 133)');
+    await page.screenshot({
+      path: `test-results/portal/properties-navigation-${width}.png`,
+      fullPage: true,
+    });
+    if (width === 1280) {
+      await page.getByRole('button', { name: 'Toggle sidebar', exact: true }).click();
+      await trigger.click();
+      await expect(page.locator('.app-shell')).not.toHaveClass(/sidebar-collapsed/);
+      await expect(submenu).toBeVisible();
+    }
+  });
+}
+
+test('Properties navigation shows only permitted children for finance staff', async ({ page }) => {
+  await setup(page);
+  await page.route('**/api/v1/auth/me', (route) =>
+    route.fulfill({
+      json: {
+        success: true,
+        data: {
+          id: id(9),
+          name: 'Finance staff',
+          email: 'finance@example.invalid',
+          accountType: 'STAFF',
+          permissions: ['finance.read', 'projects.read'],
+          projects: [{ projectId: project.id }],
+        },
+      },
+    }),
+  );
+  await page.goto('/vendors');
+  const nav = page.getByRole('navigation', { name: 'Main navigation', exact: true });
+  await expect(nav.getByRole('button', { name: 'Properties', exact: true })).toBeVisible();
+  await expect(nav.locator('#properties-submenu').getByRole('link')).toHaveText([
+    'Sellers & suppliers',
+    'Property purchases',
+  ]);
+});
+
+for (const [width, theme] of [
+  [1280, 'light'],
+  [390, 'dark'],
+] as const) {
+  test(`purchase price and every expense show live amount words at ${width}px in ${theme} mode`, async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width, height: 950 });
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await page.addInitScript((theme) => {
+      localStorage.setItem(
+        'estate-preferences-v1',
+        JSON.stringify({ state: { theme }, version: 0 }),
+      );
+    }, theme);
+    const { writes } = await setup(page);
+    await page.route('**/api/v1/projects/*/vendors**', (route) =>
+      route.fulfill({
+        json: {
+          success: true,
+          data: list([
+            { id: id(25), name: 'Seller One', category: 'SELLER', phone: '03001234567' },
+          ]),
+        },
+      }),
+    );
+    await page.route('**/api/v1/projects/*/dealers**', (route) =>
+      route.fulfill({ json: { success: true, data: list([{ id: id(26), name: 'Dealer One' }]) } }),
+    );
+    await page.goto('/property-lifecycle');
+    await page
+      .getByRole('button', { name: 'Add property & purchase', exact: true })
+      .first()
+      .click();
+    const dialog = page.getByRole('dialog', { name: 'New Property Purchase', exact: true });
+    await dialog.locator('select').first().selectOption(unit.id);
+    await dialog.getByPlaceholder('e.g. AGR-2026-LND-01 or FILE-889').fill('AGR-WORDS-1');
+    await dialog.getByRole('button', { name: 'Continue to Next Step', exact: true }).click();
+    await dialog.locator('select').first().selectOption(id(25));
+    const price = dialog.getByRole('textbox', { name: 'Agreed Purchase Price', exact: false });
+    await price.fill('125000.25');
+    await expect(price).toHaveValue('125,000.25');
+    await expect(price.locator('..').locator('.amount-words')).toHaveText(
+      '1 lac 25 thousand 25/100 PKR',
+    );
+    await price.fill('200000');
+    await expect(price.locator('..').locator('.amount-words')).toHaveText('2 lac PKR');
+    await price.fill('125000.25');
+    const fees = [
+      ['Acquisition brokerage', '1250.50', '1 thousand 2 hundred 50 50/100 PKR'],
+      ['Non-recoverable Taxes / Stamp Duty', '500.25', '5 hundred 25/100 PKR'],
+      ['Legal & Documentation Fees', '200.50', '2 hundred 50/100 PKR'],
+    ] as const;
+    for (const [name, value, words] of fees) {
+      const field = dialog.getByRole('textbox', {
+        name: new RegExp(name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')),
+      });
+      await field.fill(value!);
+      await expect(field.locator('..').locator('.amount-words')).toHaveText(words!);
+    }
+    expect(await dialog.evaluate((el) => el.scrollWidth <= el.clientWidth)).toBe(true);
+    await page.screenshot({
+      path: `test-results/portal/money-inputs-${theme}-${width}.png`,
+      fullPage: true,
+    });
+    await dialog.getByRole('button', { name: 'Continue to Next Step', exact: true }).click();
+    await dialog.getByText('Add Renovation & Building Expenses', { exact: true }).click();
+    const expense = dialog.getByRole('textbox', { name: 'Amount', exact: true });
+    await expense.fill('10000.75');
+    await expect(expense.locator('..').locator('.amount-words')).toHaveText(
+      '10 thousand 75/100 PKR',
+    );
+    await expect(dialog.locator('.pw-grand-total .amount-number')).toHaveText('PKR 136,952.25');
+    await expect(dialog.locator('.pw-grand-total .amount-words')).toHaveText(
+      '1 lac 36 thousand 9 hundred 52 25/100 PKR',
+    );
+    expect(await dialog.evaluate((el) => el.scrollWidth <= el.clientWidth)).toBe(true);
+    await page.screenshot({
+      path: `test-results/portal/money-expenses-${theme}-${width}.png`,
+      fullPage: true,
+    });
+    await dialog.getByRole('button', { name: 'Save Draft Acquisition', exact: true }).click();
+    await expect(dialog).toHaveCount(0);
+    const purchase = writes.find((write) => write.path.endsWith('/property-purchases'));
+    expect(purchase?.body).toMatchObject({
+      price: '125000.25',
+      brokerage: '1250.50',
+      taxes: '500.25',
+      legalFees: '200.50',
+      otherCosts: '0.00',
+      expenseItems: [{ name: 'Civil & Structural Work', amount: '10000.75' }],
+    });
+  });
+}
+
+for (const width of [1280, 390]) {
+  test(`property files print on light paper with complete schedules from dark mode at ${width}px`, async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width, height: 1000 });
+    await page.addInitScript(() =>
+      localStorage.setItem(
+        'estate-preferences-v1',
+        JSON.stringify({ state: { theme: 'dark' }, version: 0 }),
+      ),
+    );
+    await setup(page);
+    const installments = Array.from({ length: 24 }, (_, index) => ({
+      id: id(500 + index),
+      label: `Installment ${index + 1}`,
+      dueDate: '2026-11-01',
+      amount: '50000.00',
+      paid: '10000.00',
+      outstanding: '40000.00',
+      overdue: '0',
+      status: 'PENDING',
+    }));
+    await page.route(`**/api/v1/projects/*/bookings/${id(7)}`, (route) =>
+      route.fulfill({
+        json: {
+          success: true,
+          data: {
+            id: id(7),
+            reference: 'BK-001',
+            status: 'CONFIRMED',
+            total: '1200000',
+            basePrice: '1200000',
+            customer,
+            unit,
+            position: { collected: '240000', outstanding: '960000', overdue: '0', installments },
+          },
+        },
+      }),
+    );
+    await page.goto('/bookings?record=' + id(7));
+    await page.getByRole('button', { name: 'Computerized Property File', exact: true }).click();
+    const dialog = page.getByRole('dialog', { name: 'Computerized Property File', exact: true });
+    await expect(dialog.locator('.sheet-table tbody tr')).toHaveCount(24);
+    await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
+    await page.emulateMedia({ media: 'print' });
+    await expect(page.locator('html')).toHaveCSS('color-scheme', 'light');
+    await expect(page.locator('body')).toHaveCSS('background-color', 'rgb(255, 255, 255)');
+    await expect(dialog.locator('.property-file-sheet')).toHaveCSS(
+      'background-color',
+      'rgb(255, 255, 255)',
+    );
+    await expect(dialog).toHaveCSS('position', 'static');
+    await expect(dialog.locator('.sheet-table thead')).toHaveCSS('display', 'table-header-group');
+    await expect(dialog.locator('.property-file-toolbar')).toBeHidden();
+    await expect(dialog.locator('.brand-logo-light')).toBeVisible();
+    await expect(dialog.locator('.brand-logo-dark')).toBeHidden();
+    await page.pdf({
+      path: `test-results/portal/property-file-print-${width}.pdf`,
+      preferCSSPageSize: true,
+      printBackground: true,
+    });
+    await page.emulateMedia({ media: 'screen' });
+    await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
+    await expect(page.locator('html')).toHaveCSS('color-scheme', 'dark');
+  });
+}

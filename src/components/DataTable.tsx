@@ -1,3 +1,4 @@
+import { Money } from './Money';
 import { t, useLocale } from '../lib/i18n';
 import { useMemo, useState, type ReactNode } from 'react';
 import {
@@ -10,7 +11,7 @@ import {
 } from '@tanstack/react-table';
 import { Building2, Columns3, ChevronLeft, ChevronRight, ArrowUpRight, Copy } from 'lucide-react';
 import { toast } from 'sonner';
-import { date, humanize, labelOf, money, moneyFields } from '../lib/format';
+import { date, humanize, labelOf, moneyFields } from '../lib/format';
 import { type Row, asRows, row } from '../lib/types';
 import { RecordImage } from './ImageUpload';
 import { Select } from './Select';
@@ -41,7 +42,12 @@ export function DisplayValue({
       </div>
     );
   if (name === 'status' || typeof value === 'boolean') return <Badge value={value} />;
-  if (moneyFields.test(name)) return <span className="numeric">{money(value, currency)}</span>;
+  if (moneyFields.test(name))
+    return (
+      <span className="numeric">
+        <Money value={value} currency={currency} />
+      </span>
+    );
   if (/At$|Date$/.test(name)) return <span className="nowrap">{date(value)}</span>;
   if (name === 'identityLast4') return <span className="numeric">•••• {String(value)}</span>;
   if (

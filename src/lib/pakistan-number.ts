@@ -4,7 +4,8 @@ export function pakistanAmount(value: unknown): string {
   try {
     const amount = new Decimal(String(value).replaceAll(',', ''));
     if (!amount.isFinite()) return '';
-    let whole = BigInt(amount.abs().floor().toFixed(0));
+    const rounded = amount.abs().toDecimalPlaces(2);
+    let whole = BigInt(rounded.floor().toFixed(0));
     const parts: string[] = [];
     for (const [divisor, label] of [
       [10000000n, 'crore'],
@@ -18,9 +19,9 @@ export function pakistanAmount(value: unknown): string {
     }
     if (whole) parts.push(String(whole));
     if (!parts.length) parts.push('0');
-    const fraction = amount.abs().minus(amount.abs().floor()).mul(100).round();
+    const fraction = rounded.minus(rounded.floor()).mul(100).round();
     if (fraction.gt(0)) parts.push(`${fraction.toFixed(0)}/100`);
-    return (amount.isNegative() ? '−' : '') + parts.join(' ');
+    return (amount.isNegative() && !rounded.isZero() ? '−' : '') + parts.join(' ');
   } catch {
     return '';
   }

@@ -1,3 +1,4 @@
+import { useVerificationLink } from '../../lib/verification-link';
 import { useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -77,6 +78,7 @@ interface UserDocument {
 export default function EmployeeDetailPage() {
   useLocale();
   const { id } = useParams<{ id: string }>();
+  const verificationUrl = useVerificationLink({ employee: id ?? '' });
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
@@ -176,7 +178,6 @@ export default function EmployeeDetailPage() {
   }
 
   const userCode = `USR-${employee.id.slice(0, 8).toUpperCase()}`;
-  const verificationUrl = `${window.location.origin}/verify?employee=${employee.id}`;
 
   const accessOp = operations.find((o) => o.path === '/users/{id}/access' && o.method === 'post');
   const resetPasswordOp = operations.find(
@@ -187,6 +188,7 @@ export default function EmployeeDetailPage() {
   );
 
   const handlePrintBadge = () => {
+    if (!verificationUrl) return;
     document.body.classList.add('print-badge-active');
     window.print();
     window.setTimeout(() => {
@@ -480,9 +482,9 @@ export default function EmployeeDetailPage() {
                         </div>
                       </div>
                       {sess.revokedAt ? (
-                        <span style={{ color: '#ef4444', fontSize: 12 }}>{t('Revoked')}</span>
+                        <span style={{ color: 'var(--danger)', fontSize: 12 }}>{t('Revoked')}</span>
                       ) : (
-                        <span style={{ color: '#22c55e', fontSize: 12, fontWeight: 600 }}>
+                        <span style={{ color: 'var(--success)', fontSize: 12, fontWeight: 600 }}>
                           ● {t('Active')}
                         </span>
                       )}
@@ -626,7 +628,7 @@ export default function EmployeeDetailPage() {
                             }
                           }}
                         >
-                          <Trash2 size={15} color="#dc2626" />
+                          <Trash2 size={15} color="var(--danger)" />
                         </Button>
                       </div>
                     </div>

@@ -23,6 +23,7 @@ import {
   Landmark,
   FileSpreadsheet,
   Store,
+  CalendarRange,
   type LucideIcon,
 } from 'lucide-react';
 import type { Operation, Row } from '../../lib/types';
@@ -44,6 +45,18 @@ export type Resource = {
 };
 export const resources: Resource[] = [
   {
+    slug: 'accounting-periods',
+    label: 'Accounting periods',
+    singular: 'accounting period',
+    api: 'accounting-periods',
+    icon: CalendarRange,
+    group: 'Accounts & administration',
+    permission: 'finance.read',
+    description:
+      'Review accounting dates and permanently close completed periods. Closed periods cannot receive new postings.',
+    columns: ['startDate', 'endDate', 'locked'],
+  },
+  {
     slug: 'projects',
     label: 'Projects',
     singular: 'project',
@@ -61,7 +74,7 @@ export const resources: Resource[] = [
     singular: 'property',
     api: 'units',
     icon: Grid2X2,
-    group: 'Sales & members',
+    group: 'Sales & customers',
     permission: 'inventory.read',
     description: 'View property availability, area, price and photos.',
     columns: ['number', 'bookings', 'phase', 'size', 'price', 'status'],
@@ -69,13 +82,13 @@ export const resources: Resource[] = [
   },
   {
     slug: 'customers',
-    label: 'Members',
-    singular: 'member',
+    label: 'Customers',
+    singular: 'customer',
     api: 'customers',
     icon: Users,
-    group: 'Sales & members',
+    group: 'Sales & customers',
     permission: 'customers.read',
-    description: 'Manage member photos, contact details and computerized allotment files.',
+    description: 'Manage customer photos, contact details and computerized allotment files.',
     columns: ['name', 'bookings', 'paymentStatus', 'email', 'phone', 'identityLast4', 'createdAt'],
   },
   {
@@ -84,7 +97,7 @@ export const resources: Resource[] = [
     singular: 'booking',
     api: 'bookings',
     icon: BookOpen,
-    group: 'Sales & members',
+    group: 'Sales & customers',
     permission: 'bookings.read',
     description: 'Create bookings and track their payment status.',
     columns: [
@@ -106,7 +119,7 @@ export const resources: Resource[] = [
     singular: 'payment plan',
     api: 'payment-plans',
     icon: SlidersHorizontal,
-    group: 'Sales & members',
+    group: 'Sales & customers',
     permission: 'bookings.read',
     description: 'Set installment amounts and dates for new bookings.',
     columns: ['name', 'createdAt'],
@@ -327,7 +340,7 @@ export const specialNav = [
     label: 'Property Lifecycle',
     icon: Coins,
     group: 'Workspace',
-    permission: 'inventory.read',
+    permission: 'reports.read',
   },
   { slug: 'my-work', label: 'My work', icon: ListTodo, group: 'Workspace', permission: '' },
   {
@@ -371,6 +384,7 @@ export const primarySlugs = new Set([
   'transfers',
   'possessions',
   'journals',
+  'accounting-periods',
   'vendors',
   'property-purchases',
   'users',
@@ -404,6 +418,7 @@ export function allowedAction(op: Operation, record?: Row): boolean {
   if (op.path.includes('/property-purchases/')) {
     if (op.method === 'patch' || op.path.endsWith('/post')) return record.status === 'DRAFT';
     if (op.path.endsWith('/void')) return record.status !== 'VOIDED';
+    if (op.path.endsWith('/list-for-sale')) return record.status === 'POSTED';
   }
   if (
     /\/units\/\{id\}(?:\/price)?$/.test(op.path) &&
@@ -437,6 +452,13 @@ export function actionsFor(resource: Resource, record?: Row) {
               !op.path.slice(path.length).includes('{id}') &&
               !op.path.slice(path.length).includes('{projectId}'))),
     )
+    .filter(
+      (op) =>
+        !(
+          ['inventory', 'bookings'].includes(resource.slug) &&
+          (op.method === 'delete' || op.path.endsWith('/unassign'))
+        ),
+    )
     .filter((op) => allowedAction(op, record));
 }
 export function actionTitle(op: Operation, resource?: Resource) {
@@ -448,12 +470,13 @@ export function actionTitle(op: Operation, resource?: Resource) {
   if (tail === 'complete' && resource?.slug === 'transfers') return 'Complete transfer';
   if (tail === 'reverse' && resource?.slug === 'collections') return 'Reverse payment';
   if (op.method === 'patch') return 'Edit ' + (resource?.singular ?? 'record');
-  if (op.method === 'delete') return 'Revoke session';
+  if (op.method === 'delete') return resource ? 'Delete ' + resource.singular : 'Revoke session';
   const names: Record<string, string> = {
     verify: 'Verify payment',
     confirm: 'Confirm booking',
     reverse: 'Reverse entry',
     'allocate-advance': 'Allocate advance',
+    'list-for-sale': 'List for sale',
     issue: 'Issue clearance certificate',
     complete: 'Complete workflow',
     withdraw: 'Withdraw request',

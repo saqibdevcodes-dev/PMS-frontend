@@ -13,7 +13,7 @@ import {
   BarChart,
   Bar,
 } from 'recharts';
-import { money } from '../../lib/format';
+import { moneyWithWords } from '../../lib/format';
 import { chartColors } from '../../lib/chart-colors';
 export function CollectionChart({
   data,
@@ -50,7 +50,7 @@ export function CollectionChart({
           tick={{ fontSize: 11, fill: 'var(--muted)' }}
         />
         <Tooltip
-          formatter={(v) => money(v, currency)}
+          formatter={(v) => moneyWithWords(v, currency)}
           contentStyle={{
             background: 'var(--panel)',
             border: '1px solid var(--border)',
@@ -127,7 +127,7 @@ export function AgeingChart({
           tick={{ fontSize: 10, fill: 'var(--muted)' }}
         />
         <Tooltip
-          formatter={(v) => money(v, currency)}
+          formatter={(v) => moneyWithWords(v, currency)}
           contentStyle={{
             background: 'var(--panel)',
             border: '1px solid var(--border)',

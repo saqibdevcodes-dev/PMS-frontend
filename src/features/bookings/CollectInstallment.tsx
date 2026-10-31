@@ -1,10 +1,11 @@
+import { Money } from '../../components/Money';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useMutation } from '@tanstack/react-query';
 import { api, ApiError } from '../../lib/api';
 import { queryClient } from '../../lib/query';
 import { t, useLocale } from '../../lib/i18n';
-import { money, date } from '../../lib/format';
+import { date } from '../../lib/format';
 import { type Row } from '../../lib/types';
 import { can } from '../../stores/auth';
 import { usePreferences } from '../../stores/preferences';
@@ -69,7 +70,9 @@ export default function CollectInstallment({
       <div className="modal-body">
         <div className="installment-collection-summary">
           <span>{String(installment.label)}</span>
-          <strong>{money(installment.outstanding)}</strong>
+          <strong>
+            <Money value={installment.outstanding} />
+          </strong>
           <small>
             {t('Due date')}: {date(installment.dueDate)}
           </small>

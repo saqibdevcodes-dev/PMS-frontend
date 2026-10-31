@@ -1,3 +1,4 @@
+import { Money } from '../../components/Money';
 import { errorMessage } from '../../lib/error-messages';
 import { t, useLocale } from '../../lib/i18n';
 import { useState, type ReactNode } from 'react';
@@ -24,7 +25,7 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { api } from '../../lib/api';
-import { date, money, humanize } from '../../lib/format';
+import { date, humanize } from '../../lib/format';
 import { useAuth } from '../../stores/auth';
 import { logout } from '../../hooks/use-auth';
 import { print, saveFile } from '../../platform/adapter';
@@ -281,7 +282,9 @@ function Metrics({ value, currency }: { value: Position; currency: string }) {
       ].map(([label, amount]) => (
         <div key={label}>
           <span>{t(label)}</span>
-          <strong>{money(amount, currency)}</strong>
+          <strong>
+            <Money value={amount} currency={currency} />
+          </strong>
         </div>
       ))}
     </div>
@@ -337,7 +340,7 @@ function Overview() {
                 {t(
                   'Balances cover the full confirmed bookings, including joint ownership. Advance credit awaiting allocation:',
                 )}{' '}
-                {money(account.advanceCredit, account.project.currency)}.
+                <Money value={account.advanceCredit} currency={account.project.currency} />.
               </p>
             </section>
           ))}
@@ -364,7 +367,9 @@ function Overview() {
                         {t('Due')} {date(item.dueDate.slice(0, 10))}
                       </small>
                     </div>
-                    <strong>{money(item.outstanding, item.currency)}</strong>
+                    <strong>
+                      <Money value={item.outstanding} currency={item.currency} />
+                    </strong>
                     <ArrowUpRight size={17} />
                   </Link>
                 ))}
@@ -421,7 +426,9 @@ function Bookings() {
                   </p>
                   <span>{b.reference}</span>
                   <div>
-                    <strong>{money(b.total, b.unit.project.currency)}</strong>
+                    <strong>
+                      <Money value={b.total} currency={b.unit.project.currency} />
+                    </strong>
                     <ArrowUpRight size={20} />
                   </div>
                 </div>
@@ -568,9 +575,15 @@ function Installments({ bookingId }: { bookingId?: string }) {
                       <small>{i.label}</small>
                     </td>
                     <td>{date(i.dueDate.slice(0, 10))}</td>
-                    <td>{money(i.amount, i.booking.unit.project.currency)}</td>
-                    <td>{money(i.paid, i.booking.unit.project.currency)}</td>
-                    <td>{money(i.outstanding, i.booking.unit.project.currency)}</td>
+                    <td>
+                      <Money value={i.amount} currency={i.booking.unit.project.currency} />
+                    </td>
+                    <td>
+                      <Money value={i.paid} currency={i.booking.unit.project.currency} />
+                    </td>
+                    <td>
+                      <Money value={i.outstanding} currency={i.booking.unit.project.currency} />
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -613,7 +626,9 @@ function Payments({ bookingId }: { bookingId?: string }) {
                       <small>{humanize(p.method)}</small>
                     </td>
                     <td>{date(p.paidAt)}</td>
-                    <td>{money(p.amount, p.booking.unit.project.currency)}</td>
+                    <td>
+                      <Money value={p.amount} currency={p.booking.unit.project.currency} />
+                    </td>
                     <td>
                       <Badge value={p.status} />
                     </td>
@@ -651,7 +666,7 @@ function Payments({ bookingId }: { bookingId?: string }) {
               <Badge value={receipt.receipt.reversedAt ? 'REVERSED' : receipt.status} />
             </div>
             <div className="receipt-amount">
-              {money(receipt.amount, receipt.booking.unit.project.currency)}
+              <Money value={receipt.amount} currency={receipt.booking.unit.project.currency} />
             </div>
             <dl className="detail-grid">
               <div>

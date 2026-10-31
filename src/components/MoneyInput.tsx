@@ -1,6 +1,6 @@
 import { forwardRef, useId, type InputHTMLAttributes } from 'react';
 import { NumericFormat } from 'react-number-format';
-import { pakistanAmount } from '../lib/pakistan-number';
+import { amountInWords } from '../lib/format';
 import { usePreferences } from '../stores/preferences';
 import { useLocale } from '../lib/i18n';
 type Props = Omit<
@@ -9,13 +9,15 @@ type Props = Omit<
 > & {
   value: string;
   onValueChange: (value: string) => void;
+  currency?: string;
 };
 export const MoneyInput = forwardRef<HTMLInputElement, Props>(function MoneyInput(
-  { value, onValueChange, ...props },
+  { value, onValueChange, currency: currencyOverride, ...props },
   ref,
 ) {
   useLocale();
-  const currency = usePreferences((state) => state.currency);
+  const projectCurrency = usePreferences((state) => state.currency);
+  const currency = currencyOverride ?? projectCurrency;
   const help = useId();
   return (
     <div className="money-input">
@@ -36,7 +38,7 @@ export const MoneyInput = forwardRef<HTMLInputElement, Props>(function MoneyInpu
         aria-describedby={[props['aria-describedby'], help].filter(Boolean).join(' ')}
       />
       <small id={help} className="amount-words" aria-live="polite">
-        {value ? `${pakistanAmount(value)} ${currency}` : ''}
+        {amountInWords(value, currency)}
       </small>
     </div>
   );

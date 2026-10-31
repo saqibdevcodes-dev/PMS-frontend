@@ -24,6 +24,7 @@ export function QRCode({
       fgColor={color}
       bgColor={bgColor}
       level="M"
+      marginSize={4}
       className={className}
       style={{ display: 'block', borderRadius: 6 }}
       aria-label={`QR Code for ${value}`}

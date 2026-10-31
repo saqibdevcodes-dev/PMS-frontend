@@ -1,3 +1,4 @@
+import { Money } from '../../components/Money';
 import { ProjectDetail } from './ProjectDetail';
 import { errorMessage } from '../../lib/error-messages';
 import { t, useLocale } from '../../lib/i18n';
@@ -29,7 +30,7 @@ import { can } from '../../stores/auth';
 import { platform, scanCode } from '../../platform/adapter';
 import { toast } from 'sonner';
 import { asRows, row, type Row, type Page, type Operation } from '../../lib/types';
-import { humanize, labelOf, money, date } from '../../lib/format';
+import { humanize, labelOf, date } from '../../lib/format';
 import { Button, PageHeading, ErrorState, EmptyState, Badge } from '../../components/ui';
 import { DataTable } from '../../components/DataTable';
 import { Select } from '../../components/Select';
@@ -37,6 +38,8 @@ import { OperationDialog } from '../../components/OperationDialog';
 import RecordDetail from './RecordDetail';
 import { PropertyPurchaseWizard } from './PropertyPurchaseWizard';
 import { JournalVoucher } from './JournalVoucher';
+import { DeleteWithPasswordModal } from '../../components/DeleteWithPasswordModal';
+import { UnassignPropertyModal } from '../bookings/UnassignPropertyModal';
 import { CustomerGroups, PaymentStatus, PortfolioLinks } from './Portfolio';
 import { ProjectTableHeading, projectCell, projectColumnLabels } from './ProjectTable';
 import { PropertyPurchaseGuide, purchaseCell, purchaseColumnLabels } from './PurchaseTable';
@@ -102,7 +105,9 @@ function bookingCell(key: string, record: Row) {
   if (key === 'paid')
     return (
       <div className="booking-table-identity">
-        <strong>{money(record.paid)}</strong>
+        <strong>
+          <Money value={record.paid} />
+        </strong>
         {Number(record.pendingPayments) > 0 && (
           <small>
             {t('Awaiting verification')}: {String(record.pendingPayments)}
@@ -127,6 +132,8 @@ export default function ResourcePage({ slug }: { slug: string }) {
   } | null>(null);
   const [detail, setDetail] = useState<Row | null>(null);
   const [voucherJournalId, setVoucherJournalId] = useState<string | null>(null);
+  const [unassignRecord, setUnassignRecord] = useState<Row | null>(null);
+  const [deleteRecord, setDeleteRecord] = useState<Row | null>(null);
   const path = resource.report ? projectRoot + '/reports' : resourcePath(resource);
   const get = operations.find((op) => op.path === path && op.method === 'get');
   const queryParams = useMemo(
@@ -274,18 +281,16 @@ export default function ResourcePage({ slug }: { slug: string }) {
             {t('Edit')}
           </Button>
         )}
-        {slug === 'property-purchases' &&
-          Boolean(record.journalId) &&
-          can('finance.read') && (
-            <Button
-              size="small"
-              variant="secondary"
-              onClick={() => setVoucherJournalId(String(record.journalId))}
-            >
-              <FileText size={13} />
-              {t('Print voucher')}
-            </Button>
-          )}
+        {slug === 'property-purchases' && Boolean(record.journalId) && can('finance.read') && (
+          <Button
+            size="small"
+            variant="secondary"
+            onClick={() => setVoucherJournalId(String(record.journalId))}
+          >
+            <FileText size={13} />
+            {t('Print voucher')}
+          </Button>
+        )}
         {edit && (
           <Button
             variant="secondary"
@@ -312,7 +317,7 @@ export default function ResourcePage({ slug }: { slug: string }) {
             onClick={() => navigate(`/customers/${record.id}`)}
           >
             <ArrowUpRight size={13} />
-            {t('View member')}
+            {t('View customer')}
           </Button>
         )}
         {slug === 'projects' && (
@@ -333,10 +338,11 @@ export default function ResourcePage({ slug }: { slug: string }) {
             <ArrowUpRight size={14} />
           </Button>
         )}
-        {allowed.some(
-          (op) =>
-            op !== edit && op !== verify && op !== postPurchase && op !== editPurchase,
-        ) && (
+        {(allowed.some(
+          (op) => op !== edit && op !== verify && op !== postPurchase && op !== editPurchase,
+        ) ||
+          slug === 'inventory' ||
+          slug === 'bookings') && (
           <DropdownMenu.Root modal={false} dir={language === 'en' ? 'ltr' : 'rtl'}>
             <DropdownMenu.Trigger asChild>
               <Button
@@ -357,13 +363,30 @@ export default function ResourcePage({ slug }: { slug: string }) {
                 hideWhenDetached
                 loop
               >
+                {slug === 'inventory' &&
+                  can('bookings.cancel') &&
+                  ['BOOKED', 'SOLD'].includes(String(record.status)) && (
+                    <DropdownMenu.Item
+                      className="actions-menu-item"
+                      onSelect={() => setUnassignRecord(record)}
+                    >
+                      {t('Unassign property')}
+                    </DropdownMenu.Item>
+                  )}
+                {slug === 'bookings' &&
+                  can('bookings.cancel') &&
+                  ['CONFIRMED', 'DRAFT'].includes(String(record.status)) && (
+                    <DropdownMenu.Item
+                      className="actions-menu-item"
+                      onSelect={() => setUnassignRecord(record)}
+                    >
+                      {t('Retract booking')}
+                    </DropdownMenu.Item>
+                  )}
                 {allowed
                   .filter(
                     (op) =>
-                      op !== edit &&
-                      op !== verify &&
-                      op !== postPurchase &&
-                      op !== editPurchase,
+                      op !== edit && op !== verify && op !== postPurchase && op !== editPurchase,
                   )
                   .map((op) => (
                     <DropdownMenu.Item
@@ -378,6 +401,24 @@ export default function ResourcePage({ slug }: { slug: string }) {
                       {t(actionTitle(op, resource))}
                     </DropdownMenu.Item>
                   ))}
+                {slug === 'inventory' && can('users.manage') && can('inventory.update') && (
+                  <DropdownMenu.Item
+                    className="actions-menu-item"
+                    style={{ color: 'var(--danger, #ef4444)' }}
+                    onSelect={() => setDeleteRecord(record)}
+                  >
+                    {t('Delete property')}
+                  </DropdownMenu.Item>
+                )}
+                {slug === 'bookings' && can('users.manage') && (
+                  <DropdownMenu.Item
+                    className="actions-menu-item"
+                    style={{ color: 'var(--danger, #ef4444)' }}
+                    onSelect={() => setDeleteRecord(record)}
+                  >
+                    {t('Delete booking')}
+                  </DropdownMenu.Item>
+                )}
               </DropdownMenu.Content>
             </DropdownMenu.Portal>
           </DropdownMenu.Root>
@@ -611,7 +652,9 @@ export default function ResourcePage({ slug }: { slug: string }) {
                     {String(r.phase ?? 'Unassigned phase')}
                     {r.block ? ' / ' + String(r.block) : ''}
                   </span>
-                  <strong>{money(r.price)}</strong>
+                  <strong>
+                    <Money value={r.price} />
+                  </strong>
                 </footer>
               </button>
             ))}
@@ -707,8 +750,10 @@ export default function ResourcePage({ slug }: { slug: string }) {
         ))}
       {action &&
         (slug === 'property-purchases' &&
-        ((action.operation.method === 'post' && !action.operation.path.endsWith('/post')) ||
-          action.operation.method === 'patch') ? (
+        ((action.operation.method === 'post' &&
+          action.operation.path.endsWith('/property-purchases')) ||
+          (action.operation.method === 'patch' &&
+            action.operation.path.endsWith('/property-purchases/{id}'))) ? (
           <PropertyPurchaseWizard
             operation={action.operation}
             record={action.record}
@@ -735,9 +780,44 @@ export default function ResourcePage({ slug }: { slug: string }) {
           />
         ))}
       {voucherJournalId && (
-        <JournalVoucher
-          id={voucherJournalId}
-          onClose={() => setVoucherJournalId(null)}
+        <JournalVoucher id={voucherJournalId} onClose={() => setVoucherJournalId(null)} />
+      )}
+      {unassignRecord && (
+        <UnassignPropertyModal
+          open={!!unassignRecord}
+          onClose={() => setUnassignRecord(null)}
+          onSuccess={() => {
+            query.refetch();
+          }}
+          unitId={slug === 'inventory' ? String(unassignRecord.id) : undefined}
+          unitNumber={slug === 'inventory' ? String(unassignRecord.number) : undefined}
+          bookingId={slug === 'bookings' ? String(unassignRecord.id) : undefined}
+          bookingReference={slug === 'bookings' ? String(unassignRecord.reference) : undefined}
+          customerName={
+            slug === 'bookings' ? String(row(unassignRecord.customer).name ?? '') : undefined
+          }
+          initialCollected={slug === 'bookings' ? String(unassignRecord.paid ?? '0') : undefined}
+        />
+      )}
+      {deleteRecord && (
+        <DeleteWithPasswordModal
+          open={!!deleteRecord}
+          onClose={() => setDeleteRecord(null)}
+          onSuccess={() => {
+            query.refetch();
+          }}
+          title={slug === 'inventory' ? t('Delete property') : t('Delete booking')}
+          itemType={slug === 'inventory' ? 'property' : 'booking'}
+          itemName={
+            slug === 'inventory'
+              ? String(deleteRecord.number ?? deleteRecord.id)
+              : String(deleteRecord.reference ?? deleteRecord.id)
+          }
+          apiPath={
+            slug === 'inventory'
+              ? `/projects/${projectId}/units/${deleteRecord.id}`
+              : `/projects/${projectId}/bookings/${deleteRecord.id}`
+          }
         />
       )}
     </>

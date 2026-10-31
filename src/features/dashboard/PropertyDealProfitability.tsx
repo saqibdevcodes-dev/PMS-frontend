@@ -1,3 +1,4 @@
+import { Money } from '../../components/Money';
 import { useState, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
@@ -19,7 +20,7 @@ import {
 } from 'lucide-react';
 import { api } from '../../lib/api';
 import { usePreferences } from '../../stores/preferences';
-import { money, date } from '../../lib/format';
+import { date, moneyWithWords } from '../../lib/format';
 import { Button, Modal, Skeleton, EmptyState, ErrorState } from '../../components/ui';
 import './deal-profitability.css';
 
@@ -73,7 +74,7 @@ interface DealItem {
   collected: string;
   netProfit?: string | null;
   profitMarginPercent?: string | null;
-  dealStatus: 'SOLD' | 'BOOKED' | 'AVAILABLE' | 'DRAFT';
+  dealStatus: 'SOLD' | 'BOOKED' | 'AVAILABLE' | 'UNLISTED' | 'DRAFT';
 }
 
 interface DealProfitabilityResponse {
@@ -86,7 +87,7 @@ interface DealProfitabilityResponse {
     totalExpenses: string;
     totalInvestedCost: string;
     totalSalesRevenue: string;
-    totalNetProfit: string;
+    totalRealizedProfit: string;
     averageMarginPercent: string;
   };
   deals: DealItem[];
@@ -97,16 +98,19 @@ export function PropertyDealProfitability() {
   const preferredCurrency = usePreferences((s) => s.currency) || 'PKR';
   const navigate = useNavigate();
 
-  const [activeTab, setActiveTab] = useState<'ALL' | 'SOLD' | 'AVAILABLE' | 'DRAFT'>('ALL');
+  const [activeTab, setActiveTab] = useState<'ALL' | 'SOLD' | 'AVAILABLE' | 'UNLISTED' | 'DRAFT'>(
+    'ALL',
+  );
   const [searchTerm, setSearchTerm] = useState('');
   const [inspectDeal, setInspectDeal] = useState<DealItem | null>(null);
 
-  const { data, isLoading, isError, error, refetch, isFetching } = useQuery<DealProfitabilityResponse>({
-    queryKey: ['deal-profitability', projectId],
-    enabled: !!projectId,
-    queryFn: ({ signal }) =>
-      api<DealProfitabilityResponse>(`/projects/${projectId}/deal-profitability`, { signal }),
-  });
+  const { data, isLoading, isError, error, refetch, isFetching } =
+    useQuery<DealProfitabilityResponse>({
+      queryKey: ['deal-profitability', projectId],
+      enabled: !!projectId,
+      queryFn: ({ signal }) =>
+        api<DealProfitabilityResponse>(`/projects/${projectId}/deal-profitability`, { signal }),
+    });
 
   const currency = data?.currency || preferredCurrency;
   const deals = useMemo(() => data?.deals ?? [], [data?.deals]);
@@ -118,14 +122,15 @@ export function PropertyDealProfitability() {
     totalExpenses: '0.00',
     totalInvestedCost: '0.00',
     totalSalesRevenue: '0.00',
-    totalNetProfit: '0.00',
+    totalRealizedProfit: '0.00',
     averageMarginPercent: '0.0',
   };
 
   const filteredDeals = useMemo(() => {
     return deals.filter((d) => {
       // Tab filter
-      if (activeTab === 'SOLD' && d.dealStatus !== 'SOLD' && d.dealStatus !== 'BOOKED') return false;
+      if (activeTab === 'SOLD' && d.dealStatus !== 'SOLD' && d.dealStatus !== 'BOOKED')
+        return false;
       if (activeTab === 'AVAILABLE' && d.dealStatus !== 'AVAILABLE') return false;
       if (activeTab === 'DRAFT' && d.dealStatus !== 'DRAFT') return false;
 
@@ -154,7 +159,8 @@ export function PropertyDealProfitability() {
           <div>
             <h2>Property Purchase, Expense & Resale P&L Engine</h2>
             <p>
-              Lifecycle financial tracking: Buy rate from seller + Renovation/Direct expenses vs. Buyer resale price, net profit & ROI margin.
+              Lifecycle financial tracking: Buy rate from seller + Renovation/Direct expenses vs.
+              Buyer resale price, net profit & ROI margin.
             </p>
           </div>
         </div>
@@ -180,11 +186,7 @@ export function PropertyDealProfitability() {
             <span>Full P&L Report</span>
           </Button>
 
-          <Button
-            variant="primary"
-            size="small"
-            onClick={() => navigate('/property-purchases')}
-          >
+          <Button variant="primary" size="small" onClick={() => navigate('/property-purchases')}>
             <Building2 size={14} />
             <span>Manage Purchases</span>
           </Button>
@@ -198,19 +200,26 @@ export function PropertyDealProfitability() {
             <span>Total Capital Invested</span>
             <Building2 size={15} color="var(--primary)" />
           </div>
-          <div className="deal-kpi-val">{money(summary.totalInvestedCost, currency)}</div>
+          <div className="deal-kpi-val">
+            <Money value={summary.totalInvestedCost} currency={currency} />
+          </div>
           <div className="deal-kpi-sub">
-            <span>Buy Price: <strong>{money(summary.totalBuyPrice, currency)}</strong></span>
+            <span>
+              Buy Price:{' '}
+              <strong>
+                <Money value={summary.totalBuyPrice} currency={currency} />
+              </strong>
+            </span>
           </div>
         </div>
 
         <div className="deal-kpi-card">
           <div className="deal-kpi-label">
             <span>Renovation & Direct Costs</span>
-            <Receipt size={15} color="#d97706" />
+            <Receipt size={15} color="var(--warning)" />
           </div>
-          <div className="deal-kpi-val" style={{ color: '#d97706' }}>
-            +{money(summary.totalExpenses, currency)}
+          <div className="deal-kpi-val" style={{ color: 'var(--warning)' }}>
+            +<Money value={summary.totalExpenses} currency={currency} />
           </div>
           <div className="deal-kpi-sub">
             <span>Taxes, legal, brokerage & site work</span>
@@ -220,28 +229,28 @@ export function PropertyDealProfitability() {
         <div className="deal-kpi-card">
           <div className="deal-kpi-label">
             <span>Realized Resale Revenue</span>
-            <TrendingUp size={15} color="#2563eb" />
+            <TrendingUp size={15} color="var(--primary)" />
           </div>
-          <div className="deal-kpi-val" style={{ color: '#2563eb' }}>
-            {money(summary.totalSalesRevenue, currency)}
+          <div className="deal-kpi-val" style={{ color: 'var(--primary)' }}>
+            <Money value={summary.totalSalesRevenue} currency={currency} />
           </div>
           <div className="deal-kpi-sub">
-            <span>{summary.soldCount} of {summary.totalAcquisitions} properties sold/booked</span>
+            <span>
+              {summary.soldCount} of {summary.totalAcquisitions} properties sold/booked
+            </span>
           </div>
         </div>
 
         <div className="deal-kpi-card">
           <div className="deal-kpi-label">
             <span>Total Net Profit & ROI</span>
-            <Sparkles size={15} color="#059669" />
+            <Sparkles size={15} color="var(--success)" />
           </div>
           <div className="deal-kpi-val profit-accent">
-            +{money(summary.totalNetProfit, currency)}
+            +<Money value={summary.totalRealizedProfit} currency={currency} />
           </div>
           <div className="deal-kpi-sub">
-            <span className="deal-margin-badge">
-              +{summary.averageMarginPercent}% Avg Margin
-            </span>
+            <span className="deal-margin-badge">+{summary.averageMarginPercent}% Avg Margin</span>
             <span style={{ fontSize: '10px' }}>({summary.availableCount} in portfolio)</span>
           </div>
         </div>
@@ -354,7 +363,9 @@ export function PropertyDealProfitability() {
                     {/* Seller */}
                     <td>
                       <div className="deal-party-stack">
-                        <span className="deal-party-name">{deal.seller?.name || 'Direct Seller'}</span>
+                        <span className="deal-party-name">
+                          {deal.seller?.name || 'Direct Seller'}
+                        </span>
                         {deal.seller?.phone ? (
                           <span style={{ fontSize: '11px', color: 'var(--muted)' }}>
                             {deal.seller.phone}
@@ -366,7 +377,7 @@ export function PropertyDealProfitability() {
                     {/* Buy Price */}
                     <td>
                       <div style={{ fontWeight: 650, color: 'var(--text)' }}>
-                        {money(deal.buyPrice, currency)}
+                        <Money value={deal.buyPrice} currency={currency} />
                       </div>
                       <span style={{ fontSize: '10.5px', color: 'var(--muted)' }}>
                         {date(deal.purchaseDate)}
@@ -383,17 +394,19 @@ export function PropertyDealProfitability() {
                           title="Click to view detailed itemized expenses breakdown"
                         >
                           <Receipt size={12} />
-                          +{money(deal.expenses.total, currency)}
+                          +<Money value={deal.expenses.total} currency={currency} />
                         </button>
                       ) : (
-                        <span style={{ fontSize: '11px', color: 'var(--muted)' }}>None (Rs. 0)</span>
+                        <span style={{ fontSize: '11px', color: 'var(--muted)' }}>
+                          None (Rs. 0)
+                        </span>
                       )}
                     </td>
 
                     {/* Total Invested Cost */}
                     <td>
                       <div style={{ fontWeight: 700, color: 'var(--text)' }}>
-                        {money(deal.totalCost, currency)}
+                        <Money value={deal.totalCost} currency={currency} />
                       </div>
                       <span style={{ fontSize: '10px', color: 'var(--muted)' }}>
                         Buy + Expenses
@@ -404,7 +417,7 @@ export function PropertyDealProfitability() {
                     <td>
                       {deal.buyer ? (
                         <div className="deal-party-stack">
-                          <span className="deal-party-name" style={{ color: '#1e40af' }}>
+                          <span className="deal-party-name" style={{ color: 'var(--primary)' }}>
                             {deal.buyer.name}
                           </span>
                           {deal.buyer.bookingRef ? (
@@ -424,17 +437,17 @@ export function PropertyDealProfitability() {
                     <td>
                       {deal.salePrice ? (
                         <div>
-                          <div style={{ fontWeight: 700, color: '#1e40af' }}>
-                            {money(deal.salePrice, currency)}
+                          <div style={{ fontWeight: 700, color: 'var(--primary)' }}>
+                            <Money value={deal.salePrice} currency={currency} />
                           </div>
                           <span style={{ fontSize: '10px', color: 'var(--muted)' }}>
-                            Col: {money(deal.collected, currency)}
+                            Col: <Money value={deal.collected} currency={currency} />
                           </span>
                         </div>
                       ) : (
                         <span style={{ fontSize: '11px', color: 'var(--muted)' }}>
                           {deal.unit?.listPrice
-                            ? `List: ${money(deal.unit.listPrice, currency)}`
+                            ? `List: ${moneyWithWords(deal.unit.listPrice, currency)}`
                             : '—'}
                         </span>
                       )}
@@ -445,23 +458,27 @@ export function PropertyDealProfitability() {
                       {deal.netProfit ? (
                         <div>
                           <div className={hasProfit ? 'profit-text-green' : 'profit-text-red'}>
-                            {hasProfit ? '+' : ''}{money(deal.netProfit, currency)}
+                            {hasProfit ? '+' : ''}
+                            <Money value={deal.netProfit} currency={currency} />
                           </div>
                           {deal.profitMarginPercent ? (
                             <span
                               className="deal-margin-badge"
                               style={{
-                                background: hasProfit ? '#ecfdf5' : '#fef2f2',
-                                color: hasProfit ? '#047857' : '#b91c1c',
+                                background: hasProfit ? '#ecfdf5' : 'var(--badge-red-bg)',
+                                color: hasProfit ? '#047857' : 'var(--danger)',
                                 borderColor: hasProfit ? '#a7f3d0' : '#fecaca',
                               }}
                             >
-                              {hasProfit ? '+' : ''}{deal.profitMarginPercent}% ROI
+                              {hasProfit ? '+' : ''}
+                              {deal.profitMarginPercent}% ROI
                             </span>
                           ) : null}
                         </div>
                       ) : (
-                        <span style={{ fontSize: '11px', color: 'var(--muted)', fontStyle: 'italic' }}>
+                        <span
+                          style={{ fontSize: '11px', color: 'var(--muted)', fontStyle: 'italic' }}
+                        >
                           Pending sale
                         </span>
                       )}
@@ -481,6 +498,8 @@ export function PropertyDealProfitability() {
                         <span className="deal-state-badge available">
                           <Layers size={11} /> Available
                         </span>
+                      ) : deal.dealStatus === 'UNLISTED' ? (
+                        <span className="deal-state-badge draft">Ready to list</span>
                       ) : (
                         <span className="deal-state-badge draft">
                           <Clock size={11} /> Draft
@@ -525,12 +544,15 @@ export function PropertyDealProfitability() {
               {/* Step 1: Seller Acquisition */}
               <div className="deal-stage-card">
                 <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                  <span className="deal-stage-badge" style={{ background: '#e0f2fe', color: '#0369a1' }}>
+                  <span
+                    className="deal-stage-badge"
+                    style={{ background: 'var(--badge-blue-bg)', color: 'var(--primary)' }}
+                  >
                     1. Acquired From Seller
                   </span>
                 </div>
                 <div style={{ fontWeight: 700, fontSize: '15px', color: 'var(--text)' }}>
-                  {money(inspectDeal.buyPrice, currency)}
+                  <Money value={inspectDeal.buyPrice} currency={currency} />
                 </div>
                 <div style={{ fontSize: '11.5px', color: 'var(--muted)' }}>
                   Seller: <strong>{inspectDeal.seller?.name || 'Vendor'}</strong>
@@ -546,15 +568,21 @@ export function PropertyDealProfitability() {
               {/* Step 2: Renovation & Expenses */}
               <div className="deal-stage-card">
                 <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                  <span className="deal-stage-badge" style={{ background: '#fef3c7', color: '#b45309' }}>
+                  <span
+                    className="deal-stage-badge"
+                    style={{ background: 'var(--badge-amber-bg)', color: 'var(--warning)' }}
+                  >
                     2. Incurred Direct Expenses
                   </span>
                 </div>
-                <div style={{ fontWeight: 700, fontSize: '15px', color: '#b45309' }}>
-                  +{money(inspectDeal.expenses.total, currency)}
+                <div style={{ fontWeight: 700, fontSize: '15px', color: 'var(--warning)' }}>
+                  +<Money value={inspectDeal.expenses.total} currency={currency} />
                 </div>
                 <div style={{ fontSize: '11.5px', color: 'var(--muted)' }}>
-                  Total Invested: <strong>{money(inspectDeal.totalCost, currency)}</strong>
+                  Total Invested:{' '}
+                  <strong>
+                    <Money value={inspectDeal.totalCost} currency={currency} />
+                  </strong>
                 </div>
                 <div style={{ fontSize: '10.5px', color: 'var(--muted)' }}>
                   Taxes, legal, renovation & commission
@@ -569,8 +597,8 @@ export function PropertyDealProfitability() {
                   <span
                     className="deal-stage-badge"
                     style={{
-                      background: inspectDeal.buyer ? '#dcfce7' : '#f1f5f9',
-                      color: inspectDeal.buyer ? '#15803d' : '#64748b',
+                      background: inspectDeal.buyer ? 'var(--badge-green-bg)' : 'var(--subtle)',
+                      color: inspectDeal.buyer ? 'var(--success)' : 'var(--muted)',
                     }}
                   >
                     3. Resold to Buyer
@@ -580,10 +608,14 @@ export function PropertyDealProfitability() {
                   style={{
                     fontWeight: 700,
                     fontSize: '15px',
-                    color: inspectDeal.salePrice ? '#15803d' : 'var(--muted)',
+                    color: inspectDeal.salePrice ? 'var(--success)' : 'var(--muted)',
                   }}
                 >
-                  {inspectDeal.salePrice ? money(inspectDeal.salePrice, currency) : 'In Portfolio (Unsold)'}
+                  {inspectDeal.salePrice ? (
+                    <Money value={inspectDeal.salePrice} currency={currency} />
+                  ) : (
+                    'In Portfolio (Unsold)'
+                  )}
                 </div>
                 <div style={{ fontSize: '11.5px', color: 'var(--muted)' }}>
                   {inspectDeal.buyer ? (
@@ -592,7 +624,11 @@ export function PropertyDealProfitability() {
                       {inspectDeal.buyer.phone ? ` (${inspectDeal.buyer.phone})` : ''}
                     </>
                   ) : (
-                    <span>Available for booking at list price</span>
+                    <span>
+                      {inspectDeal.dealStatus === 'AVAILABLE'
+                        ? 'Available for booking at list price'
+                        : 'Awaiting listing or resale'}
+                    </span>
                   )}
                 </div>
               </div>
@@ -600,46 +636,141 @@ export function PropertyDealProfitability() {
 
             {/* Expenses Detail Box */}
             <div className="deal-waterfall-box">
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px' }}>
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  marginBottom: '10px',
+                }}
+              >
                 <h4 style={{ margin: 0, fontSize: '13px', fontWeight: 700, color: 'var(--text)' }}>
                   Direct Expenses & Renovation Cost Breakdown
                 </h4>
                 <span style={{ fontSize: '11px', color: 'var(--muted)' }}>
-                  Total: {money(inspectDeal.expenses.total, currency)}
+                  Total: <Money value={inspectDeal.expenses.total} currency={currency} />
                 </span>
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '10px', marginBottom: '14px' }}>
-                <div style={{ padding: '8px 12px', background: '#f8fafc', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
-                  <div style={{ fontSize: '10.5px', color: 'var(--muted)', textTransform: 'uppercase' }}>Government Taxes</div>
-                  <div style={{ fontWeight: 650, fontSize: '13px' }}>{money(inspectDeal.expenses.taxes, currency)}</div>
+              <div
+                style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(4, 1fr)',
+                  gap: '10px',
+                  marginBottom: '14px',
+                }}
+              >
+                <div
+                  style={{
+                    padding: '8px 12px',
+                    background: 'var(--subtle)',
+                    borderRadius: '8px',
+                    border: '1px solid var(--border)',
+                  }}
+                >
+                  <div
+                    style={{
+                      fontSize: '10.5px',
+                      color: 'var(--muted)',
+                      textTransform: 'uppercase',
+                    }}
+                  >
+                    Government Taxes
+                  </div>
+                  <div style={{ fontWeight: 650, fontSize: '13px' }}>
+                    <Money value={inspectDeal.expenses.taxes} currency={currency} />
+                  </div>
                 </div>
 
-                <div style={{ padding: '8px 12px', background: '#f8fafc', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
-                  <div style={{ fontSize: '10.5px', color: 'var(--muted)', textTransform: 'uppercase' }}>Legal & Documentation</div>
-                  <div style={{ fontWeight: 650, fontSize: '13px' }}>{money(inspectDeal.expenses.legalFees, currency)}</div>
+                <div
+                  style={{
+                    padding: '8px 12px',
+                    background: 'var(--subtle)',
+                    borderRadius: '8px',
+                    border: '1px solid var(--border)',
+                  }}
+                >
+                  <div
+                    style={{
+                      fontSize: '10.5px',
+                      color: 'var(--muted)',
+                      textTransform: 'uppercase',
+                    }}
+                  >
+                    Legal & Documentation
+                  </div>
+                  <div style={{ fontWeight: 650, fontSize: '13px' }}>
+                    <Money value={inspectDeal.expenses.legalFees} currency={currency} />
+                  </div>
                 </div>
 
-                <div style={{ padding: '8px 12px', background: '#f8fafc', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
-                  <div style={{ fontSize: '10.5px', color: 'var(--muted)', textTransform: 'uppercase' }}>Brokerage / Commission</div>
-                  <div style={{ fontWeight: 650, fontSize: '13px' }}>{money(inspectDeal.expenses.brokerage, currency)}</div>
+                <div
+                  style={{
+                    padding: '8px 12px',
+                    background: 'var(--subtle)',
+                    borderRadius: '8px',
+                    border: '1px solid var(--border)',
+                  }}
+                >
+                  <div
+                    style={{
+                      fontSize: '10.5px',
+                      color: 'var(--muted)',
+                      textTransform: 'uppercase',
+                    }}
+                  >
+                    Brokerage / Commission
+                  </div>
+                  <div style={{ fontWeight: 650, fontSize: '13px' }}>
+                    <Money value={inspectDeal.expenses.brokerage} currency={currency} />
+                  </div>
                 </div>
 
-                <div style={{ padding: '8px 12px', background: '#f8fafc', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
-                  <div style={{ fontSize: '10.5px', color: 'var(--muted)', textTransform: 'uppercase' }}>Renovation & Civil Costs</div>
-                  <div style={{ fontWeight: 650, fontSize: '13px' }}>{money(inspectDeal.expenses.otherCosts, currency)}</div>
+                <div
+                  style={{
+                    padding: '8px 12px',
+                    background: 'var(--subtle)',
+                    borderRadius: '8px',
+                    border: '1px solid var(--border)',
+                  }}
+                >
+                  <div
+                    style={{
+                      fontSize: '10.5px',
+                      color: 'var(--muted)',
+                      textTransform: 'uppercase',
+                    }}
+                  >
+                    Renovation & Civil Costs
+                  </div>
+                  <div style={{ fontWeight: 650, fontSize: '13px' }}>
+                    <Money value={inspectDeal.expenses.otherCosts} currency={currency} />
+                  </div>
                 </div>
               </div>
 
               {/* Itemized expenses if present */}
               {inspectDeal.expenses.items && inspectDeal.expenses.items.length > 0 && (
                 <div style={{ marginTop: '10px' }}>
-                  <div style={{ fontSize: '11.5px', fontWeight: 600, color: 'var(--text)', marginBottom: '6px' }}>
+                  <div
+                    style={{
+                      fontSize: '11.5px',
+                      fontWeight: 600,
+                      color: 'var(--text)',
+                      marginBottom: '6px',
+                    }}
+                  >
                     Itemized Contractor / Material Invoices:
                   </div>
                   <table style={{ width: '100%', fontSize: '11.5px', borderCollapse: 'collapse' }}>
                     <thead>
-                      <tr style={{ background: '#f1f5f9', textAlign: 'left', color: 'var(--muted)' }}>
+                      <tr
+                        style={{
+                          background: 'var(--subtle)',
+                          textAlign: 'left',
+                          color: 'var(--muted)',
+                        }}
+                      >
                         <th style={{ padding: '6px 10px' }}>Category</th>
                         <th style={{ padding: '6px 10px' }}>Description / Vendor</th>
                         <th style={{ padding: '6px 10px', textAlign: 'right' }}>Amount</th>
@@ -647,11 +778,11 @@ export function PropertyDealProfitability() {
                     </thead>
                     <tbody>
                       {inspectDeal.expenses.items.map((item) => (
-                        <tr key={item.id} style={{ borderBottom: '1px solid #f1f5f9' }}>
+                        <tr key={item.id} style={{ borderBottom: '1px solid var(--border)' }}>
                           <td style={{ padding: '6px 10px', fontWeight: 600 }}>{item.category}</td>
                           <td style={{ padding: '6px 10px' }}>{item.description || '—'}</td>
                           <td style={{ padding: '6px 10px', textAlign: 'right', fontWeight: 650 }}>
-                            {money(item.amount, currency)}
+                            <Money value={item.amount} currency={currency} />
                           </td>
                         </tr>
                       ))}
@@ -663,43 +794,74 @@ export function PropertyDealProfitability() {
 
             {/* P&L Statement Waterfall */}
             <div className="deal-pnl-summary-box">
-              <h4 style={{ margin: '0 0 12px', fontSize: '13px', fontWeight: 700, color: 'var(--text)' }}>
+              <h4
+                style={{
+                  margin: '0 0 12px',
+                  fontSize: '13px',
+                  fontWeight: 700,
+                  color: 'var(--text)',
+                }}
+              >
                 Comprehensive Profit & Loss Waterfall
               </h4>
 
               <div className="deal-pnl-row">
                 <span>1. Property Acquisition Buy Price (Seller)</span>
-                <strong>{money(inspectDeal.buyPrice, currency)}</strong>
+                <strong>
+                  <Money value={inspectDeal.buyPrice} currency={currency} />
+                </strong>
               </div>
 
               <div className="deal-pnl-row">
                 <span>2. Total Direct Expenses (Taxes, Legal, Renovation)</span>
-                <strong style={{ color: '#b45309' }}>+{money(inspectDeal.expenses.total, currency)}</strong>
+                <strong style={{ color: 'var(--warning)' }}>
+                  +<Money value={inspectDeal.expenses.total} currency={currency} />
+                </strong>
               </div>
 
               <div className="deal-pnl-row total-invested">
                 <span>Total Invested Capital (Cost Basis)</span>
-                <strong>{money(inspectDeal.totalCost, currency)}</strong>
+                <strong>
+                  <Money value={inspectDeal.totalCost} currency={currency} />
+                </strong>
               </div>
 
               <div className="deal-pnl-row" style={{ marginTop: '8px' }}>
                 <span>3. Buyer Resale Sale Price</span>
-                <strong style={{ color: '#1e40af' }}>
-                  {inspectDeal.salePrice ? money(inspectDeal.salePrice, currency) : 'Pending Resale'}
+                <strong style={{ color: 'var(--primary)' }}>
+                  {inspectDeal.salePrice ? (
+                    <Money value={inspectDeal.salePrice} currency={currency} />
+                  ) : (
+                    'Pending Resale'
+                  )}
                 </strong>
               </div>
 
               <div className="deal-pnl-row net-profit">
                 <span>Realized Net Profit / (Loss)</span>
-                <strong className={Number(inspectDeal.netProfit ?? 0) >= 0 ? 'profit-text-green' : 'profit-text-red'}>
-                  {inspectDeal.netProfit ? `${Number(inspectDeal.netProfit) >= 0 ? '+' : ''}${money(inspectDeal.netProfit, currency)}` : 'Pending Resale'}
+                <strong
+                  className={
+                    Number(inspectDeal.netProfit ?? 0) >= 0
+                      ? 'profit-text-green'
+                      : 'profit-text-red'
+                  }
+                >
+                  {inspectDeal.netProfit
+                    ? `${Number(inspectDeal.netProfit) >= 0 ? '+' : ''}${moneyWithWords(inspectDeal.netProfit, currency)}`
+                    : inspectDeal.salePrice
+                      ? 'Pending collection'
+                      : 'Pending Resale'}
                 </strong>
               </div>
 
               <div className="deal-pnl-row" style={{ borderBottom: 'none', paddingTop: '6px' }}>
                 <span>Return on Investment (ROI Margin %)</span>
                 <strong className="deal-margin-badge">
-                  {inspectDeal.profitMarginPercent ? `+${inspectDeal.profitMarginPercent}%` : 'Pending Resale'}
+                  {inspectDeal.profitMarginPercent
+                    ? `+${inspectDeal.profitMarginPercent}%`
+                    : inspectDeal.salePrice
+                      ? 'Pending collection'
+                      : 'Pending Resale'}
                 </strong>
               </div>
             </div>

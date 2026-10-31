@@ -1,4 +1,5 @@
-import { useState, useMemo } from 'react';
+import { Money } from '../../components/Money';
+import { useState, useMemo, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import {
@@ -12,11 +13,12 @@ import {
   CreditCard,
 } from 'lucide-react';
 import { api, queryString } from '../../lib/api';
+import { can } from '../../stores/auth';
 import { usePreferences } from '../../stores/preferences';
-import { asRows, type Row } from '../../lib/types';
-import { money, date } from '../../lib/format';
+import { asRows, type Page } from '../../lib/types';
+import { date, moneyWithWords } from '../../lib/format';
 import { t, useLocale } from '../../lib/i18n';
-import { Button, Modal, Skeleton } from '../../components/ui';
+import { Button, Modal, Skeleton, ErrorState } from '../../components/ui';
 import { Select } from '../../components/Select';
 import './calendar.css';
 
@@ -40,31 +42,31 @@ export function InstallmentCalendar() {
   const lastDayOfMonth = new Date(year, month + 1, 0).getDate();
   const toStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(lastDayOfMonth).padStart(2, '0')}`;
 
+  type CalendarDay = { date: string; total: number; overdue: number; unpaid: number; paid: number };
   const query = useQuery({
     queryKey: ['installment-calendar', projectId, fromStr, toStr],
-    enabled: !!projectId,
+    enabled: Boolean(projectId && can('reports.read')),
     queryFn: ({ signal }) =>
-      api<{ rows: Row[] }>(
-        `/projects/${projectId}/reports` +
-          queryString({ kind: 'installments', from: fromStr, to: toStr }),
+      api<{ days: CalendarDay[]; today: string }>(
+        `/projects/${projectId}/installment-calendar${queryString({ from: fromStr, to: toStr })}`,
         { signal },
       ),
   });
-
-  const allRows = asRows(query.data?.rows);
-
-  // Group installments by due date string (YYYY-MM-DD)
-  const byDate = useMemo(() => {
-    const map = new Map<string, Row[]>();
-    for (const r of allRows) {
-      const d = String(r.dueDate ?? '').slice(0, 10);
-      if (!d) continue;
-      const list = map.get(d) ?? [];
-      list.push(r);
-      map.set(d, list);
-    }
-    return map;
-  }, [allRows]);
+  const [detailPage, setDetailPage] = useState(1);
+  useEffect(() => setDetailPage(1), [selectedDay, filterStatus]);
+  const details = useQuery({
+    queryKey: ['installment-calendar-day', projectId, selectedDay, detailPage, filterStatus],
+    enabled: Boolean(projectId && selectedDay && can('reports.read')),
+    queryFn: ({ signal }) =>
+      api<Page>(
+        `/projects/${projectId}/installment-calendar/day${queryString({ date: selectedDay, page: detailPage, limit: 25, status: filterStatus })}`,
+        { signal },
+      ),
+  });
+  const byDate = useMemo(
+    () => new Map((query.data?.days ?? []).map((day) => [day.date, day])),
+    [query.data],
+  );
 
   // First day of month (0 = Sun, 1 = Mon...)
   const firstDayIndex = new Date(year, month, 1).getDay();
@@ -80,26 +82,10 @@ export function InstallmentCalendar() {
   };
 
   const currentMonthName = activeDate.toLocaleString('default', { month: 'long', year: 'numeric' });
-  const todayStr = new Date().toISOString().slice(0, 10);
+  const todayStr = query.data?.today ?? '';
 
-  // Installments for the selected day modal
-  const dayInstallments = useMemo(
-    () => (selectedDay ? (byDate.get(selectedDay) ?? []) : []),
-    [selectedDay, byDate],
-  );
-
-  const filteredDayInstallments = useMemo(() => {
-    if (filterStatus === 'unpaid') {
-      return dayInstallments.filter((i) => Number(i.outstanding) > 0);
-    }
-    if (filterStatus === 'overdue') {
-      return dayInstallments.filter((i) => Number(i.overdue) > 0);
-    }
-    if (filterStatus === 'paid') {
-      return dayInstallments.filter((i) => Number(i.outstanding) === 0);
-    }
-    return dayInstallments;
-  }, [dayInstallments, filterStatus]);
+  const filteredDayInstallments = asRows(details.data);
+  const totalDay = details.data?.pagination.total ?? 0;
 
   return (
     <section className="calendar-panel" aria-label={t('Installment Due Calendar')}>
@@ -138,7 +124,9 @@ export function InstallmentCalendar() {
         </div>
       </div>
 
-      {query.isLoading ? (
+      {query.isError ? (
+        <ErrorState error={query.error} retry={() => void query.refetch()} />
+      ) : query.isLoading ? (
         <Skeleton rows={4} />
       ) : (
         <>
@@ -158,16 +146,13 @@ export function InstallmentCalendar() {
             {Array.from({ length: lastDayOfMonth }).map((_, i) => {
               const dayNum = i + 1;
               const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(dayNum).padStart(2, '0')}`;
-              const dayRows = byDate.get(dateStr) ?? [];
+              const stats = byDate.get(dateStr);
               const isToday = dateStr === todayStr;
               const isSelected = dateStr === selectedDay;
-
-              const totalDue = dayRows.length;
-              const overdueCount = dayRows.filter((r) => Number(r.overdue) > 0).length;
-              const pendingCount = dayRows.filter(
-                (r) => Number(r.outstanding) > 0 && Number(r.overdue) === 0,
-              ).length;
-              const clearedCount = dayRows.filter((r) => Number(r.outstanding) === 0).length;
+              const totalDue = stats?.total ?? 0;
+              const overdueCount = stats?.overdue ?? 0;
+              const pendingCount = stats?.unpaid ?? 0;
+              const clearedCount = stats?.paid ?? 0;
 
               return (
                 <div
@@ -175,12 +160,12 @@ export function InstallmentCalendar() {
                   className={`calendar-day-cell ${isToday ? 'is-today' : ''} ${
                     isSelected ? 'is-selected' : ''
                   }`}
-                  onClick={() => dayRows.length > 0 && setSelectedDay(dateStr)}
+                  onClick={() => totalDue > 0 && setSelectedDay(dateStr)}
                   role="button"
                   tabIndex={0}
                   onKeyDown={(e) => {
                     if (e.key === 'Enter' || e.key === ' ') {
-                      if (dayRows.length > 0) setSelectedDay(dateStr);
+                      if (totalDue > 0) setSelectedDay(dateStr);
                     }
                   }}
                   aria-label={`${dateStr}: ${totalDue} installments`}
@@ -217,15 +202,15 @@ export function InstallmentCalendar() {
           <footer className="calendar-footer">
             <div className="calendar-legend">
               <span className="calendar-legend-item">
-                <span className="calendar-legend-dot" style={{ background: '#ef4444' }} />
+                <span className="calendar-legend-dot" style={{ background: 'var(--danger)' }} />
                 {t('Overdue')}
               </span>
               <span className="calendar-legend-item">
-                <span className="calendar-legend-dot" style={{ background: '#f59e0b' }} />
+                <span className="calendar-legend-dot" style={{ background: 'var(--warning)' }} />
                 {t('Due')}
               </span>
               <span className="calendar-legend-item">
-                <span className="calendar-legend-dot" style={{ background: '#22c55e' }} />
+                <span className="calendar-legend-dot" style={{ background: 'var(--success)' }} />
                 {t('Cleared')}
               </span>
             </div>
@@ -241,14 +226,14 @@ export function InstallmentCalendar() {
           onOpenChange={(v) => !v && setSelectedDay(null)}
           title={t('Installments Due on {0}', { '0': date(selectedDay) })}
           description={t('{count} scheduled installment obligations', {
-            count: dayInstallments.length,
+            count: totalDay,
           })}
           wide
         >
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }} className='m-4'>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }} className="m-4">
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <span style={{ fontSize: 13, fontWeight: 600 }}>
-                {t('Total Obligations')}: {dayInstallments.length}
+                {t('Total Obligations')}: {totalDay}
               </span>
               <Select
                 value={filterStatus}
@@ -262,8 +247,34 @@ export function InstallmentCalendar() {
               />
             </div>
 
+            <div className="table-pagination">
+              <Button
+                variant="secondary"
+                disabled={detailPage === 1 || details.isFetching}
+                onClick={() => setDetailPage(detailPage - 1)}
+              >
+                {t('Previous')}
+              </Button>
+              <span>
+                {t('Page')} {detailPage} {t('of')}{' '}
+                {Math.max(1, details.data?.pagination.totalPages ?? 1)}
+              </span>
+              <Button
+                variant="secondary"
+                disabled={
+                  detailPage >= (details.data?.pagination.totalPages ?? 1) || details.isFetching
+                }
+                onClick={() => setDetailPage(detailPage + 1)}
+              >
+                {t('Next')}
+              </Button>
+            </div>
             <div className="day-detail-modal-list">
-              {filteredDayInstallments.length === 0 ? (
+              {details.isError ? (
+                <ErrorState error={details.error} retry={() => void details.refetch()} />
+              ) : details.isLoading ? (
+                <Skeleton rows={3} />
+              ) : filteredDayInstallments.length === 0 ? (
                 <p style={{ textAlign: 'center', color: 'var(--text-muted)', padding: '24px 0' }}>
                   {t('No installments match this filter')}
                 </p>
@@ -299,16 +310,18 @@ export function InstallmentCalendar() {
                       </div>
 
                       <div className="installment-money-info">
-                        <strong>{money(inst.amount, currency)}</strong>
+                        <strong>
+                          <Money value={inst.amount} currency={currency} />
+                        </strong>
                         {isPaid ? (
-                          <span style={{ color: '#22c55e', fontSize: 11, fontWeight: 600 }}>
+                          <span style={{ color: 'var(--success)', fontSize: 11, fontWeight: 600 }}>
                             ✓ {t('Paid')}
                           </span>
                         ) : (
-                          <small style={{ color: isOverdue ? '#ef4444' : '#f59e0b' }}>
+                          <small style={{ color: isOverdue ? 'var(--danger)' : 'var(--warning)' }}>
                             {isOverdue
-                              ? `${money(inst.overdue, currency)} ${t('overdue')} (${inst.lateDays}d)`
-                              : `${money(inst.outstanding, currency)} ${t('outstanding')}`}
+                              ? `${moneyWithWords(inst.overdue, currency)} ${t('overdue')}`
+                              : `${moneyWithWords(inst.outstanding, currency)} ${t('outstanding')}`}
                           </small>
                         )}
                       </div>
@@ -327,7 +340,7 @@ export function InstallmentCalendar() {
                             <ArrowRight size={13} />
                           </Button>
                         )}
-                        {!isPaid && Boolean(inst.bookingId) && (
+                        {!isPaid && Boolean(inst.bookingId) && can('payments.create') && (
                           <Button
                             size="small"
                             onClick={() => {

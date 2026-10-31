@@ -1,0 +1,313 @@
+/* Printed documents have their own paper palette, independent of saved preferences. */
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 12mm;
+  }
+  @page financial-landscape {
+    size: A4 landscape;
+    margin: 12mm;
+  }
+  :root,
+  :root[data-theme='dark'] {
+    color-scheme: light !important;
+    --bg: #fff !important;
+    --panel: #fff !important;
+    --subtle: #f4f7fa !important;
+    --text: #203249 !important;
+    --muted: #536477 !important;
+    --border: #d8e0e8 !important;
+    --primary: #355e85 !important;
+    --primary-hover: #284966 !important;
+    --on-primary: #fff !important;
+    --brand: #355e85 !important;
+    --hover: #f4f7fa !important;
+    --success: #236c57 !important;
+    --warning: #805b1e !important;
+    --danger: #a12f3e !important;
+    --shadow: none !important;
+  }
+  html,
+  body,
+  #root,
+  .app-shell,
+  .app-main,
+  .workspace,
+  .customer-portal {
+    height: auto !important;
+    min-height: 0 !important;
+    overflow: visible !important;
+    background: #fff !important;
+    color: var(--text) !important;
+  }
+  body {
+    margin: 0;
+    font-size: 10pt;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  .sidebar,
+  .topbar,
+  .workspace-footer,
+  .portal-sidebar,
+  .portal-header,
+  .portal-drawer,
+  .portal-drawer-overlay,
+  .modal-overlay,
+  .modal-header,
+  .page-actions,
+  .table-toolbar,
+  .table-options,
+  .pagination,
+  .skip-link,
+  .language-selector,
+  [data-sonner-toaster] {
+    display: none !important;
+  }
+  .app-main,
+  .portal-main,
+  .workspace {
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+    max-width: none !important;
+  }
+  :root[data-theme] .brand-logo.brand-logo--theme .brand-logo-light {
+    display: block !important;
+  }
+  :root[data-theme] .brand-logo.brand-logo--theme .brand-logo-dark {
+    display: none !important;
+  }
+  .panel,
+  .customer-section-card,
+  .lifecycle-panel {
+    box-shadow: none !important;
+    break-inside: auto;
+  }
+  .table-scroll,
+  .statement-table-scroll,
+  .lifecycle-table-wrap {
+    overflow: visible !important;
+    max-height: none !important;
+  }
+  table {
+    width: 100%;
+    min-width: 0 !important;
+    white-space: normal;
+  }
+  thead {
+    display: table-header-group !important;
+  }
+  tfoot {
+    display: table-row-group;
+  }
+  tr,
+  .receipt-brand,
+  .receipt-amount,
+  .sheet-card,
+  .sheet-financials,
+  .sheet-footer {
+    break-inside: avoid;
+  }
+  th,
+  td {
+    position: static !important;
+    padding: 8px 10px;
+    vertical-align: top;
+    white-space: normal;
+    overflow-wrap: anywhere;
+    overflow: visible;
+  }
+  h1,
+  h2,
+  h3,
+  .statement-section-heading {
+    break-after: avoid;
+  }
+  :root .amount-display > .amount-words {
+    color: #536477;
+    font-size: 8px;
+    line-height: 1.4;
+  }
+  body:has(.printable-receipt) #root,
+  body:has(.property-file-sheet) #root,
+  body:has(.property-file-sheet) .modal:not(:has(.property-file-sheet)) {
+    display: none !important;
+  }
+  .modal:has(.printable-receipt),
+  .modal:has(.property-file-sheet) {
+    position: static !important;
+    transform: none !important;
+    animation: none !important;
+    container-type: normal !important;
+    width: 100% !important;
+    max-width: none !important;
+    max-height: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: visible !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    background: #fff !important;
+  }
+  .printable-receipt,
+  .property-file-container,
+  .property-file-sheet {
+    position: static !important;
+    width: 100% !important;
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: #fff !important;
+    color: var(--text) !important;
+    border: 0 !important;
+    box-shadow: none !important;
+    overflow: visible !important;
+  }
+  .property-file-toolbar {
+    display: none !important;
+  }
+  .receipt-brand {
+    gap: 16px;
+    padding-bottom: 18px;
+    border-bottom: 2px solid var(--primary);
+  }
+  .receipt-amount {
+    margin: 24px 0;
+    padding: 18px;
+    background: var(--subtle);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 26px;
+  }
+  .printable-receipt .detail-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px 28px;
+  }
+  .printable-receipt .detail-grid dd {
+    overflow-wrap: anywhere;
+  }
+  .sheet-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .sheet-financials {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+  .sheet-footer {
+    grid-template-columns: 100px minmax(0, 1fr) 160px;
+  }
+  .customer-statement {
+    color-scheme: light;
+    max-width: none;
+    margin: 0;
+  }
+  .customer-statement .statement-metric-emphasis {
+    background: #e5eef7;
+    color: #203249;
+    border-color: #d8e0e8;
+  }
+  .customer-statement table {
+    display: table !important;
+  }
+  .customer-statement tbody {
+    display: table-row-group !important;
+  }
+  .customer-statement tr {
+    display: table-row !important;
+  }
+  .customer-statement td,
+  .customer-statement th {
+    display: table-cell !important;
+  }
+  .customer-statement td::before {
+    content: none;
+  }
+  .lifecycle-page {
+    page: financial-landscape;
+    gap: 16px;
+  }
+  .lifecycle-guide,
+  .lifecycle-tabs-bar,
+  .lifecycle-search,
+  .lifecycle-table-note span:last-child,
+  .lc-row-actions,
+  .lifecycle-table col:last-child,
+  .lifecycle-table thead th:last-child,
+  .lifecycle-table tbody td:last-child {
+    display: none !important;
+  }
+  .lifecycle-table col {
+    width: auto !important;
+  }
+  .lifecycle-table .lc-property-cell {
+    position: static !important;
+  }
+  .lifecycle-table {
+    table-layout: auto;
+    font-size: 9px;
+  }
+  .lifecycle-table tbody td,
+  .lifecycle-table tbody th,
+  .lifecycle-table thead th {
+    padding: 10px;
+    font-size: 9px;
+  }
+  .lifecycle-kpi-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+  .lifecycle-kpi-card {
+    padding: 12px;
+  }
+  .lifecycle-table .lc-amount,
+  .lifecycle-table .lc-property-link {
+    font-size: 10px;
+  }
+  body.print-customer-badge-active #printable-customer-badge,
+  body.print-badge-active #printable-employee-badge {
+    color-scheme: light;
+    border: 1px solid #cbd5e1;
+    border-radius: 10px;
+  }
+  body.print-customer-badge-active #printable-customer-badge .card-type,
+  body.print-badge-active #printable-employee-badge .card-type {
+    color: #536477;
+  }
+  body.print-customer-badge-active
+    #root
+    *:not(#printable-customer-badge):not(#printable-customer-badge *):not(
+      :has(#printable-customer-badge)
+    ),
+  body.print-badge-active
+    #root
+    *:not(#printable-employee-badge):not(#printable-employee-badge *):not(
+      :has(#printable-employee-badge)
+    ),
+  body.print-customer-statement-active
+    #root
+    *:not(.customer-statement):not(.customer-statement *):not(:has(.customer-statement)) {
+    display: none !important;
+  }
+  body.print-customer-badge-active #root *:has(#printable-customer-badge),
+  body.print-badge-active #root *:has(#printable-employee-badge),
+  body.print-customer-statement-active #root *:has(.customer-statement) {
+    position: static !important;
+    min-height: 0 !important;
+    height: auto !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    gap: 0 !important;
+    overflow: visible !important;
+    border: 0 !important;
+    box-shadow: none !important;
+  }
+  body.print-customer-statement-active .customer-statement {
+    position: static !important;
+    padding: 0 !important;
+  }
+  body.print-badge-active #printable-employee-badge .id-card-photo {
+    background: #eef3f8;
+    color: #355e85;
+    border-color: #355e85;
+  }
+}

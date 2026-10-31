@@ -398,34 +398,18 @@ export function SchemaField({
             );
           if (fieldKey === 'phone' || fieldKey === 'secondaryPhone')
             return (
-              <PatternFormat
+              <input
                 id={id}
                 name={field.name}
-                getInputRef={field.ref}
+                ref={field.ref}
                 onBlur={field.onBlur}
-                value={String(field.value ?? '')}
-                valueIsNumericString
-                format="####-#######"
-                mask="_"
+                type="tel"
                 inputMode="tel"
+                value={String(field.value ?? '')}
                 placeholder="0300-1234567"
                 disabled={disabled}
                 aria-invalid={!!error}
-                onValueChange={(v, source) => {
-                  if (source.source === 'event') {
-                    let val = v.value;
-                    if (val.startsWith('923') && val.length === 12) {
-                      val = '0' + val.slice(2);
-                    }
-                    if (!val) {
-                      field.onChange('');
-                      return;
-                    }
-                    const formatted =
-                      val.length > 4 ? `${val.slice(0, 4)}-${val.slice(4, 11)}` : val;
-                    field.onChange(formatted);
-                  }
-                }}
+                onChange={field.onChange}
               />
             );
           if (moneyFields.test(fieldKey) && !schema.enum)

@@ -89,11 +89,24 @@ export async function api<T = unknown>(
         : 'Unable to reach the service. Check your connection and try again.',
     );
   }
-  if (response.status === 401 && !options.anonymous && !retried) {
+  // A valid session can fail a password confirmation. Refreshing or logging out
+  // would discard the user's draft and replay a destructive request needlessly.
+  const passwordFailure =
+    response.status === 401 &&
+    (await response
+      .clone()
+      .json()
+      .then(
+        (result: Envelope<unknown>) =>
+          result.error?.code === 'INVALID_PASSWORD' ||
+          (path === '/auth/change-password' && result.error?.code === 'INVALID_CREDENTIALS'),
+      )
+      .catch(() => false));
+  if (response.status === 401 && !passwordFailure && !options.anonymous && !retried) {
     if (originalToken === useAuth.getState().token) await refreshSession();
     return api<T>(path, options, true);
   }
-  if (response.status === 401 && !options.anonymous) useAuth.getState().clear();
+  if (response.status === 401 && !passwordFailure && !options.anonymous) useAuth.getState().clear();
   return decode<T>(response);
 }
 export function queryString(values: Record<string, unknown>) {

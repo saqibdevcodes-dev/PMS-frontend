@@ -1,3 +1,4 @@
+import { Money } from '../../components/Money';
 import { t, useLocale } from '../../lib/i18n';
 import { useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
@@ -11,7 +12,7 @@ import {
   Printer,
 } from 'lucide-react';
 import { api, queryString } from '../../lib/api';
-import { humanize, money } from '../../lib/format';
+import { humanize } from '../../lib/format';
 import { asRows, type Row } from '../../lib/types';
 import { usePreferences } from '../../stores/preferences';
 import { can } from '../../stores/auth';
@@ -225,7 +226,7 @@ export default function Reports() {
                     {value ? t('Balanced') : t('Out of balance')}
                   </>
                 ) : (
-                  money(value, query.data.currency)
+                  <Money value={value} currency={query.data.currency} />
                 )}
               </strong>
             </div>

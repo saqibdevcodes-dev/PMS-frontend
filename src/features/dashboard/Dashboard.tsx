@@ -1,3 +1,4 @@
+import { Money } from '../../components/Money';
 import { t, useLocale } from '../../lib/i18n';
 import { useState, lazy, Suspense } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
@@ -20,7 +21,7 @@ import { api, queryString } from '../../lib/api';
 import { usePreferences } from '../../stores/preferences';
 import { useAuth, can } from '../../stores/auth';
 import { asRows, row, type Row } from '../../lib/types';
-import { date, humanize, money, calendarDay, pakistanAmount } from '../../lib/format';
+import { date, humanize, calendarDay, moneyWithWords } from '../../lib/format';
 import { Button, PageHeading, EmptyState, ErrorState, Skeleton, Modal } from '../../components/ui';
 import { DataTable } from '../../components/DataTable';
 import { Select } from '../../components/Select';
@@ -156,21 +157,10 @@ export default function Dashboard() {
       .reduce((acc, r) => acc.plus(String(r.outstanding)), new Decimal(0))
       .toNumber(),
   }));
-  const words = (value: unknown) => {
-    try {
-      const n = new Decimal(String(value ?? 0));
-      if (n.abs().lt(1000)) return undefined;
-      const text = pakistanAmount(n);
-      return text && text !== '0' ? text : undefined;
-    } catch {
-      return undefined;
-    }
-  };
   const cards = [
     {
       label: 'Total inventory',
       value: Number(s.totalInventory ?? 0).toLocaleString(),
-      words: undefined,
       note: t('{count} properties available', {
         count: s.inventory ? String(row(s.inventory).AVAILABLE ?? 0) : '0',
       }),
@@ -180,8 +170,7 @@ export default function Dashboard() {
     },
     {
       label: 'Net sales value',
-      value: money(s.netSales, currency),
-      words: words(s.netSales),
+      value: <Money value={s.netSales} currency={currency} />,
       note: t('{count} confirmed bookings', { count: s.confirmedBookings ?? 0 }),
       icon: ChartNoAxesCombined,
       onClick: () => setDrilldown('booked'),
@@ -189,8 +178,7 @@ export default function Dashboard() {
     },
     {
       label: 'Verified collections',
-      value: money(s.verifiedCollections, currency),
-      words: words(s.verifiedCollections),
+      value: <Money value={s.verifiedCollections} currency={currency} />,
       note: 'Cleared payments · all time',
       icon: Wallet,
       onClick: () => setDrilldown('collections'),
@@ -198,13 +186,8 @@ export default function Dashboard() {
     },
     {
       label: 'Outstanding dues',
-      value: money(s.outstanding, currency),
-      words: words(s.outstanding),
-      note: words(s.overdue)
-        ? t('{amount} overdue', {
-            amount: `${money(s.overdue, currency)} (${words(s.overdue)})`,
-          })
-        : t('{amount} overdue', { amount: money(s.overdue, currency) }),
+      value: <Money value={s.outstanding} currency={currency} />,
+      note: t('{amount} overdue', { amount: moneyWithWords(s.overdue, currency) }),
       icon: CircleDollarSign,
       onClick: () => setDrilldown('receivables'),
       tone: 'amber',
@@ -290,7 +273,6 @@ export default function Dashboard() {
                 ) : (
                   <div className="kpi-value-block">
                     <strong>{card.value}</strong>
-                    {card.words && <span className="kpi-words">{card.words}</span>}
                   </div>
                 )}
                 <div className="kpi-bottom">
@@ -336,7 +318,8 @@ export default function Dashboard() {
             >
               <span>{t('Overdue Installments')}:</span>
               <strong>
-                {String(s.overdueInstallments ?? 0)} ({money(s.overdue, currency)})
+                {String(s.overdueInstallments ?? 0)} (
+                <Money value={s.overdue} currency={currency} />)
               </strong>
             </button>
 
@@ -347,7 +330,8 @@ export default function Dashboard() {
             >
               <span>{t('Upcoming Obligations')}:</span>
               <strong>
-                {String(s.upcomingInstallments ?? 0)} ({money(s.upcomingAmount, currency)})
+                {String(s.upcomingInstallments ?? 0)} (
+                <Money value={s.upcomingAmount} currency={currency} />)
               </strong>
             </button>
 
@@ -381,10 +365,12 @@ export default function Dashboard() {
           </div>
           <div className="chart-summary">
             <strong>
-              {money(
-                payments.reduce((a, p) => a.plus(String(p.amount)), new Decimal(0)).toFixed(2),
-                currency,
-              )}
+              <Money
+                value={payments
+                  .reduce((a, p) => a.plus(String(p.amount)), new Decimal(0))
+                  .toFixed(2)}
+                currency={currency}
+              />
             </strong>
             <span>
               <span className="legend-dot" style={{ background: 'var(--primary)' }} />
@@ -489,7 +475,9 @@ export default function Dashboard() {
               title={t('Click to inspect overdue accounts')}
             >
               <span>{t('Total overdue')}</span>
-              <strong className="ageing-amount-danger">{money(s.overdue, currency)}</strong>
+              <strong className="ageing-amount-danger">
+                <Money value={s.overdue} currency={currency} />
+              </strong>
             </button>
             <button
               type="button"

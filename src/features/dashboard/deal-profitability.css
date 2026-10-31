@@ -523,3 +523,21 @@
   margin: 6px 0;
   border-radius: 6px;
 }
+
+@media (max-width: 700px) {
+  .deal-profitability-header,
+  .deal-table-controls {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .deal-header-actions {
+    flex-wrap: wrap;
+  }
+  .deal-filter-tabs {
+    flex-wrap: wrap;
+  }
+  .deal-search-box {
+    min-width: 0;
+    width: 100%;
+  }
+}

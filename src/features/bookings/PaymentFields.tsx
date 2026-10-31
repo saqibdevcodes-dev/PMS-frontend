@@ -1,8 +1,9 @@
+import { Money } from '../../components/Money';
 import { t, useLocale } from '../../lib/i18n';
 import Decimal from 'decimal.js';
 import { Select } from '../../components/Select';
 import { MoneyInput } from '../../components/MoneyInput';
-import { money, calendarDay } from '../../lib/format';
+import { calendarDay } from '../../lib/format';
 
 export type Terms = {
   paymentType: 'FULL_PAYMENT' | 'INSTALLMENTS';
@@ -74,7 +75,9 @@ export function PaymentFields({
       {value.paymentType === 'FULL_PAYMENT' ? (
         <div className="review-notice form-full">
           <div>
-            <strong>Full payment: {money(total)}</strong>
+            <strong>
+              Full payment: <Money value={total} />
+            </strong>
             <p>Record the payment after confirming the booking. No installment setup is needed.</p>
           </div>
         </div>
@@ -89,7 +92,9 @@ export function PaymentFields({
               value={value.downPayment}
               onValueChange={(downPayment) => update({ downPayment })}
             />
-            <small>Project minimum: {money(minimum)}. This rule is set in Project settings.</small>
+            <small>
+              Project minimum: <Money value={minimum} />. This rule is set in Project settings.
+            </small>
           </label>
           <label className="form-field">
             {t('Number of installments')}
@@ -125,8 +130,11 @@ export function PaymentFields({
           </label>
           <div className="form-full">
             <p className="payment-equation">
-              Payable amount {money(total)} − down payment {money(value.downPayment || 0)} =
-              remaining balance <strong>{money(total.minus(value.downPayment || 0))}</strong>
+              Payable amount <Money value={total} /> − down payment{' '}
+              <Money value={value.downPayment || 0} /> = remaining balance{' '}
+              <strong>
+                <Money value={total.minus(value.downPayment || 0)} />
+              </strong>
             </p>
             <p className="muted">
               The payable amount includes any discount. The last installment includes any rounding
@@ -147,7 +155,9 @@ export function PaymentFields({
                     <tr key={r.label}>
                       <td>{r.label}</td>
                       <td>{r.dueDate}</td>
-                      <td>{money(r.amount)}</td>
+                      <td>
+                        <Money value={r.amount} />
+                      </td>
                     </tr>
                   ))}
                 </tbody>

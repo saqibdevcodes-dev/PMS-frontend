@@ -490,15 +490,15 @@
 }
 
 .ledger-metric-card.credit strong {
-  color: #16a34a;
+  color: var(--success);
 }
 
 .ledger-metric-card.debit strong {
-  color: #2563eb;
+  color: var(--primary);
 }
 
 .ledger-metric-card.balance strong {
-  color: #0f172a;
+  color: var(--text);
 }
 
 /* Filters Bar */
@@ -532,8 +532,8 @@
   font-size: 13px;
   border: 1px solid var(--border, #cbd5e1);
   border-radius: 6px;
-  background: #ffffff;
-  color: var(--text, #0f172a);
+  background: var(--panel);
+  color: var(--text);
 }
 
 /* Ledger Table */
@@ -580,21 +580,63 @@
   text-transform: uppercase;
 }
 
-.badge-salary { background: #dbeafe; color: #1e40af; }
-.badge-commission { background: #dcfce7; color: #166534; }
-.badge-advance { background: #fef3c7; color: #92400e; }
-.badge-bonus { background: #f3e8ff; color: #6b21a8; }
-.badge-expense { background: #e0e7ff; color: #3730a3; }
-.badge-deduction { background: #fee2e2; color: #991b1b; }
-.badge-adjustment { background: #f1f5f9; color: #475569; }
+.badge-salary {
+  background: #dbeafe;
+  color: #1e40af;
+}
+.badge-commission {
+  background: #dcfce7;
+  color: #166534;
+}
+.badge-advance {
+  background: #fef3c7;
+  color: #92400e;
+}
+.badge-bonus {
+  background: #f3e8ff;
+  color: #6b21a8;
+}
+.badge-expense {
+  background: #e0e7ff;
+  color: #3730a3;
+}
+.badge-deduction {
+  background: #fee2e2;
+  color: #991b1b;
+}
+.badge-adjustment {
+  background: #f1f5f9;
+  color: #475569;
+}
 
-:root[data-theme='dark'] .badge-salary { background: rgba(59, 130, 246, 0.2); color: #93c5fd; }
-:root[data-theme='dark'] .badge-commission { background: rgba(16, 185, 129, 0.2); color: #6ee7b7; }
-:root[data-theme='dark'] .badge-advance { background: rgba(245, 158, 11, 0.2); color: #fcd34d; }
-:root[data-theme='dark'] .badge-bonus { background: rgba(168, 85, 247, 0.2); color: #d8b4fe; }
-:root[data-theme='dark'] .badge-expense { background: rgba(99, 102, 241, 0.2); color: #a5b4fc; }
-:root[data-theme='dark'] .badge-deduction { background: rgba(239, 68, 68, 0.2); color: #fca5a5; }
-:root[data-theme='dark'] .badge-adjustment { background: rgba(255, 255, 255, 0.1); color: #cbd5e1; }
+:root[data-theme='dark'] .badge-salary {
+  background: rgba(59, 130, 246, 0.2);
+  color: #93c5fd;
+}
+:root[data-theme='dark'] .badge-commission {
+  background: rgba(16, 185, 129, 0.2);
+  color: #6ee7b7;
+}
+:root[data-theme='dark'] .badge-advance {
+  background: rgba(245, 158, 11, 0.2);
+  color: #fcd34d;
+}
+:root[data-theme='dark'] .badge-bonus {
+  background: rgba(168, 85, 247, 0.2);
+  color: #d8b4fe;
+}
+:root[data-theme='dark'] .badge-expense {
+  background: rgba(99, 102, 241, 0.2);
+  color: #a5b4fc;
+}
+:root[data-theme='dark'] .badge-deduction {
+  background: rgba(239, 68, 68, 0.2);
+  color: #fca5a5;
+}
+:root[data-theme='dark'] .badge-adjustment {
+  background: rgba(255, 255, 255, 0.1);
+  color: #cbd5e1;
+}
 
 /* Documents Section */
 .employee-docs-grid {
@@ -642,12 +684,12 @@
 
 .doc-icon-wrap.pdf {
   background: #fef2f2;
-  color: #dc2626;
+  color: var(--danger);
 }
 
 .doc-icon-wrap.image {
   background: #f0fdf4;
-  color: #16a34a;
+  color: var(--success);
 }
 
 .doc-texts {
@@ -703,8 +745,8 @@
   border: 1px solid var(--border, #cbd5e1);
   border-radius: 6px;
   font-size: 13px;
-  background: #ffffff;
-  color: var(--text, #0f172a);
+  background: var(--panel);
+  color: var(--text);
   width: 100%;
   box-sizing: border-box;
 }
@@ -771,4 +813,3 @@
     font-weight: bold;
   }
 }
-

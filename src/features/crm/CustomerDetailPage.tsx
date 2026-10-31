@@ -1,3 +1,5 @@
+import { Money } from '../../components/Money';
+import { useVerificationLink } from '../../lib/verification-link';
 import { useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -24,7 +26,7 @@ import { toast } from 'sonner';
 import { api } from '../../lib/api';
 import { operations } from '../../lib/contract';
 import { t, useLocale } from '../../lib/i18n';
-import { date, money } from '../../lib/format';
+import { date } from '../../lib/format';
 import { errorMessage } from '../../lib/error-messages';
 import { can } from '../../stores/auth';
 import { usePreferences } from '../../stores/preferences';
@@ -123,6 +125,8 @@ export default function CustomerDetailPage() {
   // Customer Profile Query
   const customerQuery = useQuery({
     queryKey: ['customer-detail', projectId, id],
+    refetchOnWindowFocus: 'always',
+    refetchOnMount: 'always',
     enabled: !!id && !!projectId && can('customers.read'),
     queryFn: ({ signal }) =>
       api<CustomerDetail>(`/projects/${projectId}/customers/${id}`, { signal }),
@@ -169,7 +173,6 @@ export default function CustomerDetailPage() {
       }),
   });
 
-
   // Delete Document Mutation
   const deleteDocMutation = useMutation({
     mutationFn: (docId: string) =>
@@ -195,6 +198,7 @@ export default function CustomerDetailPage() {
   });
 
   const customer = customerQuery.data;
+  const verificationUrl = useVerificationLink({ customer: customer?.id ?? '' });
 
   const handleRevealIdentity = async () => {
     if (!id || !projectId) return;
@@ -213,6 +217,7 @@ export default function CustomerDetailPage() {
 
   // Print Handlers
   const handlePrintBadge = () => {
+    if (!verificationUrl) return;
     document.body.classList.add('print-customer-badge-active');
     window.print();
     window.setTimeout(() => {
@@ -241,7 +246,7 @@ export default function CustomerDetailPage() {
       <div className="customer-detail-page">
         <Button variant="ghost" onClick={() => navigate('/customers')}>
           <ArrowLeft size={16} />
-          {t('Back to members')}
+          {t('Back to customers')}
         </Button>
         <ErrorState
           error={customerQuery.error ?? new Error(t('Member not found'))}
@@ -254,7 +259,6 @@ export default function CustomerDetailPage() {
   const customerCode = customer.id.toUpperCase().startsWith('MEM-')
     ? customer.id
     : `MEM-${customer.id.slice(0, 8).toUpperCase()}`;
-  const verificationUrl = `${window.location.origin}/verify?customer=${customer.id}`;
 
   const editOp = operations.find(
     (o) => o.path === '/projects/{projectId}/customers/{id}' && o.method === 'patch',
@@ -278,7 +282,7 @@ export default function CustomerDetailPage() {
       <div className="customer-detail-nav">
         <Button variant="ghost" onClick={() => navigate('/customers')}>
           <ArrowLeft size={16} />
-          {t('Back to members')}
+          {t('Back to customers')}
         </Button>
       </div>
 
@@ -320,9 +324,9 @@ export default function CustomerDetailPage() {
 
         {/* Action Buttons */}
         <div className="customer-detail-actions">
-          <Button variant="secondary" onClick={handlePrintBadge}>
+          <Button variant="secondary" onClick={handlePrintBadge} disabled={!verificationUrl}>
             <Printer size={15} />
-            {t('Print member pass')}
+            {t('Print customer pass')}
           </Button>
 
           {editOp && can('customers.update') && (
@@ -331,13 +335,13 @@ export default function CustomerDetailPage() {
               onClick={() =>
                 setAction({
                   operation: editOp,
-                  title: t('Edit member details'),
+                  title: t('Edit customer details'),
                   record: customer as unknown as Row,
                 })
               }
             >
               <Pencil size={15} />
-              {t('Edit member')}
+              {t('Edit customer')}
             </Button>
           )}
 
@@ -351,10 +355,10 @@ export default function CustomerDetailPage() {
       </header>
 
       {/* Member Registration Sub-Navigation Tree Toolbar */}
-      <div className="member-registration-subnav" aria-label={t('Member Registration')}>
+      <div className="member-registration-subnav" aria-label={t('Customer Registration')}>
         <div className="member-registration-subnav-badge">
           <ShieldCheck size={15} />
-          <span>{t('Member Registration')}</span>
+          <span>{t('Customer Registration')}</span>
         </div>
         <button
           type="button"
@@ -365,7 +369,7 @@ export default function CustomerDetailPage() {
           }}
         >
           <UserCheck size={13} />
-          {t('Member')}
+          {t('Customer')}
         </button>
         <button
           type="button"
@@ -433,7 +437,7 @@ export default function CustomerDetailPage() {
       </div>
 
       {/* Tabs Navigation */}
-      <nav className="customer-detail-tabs" aria-label={t('Member sections')}>
+      <nav className="customer-detail-tabs" aria-label={t('Customer sections')}>
         <button
           type="button"
           className={`customer-tab-btn ${activeTab === 'overview' ? 'active' : ''}`}
@@ -470,7 +474,7 @@ export default function CustomerDetailPage() {
             {/* Section: Personal & Contact Information */}
             <section className="customer-section-card" id="member-info">
               <div className="customer-section-header">
-                <h3>{t('Member information')}</h3>
+                <h3>{t('Customer information')}</h3>
               </div>
               <div className="customer-fields-grid">
                 <div className="customer-field">
@@ -558,7 +562,12 @@ export default function CustomerDetailPage() {
                   {t('Finger Prints & Identity')}
                 </h3>
                 {can('customers.view_sensitive') && (
-                  <Button variant="secondary" size="small" busy={revealing} onClick={handleRevealIdentity}>
+                  <Button
+                    variant="secondary"
+                    size="small"
+                    busy={revealing}
+                    onClick={handleRevealIdentity}
+                  >
                     <Lock size={14} />
                     {revealedIdentity ? revealedIdentity : t('Reveal identity')}
                   </Button>
@@ -569,7 +578,9 @@ export default function CustomerDetailPage() {
                   <label>{t('CNIC / National Identity')}</label>
                   <span>
                     {revealedIdentity ? (
-                      <strong style={{ color: 'var(--primary)', fontSize: 15 }}>{revealedIdentity}</strong>
+                      <strong style={{ color: 'var(--primary)', fontSize: 15 }}>
+                        {revealedIdentity}
+                      </strong>
                     ) : customer.identityLast4 ? (
                       `•••• ••••••• ${customer.identityLast4}`
                     ) : (
@@ -579,7 +590,15 @@ export default function CustomerDetailPage() {
                 </div>
                 <div className="customer-field">
                   <label>{t('Biometric / Finger Prints')}</label>
-                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, color: '#16a34a', fontWeight: 600 }}>
+                  <span
+                    style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: 6,
+                      color: 'var(--success)',
+                      fontWeight: 600,
+                    }}
+                  >
                     <ShieldCheck size={16} />
                     {t('Fingerprints on file')}
                   </span>
@@ -678,8 +697,10 @@ export default function CustomerDetailPage() {
                         <div style={{ fontSize: 13, color: 'var(--muted)' }}>
                           {bkg.unit ? (
                             <>
-                              {t('Property')} <strong>{bkg.unit.number}</strong> ({bkg.unit.type}) ·{' '}
-                              {bkg.unit.size} {bkg.unit.measurementUnit}
+                              <Link to={`/inventory?record=${bkg.unit.id}`}>
+                                {t('Property')} <strong>{bkg.unit.number}</strong>
+                              </Link>{' '}
+                              ({bkg.unit.type}) · {bkg.unit.size} {bkg.unit.measurementUnit}
                               {bkg.unit.phase ? ` · ${bkg.unit.phase}` : ''}
                             </>
                           ) : (
@@ -687,15 +708,19 @@ export default function CustomerDetailPage() {
                           )}
                         </div>
                         <div style={{ fontSize: 13, marginTop: 4 }}>
-                          {t('Contract')}: <strong>{money(bkg.total, currency)}</strong>
+                          {t('Contract')}:{' '}
+                          <strong>
+                            <Money value={bkg.total} currency={currency} />
+                          </strong>
                           {bkg.paid != null && (
-                            <span style={{ marginLeft: 12, color: '#16a34a' }}>
-                              {t('Paid')}: {money(bkg.paid, currency)}
+                            <span style={{ marginLeft: 12, color: 'var(--success)' }}>
+                              {t('Paid')}: <Money value={bkg.paid} currency={currency} />
                             </span>
                           )}
                           {bkg.outstanding != null && Number(bkg.outstanding) > 0 && (
-                            <span style={{ marginLeft: 12, color: '#f59e0b' }}>
-                              {t('Outstanding')}: {money(bkg.outstanding, currency)}
+                            <span style={{ marginLeft: 12, color: 'var(--warning)' }}>
+                              {t('Outstanding')}:{' '}
+                              <Money value={bkg.outstanding} currency={currency} />
                             </span>
                           )}
                         </div>
@@ -738,7 +763,7 @@ export default function CustomerDetailPage() {
             <div className="customer-id-card" id="printable-customer-badge">
               <div className="id-card-header">
                 <span className="org-name">{t('Real Estate Property Management')}</span>
-                <span className="card-type">{t('Official Member Allotment Pass')}</span>
+                <span className="card-type">{t('Official Customer Allotment Pass')}</span>
               </div>
 
               <div className="id-card-photo">
@@ -750,14 +775,20 @@ export default function CustomerDetailPage() {
               </div>
 
               <h2 className="id-card-name">{customer.name}</h2>
-              <div className="id-card-role">{t('Authorized Property Owner')}</div>
+              <div className="id-card-role">
+                {t(
+                  ['INSTALLMENTS', 'FULLY_PAID'].includes(customer.paymentStatus ?? '')
+                    ? 'Authorized Property Owner'
+                    : 'Registered customer',
+                )}
+              </div>
 
               <div className="id-card-code">{customerCode}</div>
 
               {/* Generated Standalone Vector QR Code */}
               <div className="id-card-qr-box">
                 <QRCode value={verificationUrl} size={150} color="#064e3b" bgColor="#ffffff" />
-                <span>{t('Scan to verify ownership')}</span>
+                <span>{t('Scan to verify registration')}</span>
               </div>
 
               <div className="id-card-footer">
@@ -767,9 +798,9 @@ export default function CustomerDetailPage() {
             </div>
 
             <div className="customer-id-actions">
-              <Button variant="secondary" onClick={handlePrintBadge}>
+              <Button variant="secondary" onClick={handlePrintBadge} disabled={!verificationUrl}>
                 <Printer size={15} />
-                {t('Print member pass')}
+                {t('Print customer pass')}
               </Button>
               <Button asChild variant="primary">
                 <Link to={`/verify?customer=${customer.id}`} target="_blank">
@@ -786,11 +817,21 @@ export default function CustomerDetailPage() {
       {activeTab === 'statement' && (
         <div className="customer-tab-panel">
           <div className="customer-section-card" style={{ gap: 16 }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12 }}>
+            <div
+              style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                flexWrap: 'wrap',
+                gap: 12,
+              }}
+            >
               <div>
-                <h3 style={{ margin: 0, fontSize: 18 }}>{t('Member Statement & Account Ledger')}</h3>
+                <h3 style={{ margin: 0, fontSize: 18 }}>
+                  {t('Customer Statement & Account Ledger')}
+                </h3>
                 <p style={{ margin: '4px 0 0', fontSize: 13, color: 'var(--muted)' }}>
-                  {t('All member bookings, payment schedules, and verified records')}
+                  {t('All customer bookings, payment schedules, and verified records')}
                 </p>
               </div>
 
@@ -904,7 +945,15 @@ export default function CustomerDetailPage() {
       {activeTab === 'documents' && (
         <div className="customer-tab-panel">
           <div className="customer-section-card">
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12 }}>
+            <div
+              style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                flexWrap: 'wrap',
+                gap: 12,
+              }}
+            >
               <div>
                 <h3 style={{ margin: 0, fontSize: 18 }}>{t('Attachments & Documents')}</h3>
                 <p style={{ margin: '4px 0 0', fontSize: 13, color: 'var(--muted)' }}>
@@ -929,7 +978,11 @@ export default function CustomerDetailPage() {
                   {t('No attachments uploaded for this member.')}
                 </h4>
                 {can('documents.manage') && (
-                  <Button variant="primary" onClick={() => setUploadDocOpen(true)} style={{ marginTop: 12 }}>
+                  <Button
+                    variant="primary"
+                    onClick={() => setUploadDocOpen(true)}
+                    style={{ marginTop: 12 }}
+                  >
                     <FileUp size={15} />
                     {t('Upload member document')}
                   </Button>
@@ -941,14 +994,21 @@ export default function CustomerDetailPage() {
                   const sizeKb = doc.size ? Math.round(Number(doc.size) / 1024) : 0;
                   return (
                     <div key={doc.id} className="customer-doc-card">
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 12, overflow: 'hidden' }}>
+                      <div
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 12,
+                          overflow: 'hidden',
+                        }}
+                      >
                         <div
                           style={{
                             width: 40,
                             height: 40,
                             borderRadius: 8,
-                            background: '#eff6ff',
-                            color: '#2563eb',
+                            background: 'var(--primary-subtle)',
+                            color: 'var(--primary)',
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
@@ -957,7 +1017,14 @@ export default function CustomerDetailPage() {
                         >
                           <FileText size={20} />
                         </div>
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: 2, overflow: 'hidden' }}>
+                        <div
+                          style={{
+                            display: 'flex',
+                            flexDirection: 'column',
+                            gap: 2,
+                            overflow: 'hidden',
+                          }}
+                        >
                           <strong
                             title={String(doc.name)}
                             style={{
@@ -989,7 +1056,9 @@ export default function CustomerDetailPage() {
                             variant="ghost"
                             title={t('Delete document')}
                             onClick={() => {
-                              if (window.confirm(t('Are you sure you want to delete this document?'))) {
+                              if (
+                                window.confirm(t('Are you sure you want to delete this document?'))
+                              ) {
                                 deleteDocMutation.mutate(String(doc.id));
                               }
                             }}

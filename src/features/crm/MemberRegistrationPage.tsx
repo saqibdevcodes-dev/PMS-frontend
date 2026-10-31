@@ -68,7 +68,12 @@ export default function MemberRegistrationPage() {
   useEffect(() => {
     const cleanEmail = email.trim().toLowerCase();
 
-    if (!cleanEmail || !cleanEmail.includes('@') || !cleanEmail.includes('.') || cleanEmail.length < 5) {
+    if (
+      !cleanEmail ||
+      !cleanEmail.includes('@') ||
+      !cleanEmail.includes('.') ||
+      cleanEmail.length < 5
+    ) {
       setIsCheckingEmail(false);
       setEmailCheckResult(null);
       return;
@@ -83,7 +88,7 @@ export default function MemberRegistrationPage() {
       setIsCheckingEmail(true);
       try {
         const res = await api<EmailCheckResult>(
-          `/projects/${projectId}/customers/check-email?email=${encodeURIComponent(cleanEmail)}`
+          `/projects/${projectId}/customers/check-email?email=${encodeURIComponent(cleanEmail)}`,
         );
         if (!isCancelled) {
           setEmailCheckResult(res);
@@ -166,7 +171,7 @@ export default function MemberRegistrationPage() {
       if (!emailCheckResult) {
         try {
           const quickCheck = await api<EmailCheckResult>(
-            `/projects/${projectId}/customers/check-email?email=${encodeURIComponent(cleanEmail)}`
+            `/projects/${projectId}/customers/check-email?email=${encodeURIComponent(cleanEmail)}`,
           );
           if (quickCheck.exists) {
             setEmailCheckResult(quickCheck);
@@ -215,7 +220,7 @@ export default function MemberRegistrationPage() {
     },
     onSuccess: (data) => {
       setCreatedMember(data);
-      toast.success(t('Member registered successfully'));
+      toast.success(t('Customer registered successfully'));
       void queryClient.invalidateQueries({ queryKey: ['customers'] });
     },
     onError: (err) => {
@@ -254,16 +259,16 @@ export default function MemberRegistrationPage() {
             <CheckCircle2 size={48} />
           </div>
           <div className="mreg-success-label">{t('Official Registration Completed')}</div>
-          <h2 className="mreg-success-title">{t('Member Registered Successfully')}</h2>
+          <h2 className="mreg-success-title">{t('Customer Registered Successfully')}</h2>
           <p className="mreg-success-desc">
             {t(
-              'The member profile has been registered with official computerized allotment records. Portal credentials have been queued for email delivery.',
+              'The customer profile has been registered with official computerized allotment records. Portal credentials have been queued for email delivery.',
             )}
           </p>
 
           <div className="mreg-success-badge">
             <div>
-              <div className="mreg-badge-label">{t('Member code')}</div>
+              <div className="mreg-badge-label">{t('Customer code')}</div>
               <strong className="mreg-badge-value mreg-badge-value--primary">{memberCode}</strong>
             </div>
             <div className="mreg-badge-divider" />
@@ -286,17 +291,17 @@ export default function MemberRegistrationPage() {
             <Button asChild variant="primary">
               <Link to={`/customers/${createdMember.id}`}>
                 <UserCheck size={16} />
-                {t('View member profile')}
+                {t('View customer profile')}
               </Link>
             </Button>
             <Button asChild variant="secondary">
-              <Link to={`/members/qr?id=${createdMember.id}`}>
+              <Link to={`/members/qr?customerId=${createdMember.id}`}>
                 <QrCode size={16} />
                 {t('View QR pass')}
               </Link>
             </Button>
             <Button variant="ghost" onClick={handleReset}>
-              {t('Register another member')}
+              {t('Register another customer')}
             </Button>
           </div>
         </div>
@@ -311,11 +316,11 @@ export default function MemberRegistrationPage() {
       <div className="mreg-topbar">
         <Button variant="ghost" onClick={() => navigate('/customers')}>
           <ArrowLeft size={16} />
-          {t('Back to members')}
+          {t('Back to customers')}
         </Button>
         <div className="mreg-topbar-title">
           <ShieldCheck size={16} />
-          <span>{t('Member Registration')}</span>
+          <span>{t('Customer Registration')}</span>
         </div>
       </div>
 
@@ -331,14 +336,9 @@ export default function MemberRegistrationPage() {
         <div className="mreg-photo-col">
           <div className="mreg-photo-header">
             <Camera size={15} />
-            <span>{t('Member Photo')}</span>
+            <span>{t('Customer Photo')}</span>
           </div>
-          <ImageUpload
-            purpose="CUSTOMER"
-            value={photoId}
-            onChange={setPhotoId}
-            label=""
-          />
+          <ImageUpload purpose="CUSTOMER" value={photoId} onChange={setPhotoId} label="" />
           <p className="mreg-photo-hint">
             {t('Upload a clear passport-style photo. JPEG, PNG or WebP, max 5 MiB.')}
           </p>
@@ -352,11 +352,14 @@ export default function MemberRegistrationPage() {
           </div>
           <div className="mreg-grid mreg-grid--4">
             <div className="mreg-field mreg-field--span2">
-              <label>{t('Full name')} <em>*</em></label>
+              <label>
+                {t('Full name')} <em>*</em>
+              </label>
               <input
                 type="text"
                 required
                 placeholder="e.g. Ahmed Ali"
+                aria-label={t('Full name')}
                 value={name}
                 onChange={(e) => setName(e.target.value)}
               />
@@ -366,14 +369,18 @@ export default function MemberRegistrationPage() {
               <input
                 type="text"
                 placeholder="e.g. Muhammad Ali"
+                aria-label={t('Father / Guardian')}
                 value={fatherName}
                 onChange={(e) => setFatherName(e.target.value)}
               />
             </div>
 
             <div className="mreg-field mreg-field--span2">
-              <label>{t('ID type')} <em>*</em></label>
+              <label>
+                {t('ID type')} <em>*</em>
+              </label>
               <select
+                aria-label={t('ID type')}
                 value={identityType}
                 onChange={(e) => {
                   setIdentityType(e.target.value as 'CNIC' | 'PASSPORT');
@@ -393,6 +400,7 @@ export default function MemberRegistrationPage() {
                 required
                 inputMode={identityType === 'CNIC' ? 'numeric' : 'text'}
                 placeholder={identityType === 'CNIC' ? '35202-1234567-1' : 'e.g. A1234567'}
+                aria-label={t('National ID or passport number')}
                 value={identity}
                 maxLength={identityType === 'CNIC' ? 15 : 20}
                 onChange={(e) => {
@@ -421,13 +429,16 @@ export default function MemberRegistrationPage() {
           </div>
           <div className="mreg-grid mreg-grid--4">
             <div className="mreg-field mreg-field--span2">
-              <label>{t('Mobile phone')} <em>*</em></label>
+              <label>
+                {t('Mobile phone')} <em>*</em>
+              </label>
               <input
                 type="text"
                 required
                 inputMode="tel"
                 maxLength={15}
                 placeholder="0300-1234567"
+                aria-label={t('Mobile phone')}
                 value={phone}
                 onChange={(e) => setPhone(formatPhone(e.target.value))}
                 style={{ fontFamily: 'monospace', letterSpacing: '0.04em' }}
@@ -441,6 +452,7 @@ export default function MemberRegistrationPage() {
                 inputMode="tel"
                 maxLength={15}
                 placeholder="0300-7654321"
+                aria-label={t('Secondary phone')}
                 value={secondaryPhone}
                 onChange={(e) => setSecondaryPhone(formatPhone(e.target.value))}
                 style={{ fontFamily: 'monospace', letterSpacing: '0.04em' }}
@@ -449,7 +461,9 @@ export default function MemberRegistrationPage() {
             </div>
             <div className="mreg-field mreg-field--span4">
               <div className="mreg-field-header">
-                <label>{t('Email address')} <em>*</em></label>
+                <label>
+                  {t('Email address')} <em>*</em>
+                </label>
                 {isCheckingEmail && (
                   <span className="mreg-email-badge mreg-email-badge--checking">
                     <Loader2 size={11} className="mreg-spin" />
@@ -474,14 +488,15 @@ export default function MemberRegistrationPage() {
                   type="email"
                   required
                   placeholder="e.g. member@example.com"
+                  aria-label={t('Email address')}
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className={
                     emailCheckResult?.exists
                       ? 'mreg-input--invalid'
                       : emailCheckResult?.available
-                      ? 'mreg-input--valid'
-                      : ''
+                        ? 'mreg-input--valid'
+                        : ''
                   }
                 />
                 <div className="mreg-input-icon">
@@ -525,6 +540,7 @@ export default function MemberRegistrationPage() {
               <input
                 type="text"
                 placeholder="e.g. House 12, Street 4, Sector G-10, Islamabad"
+                aria-label={t('Residential address')}
                 value={address}
                 onChange={(e) => setAddress(e.target.value)}
               />
@@ -548,7 +564,7 @@ export default function MemberRegistrationPage() {
                   checked={communicationConsent}
                   onChange={(e) => setCommunicationConsent(e.target.checked)}
                 />
-                <span>{t('Member agrees to receive messages')}</span>
+                <span>{t('Customer agrees to receive messages')}</span>
               </label>
             </div>
 
@@ -563,7 +579,7 @@ export default function MemberRegistrationPage() {
                 disabled={emailCheckResult?.exists}
               >
                 <UserPlus size={16} />
-                {t('Register member')}
+                {t('Register customer')}
               </Button>
             </div>
           </div>

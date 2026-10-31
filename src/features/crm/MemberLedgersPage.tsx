@@ -1,20 +1,15 @@
 import { useEffect } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
 import { useQuery, useMutation } from '@tanstack/react-query';
-import {
-  Receipt,
-  Printer,
-  Download,
-  FileSpreadsheet,
-  X,
-  UserCheck,
-} from 'lucide-react';
+import { Receipt, Printer, Download, FileSpreadsheet, X, UserCheck } from 'lucide-react';
 import { api } from '../../lib/api';
 import { t, useLocale } from '../../lib/i18n';
 import { usePreferences } from '../../stores/preferences';
 import { can } from '../../stores/auth';
-import { asRows, type Page } from '../../lib/types';
-import { Button, Skeleton } from '../../components/ui';
+import { asRows } from '../../lib/types';
+import { RelationSelect } from '../../components/RelationSelect';
+import { useCustomerDirectory } from '../../hooks/use-customer-directory';
+import { Button, Skeleton, ErrorState } from '../../components/ui';
 import { CustomerStatement, type AccountStatement } from '../reports/CustomerStatement';
 import { exportAndDownloadReport } from '../../lib/export-download';
 import './customer-detail.css';
@@ -37,28 +32,27 @@ export default function MemberLedgersPage() {
   const fromDate = params.get('from') ?? '';
   const toDate = params.get('to') ?? '';
 
-  // 1. Query all project members
-  const membersQuery = useQuery({
-    queryKey: ['project-members-list', projectId],
-    enabled: !!projectId && can('customers.read'),
-    queryFn: ({ signal }) =>
-      api<Page>(`/projects/${projectId}/customers?limit=100`, { signal }),
-  });
-
-  const members = asRows(membersQuery.data?.items) as unknown as CustomerItem[];
+  const { query: membersQuery, selected: selectedQuery } = useCustomerDirectory(activeCustomerId);
+  const members = asRows(membersQuery.data) as unknown as CustomerItem[];
 
   // Auto-select first member if none selected
   useEffect(() => {
     if (!activeCustomerId && members.length > 0 && members[0]?.id) {
-      setParams((prev) => {
-        const next = new URLSearchParams(prev);
-        next.set('customerId', members[0]!.id);
-        return next;
-      }, { replace: true });
+      setParams(
+        (prev) => {
+          const next = new URLSearchParams(prev);
+          next.set('customerId', members[0]!.id);
+          return next;
+        },
+        { replace: true },
+      );
     }
   }, [members, activeCustomerId, setParams]);
 
-  const selectedMember = members.find((m) => m.id === activeCustomerId);
+  const selectedMember =
+    selectedQuery.data?.id === activeCustomerId
+      ? (selectedQuery.data as unknown as CustomerItem)
+      : undefined;
 
   // 2. Query Statement Report for selected member
   const statementSuffix = new URLSearchParams({
@@ -116,17 +110,32 @@ export default function MemberLedgersPage() {
       {/* Page Header */}
       <div className="customer-detail-header" style={{ marginBottom: 4 }}>
         <div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: 'var(--primary)', marginBottom: 4 }}>
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 8,
+              color: 'var(--primary)',
+              marginBottom: 4,
+            }}
+          >
             <Receipt size={20} />
-            <span style={{ fontSize: 12, fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase' }}>
+            <span
+              style={{
+                fontSize: 12,
+                fontWeight: 700,
+                letterSpacing: '0.06em',
+                textTransform: 'uppercase',
+              }}
+            >
               {t('Financial Records')}
             </span>
           </div>
           <h1 style={{ fontSize: 24, fontWeight: 800, margin: 0, color: 'var(--text)' }}>
-            {t('Member Statement & Account Ledgers')}
+            {t('Customer Statement & Account Ledgers')}
           </h1>
           <p style={{ margin: '4px 0 0', fontSize: 14, color: 'var(--muted)' }}>
-            {t('All member bookings, payment schedules, and verified records')}
+            {t('All customer bookings, payment schedules, and verified records')}
           </p>
         </div>
 
@@ -163,7 +172,7 @@ export default function MemberLedgersPage() {
             <Button asChild variant="primary">
               <Link to={`/customers/${selectedMember.id}`}>
                 <UserCheck size={15} />
-                {t('View member profile')}
+                {t('View customer profile')}
               </Link>
             </Button>
           </div>
@@ -180,37 +189,28 @@ export default function MemberLedgersPage() {
           gap: 16,
         }}
       >
-        <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between' }}>
-          {/* Member Picker */}
+        <div
+          style={{
+            display: 'flex',
+            gap: 16,
+            flexWrap: 'wrap',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+          }}
+        >
+          {/* Customer Picker */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, flex: 1, minWidth: 280 }}>
-            <label style={{ fontSize: 13, fontWeight: 700, color: 'var(--text)', whiteSpace: 'nowrap' }}>
-              {t('Select member')}:
-            </label>
-            <select
-              value={activeCustomerId}
-              onChange={(e) => handleMemberSelect(e.target.value)}
-              style={{
-                flex: 1,
-                padding: '9px 12px',
-                border: '1px solid var(--border)',
-                borderRadius: 8,
-                fontSize: 14,
-                background: 'var(--panel)',
-                color: 'var(--text)',
-              }}
+            <label
+              style={{ fontSize: 13, fontWeight: 700, color: 'var(--text)', whiteSpace: 'nowrap' }}
             >
-              {members.length === 0 && <option value="">{t('No members found')}</option>}
-              {members.map((m) => {
-                const code = m.id.toUpperCase().startsWith('MEM-')
-                  ? m.id
-                  : `MEM-${m.id.slice(0, 8).toUpperCase()}`;
-                return (
-                  <option key={m.id} value={m.id}>
-                    {m.name} · {code} {m.phone ? `(${m.phone})` : ''}
-                  </option>
-                );
-              })}
-            </select>
+              {t('Select customer')}:
+            </label>
+            <RelationSelect
+              id="ledger-customer"
+              name="customerId"
+              value={activeCustomerId}
+              onChange={handleMemberSelect}
+            />
           </div>
 
           {/* Date Range Filters */}
@@ -289,7 +289,13 @@ export default function MemberLedgersPage() {
       {/* Statement Sheet Container */}
       <div className="customer-tab-panel">
         <div className="customer-section-card" style={{ padding: 24 }}>
-          {statementQuery.isLoading ? (
+          {membersQuery.isError ? (
+            <ErrorState error={membersQuery.error} retry={() => void membersQuery.refetch()} />
+          ) : selectedQuery.isError ? (
+            <ErrorState error={selectedQuery.error} />
+          ) : statementQuery.isError ? (
+            <ErrorState error={statementQuery.error} retry={() => void statementQuery.refetch()} />
+          ) : statementQuery.isLoading ? (
             <Skeleton rows={8} />
           ) : statement ? (
             <CustomerStatement statement={statement} />
@@ -300,7 +306,9 @@ export default function MemberLedgersPage() {
                 {t('No statement available for this member.')}
               </h4>
               <p style={{ margin: 0, fontSize: 13 }}>
-                {t('Select another member or verify that the member has confirmed property bookings.')}
+                {t(
+                  'Select another member or verify that the member has confirmed property bookings.',
+                )}
               </p>
             </div>
           )}

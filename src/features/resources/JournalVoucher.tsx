@@ -1,9 +1,10 @@
+import { Money } from '../../components/Money';
 import Decimal from 'decimal.js';
 import { useQuery } from '@tanstack/react-query';
 import { Printer, Calendar, FileText, AlertTriangle } from 'lucide-react';
 import { toast } from 'sonner';
 import { api } from '../../lib/api';
-import { date, money } from '../../lib/format';
+import { date } from '../../lib/format';
 import { errorMessage } from '../../lib/error-messages';
 import { t, useLocale } from '../../lib/i18n';
 import { print } from '../../platform/adapter';
@@ -128,14 +129,14 @@ export function JournalVoucher({ id, onClose }: { id: string; onClose: () => voi
                             <span
                               className={isZeroDebit ? 'voucher-money-zero' : 'voucher-money-val'}
                             >
-                              {money(line.debit, voucher.project.currency)}
+                              <Money value={line.debit} currency={voucher.project.currency} />
                             </span>
                           </td>
                           <td className="numeric-cell">
                             <span
                               className={isZeroCredit ? 'voucher-money-zero' : 'voucher-money-val'}
                             >
-                              {money(line.credit, voucher.project.currency)}
+                              <Money value={line.credit} currency={voucher.project.currency} />
                             </span>
                           </td>
                         </tr>
@@ -147,12 +148,12 @@ export function JournalVoucher({ id, onClose }: { id: string; onClose: () => voi
                       <th colSpan={2}>{t('Total')}</th>
                       {(['debit', 'credit'] as const).map((side) => (
                         <th key={side} className="numeric-cell">
-                          {money(
-                            voucher.lines
+                          <Money
+                            value={voucher.lines
                               .reduce((total, line) => total.plus(line[side]), new Decimal(0))
-                              .toFixed(2),
-                            voucher.project.currency,
-                          )}
+                              .toFixed(2)}
+                            currency={voucher.project.currency}
+                          />
                         </th>
                       ))}
                     </tr>

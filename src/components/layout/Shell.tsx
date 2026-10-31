@@ -38,6 +38,7 @@ import { OperationDialog } from '../OperationDialog';
 import { LanguageSelector } from '../LanguageSelector';
 import { BrandLogo } from '../BrandLogo';
 import { SearchSelect } from '../SearchSelect';
+const propertySlugs = ['property-lifecycle', 'vendors', 'property-purchases', 'inventory'];
 export default function Shell() {
   useLocale();
   const user = useAuth((s) => s.user)!;
@@ -52,9 +53,25 @@ export default function Shell() {
   const [action, setAction] = useState<{ operation: Operation; title: string } | null>(null);
 
   const isMembersActive =
-    location.pathname.startsWith('/customers') ||
-    location.pathname.startsWith('/members');
+    location.pathname.startsWith('/customers') || location.pathname.startsWith('/members');
   const [membersOpen, setMembersOpen] = useState(isMembersActive);
+  const isPropertiesActive = propertySlugs.some(
+    (slug) => location.pathname === '/' + slug || location.pathname.startsWith('/' + slug + '/'),
+  );
+  const [propertiesOpen, setPropertiesOpen] = useState(isPropertiesActive);
+  const propertyNavigation = propertySlugs.flatMap((slug) => {
+    const item = navItems.find((item) => item.slug === slug);
+    return item && can(item.permission) ? [item] : [];
+  });
+  const sidebarItems = navItems.filter((item) =>
+    item.slug === 'inventory'
+      ? propertyNavigation.length > 0
+      : !propertySlugs.includes(item.slug) && can(item.permission),
+  );
+
+  useEffect(() => {
+    if (isPropertiesActive) setPropertiesOpen(true);
+  }, [isPropertiesActive, location.pathname]);
 
   useEffect(() => {
     if (isMembersActive) {
@@ -118,10 +135,17 @@ export default function Shell() {
   }, []);
   const slug = location.pathname.split('/')[1] ?? 'dashboard';
   const current = [...navItems, ...resources].find((n) => n.slug === slug);
+  const customerPages: Record<string, string> = {
+    register: 'Customer registration',
+    ledgers: 'Customer ledgers',
+    qr: 'Customer QR codes',
+  };
+  const currentLabel =
+    (isMembersActive && customerPages[location.pathname.split('/')[2] ?? '']) ||
+    (location.pathname === '/bookings/new' ? 'New booking' : current?.label) ||
+    'Workspace';
   const groups = [
-    ...new Set(
-      navItems.filter((n) => can(n.permission) && n.group !== 'Personal').map((n) => n.group),
-    ),
+    ...new Set(sidebarItems.filter((n) => n.group !== 'Personal').map((n) => n.group)),
   ];
   async function selectProject(p: Row) {
     if (p.id !== preferences.projectId && !(await confirmDiscard())) return;
@@ -194,9 +218,53 @@ export default function Shell() {
           {groups.map((group) => (
             <div className="nav-group" key={t(group)}>
               <div className="nav-label">{t(group)}</div>
-              {navItems
-                .filter((n) => n.group === group && can(n.permission))
+              {sidebarItems
+                .filter((n) => n.group === group)
                 .map((n) => {
+                  if (n.slug === 'inventory') {
+                    return (
+                      <div className={`nav-dropdown ${propertiesOpen ? 'open' : ''}`} key={n.slug}>
+                        <button
+                          type="button"
+                          className={`nav-item nav-dropdown-trigger ${isPropertiesActive ? 'active-parent' : ''} ${propertiesOpen ? 'open' : ''}`}
+                          onClick={() => {
+                            if (preferences.collapsed) {
+                              preferences.toggleSidebar();
+                              setPropertiesOpen(true);
+                            } else {
+                              setPropertiesOpen((open) => !open);
+                            }
+                          }}
+                          title={t('Properties')}
+                          aria-expanded={propertiesOpen && !preferences.collapsed}
+                          aria-controls="properties-submenu"
+                        >
+                          <Building2 size={18} />
+                          <span>{t('Properties')}</span>
+                          <ChevronDown size={14} className="nav-chevron" />
+                        </button>
+                        {propertiesOpen && !preferences.collapsed && (
+                          <div className="nav-sub-menu" id="properties-submenu">
+                            {propertyNavigation.map((item) => (
+                              <NavLink
+                                key={item.slug}
+                                to={'/' + item.slug}
+                                onClick={() => setMobile(false)}
+                                className={({ isActive }) =>
+                                  'nav-sub-item ' + (isActive ? 'active' : '')
+                                }
+                              >
+                                <item.icon size={14} />
+                                <span>
+                                  {t(item.slug === 'inventory' ? 'All properties' : item.label)}
+                                </span>
+                              </NavLink>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  }
                   if (n.slug === 'customers') {
                     return (
                       <div className={`nav-dropdown ${membersOpen ? 'open' : ''}`} key={n.slug}>
@@ -228,7 +296,7 @@ export default function Shell() {
                               }
                             >
                               <UserPlus size={14} />
-                              <span>{t('Member registration')}</span>
+                              <span>{t('Customer registration')}</span>
                             </NavLink>
                             <NavLink
                               to="/customers"
@@ -236,11 +304,17 @@ export default function Shell() {
                               onClick={() => setMobile(false)}
                               className={({ isActive }) =>
                                 'nav-sub-item ' +
-                                (isActive || (location.pathname === '/customers' && !location.pathname.includes('/register') && !location.pathname.includes('/ledgers') && !location.pathname.includes('/qr')) ? 'active' : '')
+                                (isActive ||
+                                (location.pathname === '/customers' &&
+                                  !location.pathname.includes('/register') &&
+                                  !location.pathname.includes('/ledgers') &&
+                                  !location.pathname.includes('/qr'))
+                                  ? 'active'
+                                  : '')
                               }
                             >
                               <Users size={14} />
-                              <span>{t('All members')}</span>
+                              <span>{t('All customers')}</span>
                             </NavLink>
                             <NavLink
                               to="/members/ledgers"
@@ -250,7 +324,7 @@ export default function Shell() {
                               }
                             >
                               <FileSpreadsheet size={14} />
-                              <span>{t('Member ledgers')}</span>
+                              <span>{t('Customer ledgers')}</span>
                             </NavLink>
                             <NavLink
                               to="/members/qr"
@@ -260,7 +334,7 @@ export default function Shell() {
                               }
                             >
                               <QrCode size={14} />
-                              <span>{t('Member QR codes')}</span>
+                              <span>{t('Customer QR codes')}</span>
                             </NavLink>
                           </div>
                         )}
@@ -328,7 +402,7 @@ export default function Shell() {
               <ChevronsLeft size={18} />
             </Button>
             <span className="breadcrumb">
-              {t('Workspace')} <span>/</span> <strong>{t(current?.label ?? 'New booking')}</strong>
+              {t('Workspace')} <span>/</span> <strong>{t(currentLabel)}</strong>
             </span>
           </div>
           <div className="topbar-actions">

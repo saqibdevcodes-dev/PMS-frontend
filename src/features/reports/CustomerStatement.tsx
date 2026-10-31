@@ -1,7 +1,9 @@
+import { Money } from '../../components/Money';
+import { useVerificationLink } from '../../lib/verification-link';
 import { Info } from 'lucide-react';
 import { ProjectLogo } from '../../components/ProjectLogo';
 import { QRCode } from '../../components/QRCode';
-import { date, humanize, money } from '../../lib/format';
+import { date, humanize } from '../../lib/format';
 import { t } from '../../lib/i18n';
 import './statement.css';
 
@@ -35,6 +37,7 @@ export type AccountStatement = {
 };
 
 export function CustomerStatement({ statement: s }: { statement: AccountStatement }) {
+  const verificationUrl = useVerificationLink({ customer: s.customer.id ?? '' });
   const noteText = (note: string) => {
     const balances = /^Overdue installments: (.+)\. Unallocated advance credit: (.+)\.$/.exec(note);
     return balances
@@ -64,14 +67,9 @@ export function CustomerStatement({ statement: s }: { statement: AccountStatemen
           <span>
             {t('Currency')}: {s.project.currency}
           </span>
-          {s.customer.id && (
+          {s.customer.id && verificationUrl && (
             <div className="statement-qr">
-              <QRCode
-                value={`${window.location.origin}/verify?customer=${s.customer.id}`}
-                size={88}
-                color="#1e293b"
-                bgColor="#ffffff"
-              />
+              <QRCode value={verificationUrl} size={88} color="#1e293b" bgColor="#ffffff" />
               <span className="statement-qr-label">{t('Scan to verify')}</span>
             </div>
           )}
@@ -107,7 +105,9 @@ export function CustomerStatement({ statement: s }: { statement: AccountStatemen
             }
           >
             <span>{t(metric.label)}</span>
-            <strong>{money(metric.amount, s.project.currency)}</strong>
+            <strong>
+              <Money value={metric.amount} currency={s.project.currency} />
+            </strong>
           </div>
         ))}
       </div>
@@ -166,7 +166,11 @@ export function CustomerStatement({ statement: s }: { statement: AccountStatemen
                           {value == null || value === '' ? (
                             '—'
                           ) : column.type === 'money' ? (
-                            money(value, '')
+                            <Money
+                              value={value}
+                              currency={s.project.currency}
+                              showCurrency={false}
+                            />
                           ) : column.type === 'date' ? (
                             date(value)
                           ) : column.type === 'status' ? (

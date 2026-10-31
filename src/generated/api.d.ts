@@ -919,7 +919,8 @@ export interface paths {
         get: operations["get__projects__projectId_units__id"];
         put?: never;
         post?: never;
-        delete?: never;
+        /** Permanently delete an uncommitted property with administrator password confirmation */
+        delete: operations["delete__projects__projectId_units__id"];
         options?: never;
         head?: never;
         /** Update property details and up to five photos; price changes use the Change price action */
@@ -1128,7 +1129,8 @@ export interface paths {
         get: operations["get__projects__projectId_bookings__id"];
         put?: never;
         post?: never;
-        delete?: never;
+        /** Permanently delete an empty draft or unpaid cancelled booking with administrator password confirmation */
+        delete: operations["delete__projects__projectId_bookings__id"];
         options?: never;
         head?: never;
         patch?: never;
@@ -1145,6 +1147,57 @@ export interface paths {
         put?: never;
         /** Confirm booking */
         post: operations["post__projects__projectId_bookings__id_confirm"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/projects/{projectId}/bookings/{id}/unassign": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Retract booking and unassign property with full or custom refund */
+        post: operations["post__projects__projectId_bookings__id_unassign"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/projects/{projectId}/units/{id}/unassign": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Retract active booking and unassign property with full or custom refund */
+        post: operations["post__projects__projectId_units__id_unassign"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/projects/{projectId}/units/{id}/unassign-preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Preview unassign data: active booking, collections and customer */
+        get: operations["get__projects__projectId_units__id_unassign_preview"];
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -1261,7 +1314,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Public computerized property file verification without sensitive customer data */
+        /** Verify a property file without disclosing customer or financial data */
         get: operations["get__verify_file__reference"];
         put?: never;
         post?: never;
@@ -1271,15 +1324,15 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/verify/employee/{id}": {
+    "/verify/employee/{identifier}": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        /** Public employee verification by employee ID or employee code */
-        get: operations["get__verify_employee__id"];
+        /** Verify staff registration using a UUID or complete printed code */
+        get: operations["get__verify_employee__identifier"];
         put?: never;
         post?: never;
         delete?: never;
@@ -1288,15 +1341,15 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/verify/customer/{id}": {
+    "/verify/customer/{identifier}": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        /** Public customer verification by customer ID or customer code */
-        get: operations["get__verify_customer__id"];
+        /** Verify customer registration without exposing identity or financial records */
+        get: operations["get__verify_customer__identifier"];
         put?: never;
         post?: never;
         delete?: never;
@@ -1771,6 +1824,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/projects/{projectId}/property-purchases/{id}/list-for-sale": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Move an investment-finalized property to active selling inventory with asking price */
+        post: operations["post__projects__projectId_property_purchases__id_list_for_sale"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/projects/{projectId}/accounts": {
         parameters: {
             query?: never;
@@ -2085,6 +2155,40 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/projects/{projectId}/installment-calendar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Aggregate every installment in a calendar month without a row cap */
+        get: operations["get__projects__projectId_installment_calendar"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/projects/{projectId}/installment-calendar/day": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Browse a complete day of installment obligations */
+        get: operations["get__projects__projectId_installment_calendar_day"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/projects/{projectId}/dashboard": {
         parameters: {
             query?: never;
@@ -2094,6 +2198,23 @@ export interface paths {
         };
         /** Reconciled inventory, sales and collection KPIs; cache age at most 15 seconds */
         get: operations["get__projects__projectId_dashboard"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/projects/{projectId}/deal-profitability": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Property acquisition, renovation expenses, buyer resale prices, and profit margins */
+        get: operations["get__projects__projectId_deal_profitability"];
         put?: never;
         post?: never;
         delete?: never;
@@ -2400,6 +2521,7 @@ export interface components {
             reservations?: components["schemas"]["Reservation"][];
             bookings?: components["schemas"]["Booking"][];
             allocations?: components["schemas"]["DealerAllocation"][];
+            purchases?: components["schemas"]["PropertyPurchase"][];
         };
         UnitHistory: {
             id?: string;
@@ -2713,6 +2835,7 @@ export interface components {
             leads?: components["schemas"]["Lead"][];
             commissions?: components["schemas"]["DealerCommission"][];
             allocations?: components["schemas"]["DealerAllocation"][];
+            purchases?: components["schemas"]["PropertyPurchase"][];
         };
         DealerAllocation: {
             dealerId?: string;
@@ -2963,12 +3086,17 @@ export interface components {
             postedBy?: string | null;
             postedAt?: string | null;
             voidReason?: string | null;
+            unitId?: string | null;
+            dealerId?: string | null;
+            expenseItems?: unknown;
             /** Format: date-time */
             createdAt?: string;
             /** Format: date-time */
             updatedAt?: string;
             project?: components["schemas"]["Project"];
             vendor?: components["schemas"]["Vendor"];
+            unit?: components["schemas"]["Unit"] | null;
+            dealer?: components["schemas"]["Dealer"] | null;
             journal?: components["schemas"]["Journal"] | null;
             reversal?: components["schemas"]["Journal"] | null;
         };
@@ -3189,6 +3317,8 @@ export interface operations {
                             minimumClientVersion: string;
                             platforms: string[];
                             onlineRequired: boolean;
+                            /** Format: uri */
+                            publicWebUrl: string;
                         };
                         meta: {
                             requestId: string;
@@ -10165,6 +10295,116 @@ export interface operations {
             };
         };
     };
+    delete__projects__projectId_units__id: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                projectId: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    password: string;
+                };
+            };
+        };
+        responses: {
+            /** @description Successful operation. Monetary model fields are decimal strings. Lists with pagination return items and pagination inside data. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @constant */
+                        success: true;
+                        data: {
+                            revoked: boolean;
+                        };
+                        meta: {
+                            requestId: string;
+                        };
+                    };
+                };
+            };
+            /** @description Malformed request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Invalid, expired or revoked session */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Permission, origin or separation-of-duties denial */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Record missing or outside project scope */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Workflow, uniqueness or concurrency conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Validation or business rule failure */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Distributed rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Unexpected server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
     patch__projects__projectId_units__id: {
         parameters: {
             query?: never;
@@ -12152,6 +12392,116 @@ export interface operations {
             };
         };
     };
+    delete__projects__projectId_bookings__id: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                projectId: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    password: string;
+                };
+            };
+        };
+        responses: {
+            /** @description Successful operation. Monetary model fields are decimal strings. Lists with pagination return items and pagination inside data. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @constant */
+                        success: true;
+                        data: {
+                            revoked: boolean;
+                        };
+                        meta: {
+                            requestId: string;
+                        };
+                    };
+                };
+            };
+            /** @description Malformed request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Invalid, expired or revoked session */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Permission, origin or separation-of-duties denial */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Record missing or outside project scope */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Workflow, uniqueness or concurrency conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Validation or business rule failure */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Distributed rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Unexpected server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
     post__projects__projectId_bookings__id_confirm: {
         parameters: {
             query?: never;
@@ -12174,6 +12524,332 @@ export interface operations {
                         /** @constant */
                         success: true;
                         data: components["schemas"]["Booking"];
+                        meta: {
+                            requestId: string;
+                        };
+                    };
+                };
+            };
+            /** @description Malformed request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Invalid, expired or revoked session */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Permission, origin or separation-of-duties denial */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Record missing or outside project scope */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Workflow, uniqueness or concurrency conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Validation or business rule failure */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Distributed rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Unexpected server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    post__projects__projectId_bookings__id_unassign: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                projectId: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    /** @enum {string} */
+                    refundMode: "FULL" | "CUSTOM";
+                    customRefundAmount?: string;
+                    customDeduction?: string;
+                    reason?: string;
+                };
+            };
+        };
+        responses: {
+            /** @description Successful operation. Monetary model fields are decimal strings. Lists with pagination return items and pagination inside data. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @constant */
+                        success: true;
+                        data: components["schemas"]["Booking"];
+                        meta: {
+                            requestId: string;
+                        };
+                    };
+                };
+            };
+            /** @description Malformed request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Invalid, expired or revoked session */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Permission, origin or separation-of-duties denial */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Record missing or outside project scope */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Workflow, uniqueness or concurrency conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Validation or business rule failure */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Distributed rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Unexpected server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    post__projects__projectId_units__id_unassign: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                projectId: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    /** @enum {string} */
+                    refundMode: "FULL" | "CUSTOM";
+                    customRefundAmount?: string;
+                    customDeduction?: string;
+                    reason?: string;
+                };
+            };
+        };
+        responses: {
+            /** @description Successful operation. Monetary model fields are decimal strings. Lists with pagination return items and pagination inside data. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @constant */
+                        success: true;
+                        data: components["schemas"]["Unit"];
+                        meta: {
+                            requestId: string;
+                        };
+                    };
+                };
+            };
+            /** @description Malformed request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Invalid, expired or revoked session */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Permission, origin or separation-of-duties denial */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Record missing or outside project scope */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Workflow, uniqueness or concurrency conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Validation or business rule failure */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Distributed rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Unexpected server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    get__projects__projectId_units__id_unassign_preview: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                projectId: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful operation. Monetary model fields are decimal strings. Lists with pagination return items and pagination inside data. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @constant */
+                        success: true;
+                        data: components["schemas"]["Unit"];
                         meta: {
                             requestId: string;
                         };
@@ -13051,8 +13727,15 @@ export interface operations {
                         success: true;
                         data: {
                             valid: boolean;
-                            reference: string;
+                            reference?: string;
                             verifiedAt: string;
+                            message?: string;
+                            status?: string;
+                            projectName?: string;
+                            projectCode?: string;
+                            propertyNumber?: string;
+                            propertyType?: string;
+                            confirmedAt?: string | null;
                         };
                         meta: {
                             requestId: string;
@@ -13134,12 +13817,12 @@ export interface operations {
             };
         };
     };
-    get__verify_employee__id: {
+    get__verify_employee__identifier: {
         parameters: {
             query?: never;
             header?: never;
             path: {
-                id: string;
+                identifier: string;
             };
             cookie?: never;
         };
@@ -13157,6 +13840,11 @@ export interface operations {
                         data: {
                             valid: boolean;
                             verifiedAt: string;
+                            message?: string;
+                            status?: string;
+                            employeeCode?: string;
+                            name?: string;
+                            active?: boolean;
                         };
                         meta: {
                             requestId: string;
@@ -13238,12 +13926,12 @@ export interface operations {
             };
         };
     };
-    get__verify_customer__id: {
+    get__verify_customer__identifier: {
         parameters: {
             query?: never;
             header?: never;
             path: {
-                id: string;
+                identifier: string;
             };
             cookie?: never;
         };
@@ -13261,6 +13949,11 @@ export interface operations {
                         data: {
                             valid: boolean;
                             verifiedAt: string;
+                            message?: string;
+                            status?: string;
+                            customerCode?: string;
+                            projectName?: string;
+                            projectCode?: string;
                         };
                         meta: {
                             requestId: string;
@@ -16596,6 +17289,8 @@ export interface operations {
         requestBody: {
             content: {
                 "application/json": {
+                    unitId?: string | null;
+                    dealerId?: string | null;
                     /** Format: uuid */
                     vendorId: string;
                     title: string;
@@ -16611,6 +17306,14 @@ export interface operations {
                     brokerage?: string;
                     /** @default 0 */
                     otherCosts?: string;
+                    /** @default [] */
+                    expenseItems?: {
+                        id?: string;
+                        name: string;
+                        /** @default Renovation & Building */
+                        category?: string;
+                        amount: string;
+                    }[];
                     fileReference: string;
                     /** @default  */
                     notes?: string;
@@ -16823,6 +17526,8 @@ export interface operations {
         requestBody: {
             content: {
                 "application/json": {
+                    unitId?: string | null;
+                    dealerId?: string | null;
                     /** Format: uuid */
                     vendorId: string;
                     title: string;
@@ -16838,6 +17543,14 @@ export interface operations {
                     brokerage?: string;
                     /** @default 0 */
                     otherCosts?: string;
+                    /** @default [] */
+                    expenseItems?: {
+                        id?: string;
+                        name: string;
+                        /** @default Renovation & Building */
+                        category?: string;
+                        amount: string;
+                    }[];
                     fileReference: string;
                     /** @default  */
                     notes?: string;
@@ -17073,6 +17786,117 @@ export interface operations {
                         /** @constant */
                         success: true;
                         data: components["schemas"]["PropertyPurchase"];
+                        meta: {
+                            requestId: string;
+                        };
+                    };
+                };
+            };
+            /** @description Malformed request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Invalid, expired or revoked session */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Permission, origin or separation-of-duties denial */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Record missing or outside project scope */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Workflow, uniqueness or concurrency conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Validation or business rule failure */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Distributed rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Unexpected server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    post__projects__projectId_property_purchases__id_list_for_sale: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                projectId: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    askingPrice: string;
+                };
+            };
+        };
+        responses: {
+            /** @description Successful operation. Monetary model fields are decimal strings. Lists with pagination return items and pagination inside data. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @constant */
+                        success: true;
+                        data: {
+                            purchase: components["schemas"]["PropertyPurchase"];
+                            unit: components["schemas"]["Unit"];
+                        };
                         meta: {
                             requestId: string;
                         };
@@ -19997,6 +20821,248 @@ export interface operations {
             };
         };
     };
+    get__projects__projectId_installment_calendar: {
+        parameters: {
+            query: {
+                from: string;
+                to: string;
+            };
+            header?: never;
+            path: {
+                projectId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful operation. Monetary model fields are decimal strings. Lists with pagination return items and pagination inside data. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @constant */
+                        success: true;
+                        data: {
+                            today: string;
+                            days: {
+                                date: string;
+                                total: number;
+                                overdue: number;
+                                unpaid: number;
+                                paid: number;
+                                outstanding: components["schemas"]["Money"];
+                            }[];
+                        };
+                        meta: {
+                            requestId: string;
+                        };
+                    };
+                };
+            };
+            /** @description Malformed request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Invalid, expired or revoked session */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Permission, origin or separation-of-duties denial */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Record missing or outside project scope */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Workflow, uniqueness or concurrency conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Validation or business rule failure */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Distributed rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Unexpected server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    get__projects__projectId_installment_calendar_day: {
+        parameters: {
+            query: {
+                page?: number;
+                limit?: number;
+                sort?: "asc" | "desc";
+                date: string;
+                status?: "all" | "unpaid" | "overdue" | "paid";
+            };
+            header?: never;
+            path: {
+                projectId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful operation. Monetary model fields are decimal strings. Lists with pagination return items and pagination inside data. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @constant */
+                        success: true;
+                        data: {
+                            items: {
+                                id: string;
+                                bookingId: string;
+                                reference: string;
+                                customerName: string;
+                                customerPhone: string;
+                                unitNumber: string;
+                                label: string;
+                                dueDate: string;
+                                amount: components["schemas"]["Money"];
+                                paid: components["schemas"]["Money"];
+                                outstanding: components["schemas"]["Money"];
+                                overdue: components["schemas"]["Money"];
+                            }[];
+                            pagination: {
+                                page: number;
+                                limit: number;
+                                total: number;
+                                totalPages: number;
+                            };
+                        };
+                        meta: {
+                            requestId: string;
+                        };
+                    };
+                };
+            };
+            /** @description Malformed request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Invalid, expired or revoked session */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Permission, origin or separation-of-duties denial */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Record missing or outside project scope */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Workflow, uniqueness or concurrency conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Validation or business rule failure */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Distributed rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Unexpected server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
     get__projects__projectId_dashboard: {
         parameters: {
             query?: {
@@ -20127,10 +21193,152 @@ export interface operations {
             };
         };
     };
+    get__projects__projectId_deal_profitability: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                projectId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful operation. Monetary model fields are decimal strings. Lists with pagination return items and pagination inside data. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @constant */
+                        success: true;
+                        data: {
+                            currency: string;
+                            summary: {
+                                totalAcquisitions: number;
+                                soldCount: number;
+                                availableCount: number;
+                                totalBuyPrice: components["schemas"]["Money"];
+                                totalExpenses: components["schemas"]["Money"];
+                                totalInvestedCost: components["schemas"]["Money"];
+                                totalSalesRevenue: components["schemas"]["Money"];
+                                totalRealizedProfit: components["schemas"]["Money"];
+                                averageMarginPercent: string;
+                            };
+                            deals: {
+                                id: string;
+                                reference: string;
+                                fileReference: string;
+                                title: string;
+                                location: string;
+                                purchaseDate: string;
+                                status: string;
+                                seller: {
+                                    id: string;
+                                    name: string;
+                                    phone: string;
+                                };
+                                buyPrice: components["schemas"]["Money"];
+                                expenses: {
+                                    taxes: components["schemas"]["Money"];
+                                    legalFees: components["schemas"]["Money"];
+                                    brokerage: components["schemas"]["Money"];
+                                    otherCosts: components["schemas"]["Money"];
+                                    total: components["schemas"]["Money"];
+                                };
+                                totalCost: components["schemas"]["Money"];
+                                salePrice: string | null;
+                                collected: components["schemas"]["Money"];
+                                netProfit: string | null;
+                                profitMarginPercent: string | null;
+                                dealStatus: string;
+                            }[];
+                        };
+                        meta: {
+                            requestId: string;
+                        };
+                    };
+                };
+            };
+            /** @description Malformed request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Invalid, expired or revoked session */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Permission, origin or separation-of-duties denial */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Record missing or outside project scope */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Workflow, uniqueness or concurrency conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Validation or business rule failure */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Distributed rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Unexpected server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
     get__projects__projectId_reports: {
         parameters: {
             query: {
-                kind: "sales" | "inventory" | "collections" | "installments" | "outstanding" | "ageing" | "defaulters" | "dealer-sales" | "customer-statement" | "cancellations" | "refunds" | "ndcs" | "transfers" | "possession" | "ledger" | "vendor-ledger" | "cash-book" | "bank-book" | "trial-balance" | "income-statement" | "balance-sheet";
+                kind: "sales" | "inventory" | "collections" | "installments" | "outstanding" | "ageing" | "defaulters" | "dealer-sales" | "customer-statement" | "cancellations" | "refunds" | "ndcs" | "transfers" | "possession" | "ledger" | "vendor-ledger" | "cash-book" | "bank-book" | "trial-balance" | "income-statement" | "balance-sheet" | "deal-profitability";
                 from?: string;
                 to?: string;
                 phase?: string;
@@ -20300,7 +21508,7 @@ export interface operations {
                 "application/json": {
                     report: {
                         /** @enum {string} */
-                        kind: "sales" | "inventory" | "collections" | "installments" | "outstanding" | "ageing" | "defaulters" | "dealer-sales" | "customer-statement" | "cancellations" | "refunds" | "ndcs" | "transfers" | "possession" | "ledger" | "vendor-ledger" | "cash-book" | "bank-book" | "trial-balance" | "income-statement" | "balance-sheet";
+                        kind: "sales" | "inventory" | "collections" | "installments" | "outstanding" | "ageing" | "defaulters" | "dealer-sales" | "customer-statement" | "cancellations" | "refunds" | "ndcs" | "transfers" | "possession" | "ledger" | "vendor-ledger" | "cash-book" | "bank-book" | "trial-balance" | "income-statement" | "balance-sheet" | "deal-profitability";
                         /** Format: date */
                         from?: string;
                         /** Format: date */

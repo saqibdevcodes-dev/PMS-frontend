@@ -11,7 +11,11 @@ test('Windows desktop signs in, restores its encrypted session and signs out', a
     _electron.launch({
       args: ['.'],
       env: {
-        ...process.env,
+        ...(Object.fromEntries(
+          Object.entries(process.env).filter(
+            ([key, value]) => key !== 'ELECTRON_RUN_AS_NODE' && value !== undefined,
+          ),
+        ) as Record<string, string>),
         PMS_DESKTOP_SMOKE: '1',
         PMS_DESKTOP_API_URL: 'http://127.0.0.1:4100/api/v1',
       },

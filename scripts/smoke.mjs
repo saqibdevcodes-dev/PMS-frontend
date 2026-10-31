@@ -2,9 +2,9 @@
 import assert from 'node:assert/strict';
 import { createRequire } from 'node:module';
 import { fileURLToPath } from 'node:url';
-const requireBE = createRequire(new URL('../../PMS-BE/package.json', import.meta.url));
+const requireBE = createRequire(new URL('../../BE/package.json', import.meta.url));
 requireBE('dotenv').config({
-  path: fileURLToPath(new URL('../../PMS-BE/.env', import.meta.url)),
+  path: fileURLToPath(new URL('../../BE/.env', import.meta.url)),
   quiet: true,
 });
 const base = 'http://localhost:3000';

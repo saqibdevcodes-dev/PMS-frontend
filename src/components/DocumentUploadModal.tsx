@@ -19,6 +19,7 @@ import { t, useLocale } from '../lib/i18n';
 import { errorMessage } from '../lib/error-messages';
 import { usePreferences } from '../stores/preferences';
 import { Button, Modal } from './ui';
+import { useUnsavedChanges, confirmDiscard } from '../hooks/use-unsaved';
 import { RelationSelect } from './RelationSelect';
 import './document-upload-modal.css';
 
@@ -30,7 +31,11 @@ export interface DocumentUploadModalProps {
   customerId?: string;
   bookingId?: string;
   employeeId?: string;
-  projects?: { id?: string; name?: string; project?: { id: string; name: string; code?: string } }[];
+  projects?: {
+    id?: string;
+    name?: string;
+    project?: { id: string; name: string; code?: string };
+  }[];
   onSuccess?: () => void;
 }
 
@@ -50,9 +55,9 @@ export function DocumentUploadModal({
 
   const [file, setFile] = useState<File | null>(null);
   const [docName, setDocName] = useState('');
-  const [audience, setAudience] = useState<'SELECTED_CUSTOMER' | 'STAFF_ONLY' | 'ALL_PROJECT_CUSTOMERS'>(
-    context === 'customer' ? 'SELECTED_CUSTOMER' : 'STAFF_ONLY'
-  );
+  const [audience, setAudience] = useState<
+    'SELECTED_CUSTOMER' | 'STAFF_ONLY' | 'ALL_PROJECT_CUSTOMERS'
+  >(context === 'customer' ? 'SELECTED_CUSTOMER' : 'STAFF_ONLY');
   const [customerId, setCustomerId] = useState(initialCustomerId ?? '');
   const [bookingId, setBookingId] = useState(initialBookingId ?? '');
   const [docProjectId, setDocProjectId] = useState('');
@@ -63,10 +68,13 @@ export function DocumentUploadModal({
 
   // Live preview state
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-  const [docxHtml, setDocxHtml] = useState<string | null>(null);
+  const [docxText, setDocxText] = useState<string | null>(null);
   const [isParsingDocx, setIsParsingDocx] = useState(false);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const dirty = Boolean(open && (file || docName.trim()));
+  useUnsavedChanges(dirty);
 
   // Reset state when modal opens/closes
   useEffect(() => {
@@ -75,7 +83,7 @@ export function DocumentUploadModal({
       setDocName('');
       setUploadError(null);
       setPreviewUrl(null);
-      setDocxHtml(null);
+      setDocxText(null);
     } else {
       if (initialCustomerId) setCustomerId(initialCustomerId);
       if (initialBookingId) setBookingId(initialBookingId);
@@ -86,10 +94,11 @@ export function DocumentUploadModal({
   useEffect(() => {
     if (!file) {
       setPreviewUrl(null);
-      setDocxHtml(null);
+      setDocxText(null);
       return;
     }
 
+    let current = true;
     const name = file.name.toLowerCase();
     const isImg = file.type.startsWith('image/') || /\.(png|jpe?g|webp|gif|svg)$/i.test(name);
     const isPdf = file.type === 'application/pdf' || /\.pdf$/i.test(name);
@@ -98,7 +107,7 @@ export function DocumentUploadModal({
     if (isImg || isPdf) {
       const url = URL.createObjectURL(file);
       setPreviewUrl(url);
-      setDocxHtml(null);
+      setDocxText(null);
       return () => {
         URL.revokeObjectURL(url);
       };
@@ -107,26 +116,39 @@ export function DocumentUploadModal({
       setIsParsingDocx(true);
       file
         .arrayBuffer()
-        .then((buf) => mammoth.convertToHtml({ arrayBuffer: buf }))
+        .then((buf) => mammoth.extractRawText({ arrayBuffer: buf }))
         .then((res) => {
-          setDocxHtml(res.value || '<p><i>Empty Word document</i></p>');
+          if (!current) return;
+          setDocxText(res.value || 'Empty Word document');
           setIsParsingDocx(false);
         })
         .catch((err) => {
+          if (!current) return;
           console.warn('Docx preview error:', err);
-          setDocxHtml(
-            '<p style="color: #64748b; font-style: italic;">Word document verified and ready for upload.</p>'
+          setDocxText(
+            'Preview unavailable. Select a valid Word document; upload validation still applies.',
           );
           setIsParsingDocx(false);
         });
     } else {
       setPreviewUrl(null);
-      setDocxHtml(null);
+      setDocxText(null);
     }
+    return () => {
+      current = false;
+    };
   }, [file]);
 
   const handleFileSelect = (selectedFile?: File | null) => {
     if (!selectedFile) return;
+    if (selectedFile.size > 10 * 1024 * 1024) {
+      setUploadError(t('Maximum document size is 10 MiB.'));
+      return;
+    }
+    if (!/\.(pdf|docx?|png|jpe?g|webp)$/i.test(selectedFile.name)) {
+      setUploadError(t('Choose a PDF, Word document, PNG, JPEG or WebP image.'));
+      return;
+    }
     setFile(selectedFile);
     setUploadError(null);
 
@@ -149,7 +171,7 @@ export function DocumentUploadModal({
   const clearFile = () => {
     setFile(null);
     setPreviewUrl(null);
-    setDocxHtml(null);
+    setDocxText(null);
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
@@ -162,7 +184,7 @@ export function DocumentUploadModal({
   };
 
   // Determine file type category
-  const fileExt = file ? file.name.split('.').pop()?.toUpperCase() ?? '' : '';
+  const fileExt = file ? (file.name.split('.').pop()?.toUpperCase() ?? '') : '';
   const isPdf = file ? file.type === 'application/pdf' || /\.pdf$/i.test(file.name) : false;
   const isImage = file
     ? file.type.startsWith('image/') || /\.(png|jpe?g|webp|gif|svg)$/i.test(file.name)
@@ -200,9 +222,11 @@ export function DocumentUploadModal({
         if (initialCustomerId) body.append('customerId', initialCustomerId);
         await api(`/projects/${currentProjectId}/documents`, { method: 'POST', body });
       } else if (context === 'employee') {
-        body.append('category', 'OTHER');
-        if (docProjectId) body.append('projectId', docProjectId);
-        await api(`/users/${employeeId}/documents`, { method: 'POST', body });
+        const targetProject = docProjectId || currentProjectId;
+        if (!targetProject) throw new Error(t('Choose a project for this staff document.'));
+        body.append('userId', employeeId!);
+        body.append('audience', 'STAFF_ONLY');
+        await api(`/projects/${targetProject}/documents`, { method: 'POST', body });
       }
 
       toast.success(t('Document uploaded successfully'));
@@ -221,19 +245,22 @@ export function DocumentUploadModal({
     (context === 'customer'
       ? t('Upload Member Document')
       : context === 'employee'
-      ? t('Upload User Document')
-      : t('Upload Document'));
+        ? t('Upload User Document')
+        : t('Upload Document'));
 
   return (
     <Modal
       wide
       open={open}
       onOpenChange={onOpenChange}
+      beforeClose={async () => !isUploading && (!dirty || (await confirmDiscard()))}
       title={modalTitle}
-      description={t('Securely upload files with real-time preview (PDF, DOCX, images up to 25MB)')}
+      description={t(
+        'Securely upload files with real-time preview (PDF, DOCX, images up to 10 MiB)',
+      )}
     >
       <form onSubmit={handleSubmit}>
-        <div className="doc-upload-grid p-8">
+        <div className="modal-body doc-upload-grid">
           {/* Left Column: Form Controls */}
           <div className="doc-upload-controls">
             <div className="doc-upload-form-fields">
@@ -260,9 +287,7 @@ export function DocumentUploadModal({
                   <div className="doc-dropzone-icon">
                     <UploadCloud size={24} />
                   </div>
-                  <div className="doc-dropzone-title">
-                    {t('Choose a file or drag & drop here')}
-                  </div>
+                  <div className="doc-dropzone-title">{t('Choose a file or drag & drop here')}</div>
                   <div className="doc-dropzone-hint">
                     {t('Instant live preview for PDF, DOCX, and images')}
                   </div>
@@ -276,11 +301,7 @@ export function DocumentUploadModal({
                 </div>
               ) : (
                 <div className="doc-selected-card">
-                  <div
-                    className={`doc-selected-icon ${
-                      isPdf ? 'pdf' : isWord ? 'word' : 'image'
-                    }`}
-                  >
+                  <div className={`doc-selected-icon ${isPdf ? 'pdf' : isWord ? 'word' : 'image'}`}>
                     {isPdf ? (
                       <FileText size={20} />
                     ) : isWord ? (
@@ -320,7 +341,7 @@ export function DocumentUploadModal({
                       onClick={clearFile}
                       title={t('Remove file')}
                     >
-                      <Trash2 size={16} style={{ color: '#ef4444' }} />
+                      <Trash2 size={16} style={{ color: 'var(--danger)' }} />
                     </Button>
                     <input
                       ref={fileInputRef}
@@ -382,9 +403,7 @@ export function DocumentUploadModal({
                       onChange={(e) => setAudience(e.target.value as typeof audience)}
                     >
                       <option value="STAFF_ONLY">{t('Staff only')}</option>
-                      <option value="SELECTED_CUSTOMER">
-                        {t('Selected customer or booking')}
-                      </option>
+                      <option value="SELECTED_CUSTOMER">{t('Selected customer or booking')}</option>
                       <option value="ALL_PROJECT_CUSTOMERS">
                         {t('All customers in this project')}
                       </option>
@@ -445,9 +464,9 @@ export function DocumentUploadModal({
                     gap: 8,
                     padding: '8px 12px',
                     borderRadius: 6,
-                    background: '#fef2f2',
-                    border: '1px solid #fecaca',
-                    color: '#b91c1c',
+                    background: 'var(--badge-red-bg)',
+                    border: '1px solid var(--badge-red-border)',
+                    color: 'var(--danger)',
                     fontSize: 12,
                   }}
                 >
@@ -459,7 +478,13 @@ export function DocumentUploadModal({
 
             {/* Bottom Actions */}
             <div className="doc-upload-footer">
-              <Button variant="secondary" type="button" onClick={() => onOpenChange(false)}>
+              <Button
+                variant="secondary"
+                type="button"
+                onClick={async () => {
+                  if (!isUploading && (!dirty || (await confirmDiscard()))) onOpenChange(false);
+                }}
+              >
                 {t('Cancel')}
               </Button>
               <Button
@@ -515,7 +540,7 @@ export function DocumentUploadModal({
                   </strong>
                   <p style={{ margin: 0, fontSize: 12, maxWidth: 260 }}>
                     {t(
-                      'Choose or drop a PDF, Word document, or image on the left to see an instant real-time preview.'
+                      'Choose or drop a PDF, Word document, or image on the left to see an instant real-time preview.',
                     )}
                   </p>
                   <div
@@ -553,15 +578,14 @@ export function DocumentUploadModal({
                   {isParsingDocx ? (
                     <div style={{ padding: 30, textAlign: 'center' }}>
                       <Loader2 size={24} className="spin" style={{ margin: '0 auto 8px auto' }} />
-                      <p style={{ fontSize: 12, color: '#64748b' }}>
+                      <p style={{ fontSize: 12, color: 'var(--muted)' }}>
                         {t('Converting Word document for preview…')}
                       </p>
                     </div>
                   ) : (
-                    <div
-                      className="doc-docx-paper"
-                      dangerouslySetInnerHTML={{ __html: docxHtml || '' }}
-                    />
+                    <div className="doc-docx-paper" style={{ whiteSpace: 'pre-wrap' }}>
+                      {docxText}
+                    </div>
                   )}
                 </div>
               ) : (

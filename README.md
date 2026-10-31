@@ -52,7 +52,9 @@ npm audit
 
 API generation reads `../BE/docs/openapi.json`, with `../PMS-BE` as a fallback. After backend schema changes, run `npm run db:generate`, `npm run build` and `npm run openapi` inside the backend, then regenerate frontend contracts. `npm run test:portal` runs the separate portal browser tests with intercepted API fixtures and no backend services.
 
-Browser/desktop integration tests require the backend dependencies running in Docker, installed Electron binaries, and a current build in `PMS-FE/dist`. They start a separate API/worker on port 4100 and Vite on 3100. They reset **only** the dedicated `pms_frontend_test` database, Redis database 5, and use the `pms-frontend-test` storage bucket. Do not use those test resources for application data. Test credentials and screenshots are written to ignored `test-results`; the HTML report is `playwright-report/index.html`. The main application database is not seeded with demonstration transactions.
+Browser/desktop integration tests require the backend dependencies running in Docker, installed Electron binaries, and current builds in `../BE/dist` and `dist`. They start a separate API/worker on port 4100 and Vite on 3100. They reset **only** the dedicated `pms_frontend_test` database and Redis database 5. Uploads stay in `test-results/backend-uploads`, external SMS/push are disabled, and email is directed to local Mailpit on port 1025. Do not use those test resources for application data. Test credentials and screenshots are written to ignored `test-results`; the HTML report is `playwright-report/index.html`. The main application database is not seeded with demonstration transactions.
+
+QR verification links use the backend's `PUBLIC_WEB_URL`, with an optional `VITE_PUBLIC_WEB_URL` build override. Use the public HTTP(S) web origin reachable by the scanning device. Native builds reject internal app schemes as QR destinations. Deploy the frontend and backend together after regenerating API contracts.
 
 ## Native apps
 

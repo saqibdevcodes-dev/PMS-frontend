@@ -9,8 +9,10 @@ import { z } from 'zod';
 import { connectNative } from './platform/adapter';
 import { queryClient } from './lib/query';
 import { usePreferences } from './stores/preferences';
+import { applyTheme, useTheme } from './hooks/use-theme';
 import '@fontsource-variable/inter';
 import './styles/index.css';
+import './styles/print.css';
 function Root() {
   useLocale();
   const language = usePreferences((s) => s.language);
@@ -20,7 +22,7 @@ function Root() {
     const locales = z.locales as Record<string, () => ReturnType<typeof z.locales.en>>;
     z.config((locales[language] ?? z.locales.en)());
   }, [language]);
-  const theme = usePreferences((s) => s.theme);
+  const theme = useTheme();
   useEffect(() => {
     const cleanup = connectNative(
       () => {
@@ -35,16 +37,6 @@ function Root() {
       void cleanup.then((dispose) => dispose());
     };
   }, []);
-  useEffect(() => {
-    const media = window.matchMedia('(prefers-color-scheme: dark)');
-    const apply = () => {
-      document.documentElement.dataset.theme =
-        theme === 'system' ? (media.matches ? 'dark' : 'light') : theme;
-    };
-    apply();
-    media.addEventListener('change', apply);
-    return () => media.removeEventListener('change', apply);
-  }, [theme]);
   return (
     <QueryClientProvider client={queryClient}>
       <App />
@@ -53,6 +45,7 @@ function Root() {
     </QueryClientProvider>
   );
 }
+applyTheme(usePreferences.getState().theme);
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <Root />

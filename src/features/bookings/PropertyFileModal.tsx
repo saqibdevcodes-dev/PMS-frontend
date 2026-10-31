@@ -1,10 +1,12 @@
+import { useVerificationLink } from '../../lib/verification-link';
+import { Money } from '../../components/Money';
 import { t, useLocale } from '../../lib/i18n';
 import { useQuery } from '@tanstack/react-query';
 import { Printer, ShieldCheck, X } from 'lucide-react';
 import { api } from '../../lib/api';
 import { usePreferences } from '../../stores/preferences';
 import { asRows, row, type Row } from '../../lib/types';
-import { money, date, humanize } from '../../lib/format';
+import { date, humanize } from '../../lib/format';
 import { Button, Modal, Skeleton, ErrorState } from '../../components/ui';
 import { QRCode } from '../../components/QRCode';
 import { ProjectLogo } from '../../components/ProjectLogo';
@@ -31,6 +33,7 @@ export function PropertyFileModal({
   });
 
   const booking = query.data ?? {};
+  const verifyUrl = useVerificationLink({ ref: String(booking.reference ?? '') });
   const customer = row(booking.customer);
   const unit = row(booking.unit);
   const position = row(booking.position);
@@ -38,9 +41,8 @@ export function PropertyFileModal({
   const nominees = asRows(customer.nominees);
   const primaryNominee = nominees[0];
 
-  const verifyUrl = `${window.location.origin}/verify?ref=${encodeURIComponent(String(booking.reference ?? ''))}`;
-
   const handlePrint = () => {
+    if (!verifyUrl) return toast.error(t('Verification link is still loading. Please try again.'));
     void print().catch((error) => toast.error(errorMessage(error)));
   };
 
@@ -136,9 +138,13 @@ export function PropertyFileModal({
                       '—'}
                   </dd>
                   <dt>{t('Base Price')}</dt>
-                  <dd>{money(booking.basePrice)}</dd>
+                  <dd>
+                    <Money value={booking.basePrice} />
+                  </dd>
                   <dt>{t('Total Value')}</dt>
-                  <dd style={{ color: '#0f172a', fontWeight: 800 }}>{money(booking.total)}</dd>
+                  <dd style={{ color: 'var(--text)', fontWeight: 800 }}>
+                    <Money value={booking.total} />
+                  </dd>
                 </dl>
               </div>
             </div>
@@ -147,20 +153,28 @@ export function PropertyFileModal({
             <div className="sheet-financials">
               <div className="financial-metric">
                 <span>{t('Total Contract')}</span>
-                <strong>{money(booking.total)}</strong>
+                <strong>
+                  <Money value={booking.total} />
+                </strong>
               </div>
               <div className="financial-metric metric-green">
                 <span>{t('Total Received')}</span>
-                <strong>{money(position.collected ?? 0)}</strong>
+                <strong>
+                  <Money value={position.collected ?? 0} />
+                </strong>
               </div>
               <div className="financial-metric metric-amber">
                 <span>{t('Outstanding Balance')}</span>
-                <strong>{money(position.outstanding ?? 0)}</strong>
+                <strong>
+                  <Money value={position.outstanding ?? 0} />
+                </strong>
               </div>
               <div className="financial-metric">
                 <span>{t('Overdue Amount')}</span>
-                <strong style={{ color: Number(position.overdue) > 0 ? '#dc2626' : undefined }}>
-                  {money(position.overdue ?? 0)}
+                <strong
+                  style={{ color: Number(position.overdue) > 0 ? 'var(--danger)' : undefined }}
+                >
+                  <Money value={position.overdue ?? 0} />
                 </strong>
               </div>
             </div>
@@ -187,9 +201,15 @@ export function PropertyFileModal({
                         <td>{idx + 1}</td>
                         <td>{String(inst.label ?? `Installment ${idx + 1}`)}</td>
                         <td>{date(String(inst.dueDate ?? ''))}</td>
-                        <td className="text-right">{money(inst.amount)}</td>
-                        <td className="text-right">{money(inst.paid ?? 0)}</td>
-                        <td className="text-right">{money(inst.outstanding ?? 0)}</td>
+                        <td className="text-right">
+                          <Money value={inst.amount} />
+                        </td>
+                        <td className="text-right">
+                          <Money value={inst.paid ?? 0} />
+                        </td>
+                        <td className="text-right">
+                          <Money value={inst.outstanding ?? 0} />
+                        </td>
                         <td>
                           <span
                             style={{
@@ -199,7 +219,7 @@ export function PropertyFileModal({
                                 Number(inst.outstanding) === 0
                                   ? '#166534'
                                   : Number(inst.overdue) > 0
-                                    ? '#dc2626'
+                                    ? 'var(--danger)'
                                     : '#b45309',
                             }}
                           >
@@ -224,7 +244,7 @@ export function PropertyFileModal({
                 <small>{t('Scan to Verify')}</small>
               </div>
               <div className="verification-notice">
-                <ShieldCheck size={18} style={{ color: '#166534', marginBottom: 4 }} />
+                <ShieldCheck size={18} style={{ color: 'var(--success)', marginBottom: 4 }} />
                 <p>
                   <strong>{t('Digitally Verified Computerized Record')}</strong>
                   <br />

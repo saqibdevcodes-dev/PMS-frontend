@@ -1,3 +1,4 @@
+import { Money } from '../../components/Money';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import {
@@ -11,7 +12,7 @@ import {
   Coins,
 } from 'lucide-react';
 import { t } from '../../lib/i18n';
-import { money, date, humanize } from '../../lib/format';
+import { date, humanize } from '../../lib/format';
 import { row, type Row } from '../../lib/types';
 import './purchase-table.css';
 
@@ -31,7 +32,15 @@ export const purchaseColumnLabels: Record<string, string> = {
 export function PropertyPurchaseGuide() {
   return (
     <div className="purchase-guide-banner">
-      <div className="purchase-guide-header" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '16px' }}>
+      <div
+        className="purchase-guide-header"
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          gap: '16px',
+        }}
+      >
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
           <div className="purchase-guide-icon">
             <Building2 size={20} />
@@ -209,7 +218,9 @@ export function purchaseCell(
   if (column === 'price') {
     return (
       <div className="purchase-cell-stack">
-        <span className="numeric">{money(record.price)}</span>
+        <span className="numeric">
+          <Money value={record.price} />
+        </span>
         <small className="muted">{t('Base price')}</small>
       </div>
     );
@@ -222,7 +233,9 @@ export function purchaseCell(
     const itemsCount = Array.isArray(record.expenseItems) ? record.expenseItems.length : 0;
     return extra > 0 ? (
       <div className="purchase-cell-stack">
-        <span className="numeric purchase-extra-amount">+{money(extra)}</span>
+        <span className="numeric purchase-extra-amount">
+          +<Money value={extra} />
+        </span>
         <small className="muted">
           {itemsCount > 0
             ? t('{count} expenses & fees', { count: itemsCount })
@@ -237,7 +250,9 @@ export function purchaseCell(
   if (column === 'total') {
     return (
       <div className="purchase-cell-stack">
-        <strong className="numeric purchase-total-cost">{money(record.total)}</strong>
+        <strong className="numeric purchase-total-cost">
+          <Money value={record.total} />
+        </strong>
         <small className="muted">{t('Total acquisition')}</small>
       </div>
     );

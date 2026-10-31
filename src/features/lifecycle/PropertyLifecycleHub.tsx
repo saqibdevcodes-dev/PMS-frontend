@@ -1,3 +1,7 @@
+import { can } from '../../stores/auth';
+import { ProjectRequired, Unauthorized } from '../resources/ResourcePage';
+import { MoneyInput } from '../../components/MoneyInput';
+import { Money } from '../../components/Money';
 import { useState, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
@@ -13,7 +17,6 @@ import {
   Eye,
   FileSpreadsheet,
   RefreshCw,
-  Coins,
   Sparkles,
   ArrowUpRight,
   Tag,
@@ -23,11 +26,20 @@ import {
 import { toast } from 'sonner';
 import { api, ApiError } from '../../lib/api';
 import { usePreferences } from '../../stores/preferences';
-import { t } from '../../lib/i18n';
-import { money, date } from '../../lib/format';
-import { Button, Modal, Skeleton, EmptyState, ErrorState, Badge } from '../../components/ui';
+import { t, useLocale } from '../../lib/i18n';
+import { date, moneyWithWords } from '../../lib/format';
+import {
+  Button,
+  Modal,
+  PageHeading,
+  Skeleton,
+  EmptyState,
+  ErrorState,
+  Badge,
+} from '../../components/ui';
 import { PropertyPurchaseWizard } from '../resources/PropertyPurchaseWizard';
 import { JournalVoucher } from '../resources/JournalVoucher';
+import '../dashboard/deal-profitability.css';
 import './property-lifecycle.css';
 
 interface DealExpenseItem {
@@ -83,7 +95,7 @@ interface LifecycleDeal {
   collected: string;
   netProfit: string | null;
   profitMarginPercent: string | null;
-  dealStatus: 'SOLD' | 'BOOKED' | 'AVAILABLE' | 'DRAFT';
+  dealStatus: 'SOLD' | 'BOOKED' | 'AVAILABLE' | 'DRAFT' | 'UNLISTED';
 }
 
 interface DealsResponse {
@@ -103,13 +115,16 @@ interface DealsResponse {
 }
 
 export default function PropertyLifecycleHub() {
+  useLocale();
   const projectId = usePreferences((s) => s.projectId);
   const preferredCurrency = usePreferences((s) => s.currency) || 'PKR';
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
   // Active Tab: ALL, DRAFT (Steps 1-3), LISTED (Step 4), BOOKED (Step 5), SOLD (Step 6)
-  const [activeTab, setActiveTab] = useState<'ALL' | 'DRAFT' | 'LISTED' | 'BOOKED' | 'SOLD'>('ALL');
+  const [activeTab, setActiveTab] = useState<
+    'ALL' | 'DRAFT' | 'UNLISTED' | 'LISTED' | 'BOOKED' | 'SOLD'
+  >('ALL');
   const [searchQuery, setSearchQuery] = useState('');
 
   // Modals & Action States
@@ -123,7 +138,7 @@ export default function PropertyLifecycleHub() {
   // Fetch full unified lifecycle dataset
   const { data, isLoading, isError, error, refetch, isFetching } = useQuery<DealsResponse>({
     queryKey: ['deal-profitability', projectId],
-    enabled: !!projectId,
+    enabled: !!projectId && can('reports.read'),
     queryFn: ({ signal }) =>
       api<DealsResponse>(`/projects/${projectId}/deal-profitability`, { signal }),
   });
@@ -146,23 +161,26 @@ export default function PropertyLifecycleHub() {
   const counts = useMemo(() => {
     let draftCount = 0;
     let listedCount = 0;
+    let unlistedCount = 0;
     let bookedCount = 0;
     let soldCount = 0;
 
     for (const d of deals) {
       if (d.dealStatus === 'DRAFT') draftCount++;
       else if (d.dealStatus === 'AVAILABLE') listedCount++;
+      else if (d.dealStatus === 'UNLISTED') unlistedCount++;
       else if (d.dealStatus === 'BOOKED') bookedCount++;
       else if (d.dealStatus === 'SOLD') soldCount++;
     }
 
-    return { draftCount, listedCount, bookedCount, soldCount, total: deals.length };
+    return { draftCount, unlistedCount, listedCount, bookedCount, soldCount, total: deals.length };
   }, [deals]);
 
   // Tab & Search filter
   const filteredDeals = useMemo(() => {
     return deals.filter((d) => {
       // Tab filter
+      if (activeTab === 'UNLISTED' && d.dealStatus !== 'UNLISTED') return false;
       if (activeTab === 'DRAFT' && d.dealStatus !== 'DRAFT') return false;
       if (activeTab === 'LISTED' && d.dealStatus !== 'AVAILABLE') return false;
       if (activeTab === 'BOOKED' && d.dealStatus !== 'BOOKED') return false;
@@ -170,7 +188,7 @@ export default function PropertyLifecycleHub() {
 
       // Search filter
       if (!searchQuery.trim()) return true;
-      const q = searchQuery.toLowerCase();
+      const q = searchQuery.trim().toLowerCase();
       return (
         d.title?.toLowerCase().includes(q) ||
         d.reference?.toLowerCase().includes(q) ||
@@ -213,10 +231,14 @@ export default function PropertyLifecycleHub() {
       const purchase = await api<{ id: string; total: string; updatedAt: string }>(
         `/projects/${projectId}/property-purchases/${deal.id}`,
       );
+      if (purchase.total !== deal.totalCost)
+        throw new Error(
+          'Purchase costs changed. Refresh the lifecycle and review the current amount before finalizing.',
+        );
       return api(`/projects/${projectId}/property-purchases/${deal.id}/post`, {
         method: 'POST',
         body: {
-          expectedTotal: purchase.total,
+          expectedTotal: deal.totalCost,
           expectedUpdatedAt: purchase.updatedAt,
         },
       });
@@ -232,169 +254,174 @@ export default function PropertyLifecycleHub() {
     },
   });
 
+  if (!can('reports.read')) return <Unauthorized />;
+  if (!projectId) return <ProjectRequired />;
   return (
     <div className="lifecycle-page">
-      {/* Header & Primary Actions */}
-      <div className="lifecycle-header">
-        <div className="lifecycle-header-title-box">
-          <div className="lifecycle-header-icon">
-            <Coins size={26} />
-          </div>
-          <div>
-            <h1>{t('Property Lifecycle & Financial Workflow Hub')}</h1>
-            <p>
-              {t(
-                'Unified acquisition-to-resale management: Registration → Seller Purchase → Expense Management → Listed for Sale → Customer Booking → Sold P&L.',
-              )}
-            </p>
-          </div>
+      <PageHeading
+        eyebrow={t('Property portfolio')}
+        title={t('Property lifecycle')}
+        description={t(
+          'Track each property from purchase to sale, with costs and the next action in one place.',
+        )}
+        actions={
+          <>
+            <Button variant="ghost" onClick={() => void refetch()} disabled={isFetching}>
+              <RefreshCw size={15} className={isFetching ? 'spin' : ''} />
+              {t('Refresh')}
+            </Button>
+            <Button
+              disabled={!can('reports.export')}
+              variant="secondary"
+              onClick={() => navigate('/reports?kind=deal-profitability')}
+            >
+              <FileSpreadsheet size={15} />
+              {t('Export report')}
+            </Button>
+            <Button
+              disabled={!can('finance.post') || !can('finance.read')}
+              onClick={() => setShowAddPurchaseModal(true)}
+            >
+              <Plus size={16} />
+              {t('Add property & purchase')}
+            </Button>
+          </>
+        }
+      />
+      <section className="lifecycle-guide" aria-label={t('Purchase to sale workflow')}>
+        <div className="lifecycle-guide-heading">
+          <h2>{t('From purchase to sale')}</h2>
+          <p>{t('Choose a stage to see its properties and what to do next.')}</p>
         </div>
-
-        <div className="lifecycle-header-actions">
-          <Button
-            variant="ghost"
-            size="small"
-            onClick={() => refetch()}
-            disabled={isFetching}
-            title="Refresh deal metrics"
-          >
-            <RefreshCw size={14} className={isFetching ? 'animate-spin' : ''} />
-            <span>Refresh</span>
-          </Button>
-
-          <Button
-            variant="secondary"
-            size="small"
-            onClick={() => navigate('/reports?kind=deal-profitability')}
-          >
-            <FileSpreadsheet size={14} />
-            <span>Export Full P&L</span>
-          </Button>
-
-          <Button
-            variant="primary"
-            size="normal"
-            onClick={() => setShowAddPurchaseModal(true)}
-          >
-            <Plus size={16} />
-            <span>+ Add Property & Purchase</span>
-          </Button>
+        <div className="lifecycle-pipeline-track">
+          {(
+            [
+              {
+                key: 'DRAFT',
+                title: 'Purchase & costs',
+                description: 'Record the seller, add expenses, then finalize the investment.',
+                count: counts.draftCount,
+              },
+              {
+                key: 'UNLISTED',
+                title: 'Ready to list',
+                description:
+                  'Investment finalized. Set an asking price to make the property available.',
+                count: counts.unlistedCount,
+              },
+              {
+                key: 'LISTED',
+                title: 'Available for sale',
+                description: 'Set an asking price and create a customer booking.',
+                count: counts.listedCount,
+              },
+              {
+                key: 'BOOKED',
+                title: 'Customer booking',
+                description: 'Review the booking and follow up on the customer contract.',
+                count: counts.bookedCount,
+              },
+              {
+                key: 'SOLD',
+                title: 'Sold & closed',
+                description: 'Review the sale value, collections and final profit.',
+                count: counts.soldCount,
+              },
+            ] as const
+          ).map((stage, index) => (
+            <button
+              key={stage.key}
+              type="button"
+              className={`pipeline-step-node ${activeTab === stage.key ? 'active-stage' : ''}`}
+              aria-pressed={activeTab === stage.key}
+              onClick={() => setActiveTab(stage.key)}
+            >
+              <span className="pipeline-step-badge">
+                <span className="step-num">{index + 1}</span>
+                <span>{stage.count}</span>
+              </span>
+              <span className="pipeline-step-title">{t(stage.title)}</span>
+              <span className="pipeline-step-desc">{t(stage.description)}</span>
+            </button>
+          ))}
         </div>
-      </div>
-
-      {/* Complete Visual 6-Step Pipeline Track */}
-      <div className="lifecycle-pipeline-track">
-        {/* Step 1 */}
-        <div className={`pipeline-step-node ${activeTab === 'DRAFT' ? 'active-stage' : ''}`}>
-          <div className="pipeline-step-badge">
-            <span>Stage 1</span>
-            <span className="step-num">1</span>
-          </div>
-          <div className="pipeline-step-title">Add Property</div>
-          <div className="pipeline-step-desc">Register unit number, size, type & location details.</div>
-        </div>
-
-        {/* Step 2 */}
-        <div className={`pipeline-step-node ${activeTab === 'DRAFT' ? 'active-stage' : ''}`}>
-          <div className="pipeline-step-badge">
-            <span>Stage 2</span>
-            <span className="step-num">2</span>
-          </div>
-          <div className="pipeline-step-title">Purchase Details</div>
-          <div className="pipeline-step-desc">Acquire via seller/individual or dealer with commission.</div>
-        </div>
-
-        {/* Step 3 */}
-        <div className={`pipeline-step-node ${activeTab === 'DRAFT' ? 'active-stage' : ''}`}>
-          <div className="pipeline-step-badge">
-            <span>Stage 3</span>
-            <span className="step-num">3</span>
-          </div>
-          <div className="pipeline-step-title">Expenses & Finalize</div>
-          <div className="pipeline-step-desc">Itemize renovation/civil/taxes & lock total investment.</div>
-        </div>
-
-        {/* Step 4 */}
-        <div className={`pipeline-step-node ${activeTab === 'LISTED' ? 'active-stage' : ''}`}>
-          <div className="pipeline-step-badge">
-            <span>Stage 4</span>
-            <span className="step-num">4</span>
-          </div>
-          <div className="pipeline-step-title">Move to Selling</div>
-          <div className="pipeline-step-desc">Set asking price & list in available inventory.</div>
-        </div>
-
-        {/* Step 5 */}
-        <div className={`pipeline-step-node ${activeTab === 'BOOKED' ? 'active-stage' : ''}`}>
-          <div className="pipeline-step-badge">
-            <span>Stage 5</span>
-            <span className="step-num">5</span>
-          </div>
-          <div className="pipeline-step-title">Customer Booking</div>
-          <div className="pipeline-step-desc">Book customer & collect down payment / installments.</div>
-        </div>
-
-        {/* Step 6 */}
-        <div className={`pipeline-step-node ${activeTab === 'SOLD' ? 'active-stage' : ''}`}>
-          <div className="pipeline-step-badge">
-            <span>Stage 6</span>
-            <span className="step-num">6</span>
-          </div>
-          <div className="pipeline-step-title">Final Sale & P&L</div>
-          <div className="pipeline-step-desc">Record actual sold price & realize final net profit & ROI.</div>
-        </div>
-      </div>
+      </section>
 
       {/* 4 Summary KPI Cards */}
       <div className="lifecycle-kpi-grid">
         <div className="lifecycle-kpi-card">
           <div className="kpi-label">
-            <span>Total Capital Invested</span>
+            <span>{t('Total investment')}</span>
             <Building2 size={16} color="var(--primary)" />
           </div>
-          <div className="kpi-val">{money(summary.totalInvestedCost, currency)}</div>
+          <div className="kpi-val">
+            <Money value={summary.totalInvestedCost} currency={currency} />
+          </div>
           <div className="kpi-sub">
-            <span>Base Buy Price: <strong>{money(summary.totalBuyPrice, currency)}</strong></span>
+            <span>
+              Purchase price:{' '}
+              <strong>
+                <Money value={summary.totalBuyPrice} currency={currency} />
+              </strong>
+            </span>
           </div>
         </div>
 
         <div className="lifecycle-kpi-card">
           <div className="kpi-label">
-            <span>Renovation & Direct Expenses</span>
-            <Receipt size={16} color="#d97706" />
+            <span>{t('Direct expenses')}</span>
+            <Receipt size={16} color="var(--warning)" />
           </div>
-          <div className="kpi-val" style={{ color: '#d97706' }}>
-            +{money(summary.totalExpenses, currency)}
+          <div className="kpi-val" style={{ color: 'var(--warning)' }}>
+            +<Money value={summary.totalExpenses} currency={currency} />
           </div>
           <div className="kpi-sub">
-            <span>Taxes, legal, brokerage & contractor works</span>
+            <span>Included in total investment</span>
           </div>
         </div>
 
         <div className="lifecycle-kpi-card">
           <div className="kpi-label">
-            <span>Realized Resale Revenue</span>
-            <TrendingUp size={16} color="#2563eb" />
+            <span>{t('Contracted sales')}</span>
+            <TrendingUp size={16} color="var(--primary)" />
           </div>
-          <div className="kpi-val" style={{ color: '#2563eb' }}>
-            {money(summary.totalSalesRevenue, currency)}
+          <div className="kpi-val" style={{ color: 'var(--primary)' }}>
+            <Money value={summary.totalSalesRevenue} currency={currency} />
           </div>
           <div className="kpi-sub">
-            <span>{summary.soldCount} of {summary.totalAcquisitions} properties contracted</span>
+            <span>
+              {summary.soldCount} of {summary.totalAcquisitions} properties under contract
+            </span>
           </div>
         </div>
 
         <div className="lifecycle-kpi-card">
           <div className="kpi-label">
-            <span>Total Realized Profit & ROI</span>
-            <Sparkles size={16} color="#059669" />
+            <span>{t('Net profit / loss')}</span>
+            <Sparkles size={16} color="var(--success)" />
           </div>
-          <div className="kpi-val" style={{ color: '#059669' }}>
-            +{money(summary.totalRealizedProfit, currency)}
+          <div
+            className="kpi-val"
+            style={{
+              color: Number(summary.totalRealizedProfit) < 0 ? 'var(--danger)' : 'var(--success)',
+            }}
+          >
+            <Money value={summary.totalRealizedProfit} currency={currency} />
           </div>
           <div className="kpi-sub">
-            <span className="deal-margin-badge">
-              +{summary.averageMarginPercent}% Avg Margin
+            <span
+              className="deal-margin-badge"
+              style={
+                Number(summary.averageMarginPercent) < 0
+                  ? {
+                      color: 'var(--badge-red-text)',
+                      background: 'var(--badge-red-bg)',
+                      borderColor: 'var(--badge-red-border)',
+                    }
+                  : undefined
+              }
+            >
+              {summary.averageMarginPercent}% ROI
             </span>
             <span style={{ fontSize: '11px' }}>({summary.availableCount} in portfolio)</span>
           </div>
@@ -408,6 +435,7 @@ export default function PropertyLifecycleHub() {
             <button
               type="button"
               className={`lifecycle-tab-btn ${activeTab === 'ALL' ? 'active' : ''}`}
+              aria-pressed={activeTab === 'ALL'}
               onClick={() => setActiveTab('ALL')}
             >
               <span>All Properties</span>
@@ -417,49 +445,71 @@ export default function PropertyLifecycleHub() {
             <button
               type="button"
               className={`lifecycle-tab-btn ${activeTab === 'DRAFT' ? 'active' : ''}`}
+              aria-pressed={activeTab === 'DRAFT'}
               onClick={() => setActiveTab('DRAFT')}
             >
               <Clock size={13} />
-              <span>1-3. Purchase & Expenses In-Progress</span>
+              <span>{t('Purchase & costs')}</span>
               <span className="lifecycle-tab-badge">{counts.draftCount}</span>
             </button>
 
             <button
               type="button"
+              className={`lifecycle-tab-btn ${activeTab === 'UNLISTED' ? 'active' : ''}`}
+              aria-pressed={activeTab === 'UNLISTED'}
+              onClick={() => setActiveTab('UNLISTED')}
+            >
+              <span>{t('Ready to list')}</span>
+              <span className="lifecycle-tab-badge">{counts.unlistedCount}</span>
+            </button>
+
+            <button
+              type="button"
               className={`lifecycle-tab-btn ${activeTab === 'LISTED' ? 'active' : ''}`}
+              aria-pressed={activeTab === 'LISTED'}
               onClick={() => setActiveTab('LISTED')}
             >
               <Tag size={13} />
-              <span>4. Listed for Sale (Available)</span>
+              <span>{t('Available for sale')}</span>
               <span className="lifecycle-tab-badge">{counts.listedCount}</span>
             </button>
 
             <button
               type="button"
               className={`lifecycle-tab-btn ${activeTab === 'BOOKED' ? 'active' : ''}`}
+              aria-pressed={activeTab === 'BOOKED'}
               onClick={() => setActiveTab('BOOKED')}
             >
               <UserCheck size={13} />
-              <span>5. Booked Properties</span>
+              <span>{t('Booked')}</span>
               <span className="lifecycle-tab-badge">{counts.bookedCount}</span>
             </button>
 
             <button
               type="button"
               className={`lifecycle-tab-btn ${activeTab === 'SOLD' ? 'active' : ''}`}
+              aria-pressed={activeTab === 'SOLD'}
               onClick={() => setActiveTab('SOLD')}
             >
               <CheckCircle2 size={13} />
-              <span>6. Sold & Closed Deals</span>
+              <span>{t('Sold & closed')}</span>
               <span className="lifecycle-tab-badge">{counts.soldCount}</span>
             </button>
           </div>
-
+        </div>
+        <div className="lifecycle-table-toolbar">
+          <div>
+            <h2>{t('Property overview')}</h2>
+            <p>
+              {filteredDeals.length} / {deals.length} {t('properties')} &middot; {currency}
+            </p>
+          </div>
           <div className="lifecycle-search">
             <Search size={14} color="var(--muted)" />
             <input
-              type="text"
-              placeholder="Search title, unit #, seller, buyer..."
+              type="search"
+              aria-label={t('Search properties')}
+              placeholder={t('Search property, seller or buyer...')}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
@@ -473,332 +523,334 @@ export default function PropertyLifecycleHub() {
           </div>
         ) : isError ? (
           <div style={{ padding: '24px' }}>
-            <ErrorState error={error} />
+            <ErrorState error={error} retry={() => void refetch()} />
           </div>
         ) : filteredDeals.length === 0 ? (
           <div style={{ padding: '40px 20px' }}>
             <EmptyState
               compact
               title="No properties in this lifecycle stage"
-              description="Click '+ Add Property & Purchase' to register your first property acquisition and start the complete purchase-to-sale lifecycle."
+              description={
+                searchQuery || activeTab !== 'ALL'
+                  ? t('Try another search or choose All properties.')
+                  : t('Add your first property purchase to start tracking its costs and sale.')
+              }
+              action={
+                searchQuery || activeTab !== 'ALL' ? (
+                  <Button
+                    variant="secondary"
+                    onClick={() => {
+                      setSearchQuery('');
+                      setActiveTab('ALL');
+                    }}
+                  >
+                    {t('Clear filters')}
+                  </Button>
+                ) : (
+                  <Button
+                    disabled={!can('finance.post') || !can('finance.read')}
+                    onClick={() => setShowAddPurchaseModal(true)}
+                  >
+                    {t('Add property & purchase')}
+                  </Button>
+                )
+              }
             />
           </div>
         ) : (
-          <div className="lifecycle-table-wrap">
-            <table className="lifecycle-table">
-              <thead>
-                <tr>
-                  <th>Property / Unit</th>
-                  <th>Current Lifecycle Stage</th>
-                  <th>Seller (Buy Origin)</th>
-                  <th>Buy Price</th>
-                  <th>Direct Expenses</th>
-                  <th>Total Cost Basis</th>
-                  <th>Asking / Sold Price</th>
-                  <th>Buyer (Customer)</th>
-                  <th>Net Profit & Margin</th>
-                  <th style={{ textAlign: 'right' }}>Workflow Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredDeals.map((deal) => {
-                  const totalExpNum = Number(deal.expenses?.total ?? 0);
-                  const isSold = deal.dealStatus === 'SOLD';
-                  const isBooked = deal.dealStatus === 'BOOKED';
-                  const isAvailable = deal.dealStatus === 'AVAILABLE';
-                  const isDraft = deal.dealStatus === 'DRAFT';
-                  const hasProfit = deal.netProfit && Number(deal.netProfit) >= 0;
-
-                  return (
-                    <tr key={deal.id}>
-                      {/* Property / Unit */}
-                      <td>
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '3px' }}>
-                          <span style={{ fontWeight: 650, color: 'var(--text)' }}>
-                            {deal.title}
-                          </span>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                            {deal.unit ? (
-                              <span className="deal-unit-tag">
-                                <Building2 size={11} /> Unit {deal.unit.number}
-                              </span>
-                            ) : null}
-                            {deal.location ? (
-                              <span style={{ fontSize: '11px', color: 'var(--muted)' }}>
-                                {deal.location}
-                              </span>
-                            ) : null}
-                          </div>
-                        </div>
-                      </td>
-
-                      {/* Current Stage Badge */}
-                      <td>
-                        {isDraft ? (
-                          <span className="deal-stage-pill step-draft">
-                            <Clock size={11} /> Draft Expenses In-Progress
-                          </span>
-                        ) : isAvailable ? (
-                          <span className="deal-stage-pill step-listed">
-                            <Tag size={11} /> Listed for Sale
-                          </span>
-                        ) : isBooked ? (
-                          <span className="deal-stage-pill step-booked">
-                            <UserCheck size={11} /> Booked
-                          </span>
-                        ) : (
-                          <span className="deal-stage-pill step-sold">
-                            <CheckCircle2 size={11} /> Sold & Closed
-                          </span>
-                        )}
-                      </td>
-
-                      {/* Seller */}
-                      <td>
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
-                          <span style={{ fontWeight: 600, color: 'var(--text)' }}>
-                            {deal.seller?.name || 'Direct Seller'}
-                          </span>
-                          {deal.seller?.phone ? (
-                            <span style={{ fontSize: '11px', color: 'var(--muted)' }}>
-                              {deal.seller.phone}
-                            </span>
-                          ) : null}
-                        </div>
-                      </td>
-
-                      {/* Buy Price */}
-                      <td>
-                        <div style={{ fontWeight: 650, color: 'var(--text)' }}>
-                          {money(deal.buyPrice, currency)}
-                        </div>
-                        <span style={{ fontSize: '10.5px', color: 'var(--muted)' }}>
-                          {date(deal.purchaseDate)}
-                        </span>
-                      </td>
-
-                      {/* Expenses */}
-                      <td>
-                        {totalExpNum > 0 ? (
+          <>
+            <div
+              className="lifecycle-table-wrap"
+              role="region"
+              aria-label={t('Property overview')}
+              tabIndex={0}
+            >
+              <table className="lifecycle-table">
+                <caption className="sr-only">
+                  {t('Property costs, sale values and next actions')}
+                </caption>
+                <colgroup>
+                  <col className="lc-property-col" />
+                  <col className="lc-stage-col" />
+                  <col className="lc-people-col" />
+                  <col className="lc-cost-col" />
+                  <col className="lc-sale-col" />
+                  <col className="lc-profit-col" />
+                  <col className="lc-actions-col" />
+                </colgroup>
+                <thead>
+                  <tr>
+                    <th scope="col">{t('Property / unit')}</th>
+                    <th scope="col">{t('Stage')}</th>
+                    <th scope="col">{t('Seller & buyer')}</th>
+                    <th scope="col" className="lc-number">
+                      {t('Investment cost')}
+                    </th>
+                    <th scope="col" className="lc-number">
+                      {t('Sale value')}
+                    </th>
+                    <th scope="col" className="lc-number">
+                      {t('Profit / loss')}
+                    </th>
+                    <th scope="col">{t('Next action')}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredDeals.map((deal) => {
+                    const isDraft = deal.dealStatus === 'DRAFT';
+                    const isAvailable = deal.dealStatus === 'AVAILABLE';
+                    const isUnlisted = deal.dealStatus === 'UNLISTED';
+                    const isSold = deal.dealStatus === 'SOLD';
+                    const hasProfit = deal.netProfit != null && Number(deal.netProfit) >= 0;
+                    const stageClass = isDraft
+                      ? 'step-draft'
+                      : isAvailable
+                        ? 'step-listed'
+                        : isSold
+                          ? 'step-sold'
+                          : 'step-booked';
+                    const stageLabel = isUnlisted
+                      ? 'Ready to list'
+                      : isDraft
+                        ? 'Purchase & costs'
+                        : isAvailable
+                          ? 'Available for sale'
+                          : isSold
+                            ? 'Sold & closed'
+                            : 'Booked';
+                    const price = deal.salePrice ?? deal.unit?.listedPrice;
+                    return (
+                      <tr key={deal.id}>
+                        <th scope="row" className="lc-property-cell">
                           <button
                             type="button"
-                            className="deal-expenses-pill"
+                            className="lc-property-link"
                             onClick={() => setInspectDeal(deal)}
-                            title="View itemized expenses breakdown"
                           >
-                            <Receipt size={12} />
-                            +{money(deal.expenses.total, currency)}
+                            {deal.title}
                           </button>
-                        ) : (
-                          <span style={{ fontSize: '11px', color: 'var(--muted)' }}>Rs. 0</span>
-                        )}
-                      </td>
-
-                      {/* Total Invested Cost */}
-                      <td>
-                        <div style={{ fontWeight: 700, color: 'var(--text)' }}>
-                          {money(deal.totalCost, currency)}
-                        </div>
-                        <span style={{ fontSize: '10px', color: 'var(--muted)' }}>
-                          Buy + Expenses
-                        </span>
-                      </td>
-
-                      {/* Asking vs Actual Sold Price */}
-                      <td>
-                        {isSold ? (
-                          <div>
-                            <div style={{ fontWeight: 700, color: '#059669' }}>
-                              {money(deal.salePrice, currency)}
-                            </div>
-                            <span style={{ fontSize: '10px', color: 'var(--muted)' }}>
-                              Actual Sold Price
+                          {deal.unit && (
+                            <span className="lc-unit">
+                              <Building2 size={12} />
+                              {deal.unit.number}
+                            </span>
+                          )}
+                          <span className="lc-secondary">{deal.location || '—'}</span>
+                          <code className="lc-secondary">{deal.reference}</code>
+                        </th>
+                        <td>
+                          <div className="lc-cell-stack">
+                            <span className={`deal-stage-pill ${stageClass}`}>{t(stageLabel)}</span>
+                            <span className="lc-secondary">
+                              {isDraft ? t('Costs not finalized') : t('Investment finalized')}
                             </span>
                           </div>
-                        ) : isBooked ? (
-                          <div>
-                            <div style={{ fontWeight: 700, color: '#1d4ed8' }}>
-                              {money(deal.salePrice, currency)}
+                        </td>
+                        <td>
+                          <div className="lc-cell-stack lc-parties">
+                            <div>
+                              <span className="lc-label">{t('Seller')}</span>
+                              <strong>{deal.seller?.name || '—'}</strong>
                             </div>
-                            <span style={{ fontSize: '10px', color: 'var(--muted)' }}>
-                              Booked Contract Value
-                            </span>
-                          </div>
-                        ) : deal.unit?.listedPrice && Number(deal.unit.listedPrice) > 0 ? (
-                          <div>
-                            <div style={{ fontWeight: 700, color: '#2563eb' }}>
-                              {money(deal.unit.listedPrice, currency)}
-                            </div>
-                            <span style={{ fontSize: '10px', color: 'var(--muted)' }}>
-                              Expected Asking Price
-                            </span>
-                          </div>
-                        ) : (
-                          <span style={{ fontSize: '11px', color: 'var(--muted)', fontStyle: 'italic' }}>
-                            Not listed yet
-                          </span>
-                        )}
-                      </td>
-
-                      {/* Buyer */}
-                      <td>
-                        {deal.buyer ? (
-                          <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
-                            <span style={{ fontWeight: 600, color: '#1e40af' }}>
-                              {deal.buyer.name}
-                            </span>
-                            <span style={{ fontSize: '10.5px', color: 'var(--muted)' }}>
-                              Ref: {deal.buyer.bookingReference}
-                            </span>
-                          </div>
-                        ) : (
-                          <span className="deal-unsold-tag">
-                            <Clock size={11} /> Unsold
-                          </span>
-                        )}
-                      </td>
-
-                      {/* Net Profit & Margin */}
-                      <td>
-                        {deal.netProfit ? (
-                          <div>
-                            <div className={hasProfit ? 'profit-text-green' : 'profit-text-red'}>
-                              {hasProfit ? '+' : ''}{money(deal.netProfit, currency)}
-                            </div>
-                            {deal.profitMarginPercent ? (
-                              <span
-                                className="deal-margin-badge"
-                                style={{
-                                  background: hasProfit ? '#ecfdf5' : '#fef2f2',
-                                  color: hasProfit ? '#047857' : '#b91c1c',
-                                  borderColor: hasProfit ? '#a7f3d0' : '#fecaca',
-                                }}
-                              >
-                                {hasProfit ? '+' : ''}{deal.profitMarginPercent} ROI
+                            <div>
+                              <span className="lc-label">{t('Buyer')}</span>
+                              <span className={deal.buyer ? '' : 'muted'}>
+                                {deal.buyer?.name || t('No buyer yet')}
                               </span>
-                            ) : null}
+                            </div>
                           </div>
-                        ) : (
-                          <span style={{ fontSize: '11px', color: 'var(--muted)', fontStyle: 'italic' }}>
-                            Pending sale
-                          </span>
-                        )}
-                      </td>
-
-                      {/* Workflow Actions */}
-                      <td style={{ textAlign: 'right' }}>
-                        <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
-                          {/* Step 3 Action: Edit Expenses & Finalize Investment */}
-                          {isDraft && (
-                            <>
+                        </td>
+                        <td className="lc-number">
+                          <div className="lc-cell-stack">
+                            <strong className="lc-amount">
+                              <Money value={deal.totalCost} currency={currency} />
+                            </strong>
+                            <span className="lc-secondary">
+                              {t('Purchase')}: <Money value={deal.buyPrice} currency={currency} />
+                            </span>
+                            <button
+                              type="button"
+                              className="lc-expense-link"
+                              onClick={() => setInspectDeal(deal)}
+                            >
+                              {t('Expenses')}:{' '}
+                              <Money value={deal.expenses.total} currency={currency} />
+                            </button>
+                          </div>
+                        </td>
+                        <td className="lc-number">
+                          <div className="lc-cell-stack">
+                            <strong className="lc-amount">
+                              {price != null ? <Money value={price} currency={currency} /> : '—'}
+                            </strong>
+                            <span className="lc-secondary">
+                              {deal.salePrice != null
+                                ? t('Contract value')
+                                : price != null
+                                  ? t('Asking price')
+                                  : t('Not priced yet')}
+                            </span>
+                            {deal.buyer && (
+                              <span className="lc-secondary">
+                                {t('Collected')}:{' '}
+                                <Money value={deal.collected} currency={currency} />
+                              </span>
+                            )}
+                          </div>
+                        </td>
+                        <td className="lc-number">
+                          <div className="lc-cell-stack">
+                            {deal.netProfit != null ? (
+                              <>
+                                <strong
+                                  className={`lc-amount ${hasProfit ? 'profit-text-green' : 'profit-text-red'}`}
+                                >
+                                  <Money value={deal.netProfit} currency={currency} />
+                                </strong>
+                                {deal.profitMarginPercent != null && (
+                                  <span className="lc-secondary">
+                                    {deal.profitMarginPercent.replace(/%$/, '')}% ROI
+                                  </span>
+                                )}
+                              </>
+                            ) : (
+                              <span className="lc-secondary">{t('Pending sale')}</span>
+                            )}
+                          </div>
+                        </td>
+                        <td>
+                          <div className="lc-row-actions">
+                            {isDraft && can('finance.post') && (
+                              <>
+                                <Button
+                                  size="small"
+                                  busy={
+                                    finalizeInvestmentMutation.isPending &&
+                                    finalizeInvestmentMutation.variables?.id === deal.id
+                                  }
+                                  disabled={finalizeInvestmentMutation.isPending}
+                                  onClick={() => finalizeInvestmentMutation.mutate(deal)}
+                                >
+                                  <Lock size={13} />
+                                  {t('Finalize investment')}
+                                </Button>
+                                <Button
+                                  size="small"
+                                  variant="secondary"
+                                  onClick={() => setEditingPurchase(deal)}
+                                >
+                                  <Receipt size={13} />
+                                  {t('Edit purchase & costs')}
+                                </Button>
+                              </>
+                            )}
+                            {(isAvailable || isUnlisted) && (
+                              <>
+                                {deal.unit?.id &&
+                                  deal.unit.status === 'AVAILABLE' &&
+                                  can('bookings.create') && (
+                                    <Button
+                                      size="small"
+                                      onClick={() =>
+                                        navigate(`/bookings/new?unitId=${deal.unit!.id}`)
+                                      }
+                                    >
+                                      <UserCheck size={13} />
+                                      {t('Book property')}
+                                    </Button>
+                                  )}
+                                <Button
+                                  size="small"
+                                  variant={deal.unit?.id ? 'secondary' : 'primary'}
+                                  disabled={!can('inventory.create')}
+                                  onClick={() => {
+                                    setListingDeal(deal);
+                                    setAskingPriceInput(deal.unit?.listedPrice || '');
+                                  }}
+                                >
+                                  <Tag size={13} />
+                                  {t('Set asking price')}
+                                </Button>
+                              </>
+                            )}
+                            {deal.buyer?.bookingId && (
                               <Button
+                                size="small"
                                 variant="secondary"
-                                size="small"
-                                onClick={() => setEditingPurchase(deal)}
-                                title="Edit expenses & purchase draft"
+                                onClick={() =>
+                                  navigate(`/bookings?record=${deal.buyer!.bookingId}`)
+                                }
                               >
-                                <Receipt size={13} />
-                                <span>Edit Expenses</span>
+                                <ArrowUpRight size={13} />
+                                {t('View booking')}
                               </Button>
-
-                              <Button
-                                variant="primary"
-                                size="small"
-                                onClick={() => finalizeInvestmentMutation.mutate(deal)}
-                                disabled={finalizeInvestmentMutation.isPending}
-                                title="Finalize Investment & lock cost basis"
-                              >
-                                <Lock size={13} />
-                                <span>Finalize Investment</span>
-                              </Button>
-                            </>
-                          )}
-
-                          {/* Step 4 Action: Move to Selling (Set Asking Price) */}
-                          {isAvailable && (
+                            )}
                             <Button
-                              variant="secondary"
                               size="small"
-                              onClick={() => {
-                                setListingDeal(deal);
-                                setAskingPriceInput(deal.unit?.listedPrice || '');
-                              }}
-                              title="Update Expected Selling Price"
+                              variant="ghost"
+                              onClick={() => setInspectDeal(deal)}
                             >
-                              <Tag size={13} />
-                              <span>Set Asking Price</span>
+                              <Eye size={13} />
+                              {t('View breakdown')}
                             </Button>
-                          )}
-
-                          {/* Step 5 Action: Book Property */}
-                          {isAvailable && (
-                            <Button
-                              variant="primary"
-                              size="small"
-                              onClick={() => navigate(`/bookings/new?unitId=${deal.unit?.id || ''}`)}
-                              title="Create Customer Booking"
-                            >
-                              <UserCheck size={13} />
-                              <span>Book Property</span>
-                            </Button>
-                          )}
-
-                          {/* Details / P&L Waterfall */}
-                          <Button
-                            variant="ghost"
-                            size="small"
-                            onClick={() => setInspectDeal(deal)}
-                            title="Inspect Deal P&L & Waterfall"
-                          >
-                            <Eye size={13} />
-                            <span>P&L</span>
-                          </Button>
-                        </div>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+            <div className="lifecycle-table-note">
+              <span>{t('Investment cost = purchase price + direct expenses.')}</span>
+              <span>{t('Scroll horizontally to see all columns.')}</span>
+            </div>
+          </>
         )}
       </div>
 
       {/* Step 4: Move Property to Selling (Asking Price Dialog) */}
       {listingDeal && (
         <Modal
+          className="lifecycle-dialog"
           open
           onOpenChange={(v) => !v && setListingDeal(null)}
-          title={`Step 4: Move Property to Selling — ${listingDeal.title}`}
+          title={`${t('Set asking price')} — ${listingDeal.title}`}
           description={`Unit ${listingDeal.unit?.number || ''} — Set the expected selling price (asking price) to make this property active in selling inventory.`}
         >
-          <div className="dialog-flow-body">
+          <div className="modal-body dialog-flow-body">
             <div className="calc-box-highlight">
               <div>
-                <div style={{ fontSize: '11px', color: 'var(--muted)', textTransform: 'uppercase' }}>
+                <div
+                  style={{ fontSize: '11px', color: 'var(--muted)', textTransform: 'uppercase' }}
+                >
                   Total Finalized Cost Basis
                 </div>
                 <div style={{ fontSize: '16px', fontWeight: 700, color: 'var(--text)' }}>
-                  {money(listingDeal.totalCost, currency)}
+                  <Money value={listingDeal.totalCost} currency={currency} />
                 </div>
                 <small style={{ color: 'var(--muted)' }}>
-                  Buy Price: {money(listingDeal.buyPrice, currency)} + Expenses: {money(listingDeal.expenses.total, currency)}
+                  Buy Price: <Money value={listingDeal.buyPrice} currency={currency} /> + Expenses:{' '}
+                  <Money value={listingDeal.expenses.total} currency={currency} />
                 </small>
               </div>
               <Badge value="Investment Finalized" />
             </div>
 
             <div className="form-field">
-              <label>Expected Selling Price / Asking Price ({currency}) *</label>
-              <input
-                type="number"
+              <label htmlFor="lifecycle-asking-price">
+                Expected Selling Price / Asking Price ({currency}) *
+              </label>
+              <MoneyInput
+                id="lifecycle-asking-price"
                 step="0.01"
                 placeholder="e.g. 15000000"
                 value={askingPriceInput}
-                onChange={(e) => setAskingPriceInput(e.target.value)}
+                onValueChange={setAskingPriceInput}
               />
               <small style={{ color: 'var(--muted)', marginTop: '4px' }}>
-                This is only your listed asking price. The actual sold price will be confirmed upon closing the deal.
+                This is only your listed asking price. The actual sold price will be confirmed upon
+                closing the deal.
               </small>
             </div>
 
@@ -807,19 +859,27 @@ export default function PropertyLifecycleHub() {
                 className={`calc-box-highlight ${Number(askingPriceInput) >= Number(listingDeal.totalCost) ? 'profit-good' : ''}`}
               >
                 <div>
-                  <div style={{ fontSize: '11px', color: 'var(--muted)', textTransform: 'uppercase' }}>
+                  <div
+                    style={{ fontSize: '11px', color: 'var(--muted)', textTransform: 'uppercase' }}
+                  >
                     Projected Profit Margin
                   </div>
                   <div
                     style={{
                       fontSize: '15px',
                       fontWeight: 750,
-                      color: Number(askingPriceInput) >= Number(listingDeal.totalCost) ? '#059669' : '#dc2626',
+                      color:
+                        Number(askingPriceInput) >= Number(listingDeal.totalCost)
+                          ? 'var(--success)'
+                          : 'var(--danger)',
                     }}
                   >
                     {Number(askingPriceInput) >= Number(listingDeal.totalCost) ? '+' : ''}
-                    {money(String(Number(askingPriceInput) - Number(listingDeal.totalCost)), currency)}
-                    {' '}(
+                    <Money
+                      value={String(Number(askingPriceInput) - Number(listingDeal.totalCost))}
+                      currency={currency}
+                    />{' '}
+                    (
                     {(
                       ((Number(askingPriceInput) - Number(listingDeal.totalCost)) /
                         (Number(listingDeal.totalCost) || 1)) *
@@ -831,13 +891,17 @@ export default function PropertyLifecycleHub() {
               </div>
             )}
 
-            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
+            <div className="dialog-actions">
               <Button variant="secondary" onClick={() => setListingDeal(null)}>
                 Cancel
               </Button>
               <Button
                 variant="primary"
-                disabled={!askingPriceInput || Number(askingPriceInput) <= 0 || listForSaleMutation.isPending}
+                disabled={
+                  !askingPriceInput ||
+                  Number(askingPriceInput) <= 0 ||
+                  listForSaleMutation.isPending
+                }
                 onClick={() =>
                   listForSaleMutation.mutate({
                     id: listingDeal.id,
@@ -867,21 +931,7 @@ export default function PropertyLifecycleHub() {
       {/* Step 3: Edit Expenses & Purchase Draft */}
       {editingPurchase && (
         <PropertyPurchaseWizard
-          record={{
-            id: editingPurchase.id,
-            title: editingPurchase.title,
-            location: editingPurchase.location,
-            purchaseDate: editingPurchase.purchaseDate,
-            unitId: editingPurchase.unit?.id,
-            vendorId: editingPurchase.seller?.id,
-            price: editingPurchase.buyPrice,
-            brokerage: editingPurchase.expenses.brokerage,
-            taxes: editingPurchase.expenses.taxes,
-            legalFees: editingPurchase.expenses.legalFees,
-            otherCosts: editingPurchase.expenses.otherCosts,
-            expenseItems: editingPurchase.expenses.items,
-            fileReference: editingPurchase.fileReference,
-          }}
+          record={{ id: editingPurchase.id }}
           onClose={() => setEditingPurchase(null)}
           onSuccess={() => {
             setEditingPurchase(null);
@@ -893,18 +943,21 @@ export default function PropertyLifecycleHub() {
       {/* Step 6 / Inspector Modal: P&L Waterfall & Full Property History */}
       {inspectDeal && (
         <Modal
+          className="lifecycle-dialog"
           open
           onOpenChange={(v) => !v && setInspectDeal(null)}
           title={`Property Financial Lifecycle: ${inspectDeal.title}`}
           description={`Ref ${inspectDeal.reference} — Full audit from seller acquisition to resale profit`}
           wide
         >
-          <div className="deal-modal-body">
+          <div className="modal-body deal-modal-body">
             {/* Visual Lifecycle Strip */}
             <div className="deal-lifecycle-strip">
               <div className="deal-stage-card">
                 <span className="deal-stage-badge buy">1. Seller Acquisition</span>
-                <strong>{money(inspectDeal.buyPrice, currency)}</strong>
+                <strong>
+                  <Money value={inspectDeal.buyPrice} currency={currency} />
+                </strong>
                 <span>Seller: {inspectDeal.seller?.name || 'Vendor'}</span>
                 <span>Date: {date(inspectDeal.purchaseDate)}</span>
               </div>
@@ -913,8 +966,12 @@ export default function PropertyLifecycleHub() {
 
               <div className="deal-stage-card">
                 <span className="deal-stage-badge renovate">2. Incurred Expenses</span>
-                <strong style={{ color: '#b45309' }}>+{money(inspectDeal.expenses.total, currency)}</strong>
-                <span>Total Invested: {money(inspectDeal.totalCost, currency)}</span>
+                <strong style={{ color: 'var(--warning)' }}>
+                  +<Money value={inspectDeal.expenses.total} currency={currency} />
+                </strong>
+                <span>
+                  Total Invested: <Money value={inspectDeal.totalCost} currency={currency} />
+                </span>
                 <span>Taxes, legal, renovation & commission</span>
               </div>
 
@@ -922,8 +979,14 @@ export default function PropertyLifecycleHub() {
 
               <div className="deal-stage-card">
                 <span className="deal-stage-badge sell">3. Resale to Buyer</span>
-                <strong style={{ color: inspectDeal.salePrice ? '#15803d' : 'var(--muted)' }}>
-                  {inspectDeal.salePrice ? money(inspectDeal.salePrice, currency) : 'In Portfolio'}
+                <strong
+                  style={{ color: inspectDeal.salePrice ? 'var(--success)' : 'var(--muted)' }}
+                >
+                  {inspectDeal.salePrice ? (
+                    <Money value={inspectDeal.salePrice} currency={currency} />
+                  ) : (
+                    'In Portfolio'
+                  )}
                 </strong>
                 <span>
                   {inspectDeal.buyer ? `Buyer: ${inspectDeal.buyer.name}` : 'Ready for sale'}
@@ -933,32 +996,98 @@ export default function PropertyLifecycleHub() {
 
             {/* Expenses Breakdown */}
             <div className="deal-waterfall-box">
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>
+              <div
+                style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}
+              >
                 <h4 style={{ margin: 0, fontSize: '13px', fontWeight: 700 }}>
                   Itemized Direct Expenses & Renovation
                 </h4>
-                <span>Total: <strong>{money(inspectDeal.expenses.total, currency)}</strong></span>
+                <span>
+                  Total:{' '}
+                  <strong>
+                    <Money value={inspectDeal.expenses.total} currency={currency} />
+                  </strong>
+                </span>
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '10px', marginBottom: '14px' }}>
-                <div style={{ padding: '8px 12px', background: '#f8fafc', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
-                  <div style={{ fontSize: '10px', color: 'var(--muted)', textTransform: 'uppercase' }}>Taxes</div>
-                  <div style={{ fontWeight: 650 }}>{money(inspectDeal.expenses.taxes, currency)}</div>
+              <div
+                style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 150px), 1fr))',
+                  gap: '10px',
+                  marginBottom: '14px',
+                }}
+              >
+                <div
+                  style={{
+                    padding: '8px 12px',
+                    background: 'var(--subtle)',
+                    borderRadius: '8px',
+                    border: '1px solid var(--border)',
+                  }}
+                >
+                  <div
+                    style={{ fontSize: '10px', color: 'var(--muted)', textTransform: 'uppercase' }}
+                  >
+                    Taxes
+                  </div>
+                  <div style={{ fontWeight: 650 }}>
+                    <Money value={inspectDeal.expenses.taxes} currency={currency} />
+                  </div>
                 </div>
 
-                <div style={{ padding: '8px 12px', background: '#f8fafc', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
-                  <div style={{ fontSize: '10px', color: 'var(--muted)', textTransform: 'uppercase' }}>Legal Fees</div>
-                  <div style={{ fontWeight: 650 }}>{money(inspectDeal.expenses.legalFees, currency)}</div>
+                <div
+                  style={{
+                    padding: '8px 12px',
+                    background: 'var(--subtle)',
+                    borderRadius: '8px',
+                    border: '1px solid var(--border)',
+                  }}
+                >
+                  <div
+                    style={{ fontSize: '10px', color: 'var(--muted)', textTransform: 'uppercase' }}
+                  >
+                    Legal Fees
+                  </div>
+                  <div style={{ fontWeight: 650 }}>
+                    <Money value={inspectDeal.expenses.legalFees} currency={currency} />
+                  </div>
                 </div>
 
-                <div style={{ padding: '8px 12px', background: '#f8fafc', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
-                  <div style={{ fontSize: '10px', color: 'var(--muted)', textTransform: 'uppercase' }}>Brokerage</div>
-                  <div style={{ fontWeight: 650 }}>{money(inspectDeal.expenses.brokerage, currency)}</div>
+                <div
+                  style={{
+                    padding: '8px 12px',
+                    background: 'var(--subtle)',
+                    borderRadius: '8px',
+                    border: '1px solid var(--border)',
+                  }}
+                >
+                  <div
+                    style={{ fontSize: '10px', color: 'var(--muted)', textTransform: 'uppercase' }}
+                  >
+                    Brokerage
+                  </div>
+                  <div style={{ fontWeight: 650 }}>
+                    <Money value={inspectDeal.expenses.brokerage} currency={currency} />
+                  </div>
                 </div>
 
-                <div style={{ padding: '8px 12px', background: '#f8fafc', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
-                  <div style={{ fontSize: '10px', color: 'var(--muted)', textTransform: 'uppercase' }}>Renovation / Civil</div>
-                  <div style={{ fontWeight: 650 }}>{money(inspectDeal.expenses.otherCosts, currency)}</div>
+                <div
+                  style={{
+                    padding: '8px 12px',
+                    background: 'var(--subtle)',
+                    borderRadius: '8px',
+                    border: '1px solid var(--border)',
+                  }}
+                >
+                  <div
+                    style={{ fontSize: '10px', color: 'var(--muted)', textTransform: 'uppercase' }}
+                  >
+                    Renovation / Civil
+                  </div>
+                  <div style={{ fontWeight: 650 }}>
+                    <Money value={inspectDeal.expenses.otherCosts} currency={currency} />
+                  </div>
                 </div>
               </div>
 
@@ -977,7 +1106,7 @@ export default function PropertyLifecycleHub() {
                         <td style={{ fontWeight: 600 }}>{item.name}</td>
                         <td>{item.category}</td>
                         <td style={{ textAlign: 'right', fontWeight: 650 }}>
-                          {money(item.amount, currency)}
+                          <Money value={item.amount} currency={currency} />
                         </td>
                       </tr>
                     ))}
@@ -994,52 +1123,78 @@ export default function PropertyLifecycleHub() {
 
               <div className="deal-pnl-row">
                 <span>1. Property Acquisition Buy Price</span>
-                <strong>{money(inspectDeal.buyPrice, currency)}</strong>
+                <strong>
+                  <Money value={inspectDeal.buyPrice} currency={currency} />
+                </strong>
               </div>
 
               <div className="deal-pnl-row">
                 <span>2. Total Direct Expenses (Taxes, Legal, Renovation)</span>
-                <strong style={{ color: '#b45309' }}>+{money(inspectDeal.expenses.total, currency)}</strong>
+                <strong style={{ color: 'var(--warning)' }}>
+                  +<Money value={inspectDeal.expenses.total} currency={currency} />
+                </strong>
               </div>
 
               <div className="deal-pnl-row total-invested">
                 <span>Total Invested Capital (Locked Cost Basis)</span>
-                <strong>{money(inspectDeal.totalCost, currency)}</strong>
+                <strong>
+                  <Money value={inspectDeal.totalCost} currency={currency} />
+                </strong>
               </div>
 
               <div className="deal-pnl-row">
                 <span>3. Expected Asking Price (Listed)</span>
-                <strong style={{ color: '#2563eb' }}>
-                  {inspectDeal.unit?.listedPrice ? money(inspectDeal.unit.listedPrice, currency) : '—'}
+                <strong style={{ color: 'var(--primary)' }}>
+                  {inspectDeal.unit?.listedPrice ? (
+                    <Money value={inspectDeal.unit.listedPrice} currency={currency} />
+                  ) : (
+                    '—'
+                  )}
                 </strong>
               </div>
 
               <div className="deal-pnl-row">
                 <span>4. Actual Sold Price (Buyer Contract)</span>
-                <strong style={{ color: '#1e40af' }}>
-                  {inspectDeal.salePrice ? money(inspectDeal.salePrice, currency) : 'Pending Resale'}
+                <strong style={{ color: 'var(--primary)' }}>
+                  {inspectDeal.salePrice ? (
+                    <Money value={inspectDeal.salePrice} currency={currency} />
+                  ) : (
+                    'Pending Resale'
+                  )}
                 </strong>
               </div>
 
               <div className="deal-pnl-row net-profit">
                 <span>Realized Net Profit / (Loss)</span>
-                <strong className={Number(inspectDeal.netProfit ?? 0) >= 0 ? 'profit-text-green' : 'profit-text-red'}>
+                <strong
+                  className={
+                    Number(inspectDeal.netProfit ?? 0) >= 0
+                      ? 'profit-text-green'
+                      : 'profit-text-red'
+                  }
+                >
                   {inspectDeal.netProfit
-                    ? `${Number(inspectDeal.netProfit) >= 0 ? '+' : ''}${money(inspectDeal.netProfit, currency)}`
-                    : 'Pending Resale'}
+                    ? `${Number(inspectDeal.netProfit) >= 0 ? '+' : ''}${moneyWithWords(inspectDeal.netProfit, currency)}`
+                    : inspectDeal.salePrice
+                      ? 'Pending collection'
+                      : 'Pending Resale'}
                 </strong>
               </div>
 
               <div className="deal-pnl-row" style={{ borderBottom: 'none' }}>
                 <span>Return on Investment (ROI Margin %)</span>
                 <strong className="deal-margin-badge">
-                  {inspectDeal.profitMarginPercent ? `+${inspectDeal.profitMarginPercent}` : 'Pending Resale'}
+                  {inspectDeal.profitMarginPercent
+                    ? `${inspectDeal.profitMarginPercent.replace(/%$/, '')}%`
+                    : inspectDeal.salePrice
+                      ? 'Pending collection'
+                      : 'Pending Resale'}
                 </strong>
               </div>
             </div>
 
             {/* Action Bar */}
-            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
+            <div className="dialog-actions">
               {inspectDeal.buyer?.bookingId && (
                 <Button
                   variant="secondary"
@@ -1072,10 +1227,7 @@ export default function PropertyLifecycleHub() {
 
       {/* Accounting Voucher Preview Modal */}
       {voucherIdToPrint && (
-        <JournalVoucher
-          id={voucherIdToPrint}
-          onClose={() => setVoucherIdToPrint(null)}
-        />
+        <JournalVoucher id={voucherIdToPrint} onClose={() => setVoucherIdToPrint(null)} />
       )}
     </div>
   );

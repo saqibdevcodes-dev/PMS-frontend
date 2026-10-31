@@ -154,18 +154,18 @@
 }
 
 .customer-id-card {
-  background: linear-gradient(145deg, #064e3b, #047857);
-  color: #ffffff;
+  background: var(--subtle);
+  color: var(--text);
   border-radius: 14px;
   padding: 24px;
-  box-shadow: 0 10px 25px -5px rgba(6, 78, 59, 0.35);
+  box-shadow: var(--shadow);
   display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
   position: relative;
   overflow: hidden;
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  border: 1px solid var(--border);
 }
 
 .customer-id-card .id-card-header {
@@ -175,7 +175,7 @@
   gap: 4px;
   margin-bottom: 16px;
   width: 100%;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  border-bottom: 1px solid var(--border);
   padding-bottom: 12px;
 }
 
@@ -184,30 +184,30 @@
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: #a7f3d0;
+  color: var(--primary);
 }
 
 .customer-id-card .id-card-header .card-type {
   font-size: 10px;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: #d1fae5;
+  color: var(--muted);
 }
 
 .customer-id-card .id-card-photo {
   width: 90px;
   height: 90px;
   border-radius: 50%;
-  border: 3px solid #34d399;
+  border: 3px solid var(--primary);
   overflow: hidden;
   margin-bottom: 12px;
-  background: #065f46;
+  background: var(--primary-subtle);
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 32px;
   font-weight: 700;
-  color: #ffffff;
+  color: var(--text);
 }
 
 .customer-id-card .id-card-photo img {
@@ -220,26 +220,26 @@
   font-size: 18px;
   font-weight: 700;
   margin: 0;
-  color: #ffffff;
+  color: var(--text);
 }
 
 .customer-id-card .id-card-role {
   font-size: 12px;
-  color: #a7f3d0;
+  color: var(--primary);
   font-weight: 500;
   margin-top: 2px;
 }
 
 .customer-id-card .id-card-code {
   display: inline-block;
-  background: rgba(255, 255, 255, 0.15);
+  background: var(--primary-subtle);
   padding: 3px 10px;
   border-radius: 4px;
   font-family: monospace;
   font-size: 12px;
   letter-spacing: 0.05em;
   margin-top: 8px;
-  color: #ffffff;
+  color: var(--text);
 }
 
 .customer-id-card .id-card-qr-box {
@@ -265,10 +265,21 @@
 .customer-id-card .id-card-footer {
   margin-top: 16px;
   font-size: 11px;
-  color: #d1fae5;
+  color: var(--muted);
   display: flex;
   align-items: center;
   gap: 6px;
+}
+
+.customer-id-card .id-card-footer svg {
+  color: var(--success);
+}
+.customer-id-card .id-card-name {
+  overflow-wrap: anywhere;
+  max-width: 100%;
+}
+.customer-id-card .id-card-qr-box {
+  color-scheme: light;
 }
 
 /* Print styling for Customer Pass */

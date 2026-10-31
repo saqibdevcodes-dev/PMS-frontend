@@ -1,3 +1,4 @@
+import { Money } from '../../components/Money';
 import { errorMessage } from '../../lib/error-messages';
 import { t, useLocale } from '../../lib/i18n';
 import { useQuery } from '@tanstack/react-query';
@@ -6,7 +7,7 @@ import { ProjectLogo } from '../../components/ProjectLogo';
 import { toast } from 'sonner';
 import { api } from '../../lib/api';
 import { row, type Row } from '../../lib/types';
-import { date, money, humanize } from '../../lib/format';
+import { date, humanize } from '../../lib/format';
 import { usePreferences } from '../../stores/preferences';
 import { print } from '../../platform/adapter';
 import { Modal, Button, Badge, ErrorState, Skeleton } from '../../components/ui';
@@ -42,7 +43,9 @@ export function Receipt({ id, onClose }: { id: string; onClose: () => void }) {
                 value={receipt.data?.status ?? (receipt.data?.reversedAt ? 'REVERSED' : 'ISSUED')}
               />
             </div>
-            <div className="receipt-amount">{money(payment.amount)}</div>
+            <div className="receipt-amount">
+              <Money value={payment.amount} />
+            </div>
             <dl className="detail-grid">
               <div>
                 <dt>{t('Payment method')}</dt>

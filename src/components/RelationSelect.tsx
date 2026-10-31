@@ -6,7 +6,7 @@ import { api, queryString } from '../lib/api';
 import { operations, projectRoot, resolvePath, supportsQuery } from '../lib/contract';
 import { asRows, row, type Row, type Page } from '../lib/types';
 import { roleDescriptions, fieldLabels } from '../lib/form-guidance';
-import { labelOf, humanize, money } from '../lib/format';
+import { labelOf, humanize, moneyWithWords } from '../lib/format';
 import { usePreferences } from '../stores/preferences';
 import { can } from '../stores/auth';
 import { Button } from './ui';
@@ -55,7 +55,7 @@ export function formatRelationOption(
       subParts.push(`${t('Phone')}: ${phone}`);
     }
     if (record.total) {
-      subParts.push(`${t('Total')}: ${money(record.total)}`);
+      subParts.push(`${t('Total')}: ${moneyWithWords(record.total)}`);
     }
     if (status) {
       subParts.push(`${t('Status')}: ${status}`);

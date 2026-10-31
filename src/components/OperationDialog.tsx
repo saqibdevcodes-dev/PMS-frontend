@@ -7,7 +7,8 @@ import { toast } from 'sonner';
 import { api, ApiError } from '../lib/api';
 import { resolvePath } from '../lib/contract';
 import { queryClient } from '../lib/query';
-import { humanize, money } from '../lib/format';
+import { humanize, moneyFields, moneyWithWords } from '../lib/format';
+import { Money } from './Money';
 import { row, type Operation, type Row } from '../lib/types';
 import { Button, Modal, ModalClose, ErrorState, Badge } from './ui';
 import { SchemaForm } from './SchemaForm';
@@ -63,20 +64,22 @@ export function OperationDialog({
           ...(purchasePosting
             ? {
                 Seller: row(record?.vendor).name,
-                'Purchase price': money(record?.price),
-                'Non-recoverable acquisition taxes': money(record?.taxes),
-                'Acquisition legal fees': money(record?.legalFees),
-                'Acquisition brokerage': money(record?.brokerage),
-                'Other direct acquisition costs': money(record?.otherCosts),
+                'Purchase price': moneyWithWords(record?.price),
+                'Non-recoverable acquisition taxes': moneyWithWords(record?.taxes),
+                'Acquisition legal fees': moneyWithWords(record?.legalFees),
+                'Acquisition brokerage': moneyWithWords(record?.brokerage),
+                'Other direct acquisition costs': moneyWithWords(record?.otherCosts),
               }
             : {}),
           Property: row(record?.unit).number,
           Booking: row(record?.booking).reference,
           'New owner': row(record?.buyer).name,
+          'Period start': record?.startDate,
+          'Period end': record?.endDate,
           verification: record?.verification,
           'Payment type': record?.paymentType ? humanize(String(record.paymentType)) : undefined,
-          Amount: record?.amount == null ? undefined : money(record.amount),
-          'Total payable': record?.total == null ? undefined : money(record.total),
+          Amount: record?.amount == null ? undefined : moneyWithWords(record.amount),
+          'Total payable': record?.total == null ? undefined : moneyWithWords(record.total),
         }).filter(([, value]) => value != null && value !== ''),
       )
     : (review ?? {});
@@ -138,6 +141,13 @@ export function OperationDialog({
       className={customerCreate ? 'customer-dialog' : undefined}
     >
       <div className="modal-body">
+        {operation.path.endsWith('/lock') && !done && (
+          <p className="document-notice">
+            {t(
+              'Closing this accounting period is permanent. New entries and backdated postings in this period will be rejected. Confirm the dates before continuing.',
+            )}
+          </p>
+        )}
         {purchasePosting && !done && (
           <p className="document-notice">
             {t(
@@ -237,13 +247,19 @@ export function OperationDialog({
                               : humanize(k)}
                           </dt>
                           <dd>
-                            {/password|identity/i.test(k)
-                              ? '••••••••'
-                              : Array.isArray(v)
-                                ? t('{0} entries', { '0': v.length })
-                                : typeof v === 'object'
-                                  ? t('Configured')
-                                  : String(v)}
+                            {/password|identity/i.test(k) ? (
+                              '••••••••'
+                            ) : !confirmationOnly &&
+                              moneyFields.test(k) &&
+                              (typeof v === 'string' || typeof v === 'number') ? (
+                              <Money value={v} />
+                            ) : Array.isArray(v) ? (
+                              t('{0} entries', { '0': v.length })
+                            ) : typeof v === 'object' ? (
+                              t('Configured')
+                            ) : (
+                              String(v)
+                            )}
                           </dd>
                         </div>
                       ),

@@ -11,8 +11,8 @@ try {
 } catch (error) {
   if (error.message === 'FRONTEND_TEST_SERVER_RUNNING') throw error;
 }
-const backend = fileURLToPath(new URL('../../PMS-BE/', import.meta.url));
-const requireBE = createRequire(new URL('../../PMS-BE/package.json', import.meta.url));
+const backend = fileURLToPath(new URL('../../BE/', import.meta.url));
+const requireBE = createRequire(new URL('../../BE/package.json', import.meta.url));
 requireBE('dotenv').config({ path: backend + '.env', quiet: true });
 const { Client } = requireBE('pg');
 const dbUrl = new URL(process.env.DATABASE_URL);
@@ -28,6 +28,17 @@ const redisUrl = new URL(process.env.REDIS_URL);
 redisUrl.pathname = '/5';
 process.env.REDIS_URL = redisUrl.href;
 process.env.S3_BUCKET = 'pms-frontend-test';
+process.env.STORAGE_DRIVER = 'local';
+process.env.UPLOAD_DIR = fileURLToPath(
+  new URL('../test-results/backend-uploads/', import.meta.url),
+);
+process.env.PUBLIC_API_URL = 'http://127.0.0.1:4100';
+process.env.SMTP_HOST = '127.0.0.1';
+process.env.SMTP_PORT = '1025';
+process.env.SMTP_SECURE = 'false';
+delete process.env.SMTP_USER;
+delete process.env.SMTP_PASS;
+delete process.env.SMTP_PASSWORD;
 // Prevent test notifications from reaching external providers.
 delete process.env.PUSH_WEBHOOK_URL;
 delete process.env.SMS_WEBHOOK_URL;
@@ -61,14 +72,14 @@ if (tables.rows.length)
       ' CASCADE',
   );
 await client.end();
-const { createApp } = await import('../../PMS-BE/dist/src/app.js');
-const { db } = await import('../../PMS-BE/dist/src/database/client.js');
-const { redis } = await import('../../PMS-BE/dist/src/integrations/redis.js');
+const { createApp } = await import('../../BE/dist/src/app.js');
+const { db } = await import('../../BE/dist/src/database/client.js');
+const { redis } = await import('../../BE/dist/src/integrations/redis.js');
 await redis.flushdb(); // Dedicated Redis database 5, selected above.
-const { ensureStorage } = await import('../../PMS-BE/dist/src/integrations/storage.js');
+const { ensureStorage } = await import('../../BE/dist/src/integrations/storage.js');
 await ensureStorage();
-const { permissions } = await import('../../PMS-BE/dist/src/common/permissions.js');
-const { passwordHash } = await import('../../PMS-BE/dist/src/modules/auth/service.js');
+const { permissions } = await import('../../BE/dist/src/common/permissions.js');
+const { passwordHash } = await import('../../BE/dist/src/modules/auth/service.js');
 const password = 'Frontend-Test-Only-94!';
 await db.permission.createMany({ data: permissions.map((key) => ({ key })) });
 const role = await db.role.create({
@@ -132,12 +143,12 @@ for (const user of users)
   );
 const project = await request(
   '/projects',
-  { name: 'Parkside Residences', code: 'PARK', currency: 'PKR', timezone: 'Asia/Karachi' },
+  { name: 'Parkside Residences', location: 'Lahore', currency: 'PKR', timezone: 'Asia/Karachi' },
   tokens[0],
 );
 const second = await request(
   '/projects',
-  { name: 'Harbour Quarter', code: 'HBR', currency: 'USD', timezone: 'America/New_York' },
+  { name: 'Harbour Quarter', location: 'New York', currency: 'USD', timezone: 'America/New_York' },
   tokens[0],
 );
 await db.userProjectAccess.createMany({
@@ -152,7 +163,8 @@ for (const name of ['Ayesha Khan', 'Daniel Reed', 'Omar Siddiqui'])
       {
         name,
         phone: '+923001234567',
-        identity: 'UI-' + crypto.randomUUID(),
+        identityType: 'PASSPORT',
+        identity: crypto.randomUUID().replaceAll('-', '').slice(0, 16),
         email: name.split(' ')[0].toLowerCase() + '@example.test',
       },
       tokens[0],
@@ -176,21 +188,20 @@ const plan = await request(
   root + '/payment-plans',
   {
     name: 'Flexible 24 months',
-    schedule: [
-      { label: 'Down payment', percent: '20', days: 0 },
-      { label: 'First installment', percent: '40', months: 12 },
-      { label: 'Final installment', percent: '40', months: 24 },
-    ],
+    paymentType: 'INSTALLMENTS',
+    downPayment: '700000',
+    installmentCount: 24,
+    intervalMonths: 1,
+    firstInstallmentDate: '2090-01-01',
   },
   tokens[0],
 );
-for (const name of ['Sara Ahmed', 'Marcus Chen', 'Noor Hassan'])
-  await request(
-    root + '/leads',
-    { name, phone: '+923001234568', source: 'Website', assignedTo: users[0].id },
-    tokens[0],
-  );
 const accounts = await request(root + '/accounts', undefined, tokens[0]);
+const seller = await request(
+  root + '/vendors',
+  { name: 'Frontend Test Seller', phone: '03001234567', category: 'SELLER' },
+  tokens[0],
+);
 const fixture = {
   projectId: project.id,
   secondProjectId: second.id,
@@ -198,6 +209,7 @@ const fixture = {
   unitId: inventory.items[0].id,
   planVersionId: plan.versions[0].id,
   cashId: accounts.find((a) => a.code === '1000').id,
+  vendorId: seller.id,
   users: users.map((u) => ({ id: u.id, email: u.email })),
   password,
 };

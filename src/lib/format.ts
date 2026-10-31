@@ -30,12 +30,29 @@ export function money(
 ) {
   try {
     const n = new Decimal(String(value ?? 0));
+    if (!n.isFinite()) return '—';
     if (compact && n.abs().gte(100000)) return `${currency} ${pakistanAmount(n)}`;
     const [whole, cents] = n.toFixed(2).split('.');
     return `${currency} ${whole!.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}.${cents}`;
   } catch {
     return '—';
   }
+}
+export function amountInWords(value: unknown, currency = usePreferences.getState().currency) {
+  if (value == null || String(value).trim() === '') return '';
+  const words = pakistanAmount(value);
+  return words ? [words, currency].filter(Boolean).join(' ') : '';
+}
+
+/** Plain-text monetary labels, validation messages, and chart tooltips. */
+export function moneyWithWords(
+  value: unknown,
+  currency = usePreferences.getState().currency,
+  compact = false,
+) {
+  const formatted = money(value, currency, compact);
+  const words = amountInWords(value ?? 0, currency);
+  return words && !compact ? `${formatted} (${words})` : formatted;
 }
 export function date(value: unknown) {
   if (!value) return '—';
@@ -76,4 +93,4 @@ export const labelOf = (record: Record<string, unknown>) =>
       t('Record'),
   );
 export const moneyFields =
-  /^(price|taxes|legalFees|brokerage|otherCosts|charges|amount|total|discount|deduction|refundable|debit|credit|balance|paid|outstanding|overdue|collected|unallocated|downPayment|netSales|verifiedCollections|commission|promiseAmount|netIncome|assets|liabilities|equity)$/i;
+  /^(price|basePrice|sellingPrice|buyPrice|salePrice|listedPrice|listPrice|askingPrice|taxes|legalFees|brokerage|otherCosts|charges|amount|expectedAmount|expectedTotal|total|totalCost|totalBuyPrice|totalExpenses|totalInvestedCost|totalSalesRevenue|totalRealizedProfit|totalNetProfit|discount|deduction|customDeduction|customRefundAmount|refundable|refundAmount|debit|credit|balance|openingBalance|closingBalance|paid|outstanding|overdue|collected|unallocated|advanceCredit|downPayment|netSales|verifiedCollections|commission|promiseAmount|netIncome|assets|liabilities|equity)$/i;
