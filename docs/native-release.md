@@ -1,6 +1,6 @@
 # Native development and release
 
-All clients share the React UI and the centralized backend. No backend or database is embedded in an installer. Localhost is the current development setting, as requested; configure reachable HTTPS services for real devices and deployment.
+All clients share the React UI and the centralized backend. No backend or database is embedded in an installer. Windows installers connect to the production HTTPS API automatically. Source development uses localhost; mobile builds require a reachable HTTPS service for real devices.
 
 ## Windows
 
@@ -16,15 +16,17 @@ Electron binaries are normally downloaded by npm installation. If a previous dep
 
 The installer is `release/Estate-PMS-Setup-1.0.0.exe`; `release/win-unpacked/Estate PMS.exe` is the unpacked application. This development build is **unsigned**. Windows may show an unknown-publisher prompt. It has not been published or installed into the user's account by the build scripts.
 
-The default server is `http://127.0.0.1:4000/api/v1`. For development, set `PMS_DESKTOP_API_URL` before launching. An installed app can read `%APPDATA%/estate-pms-frontend/server.json` (Electron's user-data directory, based on the package name):
+Packaged Windows builds use **`https://api.etihadrealestate.tech/api/v1`**. No per-PC server configuration is required. Local API settings inherited from an older installation or terminal do not redirect a packaged app.
+
+Source development defaults to `http://127.0.0.1:4000/api/v1`. Set `PMS_DESKTOP_API_URL` before `npm run desktop` to override it, or use `%APPDATA%/estate-pms-frontend/server.json` (Electron's user-data directory, based on the package name):
 
 ```json
 {
-  "apiUrl": "https://pms.example.com/api/v1"
+  "apiUrl": "http://127.0.0.1:4000/api/v1"
 }
 ```
 
-Only HTTPS and explicit loopback HTTP are accepted. Credentials and URL query strings are rejected. Refresh tokens are encrypted with Windows safeStorage and held outside the renderer; access tokens stay in memory. The preload exposes only specific application methods. Node integration is disabled, context isolation and renderer sandboxing are enabled, and arbitrary navigation/popups are denied.
+The API overrides apply only to unpackaged development. Only HTTPS and explicit loopback HTTP are accepted there. Credentials and URL query strings are rejected. Refresh tokens are encrypted with Windows safeStorage and held outside the renderer; access tokens stay in memory. The preload exposes only specific application methods. Node integration is disabled, context isolation and renderer sandboxing are enabled, and arbitrary navigation/popups are denied.
 
 For a public release, provide an organization's code-signing identity to electron-builder, enable `win.signExecutable`, set the matching publisher identity and require signing in the release environment. Preserve signing-key access in a secret manager. Publish the installer, blockmap and release metadata to an HTTPS update location you control. Only then set `updateUrl` in `server.json` (or `PMS_UPDATE_URL`). No update feed is configured in the delivered localhost build. The profile page exposes update checking, explicit download, and restart after the download is ready. Test signature verification, interrupted downloads and manual rollback with a previous signed installer before distributing updates.
 

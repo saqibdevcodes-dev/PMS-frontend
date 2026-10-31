@@ -14,7 +14,7 @@ const { readFile, writeFile, rename, rm, stat } = require('node:fs/promises');
 const path = require('node:path');
 const { pathToFileURL } = require('node:url');
 const { randomUUID } = require('node:crypto');
-const { serverUrl, externalUrl, assetPath } = require('./security.cjs');
+const { desktopServerUrl, externalUrl, assetPath } = require('./security.cjs');
 const smokeTest = !app.isPackaged && process.env.PMS_DESKTOP_SMOKE === '1';
 if (smokeTest) app.setPath('userData', path.resolve(__dirname, '../test-results/electron-profile'));
 protocol.registerSchemesAsPrivileged([
@@ -163,9 +163,11 @@ app
     } catch {
       /* Optional public server configuration. */
     }
-    apiBase = serverUrl(
-      process.env.PMS_DESKTOP_API_URL || config.apiUrl || 'http://127.0.0.1:4000/api/v1',
-    );
+    apiBase = desktopServerUrl({
+      packaged: app.isPackaged,
+      environmentUrl: process.env.PMS_DESKTOP_API_URL,
+      configuredUrl: config.apiUrl,
+    });
     refreshFile = path.join(app.getPath('userData'), 'session.encrypted');
     const installationFile = path.join(app.getPath('userData'), 'installation-id');
     try {
