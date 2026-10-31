@@ -65,4 +65,4 @@ npm run mobile:sync
 npm run android
 ```
 
-Windows installer output is `release/Estate-PMS-Setup-1.0.0.exe`. The development installer is unsigned. Android and iOS native source projects are in `android/` and `ios/`. Android builds need JDK 21 and Android SDK 36; iOS builds require macOS and Xcode. See [native build and release instructions](docs/native-release.md) for localhost connectivity, signing, HTTPS, push configuration, versioning and the device testing checklist.
+Windows installer output is `release/Estate-PMS-Setup-1.0.0.exe`. Packaged Windows builds connect automatically to `https://api.etihadrealestate.tech/api/v1`; no per-PC API configuration is needed. The installer is unsigned. Source development retains local server overrides. Android and iOS native source projects are in `android/` and `ios/`. Android builds need JDK 21 and Android SDK 36; iOS builds require macOS and Xcode. See [native build and release instructions](docs/native-release.md) for localhost connectivity, signing, HTTPS, push configuration, versioning and the device testing checklist.

@@ -1,4 +1,10 @@
 const path = require('node:path');
+const productionApiUrl = 'https://api.etihadrealestate.tech/api/v1';
+function desktopServerUrl({ packaged, environmentUrl, configuredUrl }) {
+  return serverUrl(
+    packaged ? productionApiUrl : environmentUrl || configuredUrl || 'http://127.0.0.1:4000/api/v1',
+  );
+}
 function serverUrl(value) {
   const url = new URL(value);
   const local = ['127.0.0.1', 'localhost', '[::1]'].includes(url.hostname);
@@ -29,4 +35,4 @@ function assetPath(root, pathname) {
   if (!target.startsWith(path.resolve(root) + path.sep)) throw new Error('Invalid asset path.');
   return target;
 }
-module.exports = { serverUrl, externalUrl, assetPath };
+module.exports = { serverUrl, desktopServerUrl, externalUrl, assetPath };

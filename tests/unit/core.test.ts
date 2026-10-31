@@ -8,7 +8,12 @@ import { allowedAction } from '../../src/features/resources/catalog';
 import { useAuth } from '../../src/stores/auth';
 import type { User } from '../../src/lib/types';
 const require = createRequire(import.meta.url);
-const { serverUrl, externalUrl, assetPath } = require('../../electron/security.cjs');
+const {
+  serverUrl,
+  desktopServerUrl,
+  externalUrl,
+  assetPath,
+} = require('../../electron/security.cjs');
 beforeEach(() => {
   useAuth.getState().clear();
   vi.restoreAllMocks();
@@ -98,6 +103,30 @@ describe('workflow permissions', () => {
 });
 
 describe('desktop security boundaries', () => {
+  it('uses the production API in installed builds even with inherited local settings', () => {
+    const production = 'https://api.etihadrealestate.tech/api/v1';
+    expect(desktopServerUrl({ packaged: true })).toBe(production);
+    expect(
+      desktopServerUrl({
+        packaged: true,
+        environmentUrl: 'http://127.0.0.1:4100/api/v1',
+        configuredUrl: 'http://localhost:4000/api/v1',
+      }),
+    ).toBe(production);
+  });
+  it('keeps local defaults and explicit server overrides available for source development', () => {
+    expect(desktopServerUrl({ packaged: false })).toBe('http://127.0.0.1:4000/api/v1');
+    expect(
+      desktopServerUrl({ packaged: false, configuredUrl: 'http://localhost:4100/api/v1' }),
+    ).toBe('http://localhost:4100/api/v1');
+    expect(
+      desktopServerUrl({
+        packaged: false,
+        environmentUrl: 'http://localhost:4200/api/v1',
+        configuredUrl: 'http://localhost:4100/api/v1',
+      }),
+    ).toBe('http://localhost:4200/api/v1');
+  });
   it('accepts localhost development and HTTPS production API URLs only', () => {
     expect(serverUrl('http://127.0.0.1:4000/api/v1')).toContain('4000');
     expect(serverUrl('https://pms.example/api/v1/')).toBe('https://pms.example/api/v1');
