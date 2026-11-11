@@ -26,26 +26,102 @@ import { CustomerStatement, type AccountStatement } from './CustomerStatement';
 import { exportAndDownloadReport } from '../../lib/export-download';
 import { print } from '../../platform/adapter';
 export const reportGroups: Record<string, string[]> = {
-  'Sales & inventory': [
+  'Sales reports': [
+    'sales-payment-report',
+    'product-sales-report',
+    'sales-by-clients-top-5',
+    'sales-by-products-top-5',
+    'sale-order-report',
+    'invoice-aging-sales',
+    'detailed-sales-report',
+    'sales-return-report',
+  ],
+  'Purchase reports': [
+    'product-purchase-report',
+    'purchase-report',
+    'invoice-aging-purchase',
+    'purchase-order-report',
+    'detailed-purchase-report',
+    'purchase-return-report',
+  ],
+  'Profit & loss reports': [
+    'pnl-cogs-periodic',
+    'pnl-stock-change-periodic',
+    'pnl-cogs',
+    'pnl-opening-closing-stock',
+    'productwise-profit-loss',
+    'invoicewise-profit-loss',
+    'clientwise-profit-loss',
+  ],
+  'Balance sheet reports': ['balance-sheet', 'trial-balance'],
+  'Other financial reports': [
+    'expense-report',
+    'detailed-expense-report',
+    'inventory-report',
+    'inventory-valuation-fifo',
+    'day-book',
+    'cash-flow',
+    'tax-report',
+  ],
+  'Operational reports': [
     'sales',
     'inventory',
     'collections',
     'installments',
+    'outstanding',
+    'ageing',
+    'defaulters',
+    'customer-statement',
     'dealer-sales',
     'deal-profitability',
+    'ndcs',
+    'transfers',
+    'cancellations',
+    'refunds',
+    'possession',
   ],
-  'Customers & recovery': ['outstanding', 'ageing', 'defaulters', 'customer-statement'],
-  Ownership: ['ndcs', 'transfers', 'cancellations', 'refunds', 'possession'],
-  'Financial statements': [
-    'ledger',
-    'cash-book',
-    'bank-book',
-    'vendor-ledger',
-    'trial-balance',
-    'income-statement',
-    'balance-sheet',
-  ],
+  'Ledgers & books': ['ledger', 'cash-book', 'bank-book', 'vendor-ledger', 'income-statement'],
 };
+const financialKinds = new Set([
+  ...reportGroups['Purchase reports']!,
+  ...reportGroups['Profit & loss reports']!,
+  ...reportGroups['Balance sheet reports']!,
+  ...reportGroups['Other financial reports']!,
+  ...reportGroups['Ledgers & books']!,
+]);
+const reportLabels: Record<string, string> = {
+  'sales-payment-report': 'Sales/Payment Report',
+  'product-sales-report': 'Product Sales Report',
+  'sales-by-clients-top-5': 'Sales by Clients - Top 5',
+  'sales-by-products-top-5': 'Sales by Products - Top 5',
+  'sale-order-report': 'Sale Order Report',
+  'invoice-aging-sales': 'Invoice Aging Sales',
+  'detailed-sales-report': 'Detailed Sales Report',
+  'sales-return-report': 'Sales Return Report',
+  'product-purchase-report': 'Product Purchase Report',
+  'purchase-report': 'Purchase Report',
+  'invoice-aging-purchase': 'Invoice Aging Supplier/Purchase',
+  'purchase-order-report': 'Purchase Order Report',
+  'detailed-purchase-report': 'Detailed Purchase Report',
+  'purchase-return-report': 'Purchase Return Report',
+  'pnl-cogs-periodic': 'Monthly/Weekly/Daily P&L - COGS',
+  'pnl-stock-change-periodic': 'Monthly/Weekly/Daily P&L - Change in Stock',
+  'pnl-cogs': 'P&L Using COGS',
+  'pnl-opening-closing-stock': 'P&L Using Opening/Closing Stock',
+  'productwise-profit-loss': 'Productwise Profit/Loss',
+  'invoicewise-profit-loss': 'Invoice Wise Profit/Loss',
+  'clientwise-profit-loss': 'Client Wise Profit/Loss',
+  'balance-sheet': 'Balance Sheet',
+  'trial-balance': 'Trial Balance',
+  'expense-report': 'Expense Report',
+  'detailed-expense-report': 'Detailed Expense Report',
+  'inventory-report': 'Inventory Report',
+  'inventory-valuation-fifo': 'Inventory Valuation (FIFO Method)',
+  'day-book': 'Day Book Report',
+  'cash-flow': 'Cash Flow Statement',
+  'tax-report': 'Tax Reports',
+};
+const reportLabel = (kind: string) => reportLabels[kind] ?? humanize(kind);
 export default function Reports() {
   useLocale();
   const projectId = usePreferences((s) => s.projectId);
@@ -53,10 +129,13 @@ export default function Reports() {
   const [draft, setDraft] = useState<Record<string, string>>(() => Object.fromEntries(params));
   const [page, setPage] = useState(1);
   const [jobs, _setJobs] = useState<{ id: string; projectId: string; filename: string }[]>([]);
-  const filters = { ...Object.fromEntries(params), kind: params.get('kind') || 'sales' };
+  const filters = {
+    ...Object.fromEntries(params),
+    kind: params.get('kind') || 'sales-payment-report',
+  };
   const kind = filters.kind;
   const needsCustomer = kind === 'customer-statement' && !params.get('customerId');
-  const financial = reportGroups['Financial statements']!.includes(kind);
+  const financial = financialKinds.has(kind);
   const query = useQuery({
     queryKey: ['report', projectId, filters],
     enabled:
@@ -148,9 +227,11 @@ export default function Reports() {
               value={draft.kind ?? kind}
               onChange={(value) => setDraft({ kind: value })}
               options={Object.entries(reportGroups)
-                .filter(([group]) => group !== 'Financial statements' || can('finance.read'))
+                .filter(
+                  ([group]) => !financialKinds.has(reportGroups[group]![0]!) || can('finance.read'),
+                )
                 .flatMap(([group, kinds]) =>
-                  kinds.map((value) => ({ value, label: humanize(value), group: t(group) })),
+                  kinds.map((value) => ({ value, label: t(reportLabel(value)), group: t(group) })),
                 )}
             />
           </div>
@@ -163,6 +244,20 @@ export default function Reports() {
               onChange={(e) => setDraft({ ...draft, from: e.target.value })}
             />
           </div>
+          {['pnl-cogs-periodic', 'pnl-stock-change-periodic'].includes(draft.kind ?? kind) && (
+            <div className="form-field">
+              <label htmlFor="report-granularity">{t('Period')}</label>
+              <Select
+                id="report-granularity"
+                value={draft.granularity ?? 'monthly'}
+                onChange={(value) => setDraft({ ...draft, granularity: value })}
+                options={['daily', 'weekly', 'monthly'].map((value) => ({
+                  value,
+                  label: humanize(value),
+                }))}
+              />
+            </div>
+          )}
           <div className="form-field">
             <label htmlFor="report-to">{t('Through date')}</label>
             <input
@@ -248,7 +343,7 @@ export default function Reports() {
         <div className="panel">
           <div className="panel-heading">
             <div>
-              <h2>{humanize(kind)}</h2>
+              <h2>{reportLabel(kind)}</h2>
               <p>
                 {query.data?.currency ?? t('Project currency')} {t('· Server-calculated report')}
               </p>

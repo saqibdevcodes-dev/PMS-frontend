@@ -25,6 +25,7 @@ import { PropertyFileModal } from '../bookings/PropertyFileModal';
 import { PropertyPurchaseWizard } from './PropertyPurchaseWizard';
 import { DeleteWithPasswordModal } from '../../components/DeleteWithPasswordModal';
 import { UnassignPropertyModal } from '../bookings/UnassignPropertyModal';
+import { PropertyFinancialSummary, SupplierStatement } from './AccountingSummaries';
 import '../portal/portal.css';
 const hidden = new Set([
   'id',
@@ -207,6 +208,24 @@ export default function RecordDetail({
                 onClick={() => setTab('position')}
               >
                 {t('Payment position')}
+              </button>
+            )}
+            {resource.slug === 'inventory' && can('finance.read') && (
+              <button
+                role="tab"
+                aria-selected={tab === 'financials'}
+                onClick={() => setTab('financials')}
+              >
+                Financials
+              </button>
+            )}
+            {resource.slug === 'vendors' && can('finance.read') && (
+              <button
+                role="tab"
+                aria-selected={tab === 'supplier-statement'}
+                onClick={() => setTab('supplier-statement')}
+              >
+                Supplier statement
               </button>
             )}
             {collections.map(([key]) => (
@@ -462,6 +481,10 @@ export default function RecordDetail({
                 </div>
               )}
             </>
+          ) : tab === 'financials' && record.id ? (
+            <PropertyFinancialSummary unitId={String(record.id)} />
+          ) : tab === 'supplier-statement' && record.id ? (
+            <SupplierStatement vendorId={String(record.id)} />
           ) : tab === 'position' ? (
             <>
               <div className="position-cards">

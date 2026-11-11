@@ -81,9 +81,15 @@ export const relationPaths: Record<string, string> = {
   bookingId: 'bookings',
   planVersionId: 'payment-plans',
   accountId: 'accounts',
+  parentId: 'accounts',
+  expenseAccountId: 'accounts',
+  paymentAccountId: 'accounts',
+  cashAccountId: 'accounts',
   receivingAccountId: 'accounts',
   bankAccountId: 'bank-accounts',
   vendorId: 'vendors',
+  purchaseId: 'property-purchases',
+  partnerId: 'partners',
   ndcId: 'ndcs',
   cancellationId: 'cancellations',
   roleIds: '/roles',
@@ -112,7 +118,7 @@ export function RelationSelect({
   entityId?: string;
   disabled?: boolean;
   statusFilter?: string;
-  roleFilter?: 'SELLER';
+  roleFilter?: 'SELLER' | 'SUPPLIER' | 'CONTRACTOR' | 'MULTI_ROLE';
 }) {
   useLocale();
   const projectId = usePreferences((s) => s.projectId);
@@ -131,8 +137,11 @@ export function RelationSelect({
   const path = source?.startsWith('/') ? source : projectRoot + '/' + source;
   const op = operations.find((o) => o.path === path && o.method === 'get');
   const permitted = Boolean(op && can(op.permission) && (source?.startsWith('/') || projectId));
+  const accountType = ['paymentAccountId', 'cashAccountId', 'receivingAccountId'].includes(name)
+    ? 'ASSET'
+    : undefined;
   const query = useQuery({
-    queryKey: ['relation', projectId, name, debounced, page, statusFilter, roleFilter],
+    queryKey: ['relation', projectId, name, debounced, page, statusFilter, roleFilter, accountType],
     enabled: permitted,
     queryFn: ({ signal }) =>
       api(
@@ -140,6 +149,7 @@ export function RelationSelect({
           queryString({
             ...(statusFilter && supportsQuery(path, 'status') ? { status: statusFilter } : {}),
             ...(roleFilter && supportsQuery(path, 'role') ? { role: roleFilter } : {}),
+            ...(accountType && supportsQuery(path, 'type') ? { type: accountType } : {}),
             ...(supportsQuery(path, 'page') ? { page, limit: 25 } : {}),
             ...(debounced && (supportsQuery(path, 'search') || name === 'bookingId')
               ? { search: debounced }

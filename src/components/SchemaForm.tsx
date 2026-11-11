@@ -474,7 +474,9 @@ export function SchemaField({
                 roleFilter={
                   fieldKey === 'vendorId' && guidance.path.includes('/property-purchases')
                     ? 'SELLER'
-                    : undefined
+                    : fieldKey === 'vendorId' && guidance.path.includes('/supplier-payments')
+                      ? 'SUPPLIER'
+                      : undefined
                 }
                 statusFilter={
                   fieldKey === 'bookingId' &&

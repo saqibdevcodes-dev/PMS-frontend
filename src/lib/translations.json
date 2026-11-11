@@ -1,4 +1,28 @@
 {
+  "Supplier payments": ["سپلائر ادائیگیاں", "مدفوعات الموردين"],
+  "Pay suppliers, allocate partial payments to purchases and preserve voucher history.": [
+    "سپلائرز کو ادائیگی کریں، جزوی ادائیگیاں خریداریوں سے منسلک کریں اور واؤچر کی تاریخ محفوظ رکھیں۔",
+    "ادفع للموردين وخصص الدفعات الجزئية للمشتريات واحتفظ بسجل السندات."
+  ],
+  "Add supplier payment voucher": ["سپلائر ادائیگی واؤچر شامل کریں", "إضافة سند دفع مورد"],
+  "Record general or property-related expenses independently and classify operating versus capitalized costs.": [
+    "عمومی یا جائیداد سے متعلق اخراجات الگ درج کریں اور عملی و سرمایہ جاتی لاگت کی درجہ بندی کریں۔",
+    "سجل المصروفات العامة أو المرتبطة بالعقار بشكل مستقل وصنف التكاليف التشغيلية والرأسمالية."
+  ],
+  "Add expense voucher": ["اخراجات کا واؤچر شامل کریں", "إضافة سند مصروف"],
+  "Partners & capital": ["شراکت دار اور سرمایہ", "الشركاء ورأس المال"],
+  "Manage business partners and view each partner’s dedicated capital balance.": [
+    "کاروباری شراکت داروں کو منظم کریں اور ہر شراکت دار کا الگ سرمایہ بیلنس دیکھیں۔",
+    "أدر شركاء العمل واعرض رصيد رأس المال المخصص لكل شريك."
+  ],
+  "Add partner": ["شراکت دار شامل کریں", "إضافة شريك"],
+  "Capital transactions": ["سرمایہ کے لین دین", "معاملات رأس المال"],
+  "Post partner contributions and withdrawals through balanced accounting vouchers.": [
+    "شراکت دار کی سرمایہ شمولیت اور نکاسی کو متوازن اکاؤنٹنگ واؤچرز کے ذریعے درج کریں۔",
+    "رحّل مساهمات الشركاء ومسحوباتهم من خلال سندات محاسبية متوازنة."
+  ],
+  "Add capital voucher": ["سرمایہ واؤچر شامل کریں", "إضافة سند رأس مال"],
+  "Period": ["مدت", "الفترة"],
   "List for sale": ["فروخت کے لیے درج کریں", "إدراج للبيع"],
   "Search customers": ["گاہک تلاش کریں", "البحث عن العملاء"],
   "Clear search": ["تلاش صاف کریں", "مسح البحث"],
