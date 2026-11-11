@@ -38,7 +38,13 @@ import { OperationDialog } from '../OperationDialog';
 import { LanguageSelector } from '../LanguageSelector';
 import { BrandLogo } from '../BrandLogo';
 import { SearchSelect } from '../SearchSelect';
-const propertySlugs = ['property-lifecycle', 'vendors', 'property-purchases', 'inventory'];
+const propertySlugs = [
+  'property-lifecycle',
+  'inventory',
+  'property-purchases',
+  'expenses',
+  'vendors',
+];
 export default function Shell() {
   useLocale();
   const user = useAuth((s) => s.user)!;

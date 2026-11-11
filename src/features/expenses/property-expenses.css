@@ -1,0 +1,68 @@
+.property-expense-identity {
+  display: grid;
+  gap: 3px;
+}
+
+.property-expense-identity small {
+  color: var(--muted);
+}
+
+.property-expense-dialog {
+  display: grid;
+  gap: 18px;
+}
+.property-expense-dialog-heading {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+.property-expense-dialog-heading > div {
+  display: grid;
+  gap: 4px;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+.property-expense-dialog-heading span {
+  color: var(--muted);
+  font-size: 12px;
+}
+.property-expense-lines {
+  display: grid;
+  gap: 10px;
+}
+.property-expense-line {
+  display: grid;
+  grid-template-columns: 28px minmax(180px, 2fr) minmax(150px, 1fr) minmax(130px, 0.8fr) auto;
+  align-items: end;
+  gap: 10px;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+.property-expense-line label {
+  display: grid;
+  gap: 5px;
+}
+.property-expense-line label > span {
+  color: var(--muted);
+  font-size: 12px;
+}
+.property-expense-line-number {
+  align-self: center;
+  color: var(--muted);
+  font-weight: 700;
+}
+
+@media (max-width: 760px) {
+  .property-expense-line {
+    grid-template-columns: 28px 1fr auto;
+  }
+  .property-expense-line label {
+    grid-column: 2;
+  }
+  .property-expense-line > button {
+    grid-column: 3;
+    grid-row: 1;
+  }
+}

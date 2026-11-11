@@ -923,7 +923,7 @@ export interface paths {
         delete: operations["delete__projects__projectId_units__id"];
         options?: never;
         head?: never;
-        /** Update property details and up to five photos; price changes use the Change price action */
+        /** Update property details and up to 20 photos; price changes use the Change price action */
         patch: operations["patch__projects__projectId_units__id"];
         trace?: never;
     };
@@ -1788,6 +1788,23 @@ export interface paths {
         head?: never;
         /** Edit a draft property acquisition */
         patch: operations["patch__projects__projectId_property_purchases__id"];
+        trace?: never;
+    };
+    "/projects/{projectId}/property-purchases/{id}/expenses": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Save itemized property expenses while the acquisition remains a draft */
+        patch: operations["patch__projects__projectId_property_purchases__id_expenses"];
         trace?: never;
     };
     "/projects/{projectId}/property-purchases/{id}/post": {
@@ -17863,6 +17880,122 @@ export interface operations {
                     }[];
                     fileReference: string;
                     /** @default  */
+                    notes?: string;
+                };
+            };
+        };
+        responses: {
+            /** @description Successful operation. Monetary model fields are decimal strings. Lists with pagination return items and pagination inside data. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @constant */
+                        success: true;
+                        data: components["schemas"]["PropertyPurchase"];
+                        meta: {
+                            requestId: string;
+                        };
+                    };
+                };
+            };
+            /** @description Malformed request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Invalid, expired or revoked session */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Permission, origin or separation-of-duties denial */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Record missing or outside project scope */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Workflow, uniqueness or concurrency conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Validation or business rule failure */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Distributed rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Unexpected server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    patch__projects__projectId_property_purchases__id_expenses: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                projectId: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    /** @default [] */
+                    expenseItems?: {
+                        id?: string;
+                        name: string;
+                        /** @default Renovation & Building */
+                        category?: string;
+                        amount: string;
+                    }[];
                     notes?: string;
                 };
             };

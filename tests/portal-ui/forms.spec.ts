@@ -1059,7 +1059,8 @@ test('property form supports custom types, area choices, feature pictures and a 
   await dialog.getByLabel('Property area').fill('1200');
   await chooseOption(dialog.getByLabel('Area unit'), 'sq ft');
   await dialog.getByLabel('Property price').fill('5000000');
-  await expect(dialog.getByText(/Extra property fees, such as development/)).toBeVisible();
+  await expect(dialog.getByText(/Extra property fees, such as development/)).toHaveCount(0);
+  await expect(dialog.getByText('0 / 20', { exact: true })).toBeVisible();
   await dialog.getByLabel('Property photos', { exact: true }).setInputFiles(photo);
   await expect(dialog.getByRole('img')).toHaveCount(1);
   await chooseOption(dialog.getByLabel('Choose a feature'), 'OTHER');
@@ -1085,6 +1086,7 @@ test('property form supports custom types, area choices, feature pictures and a 
     photoIds: [id(20)],
     featureImages: [{ feature: 'Loading bay', imageId: id(21) }],
   });
+  expect(body).not.toHaveProperty('charges');
   expect(nativeDialogs).toBe(0);
 });
 for (const propertyError of ['unsupported', 'field'] as const) {
@@ -1139,6 +1141,96 @@ for (const propertyError of ['unsupported', 'field'] as const) {
     }
   });
 }
+
+test('property expenses are drafted against sale properties and finalized properties stay locked', async ({
+  page,
+}) => {
+  await setup(page);
+  const seller = { id: id(90), name: 'Sale Property Seller' };
+  const draft = {
+    id: id(91),
+    reference: 'PUR-00000091',
+    title: 'Draft Sale Plot',
+    status: 'DRAFT',
+    vendorId: seller.id,
+    vendor: seller,
+    unitId: id(92),
+    unit: { id: id(92), number: 'SALE-91', status: 'BLOCKED', price: '1500000' },
+    purchaseDate: '2026-11-01',
+    price: '1000000',
+    taxes: '0',
+    legalFees: '0',
+    brokerage: '0',
+    otherCosts: '0',
+    total: '1000000',
+    expenseItems: [],
+    notes: '',
+    fileReference: 'FILE-91',
+  };
+  const finalized = {
+    ...draft,
+    id: id(93),
+    reference: 'PUR-00000093',
+    title: 'Final Sale Plot',
+    status: 'POSTED',
+    unitId: id(94),
+    unit: { id: id(94), number: 'SALE-93', status: 'AVAILABLE', price: '1800000' },
+    expenseItems: [
+      {
+        id: 'final-expense',
+        name: 'Completed renovation',
+        category: 'Renovation & Building',
+        amount: '25000',
+      },
+    ],
+    otherCosts: '25000',
+    total: '1025000',
+  };
+  let saved: Record<string, unknown> | undefined;
+  await page.route('**/api/v1/projects/*/property-purchases**', async (route) => {
+    const request = route.request();
+    if (request.method() === 'PATCH' && new URL(request.url()).pathname.endsWith('/expenses')) {
+      saved = request.postDataJSON();
+      await route.fulfill({ json: { success: true, data: { ...draft, ...saved } } });
+      return;
+    }
+    await route.fulfill({ json: { success: true, data: list([draft, finalized]) } });
+  });
+
+  await page.goto('/expenses');
+  await expect(page.getByRole('heading', { name: 'Property expenses', exact: true })).toBeVisible();
+  await expect(page.getByText('Draft Sale Plot', { exact: true })).toBeVisible();
+  await expect(page.getByText('Final Sale Plot', { exact: true })).toBeVisible();
+
+  await page.getByRole('button', { name: 'Add expenses', exact: true }).click();
+  const draftDialog = page.getByRole('dialog', { name: 'Property expense draft', exact: true });
+  await draftDialog.getByRole('button', { name: 'Add expense line', exact: true }).click();
+  await draftDialog.getByLabel('Expense description').fill('Boundary wall work');
+  await draftDialog.getByLabel('Category').fill('Construction');
+  await draftDialog.getByLabel('Amount').fill('45000');
+  await draftDialog.getByRole('button', { name: 'Save expense draft', exact: true }).click();
+  await expect
+    .poll(() => saved)
+    .toEqual({
+      expenseItems: [
+        expect.objectContaining({
+          name: 'Boundary wall work',
+          category: 'Construction',
+          amount: '45000.00',
+        }),
+      ],
+      notes: '',
+    });
+
+  await page.getByRole('button', { name: 'View finalized expenses', exact: true }).click();
+  const finalDialog = page.getByRole('dialog', {
+    name: 'Finalized property expenses',
+    exact: true,
+  });
+  await expect(finalDialog.getByText(/expense cost basis is locked/)).toBeVisible();
+  await expect(finalDialog.getByRole('button', { name: 'Add expense line' })).toHaveCount(0);
+  await expect(finalDialog.getByRole('button', { name: 'Save expense draft' })).toHaveCount(0);
+});
 
 test('non-cash payment requires proof and Other requires a description; cash does not require proof', async ({
   page,
@@ -2110,6 +2202,9 @@ for (const width of [1280, 847, 390]) {
     await expect(
       page.getByRole('dialog').getByLabel('Phone', { exact: false }).first(),
     ).toBeVisible();
+    const phone = page.getByRole('dialog').getByLabel('Phone', { exact: false }).first();
+    await phone.fill('03001234567');
+    await expect(phone).toHaveValue('0300-1234567');
     await page.screenshot({
       path: `test-results/portal/compact-customer-${width}.png`,
       fullPage: true,

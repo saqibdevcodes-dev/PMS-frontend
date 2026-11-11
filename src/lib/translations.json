@@ -1,4 +1,76 @@
 {
+  "Add itemized expenses to sale-property drafts before their investment cost is finalized.": [
+    "سرمایہ کاری کی لاگت حتمی کرنے سے پہلے فروخت والی جائیداد کے مسودے میں تفصیلی اخراجات شامل کریں۔",
+    "أضف المصروفات المفصلة إلى مسودات عقارات البيع قبل اعتماد تكلفة الاستثمار."
+  ],
+  "Open Property Lifecycle": ["جائیداد کے مراحل کھولیں", "فتح دورة حياة العقار"],
+  "Expense draft summary": ["اخراجات کے مسودے کا خلاصہ", "ملخص مسودة المصروفات"],
+  "Editable expense drafts": ["قابل ترمیم اخراجاتی مسودے", "مسودات المصروفات القابلة للتعديل"],
+  "Finalized properties": ["حتمی جائیدادیں", "العقارات المعتمدة"],
+  "All sale properties": ["تمام فروخت والی جائیدادیں", "جميع عقارات البيع"],
+  "Search sale properties": ["فروخت والی جائیدادیں تلاش کریں", "البحث في عقارات البيع"],
+  "Search property, reference or seller...": [
+    "جائیداد، حوالہ یا فروخت کنندہ تلاش کریں...",
+    "ابحث عن العقار أو المرجع أو البائع..."
+  ],
+  "Only draft properties can receive new expenses.": [
+    "صرف مسودہ جائیدادوں میں نئے اخراجات شامل کیے جا سکتے ہیں۔",
+    "يمكن إضافة مصروفات جديدة إلى العقارات المسودة فقط."
+  ],
+  "No sale properties in this view": [
+    "اس منظر میں کوئی فروخت والی جائیداد نہیں",
+    "لا توجد عقارات بيع في هذا العرض"
+  ],
+  "Create a property purchase draft in Property Lifecycle first.": [
+    "پہلے جائیداد کے مراحل میں خریداری کا مسودہ بنائیں۔",
+    "أنشئ أولاً مسودة شراء عقار في دورة حياة العقار."
+  ],
+  "Sale status": ["فروخت کی حالت", "حالة البيع"],
+  "Expense items": ["اخراجات کی مدات", "بنود المصروفات"],
+  "Draft expenses": ["مسودہ اخراجات", "مصروفات المسودة"],
+  "Property expense draft saved": [
+    "جائیداد کے اخراجات کا مسودہ محفوظ ہوگیا",
+    "تم حفظ مسودة مصروفات العقار"
+  ],
+  "Every expense needs a description, category and amount greater than zero.": [
+    "ہر خرچ کے لیے تفصیل، زمرہ اور صفر سے زیادہ رقم درکار ہے۔",
+    "يتطلب كل مصروف وصفاً وفئة ومبلغاً أكبر من صفر."
+  ],
+  "Failed to save expense draft": ["اخراجات کا مسودہ محفوظ نہیں ہوسکا", "تعذر حفظ مسودة المصروفات"],
+  "Property expense draft": ["جائیداد کے اخراجات کا مسودہ", "مسودة مصروفات العقار"],
+  "Finalized property expenses": ["حتمی جائیداد کے اخراجات", "مصروفات العقار المعتمدة"],
+  "This property is finalized. Its expense cost basis is locked and cannot be changed.": [
+    "یہ جائیداد حتمی ہوچکی ہے۔ اس کے اخراجات کی لاگت مقفل ہے اور تبدیل نہیں ہوسکتی۔",
+    "تم اعتماد هذا العقار. أساس تكلفة مصروفاته مقفل ولا يمكن تغييره."
+  ],
+  "Expense draft total": ["اخراجات کے مسودے کا کل", "إجمالي مسودة المصروفات"],
+  "No itemized expenses have been added.": [
+    "کوئی تفصیلی خرچ شامل نہیں کیا گیا۔",
+    "لم تتم إضافة مصروفات مفصلة."
+  ],
+  "Expense description": ["خرچ کی تفصیل", "وصف المصروف"],
+  "Category": ["زمرہ", "الفئة"],
+  "Remove expense {0}": ["خرچ {0} ہٹائیں", "إزالة المصروف {0}"],
+  "Add expense line": ["خرچ کی سطر شامل کریں", "إضافة بند مصروف"],
+  "Draft notes": ["مسودے کے نوٹس", "ملاحظات المسودة"],
+  "Save expense draft": ["اخراجات کا مسودہ محفوظ کریں", "حفظ مسودة المصروفات"],
+  "Choose up to {count} photos. Remove a photo before adding more.": [
+    "{count} تک تصاویر منتخب کریں۔ مزید شامل کرنے سے پہلے ایک تصویر ہٹائیں۔",
+    "اختر ما يصل إلى {count} صورة. أزل صورة قبل إضافة المزيد."
+  ],
+  "Up to {count} photos. JPEG, PNG or WebP. Maximum 5 MiB each. The first photo is the cover.": [
+    "زیادہ سے زیادہ {count} تصاویر۔ JPEG، PNG یا WebP۔ ہر تصویر زیادہ سے زیادہ 5 MiB۔ پہلی تصویر سرورق ہوگی۔",
+    "حتى {count} صورة. بصيغة JPEG أو PNG أو WebP. الحد الأقصى 5 MiB لكل صورة. الصورة الأولى هي الغلاف."
+  ],
+  "Add an expense for this property": ["اس جائیداد کا خرچ شامل کریں", "إضافة مصروف لهذا العقار"],
+  "Operating expenses": ["عملی اخراجات", "المصروفات التشغيلية"],
+  "Capitalized property costs": ["جائیداد کی سرمایہ جاتی لاگت", "تكاليف العقار الرأسمالية"],
+  "Filter by treatment": ["قسم کے لحاظ سے فلٹر کریں", "التصفية حسب المعالجة"],
+  "All expense treatments": ["اخراجات کی تمام اقسام", "جميع معالجات المصروفات"],
+  "Operating expense": ["عملی خرچ", "مصروف تشغيلي"],
+  "Capitalized property cost": ["جائیداد کی سرمایہ جاتی لاگت", "تكلفة عقار رأسمالية"],
+  "Filter by expense category": ["خرچ کے زمرے سے فلٹر کریں", "التصفية حسب فئة المصروف"],
+  "Expense category": ["خرچ کا زمرہ", "فئة المصروف"],
   "Supplier payments": ["سپلائر ادائیگیاں", "مدفوعات الموردين"],
   "Pay suppliers, allocate partial payments to purchases and preserve voucher history.": [
     "سپلائرز کو ادائیگی کریں، جزوی ادائیگیاں خریداریوں سے منسلک کریں اور واؤچر کی تاریخ محفوظ رکھیں۔",

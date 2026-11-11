@@ -27,6 +27,7 @@ import { ImageGalleryUpload } from './ImageGalleryUpload';
 import { FeatureEditor } from './FeatureEditor';
 import { currencies, timezones } from '../lib/project-options';
 import { verificationErrors } from '../lib/ownership';
+import { formatPhone, isValidPhone } from '../lib/phone';
 import { OwnershipGuide } from './OwnershipVerification';
 const Guidance = createContext({ path: '', uploading: (_key: string, _busy: boolean) => {} });
 function messageAt(errors: FieldErrors, path: string) {
@@ -102,6 +103,7 @@ export function SchemaField({
   if (
     fieldKey === 'receivingAccountId' ||
     fieldKey === 'featureImages' ||
+    (fieldKey === 'charges' && propertyForm) ||
     (fieldKey === 'measurementUnit' && propertyForm) ||
     (name.startsWith('verification.') &&
       (((fieldKey === 'clearanceReference' || fieldKey === 'clearanceValidUntil') &&
@@ -405,11 +407,13 @@ export function SchemaField({
                 onBlur={field.onBlur}
                 type="tel"
                 inputMode="tel"
+                maxLength={15}
                 value={String(field.value ?? '')}
                 placeholder="0300-1234567"
                 disabled={disabled}
                 aria-invalid={!!error}
-                onChange={field.onChange}
+                onChange={(event) => field.onChange(formatPhone(event.target.value))}
+                style={{ fontFamily: 'monospace', letterSpacing: '0.04em' }}
               />
             );
           if (moneyFields.test(fieldKey) && !schema.enum)
@@ -654,6 +658,18 @@ export function SchemaForm({
               form.setError('identity', { message: t('Enter all 13 digits of the CNIC.') });
               return;
             }
+            if (customerCreate && !isValidPhone(v.phone)) {
+              form.setError('phone', {
+                message: t('Enter a valid mobile phone number, for example 0300-1234567.'),
+              });
+              return;
+            }
+            if (customerCreate && v.secondaryPhone && !isValidPhone(v.secondaryPhone)) {
+              form.setError('secondaryPhone', {
+                message: t('Enter a valid secondary phone number, for example 0300-7654321.'),
+              });
+              return;
+            }
             if (/\/units(?:\/|$)/.test(operationPath) && v.type === 'OTHER' && !v.typeDetails) {
               form.setError('typeDetails', { message: t('Describe the property type.') });
               return;
@@ -683,7 +699,9 @@ export function SchemaForm({
               return;
             }
             try {
-              onSubmit(normalize(schema, v) as Row);
+              const normalized = normalize(schema, v) as Row;
+              if (/\/units(?:\/|$)/.test(operationPath)) delete normalized.charges;
+              onSubmit(normalized);
             } catch (e) {
               setAttemptError(e);
             }

@@ -7,7 +7,6 @@ import { usePreferences } from '../stores/preferences';
 import { RecordImage } from './ImageUpload';
 import { Button, ErrorState } from './ui';
 
-const maximum = 5;
 type Preview = { url: string; name: string; fingerprint: string };
 export function ImageGalleryUpload({
   value = [],
@@ -25,6 +24,7 @@ export function ImageGalleryUpload({
   onBusy?: (busy: boolean) => void;
 }) {
   useLocale();
+  const maximum = purpose === 'UNIT' ? 20 : 5;
   const projectId = usePreferences((state) => state.projectId);
   const inputId = useId();
   const [busy, setBusy] = useState(false);
@@ -50,7 +50,13 @@ export function ImageGalleryUpload({
     if (!files.length || disabled || inFlight.current) return;
     setError(undefined);
     if (value.length + files.length > maximum) {
-      setError(new Error(t('Choose up to five photos. Remove a photo before adding more.')));
+      setError(
+        new Error(
+          t('Choose up to {count} photos. Remove a photo before adding more.', {
+            count: maximum,
+          }),
+        ),
+      );
       return;
     }
     const fingerprints = new Set(
@@ -154,7 +160,10 @@ export function ImageGalleryUpload({
         </span>
         <small id={`${inputId}-help`}>
           {t(
-            'Up to five photos. JPEG, PNG or WebP. Maximum 5 MiB each. The first photo is the cover.',
+            'Up to {count} photos. JPEG, PNG or WebP. Maximum 5 MiB each. The first photo is the cover.',
+            {
+              count: maximum,
+            },
           )}
         </small>
         <input

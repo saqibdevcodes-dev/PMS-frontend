@@ -279,7 +279,7 @@ export const resources: Resource[] = [
     group: 'Accounts & administration',
     permission: 'finance.read',
     description:
-      'Record general or property-related expenses independently and classify operating versus capitalized costs.',
+      'Add itemized expenses to sale-property drafts before their investment cost is finalized.',
     columns: [
       'reference',
       'category',
@@ -451,6 +451,7 @@ export const primarySlugs = new Set([
   'accounting-periods',
   'vendors',
   'property-purchases',
+  'expenses',
   'users',
 ]);
 export const navItems = [

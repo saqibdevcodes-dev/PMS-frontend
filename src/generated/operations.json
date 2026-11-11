@@ -2183,7 +2183,7 @@
           "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
         },
         "photoIds": {
-          "maxItems": 5,
+          "maxItems": 20,
           "type": "array",
           "items": {
             "type": "string",
@@ -2456,7 +2456,7 @@
                 "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
               },
               "photoIds": {
-                "maxItems": 5,
+                "maxItems": 20,
                 "type": "array",
                 "items": {
                   "type": "string",
@@ -2606,7 +2606,7 @@
     "id": "patch__projects__projectId_units__id",
     "path": "/projects/{projectId}/units/{id}",
     "method": "patch",
-    "summary": "Update property details and up to five photos; price changes use the Change price action",
+    "summary": "Update property details and up to 20 photos; price changes use the Change price action",
     "permission": "inventory.update",
     "public": false,
     "body": {
@@ -2647,7 +2647,7 @@
           ]
         },
         "photoIds": {
-          "maxItems": 5,
+          "maxItems": 20,
           "type": "array",
           "items": {
             "type": "string",
@@ -2927,6 +2927,7 @@
           "anyOf": [
             {
               "type": "string",
+              "minLength": 6,
               "maxLength": 30
             },
             {
@@ -3211,6 +3212,7 @@
           "anyOf": [
             {
               "type": "string",
+              "minLength": 6,
               "maxLength": 30
             },
             {
@@ -6590,6 +6592,75 @@
         "price",
         "fileReference"
       ],
+      "additionalProperties": false
+    },
+    "parameters": [
+      {
+        "name": "projectId",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        }
+      },
+      {
+        "name": "id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        }
+      }
+    ],
+    "multipart": false
+  },
+  {
+    "id": "patch__projects__projectId_property_purchases__id_expenses",
+    "path": "/projects/{projectId}/property-purchases/{id}/expenses",
+    "method": "patch",
+    "summary": "Save itemized property expenses while the acquisition remains a draft",
+    "permission": "finance.post",
+    "public": false,
+    "body": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "properties": {
+        "expenseItems": {
+          "default": [],
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 200
+              },
+              "category": {
+                "default": "Renovation & Building",
+                "type": "string"
+              },
+              "amount": {
+                "type": "string",
+                "pattern": "^(0|[1-9]\\d{0,15})(\\.\\d{1,2})?$"
+              }
+            },
+            "required": [
+              "name",
+              "amount"
+            ]
+          }
+        },
+        "notes": {
+          "type": "string",
+          "maxLength": 2000
+        }
+      },
       "additionalProperties": false
     },
     "parameters": [

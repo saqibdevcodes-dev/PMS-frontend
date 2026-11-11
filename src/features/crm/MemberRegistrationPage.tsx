@@ -17,6 +17,7 @@ import { toast } from 'sonner';
 import { api } from '../../lib/api';
 import { t, useLocale } from '../../lib/i18n';
 import { errorMessage } from '../../lib/error-messages';
+import { formatPhone, isValidPhone } from '../../lib/phone';
 import { usePreferences } from '../../stores/preferences';
 import { Button } from '../../components/ui';
 import { ImageUpload } from '../../components/ImageUpload';
@@ -116,37 +117,17 @@ export default function MemberRegistrationPage() {
     return `${digits.slice(0, 5)}-${digits.slice(5, 12)}-${digits.slice(12)}`;
   }
 
-  /** Auto-format a phone string into pattern 03XX-XXXXXXX or +92-XXX-XXXXXXX */
-  function formatPhone(raw: string): string {
-    const hasPlus = raw.trim().startsWith('+');
-    const digits = raw.replace(/\D/g, '');
-
-    if (hasPlus || digits.startsWith('92')) {
-      const national = digits.startsWith('92') ? digits.slice(2) : digits;
-      const clean = national.slice(0, 10);
-      if (clean.length === 0) return '+92-';
-      if (clean.length <= 3) return `+92-${clean}`;
-      return `+92-${clean.slice(0, 3)}-${clean.slice(3, 10)}`;
-    }
-
-    const clean = digits.slice(0, 11);
-    if (clean.length <= 4) return clean;
-    return `${clean.slice(0, 4)}-${clean.slice(4, 11)}`;
-  }
-
   const registerMutation = useMutation({
     mutationFn: async () => {
       if (!projectId) throw new Error(t('Choose a project first.'));
       if (!name.trim()) throw new Error(t('Member full name is required.'));
       if (!phone.trim()) throw new Error(t('Mobile phone number is required.'));
 
-      const cleanPhone = phone.replace(/\D/g, '');
-      if (cleanPhone.length < 10) {
+      if (!isValidPhone(phone)) {
         throw new Error(t('Enter a valid mobile phone number, for example 0300-1234567.'));
       }
       if (secondaryPhone.trim()) {
-        const cleanSecPhone = secondaryPhone.replace(/\D/g, '');
-        if (cleanSecPhone.length < 10) {
+        if (!isValidPhone(secondaryPhone)) {
           throw new Error(t('Enter a valid secondary phone number, for example 0300-7654321.'));
         }
       }

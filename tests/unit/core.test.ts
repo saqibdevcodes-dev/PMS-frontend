@@ -4,8 +4,9 @@ import { money } from '../../src/lib/format';
 import { parseCsv } from '../../src/lib/csv';
 import { normalize, validator } from '../../src/lib/schema';
 import { operation } from '../../src/lib/contract';
-import { allowedAction } from '../../src/features/resources/catalog';
+import { allowedAction, navItems } from '../../src/features/resources/catalog';
 import { useAuth } from '../../src/stores/auth';
+import { formatPhone, isValidPhone } from '../../src/lib/phone';
 import type { User } from '../../src/lib/types';
 const require = createRequire(import.meta.url);
 const {
@@ -59,11 +60,35 @@ describe('exact values and contract-driven validation', () => {
     expect(normalize(schema, { number: 'A-104' })).toEqual({ number: 'A-104' });
     expect(
       validator(schema).safeParse({
-        photoIds: Array(6).fill('aaaaaaaa-aaaa-4aaa-aaaa-aaaaaaaaaaaa'),
+        photoIds: Array.from(
+          { length: 20 },
+          (_, index) => `aaaaaaaa-aaaa-4aaa-aaaa-${index.toString(16).padStart(12, '0')}`,
+        ),
+      }).success,
+    ).toBe(true);
+    expect(
+      validator(schema).safeParse({
+        photoIds: Array.from(
+          { length: 21 },
+          (_, index) => `aaaaaaaa-aaaa-4aaa-aaaa-${index.toString(16).padStart(12, '0')}`,
+        ),
       }).success,
     ).toBe(false);
     expect(schema.properties).not.toHaveProperty('price');
     expect(schema.properties).not.toHaveProperty('charges');
+  });
+});
+describe('customer phone fields', () => {
+  it('uses the registration format in quick-add forms', () => {
+    expect(formatPhone('03001234567')).toBe('0300-1234567');
+    expect(formatPhone('+923001234567')).toBe('+92-300-1234567');
+    expect(isValidPhone('0300-1234567')).toBe(true);
+    expect(isValidPhone('0300-123')).toBe(false);
+  });
+});
+describe('expense navigation', () => {
+  it('exposes the dedicated expenses page in primary navigation', () => {
+    expect(navItems.some((item) => item.slug === 'expenses')).toBe(true);
   });
 });
 describe('CSV inventory imports', () => {
