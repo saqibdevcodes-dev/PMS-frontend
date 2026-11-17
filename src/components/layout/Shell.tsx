@@ -173,10 +173,6 @@ export default function Shell() {
     };
   }, []);
   const slug = location.pathname.split('/')[1] ?? 'dashboard';
-  const isDashboard =
-    location.pathname === '/' ||
-    location.pathname === '/dashboard' ||
-    location.pathname.startsWith('/dashboard/');
   const current = [...navItems, ...resources].find((n) => n.slug === slug);
   const customerPages: Record<string, string> = {
     register: 'Customer registration',
