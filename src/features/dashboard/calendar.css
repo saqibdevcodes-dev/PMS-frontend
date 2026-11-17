@@ -1,12 +1,12 @@
 .calendar-panel {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 14px;
   background: var(--panel);
   border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
+  border-radius: 12px;
   padding: 18px 20px;
-  box-shadow: var(--shadow);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
 }
 
 .calendar-header {
@@ -26,8 +26,8 @@
 
 .calendar-title-wrap h3 {
   margin: 0;
-  font-size: 15px;
-  font-weight: 700;
+  font-size: 14px;
+  font-weight: 600;
   color: var(--text);
 }
 
@@ -44,8 +44,8 @@
 }
 
 .calendar-month-label {
-  font-size: 13.5px;
-  font-weight: 700;
+  font-size: 13px;
+  font-weight: 600;
   color: var(--text);
   min-width: 115px;
   text-align: center;
@@ -59,11 +59,11 @@
 
 .calendar-weekday {
   text-align: center;
-  font-size: 10.5px;
+  font-size: 10px;
   font-weight: 600;
   color: var(--muted);
   text-transform: uppercase;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.05em;
   padding: 4px 0;
 }
 
@@ -71,31 +71,30 @@
   min-height: 48px;
   background: var(--subtle);
   border: 1px solid var(--border);
-  border-radius: 6px;
-  padding: 4px 5px;
+  border-radius: 8px;
+  padding: 5px 6px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   cursor: pointer;
   transition: all 0.15s ease;
   position: relative;
+  color: var(--text);
 }
 
 .calendar-day-cell:hover:not(.empty-day) {
   border-color: var(--primary);
   background: var(--hover);
-  transform: translateY(-1px);
 }
 
 .calendar-day-cell.is-today {
   border-color: var(--primary);
-  box-shadow: 0 0 0 1px var(--primary);
-  background: var(--primary-subtle);
+  background: color-mix(in srgb, var(--primary) 14%, var(--subtle));
 }
 
 .calendar-day-cell.is-selected {
   border-color: var(--primary);
-  background: var(--primary-subtle);
+  background: color-mix(in srgb, var(--primary) 22%, var(--subtle));
 }
 
 .calendar-day-cell.empty-day {
@@ -234,6 +233,7 @@
     min-height: 44px;
     padding: 3px;
   }
+
   .day-due-badge {
     font-size: 8.5px;
     padding: 1px 3px;

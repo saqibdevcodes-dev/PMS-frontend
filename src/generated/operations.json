@@ -1048,6 +1048,7 @@
           "enum": [
             "PROJECT",
             "PROJECT_LOGO",
+            "COMPANY_LOGO",
             "UNIT",
             "FEATURE",
             "CUSTOMER",
@@ -1094,10 +1095,10 @@
     "multipart": false
   },
   {
-    "id": "get__projects",
-    "path": "/projects",
+    "id": "get__companies",
+    "path": "/companies",
     "method": "get",
-    "summary": "List assigned projects",
+    "summary": "List companies assigned to the current user",
     "permission": "projects.read",
     "public": false,
     "parameters": [
@@ -1178,10 +1179,388 @@
     "multipart": false
   },
   {
+    "id": "post__companies",
+    "path": "/companies",
+    "method": "post",
+    "summary": "Create a company and make the current user its owner",
+    "permission": "projects.create",
+    "public": false,
+    "body": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 200
+        },
+        "logoId": {
+          "anyOf": [
+            {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "address": {
+          "default": "",
+          "type": "string",
+          "maxLength": 500
+        },
+        "phone": {
+          "default": "",
+          "type": "string",
+          "maxLength": 30
+        },
+        "email": {
+          "anyOf": [
+            {
+              "type": "string",
+              "const": ""
+            },
+            {
+              "type": "string",
+              "format": "email",
+              "pattern": "^(?:[A-Za-z0-9_'+\\-]+\\.)*[A-Za-z0-9_'+\\-]*[A-Za-z0-9_+-]@(?:[A-Za-z0-9][A-Za-z0-9\\-]*\\.)+[A-Za-z]{2,}$"
+            }
+          ]
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "additionalProperties": false
+    },
+    "parameters": [],
+    "multipart": false
+  },
+  {
+    "id": "get__companies__companyId",
+    "path": "/companies/{companyId}",
+    "method": "get",
+    "summary": "Get company settings and counts",
+    "permission": "projects.read",
+    "public": false,
+    "parameters": [
+      {
+        "name": "companyId",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        }
+      }
+    ],
+    "multipart": false
+  },
+  {
+    "id": "patch__companies__companyId",
+    "path": "/companies/{companyId}",
+    "method": "patch",
+    "summary": "Update company details and branding",
+    "permission": "projects.update",
+    "public": false,
+    "body": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 200
+        },
+        "logoId": {
+          "anyOf": [
+            {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "address": {
+          "default": "",
+          "type": "string",
+          "maxLength": 500
+        },
+        "phone": {
+          "default": "",
+          "type": "string",
+          "maxLength": 30
+        },
+        "email": {
+          "anyOf": [
+            {
+              "type": "string",
+              "const": ""
+            },
+            {
+              "type": "string",
+              "format": "email",
+              "pattern": "^(?:[A-Za-z0-9_'+\\-]+\\.)*[A-Za-z0-9_'+\\-]*[A-Za-z0-9_+-]@(?:[A-Za-z0-9][A-Za-z0-9\\-]*\\.)+[A-Za-z]{2,}$"
+            }
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "parameters": [
+      {
+        "name": "companyId",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        }
+      }
+    ],
+    "multipart": false
+  },
+  {
+    "id": "get__companies__companyId_members",
+    "path": "/companies/{companyId}/members",
+    "method": "get",
+    "summary": "List company members",
+    "permission": "users.manage",
+    "public": false,
+    "parameters": [
+      {
+        "name": "companyId",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        }
+      },
+      {
+        "name": "page",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "default": 1,
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9007199254740991
+        }
+      },
+      {
+        "name": "limit",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "default": 25,
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100
+        }
+      },
+      {
+        "name": "search",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "string",
+          "maxLength": 200
+        }
+      },
+      {
+        "name": "status",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "string",
+          "maxLength": 40
+        }
+      },
+      {
+        "name": "from",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "string",
+          "format": "date",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))$"
+        }
+      },
+      {
+        "name": "to",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "string",
+          "format": "date",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))$"
+        }
+      },
+      {
+        "name": "sort",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "default": "desc",
+          "type": "string",
+          "enum": [
+            "asc",
+            "desc"
+          ]
+        }
+      }
+    ],
+    "multipart": false
+  },
+  {
+    "id": "post__companies__companyId_members",
+    "path": "/companies/{companyId}/members",
+    "method": "post",
+    "summary": "Add or update a company member",
+    "permission": "users.manage",
+    "public": false,
+    "body": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "format": "uuid",
+          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+        },
+        "role": {
+          "type": "string",
+          "enum": [
+            "OWNER",
+            "ADMIN",
+            "MEMBER"
+          ]
+        }
+      },
+      "required": [
+        "userId",
+        "role"
+      ],
+      "additionalProperties": false
+    },
+    "parameters": [
+      {
+        "name": "companyId",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        }
+      }
+    ],
+    "multipart": false
+  },
+  {
+    "id": "get__projects",
+    "path": "/projects",
+    "method": "get",
+    "summary": "List assigned projects for a company",
+    "permission": "projects.read",
+    "public": false,
+    "parameters": [
+      {
+        "name": "page",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "default": 1,
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9007199254740991
+        }
+      },
+      {
+        "name": "limit",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "default": 25,
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100
+        }
+      },
+      {
+        "name": "search",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "string",
+          "maxLength": 200
+        }
+      },
+      {
+        "name": "status",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "string",
+          "maxLength": 40
+        }
+      },
+      {
+        "name": "from",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "string",
+          "format": "date",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))$"
+        }
+      },
+      {
+        "name": "to",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "string",
+          "format": "date",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))$"
+        }
+      },
+      {
+        "name": "sort",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "default": "desc",
+          "type": "string",
+          "enum": [
+            "asc",
+            "desc"
+          ]
+        }
+      },
+      {
+        "name": "companyId",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "string",
+          "format": "uuid",
+          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+        }
+      }
+    ],
+    "multipart": false
+  },
+  {
     "id": "post__projects",
     "path": "/projects",
     "method": "post",
-    "summary": "Create project, account mappings and membership",
+    "summary": "Create a project inside a company, account mappings and membership",
     "permission": "projects.create",
     "public": false,
     "body": {
@@ -1197,18 +1576,6 @@
           "type": "string",
           "minLength": 2,
           "maxLength": 300
-        },
-        "logoId": {
-          "anyOf": [
-            {
-              "type": "string",
-              "format": "uuid",
-              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
-            },
-            {
-              "type": "null"
-            }
-          ]
         },
         "description": {
           "default": "",
@@ -1278,6 +1645,11 @@
           "type": "integer",
           "minimum": 1,
           "maximum": 365
+        },
+        "companyId": {
+          "type": "string",
+          "format": "uuid",
+          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
         }
       },
       "required": [
@@ -1309,18 +1681,6 @@
           "type": "string",
           "minLength": 2,
           "maxLength": 300
-        },
-        "logoId": {
-          "anyOf": [
-            {
-              "type": "string",
-              "format": "uuid",
-              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
-            },
-            {
-              "type": "null"
-            }
-          ]
         },
         "description": {
           "type": "string",
@@ -1432,7 +1792,7 @@
     "id": "get__projects__projectId_branding",
     "path": "/projects/{projectId}/branding",
     "method": "get",
-    "summary": "Project branding for documents, restricted to assigned staff",
+    "summary": "Company branding for a project, restricted to assigned staff",
     "public": false,
     "parameters": [
       {

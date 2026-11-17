@@ -92,6 +92,7 @@ test('inventory supports real search, pagination, detail, cards and CSV imports'
 }) => {
   await login(page);
   await page.goto('/inventory');
+  await page.getByRole('button', { name: 'Table view' }).click();
   await expect(page.getByText('A-032', { exact: true })).toBeVisible();
   await page.getByRole('button', { name: 'Next', exact: true }).click();
   await expect(page.getByText('A-001', { exact: true })).toBeVisible();
@@ -102,7 +103,7 @@ test('inventory supports real search, pagination, detail, cards and CSV imports'
   await expect(page.getByRole('dialog')).toBeVisible();
   await page.getByRole('button', { name: 'Close dialog' }).click();
   await page.getByRole('button', { name: 'Card view' }).click();
-  await expect(page.locator('.unit-card')).toHaveCount(1);
+  await expect(page.locator('.directory-card')).toHaveCount(1);
   await page.getByRole('button', { name: 'Import properties from CSV' }).click();
   await page
     .getByRole('dialog')

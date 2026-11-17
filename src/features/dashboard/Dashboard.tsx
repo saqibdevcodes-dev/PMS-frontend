@@ -194,7 +194,7 @@ export default function Dashboard() {
     },
   ];
   return (
-    <>
+    <div className="dashboard-page">
       <div className="dashboard-heading">
         <BrandLogo variant="symbol" className="dashboard-emblem" decorative />
         <PageHeading
@@ -261,7 +261,12 @@ export default function Dashboard() {
         <>
           <div className="kpi-grid">
             {cards.map((card) => (
-              <button className="kpi-card" key={t(card.label)} onClick={card.onClick}>
+              <button
+                className="kpi-card"
+                key={t(card.label)}
+                onClick={card.onClick}
+                data-tone={card.tone}
+              >
                 <div className="kpi-top">
                   <span>{t(card.label)}</span>
                   <span className={'kpi-icon ' + card.tone}>
@@ -668,6 +673,6 @@ export default function Dashboard() {
           )}
         </Modal>
       )}
-    </>
+    </div>
   );
 }

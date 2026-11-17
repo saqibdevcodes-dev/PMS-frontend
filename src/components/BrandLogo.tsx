@@ -25,14 +25,14 @@ export function BrandLogo({
   const art = artwork[variant];
   return (
     <span
-      className={`brand-logo brand-logo--${background} ${className} w-[100px]`}
+      className={`brand-logo brand-logo--${background} ${className}`}
       role={decorative ? undefined : 'img'}
       aria-label={decorative ? undefined : 'Etihad Real Estate'}
       aria-hidden={decorative || undefined}
     >
       {background === 'dark' ? (
         <img
-          className="brand-logo-dark w-[100px]"
+          className="brand-logo-dark"
           src={art.dark.src}
           alt=""
           loading="eager"
@@ -40,7 +40,7 @@ export function BrandLogo({
         />
       ) : background === 'light' ? (
         <img
-          className="brand-logo-light w-[100px]"
+          className="brand-logo-light"
           src={art.light.src}
           alt=""
           loading="eager"

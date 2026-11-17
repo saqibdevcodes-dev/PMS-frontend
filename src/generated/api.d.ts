@@ -629,6 +629,60 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/companies": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List companies assigned to the current user */
+        get: operations["get__companies"];
+        put?: never;
+        /** Create a company and make the current user its owner */
+        post: operations["post__companies"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/companies/{companyId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get company settings and counts */
+        get: operations["get__companies__companyId"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Update company details and branding */
+        patch: operations["patch__companies__companyId"];
+        trace?: never;
+    };
+    "/companies/{companyId}/members": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List company members */
+        get: operations["get__companies__companyId_members"];
+        put?: never;
+        /** Add or update a company member */
+        post: operations["post__companies__companyId_members"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/projects": {
         parameters: {
             query?: never;
@@ -636,10 +690,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** List assigned projects */
+        /** List assigned projects for a company */
         get: operations["get__projects"];
         put?: never;
-        /** Create project, account mappings and membership */
+        /** Create a project inside a company, account mappings and membership */
         post: operations["post__projects"];
         delete?: never;
         options?: never;
@@ -672,7 +726,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Project branding for documents, restricted to assigned staff */
+        /** Company branding for a project, restricted to assigned staff */
         get: operations["get__projects__projectId_branding"];
         put?: never;
         post?: never;
@@ -2572,6 +2626,7 @@ export interface components {
             updatedAt?: string;
             roles?: components["schemas"]["UserRole"][];
             projects?: components["schemas"]["UserProjectAccess"][];
+            companies?: components["schemas"]["CompanyMember"][];
             sessions?: components["schemas"]["Session"][];
             resets?: components["schemas"]["PasswordReset"][];
             devices?: components["schemas"]["Device"][];
@@ -2606,6 +2661,33 @@ export interface components {
             projectId?: string;
             user?: components["schemas"]["User"];
             project?: components["schemas"]["Project"];
+        };
+        Company: {
+            id?: string;
+            code?: string;
+            name?: string;
+            logoId?: string | null;
+            logo?: components["schemas"]["ImageAsset"] | null;
+            address?: string;
+            phone?: string;
+            email?: string;
+            active?: boolean;
+            /** Format: date-time */
+            createdAt?: string;
+            /** Format: date-time */
+            updatedAt?: string;
+            members?: components["schemas"]["CompanyMember"][];
+            projects?: components["schemas"]["Project"][];
+        };
+        CompanyMember: {
+            companyId?: string;
+            userId?: string;
+            /** @enum {string} */
+            role?: "OWNER" | "ADMIN" | "MEMBER";
+            /** Format: date-time */
+            createdAt?: string;
+            company?: components["schemas"]["Company"];
+            user?: components["schemas"]["User"];
         };
         Session: {
             id?: string;
@@ -2650,6 +2732,8 @@ export interface components {
             user?: components["schemas"]["User"];
         };
         Project: {
+            companyId?: string | null;
+            company?: components["schemas"]["Company"] | null;
             logoId?: string | null;
             logo?: components["schemas"]["ImageAsset"] | null;
             location?: string;
@@ -3552,6 +3636,7 @@ export interface components {
         };
         ImageAsset: {
             projectLogos?: components["schemas"]["Project"][];
+            companyLogos?: components["schemas"]["Company"][];
             id?: string;
             projectId?: string | null;
             uploadedBy?: string;
@@ -4495,6 +4580,13 @@ export interface operations {
                             accountType: "STAFF" | "CUSTOMER";
                             projects: {
                                 projectId: string;
+                                project: {
+                                    companyId: string | null;
+                                };
+                            }[];
+                            companies: {
+                                companyId: string;
+                                role: string;
                             }[];
                             permissions: string[];
                         };
@@ -7696,7 +7788,7 @@ export interface operations {
             content: {
                 "multipart/form-data": {
                     /** @enum {string} */
-                    purpose: "PROJECT" | "PROJECT_LOGO" | "UNIT" | "FEATURE" | "CUSTOMER" | "USER" | "PAYMENT";
+                    purpose: "PROJECT" | "PROJECT_LOGO" | "COMPANY_LOGO" | "UNIT" | "FEATURE" | "CUSTOMER" | "USER" | "PAYMENT";
                     /** Format: uuid */
                     projectId?: string;
                     /** Format: binary */
@@ -7907,6 +7999,673 @@ export interface operations {
             };
         };
     };
+    get__companies: {
+        parameters: {
+            query?: {
+                page?: number;
+                limit?: number;
+                search?: string;
+                status?: string;
+                from?: string;
+                to?: string;
+                sort?: "asc" | "desc";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful operation. Monetary model fields are decimal strings. Lists with pagination return items and pagination inside data. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @constant */
+                        success: true;
+                        data: {
+                            items: components["schemas"]["Company"][];
+                            pagination: {
+                                page: number;
+                                limit: number;
+                                total: number;
+                                totalPages: number;
+                            };
+                        };
+                        meta: {
+                            requestId: string;
+                        };
+                    };
+                };
+            };
+            /** @description Malformed request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Invalid, expired or revoked session */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Permission, origin or separation-of-duties denial */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Record missing or outside project scope */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Workflow, uniqueness or concurrency conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Validation or business rule failure */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Distributed rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Unexpected server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    post__companies: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    name: string;
+                    logoId?: string | null;
+                    /** @default  */
+                    address?: string;
+                    /** @default  */
+                    phone?: string;
+                    email?: "" | string;
+                };
+            };
+        };
+        responses: {
+            /** @description Successful operation. Monetary model fields are decimal strings. Lists with pagination return items and pagination inside data. */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @constant */
+                        success: true;
+                        data: components["schemas"]["Company"];
+                        meta: {
+                            requestId: string;
+                        };
+                    };
+                };
+            };
+            /** @description Malformed request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Invalid, expired or revoked session */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Permission, origin or separation-of-duties denial */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Record missing or outside project scope */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Workflow, uniqueness or concurrency conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Validation or business rule failure */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Distributed rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Unexpected server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    get__companies__companyId: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                companyId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful operation. Monetary model fields are decimal strings. Lists with pagination return items and pagination inside data. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @constant */
+                        success: true;
+                        data: components["schemas"]["Company"];
+                        meta: {
+                            requestId: string;
+                        };
+                    };
+                };
+            };
+            /** @description Malformed request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Invalid, expired or revoked session */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Permission, origin or separation-of-duties denial */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Record missing or outside project scope */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Workflow, uniqueness or concurrency conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Validation or business rule failure */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Distributed rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Unexpected server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    patch__companies__companyId: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                companyId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    name?: string;
+                    logoId?: string | null;
+                    /** @default  */
+                    address?: string;
+                    /** @default  */
+                    phone?: string;
+                    email?: "" | string;
+                };
+            };
+        };
+        responses: {
+            /** @description Successful operation. Monetary model fields are decimal strings. Lists with pagination return items and pagination inside data. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @constant */
+                        success: true;
+                        data: components["schemas"]["Company"];
+                        meta: {
+                            requestId: string;
+                        };
+                    };
+                };
+            };
+            /** @description Malformed request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Invalid, expired or revoked session */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Permission, origin or separation-of-duties denial */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Record missing or outside project scope */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Workflow, uniqueness or concurrency conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Validation or business rule failure */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Distributed rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Unexpected server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    get__companies__companyId_members: {
+        parameters: {
+            query?: {
+                page?: number;
+                limit?: number;
+                search?: string;
+                status?: string;
+                from?: string;
+                to?: string;
+                sort?: "asc" | "desc";
+            };
+            header?: never;
+            path: {
+                companyId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful operation. Monetary model fields are decimal strings. Lists with pagination return items and pagination inside data. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @constant */
+                        success: true;
+                        data: {
+                            items: components["schemas"]["CompanyMember"][];
+                            pagination: {
+                                page: number;
+                                limit: number;
+                                total: number;
+                                totalPages: number;
+                            };
+                        };
+                        meta: {
+                            requestId: string;
+                        };
+                    };
+                };
+            };
+            /** @description Malformed request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Invalid, expired or revoked session */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Permission, origin or separation-of-duties denial */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Record missing or outside project scope */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Workflow, uniqueness or concurrency conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Validation or business rule failure */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Distributed rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Unexpected server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    post__companies__companyId_members: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                companyId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    /** Format: uuid */
+                    userId: string;
+                    /** @enum {string} */
+                    role: "OWNER" | "ADMIN" | "MEMBER";
+                };
+            };
+        };
+        responses: {
+            /** @description Successful operation. Monetary model fields are decimal strings. Lists with pagination return items and pagination inside data. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @constant */
+                        success: true;
+                        data: components["schemas"]["CompanyMember"];
+                        meta: {
+                            requestId: string;
+                        };
+                    };
+                };
+            };
+            /** @description Malformed request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Invalid, expired or revoked session */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Permission, origin or separation-of-duties denial */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Record missing or outside project scope */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Workflow, uniqueness or concurrency conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Validation or business rule failure */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Distributed rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Unexpected server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
     get__projects: {
         parameters: {
             query?: {
@@ -7917,6 +8676,7 @@ export interface operations {
                 from?: string;
                 to?: string;
                 sort?: "asc" | "desc";
+                companyId?: string;
             };
             header?: never;
             path?: never;
@@ -8034,7 +8794,6 @@ export interface operations {
                 "application/json": {
                     name: string;
                     location: string;
-                    logoId?: string | null;
                     /** @default  */
                     description?: string;
                     /** @default [] */
@@ -8054,6 +8813,8 @@ export interface operations {
                     timezone?: string;
                     /** @default 30 */
                     ndcValidityDays?: number;
+                    /** Format: uuid */
+                    companyId?: string;
                 };
             };
         };
@@ -8269,7 +9030,6 @@ export interface operations {
                 "application/json": {
                     name?: string;
                     location?: string;
-                    logoId?: string | null;
                     description?: string;
                     features?: string[];
                     featureImages?: {
@@ -8400,6 +9160,8 @@ export interface operations {
                             /** Format: uuid */
                             id: string;
                             name: string;
+                            companyId: string | null;
+                            companyName: string;
                             logoId: string | null;
                         };
                         meta: {

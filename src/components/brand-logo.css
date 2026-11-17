@@ -49,24 +49,24 @@
 
 /* Common Brand Logo Classes */
 .sidebar-logo-full {
-  width: 144px;
+  width: 172px;
   max-width: 100%;
   display: inline-flex;
 }
 
 .sidebar-logo-full img {
-  max-height: 38px;
+  max-height: 46px;
   width: auto;
 }
 
 .sidebar-logo-compact {
   display: none;
-  width: 34px;
-  height: 34px;
+  width: 36px;
+  height: 36px;
 }
 
 .sidebar-logo-compact img {
-  max-height: 34px;
+  max-height: 36px;
   width: auto;
 }
 

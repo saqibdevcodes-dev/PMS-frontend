@@ -43,6 +43,7 @@ import { UnassignPropertyModal } from '../bookings/UnassignPropertyModal';
 import { CustomerGroups, PaymentStatus, PortfolioLinks } from './Portfolio';
 import { ProjectTableHeading, projectCell, projectColumnLabels } from './ProjectTable';
 import { PropertyPurchaseGuide, purchaseCell, purchaseColumnLabels } from './PurchaseTable';
+import { ResourceCardGrid, ResourceCardSkeletons } from './ResourceCardGrid';
 export function ProjectRequired() {
   useLocale();
   return (
@@ -120,6 +121,8 @@ function bookingCell(key: string, record: Row) {
 export default function ResourcePage({ slug }: { slug: string }) {
   const language = useLocale();
   const resource = resources.find((r) => r.slug === slug)!;
+  const companyId = usePreferences((s) => s.companyId);
+  const setCompany = usePreferences((s) => s.setCompany);
   const projectId = usePreferences((s) => s.projectId);
   const setProject = usePreferences((s) => s.setProject);
   const navigate = useNavigate();
@@ -143,10 +146,13 @@ export default function ResourcePage({ slug }: { slug: string }) {
   const page = Number(params.get('page') || 1);
   const requestedLimit = Number(params.get('limit') || 25);
   const limit = [10, 25, 50, 100].includes(requestedLimit) ? requestedLimit : 25;
-  const view = params.get('view') ?? 'table';
+  const cardDirectory = ['companies', 'projects', 'inventory', 'customers'].includes(slug);
+  const view = params.get('view') ?? (cardDirectory ? 'grid' : 'table');
   const queryValues = Object.fromEntries(
     [...params.entries()].filter(([key]) => queryParams.has(key)),
   );
+  if (slug === 'projects' && companyId && queryParams.has('companyId'))
+    queryValues.companyId = companyId;
   if (resource.report) queryValues.kind = resource.report;
   const paginated = queryParams.has('page');
   const query = useQuery({
@@ -220,15 +226,17 @@ export default function ResourcePage({ slug }: { slug: string }) {
     queryParams.has('search') &&
     [
       'projects',
+      'companies',
       'inventory',
       'customers',
       'bookings',
       'payment-plans',
       'document-templates',
     ].includes(slug);
-  function rowActions(record: Row) {
+  function rowActions(record: Row, inCard = false) {
     const allowed = actionsFor(resource, record);
     const edit = slug === 'customers' ? allowed.find((op) => op.method === 'patch') : undefined;
+    const showInlineEdit = !inCard && edit;
     const verify =
       slug === 'collections' ? allowed.find((op) => op.path.endsWith('/verify')) : undefined;
     const postPurchase =
@@ -291,7 +299,7 @@ export default function ResourcePage({ slug }: { slug: string }) {
             {t('Print voucher')}
           </Button>
         )}
-        {edit && (
+        {showInlineEdit && (
           <Button
             variant="secondary"
             size="small"
@@ -310,7 +318,7 @@ export default function ResourcePage({ slug }: { slug: string }) {
             {t('View user')}
           </Button>
         )}
-        {slug === 'customers' && record.id && (
+        {!inCard && slug === 'customers' && record.id && (
           <Button
             variant="secondary"
             size="small"
@@ -325,6 +333,8 @@ export default function ResourcePage({ slug }: { slug: string }) {
             variant="ghost"
             size="small"
             onClick={() => {
+              if (record.companyId && String(record.companyId) !== companyId)
+                setCompany(String(record.companyId), String(row(record.company).name ?? ''));
               setProject(
                 String(record.id),
                 String(record.name),
@@ -338,11 +348,29 @@ export default function ResourcePage({ slug }: { slug: string }) {
             <ArrowUpRight size={14} />
           </Button>
         )}
+        {slug === 'companies' && (
+          <Button
+            variant="ghost"
+            size="small"
+            onClick={() => {
+              setCompany(String(record.id), String(record.name));
+              navigate('/projects');
+            }}
+          >
+            {t('Open company')}
+            <ArrowUpRight size={14} />
+          </Button>
+        )}
         {(allowed.some(
-          (op) => op !== edit && op !== verify && op !== postPurchase && op !== editPurchase,
+          (op) =>
+            op !== showInlineEdit &&
+            op !== verify &&
+            op !== postPurchase &&
+            op !== editPurchase,
         ) ||
           slug === 'inventory' ||
-          slug === 'bookings') && (
+          slug === 'bookings' ||
+          (inCard && slug === 'customers')) && (
           <DropdownMenu.Root modal={false} dir={language === 'en' ? 'ltr' : 'rtl'}>
             <DropdownMenu.Trigger asChild>
               <Button
@@ -386,7 +414,10 @@ export default function ResourcePage({ slug }: { slug: string }) {
                 {allowed
                   .filter(
                     (op) =>
-                      op !== edit && op !== verify && op !== postPurchase && op !== editPurchase,
+                      op !== showInlineEdit &&
+                      op !== verify &&
+                      op !== postPurchase &&
+                      op !== editPurchase,
                   )
                   .map((op) => (
                     <DropdownMenu.Item
@@ -398,9 +429,21 @@ export default function ResourcePage({ slug }: { slug: string }) {
                           : setAction({ operation: op, title: actionTitle(op, resource), record })
                       }
                     >
+                      {op.method === 'patch' && (
+                        <Pencil size={13} aria-hidden style={{ marginInlineEnd: 6, verticalAlign: 'middle' }} />
+                      )}
                       {t(actionTitle(op, resource))}
                     </DropdownMenu.Item>
                   ))}
+                {inCard && slug === 'customers' && record.id && (
+                  <DropdownMenu.Item
+                    className="actions-menu-item"
+                    onSelect={() => navigate(`/customers/${record.id}`)}
+                  >
+                    <ArrowUpRight size={13} aria-hidden style={{ marginInlineEnd: 6, verticalAlign: 'middle' }} />
+                    {t('View customer')}
+                  </DropdownMenu.Item>
+                )}
                 {slug === 'inventory' && can('users.manage') && can('inventory.update') && (
                   <DropdownMenu.Item
                     className="actions-menu-item"
@@ -631,6 +674,25 @@ export default function ResourcePage({ slug }: { slug: string }) {
               ))}
             </div>
           </>
+        ) : view === 'grid' && cardDirectory && query.isLoading ? (
+          <ResourceCardSkeletons />
+        ) : view === 'grid' && cardDirectory && dataItems.length ? (
+          <ResourceCardGrid
+            kind={slug as 'companies' | 'projects' | 'inventory' | 'customers'}
+            records={dataItems}
+            onOpen={(record) => {
+              if (slug === 'customers' && record.id) {
+                navigate(`/customers/${record.id}`);
+              } else {
+                setDetail(record);
+              }
+            }}
+            actions={(record) => rowActions(record, true)}
+          />
+        ) : view === 'grid' && cardDirectory ? (
+          <div className="directory-card-empty">
+            <EmptyState title={t('No records yet')} description={t(resource.description)} />
+          </div>
         ) : view === 'grid' && dataItems.length ? (
           <div className="inventory-grid">
             {dataItems.map((r) => (
@@ -699,7 +761,7 @@ export default function ResourcePage({ slug }: { slug: string }) {
                 setDetail(record);
               }
             }}
-            actions={rowActions}
+            actions={(record) => rowActions(record, false)}
             page={page}
             total={total}
             limit={limit}

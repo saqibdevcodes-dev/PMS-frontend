@@ -3,7 +3,8 @@ export type Row = Record<string, unknown> & { id?: string };
 export type User = Required<Pick<components['schemas']['User'], 'id' | 'name' | 'email'>> & {
   permissions: string[];
   accountType?: 'STAFF' | 'CUSTOMER';
-  projects: { projectId: string }[];
+  projects: { projectId: string; project?: { companyId?: string | null } }[];
+  companies?: { companyId: string; role: 'OWNER' | 'ADMIN' | 'MEMBER' }[];
 };
 export type Page<T = Row> = {
   items: T[];

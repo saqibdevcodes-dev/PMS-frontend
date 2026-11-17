@@ -18,6 +18,7 @@ import { CsvImport } from './CsvImport';
 import { DataTable } from './DataTable';
 import { asRows } from '../lib/types';
 import { VerificationSummary, OwnershipParties } from './OwnershipVerification';
+import { usePreferences } from '../stores/preferences';
 export function OperationDialog({
   operation,
   title,
@@ -93,12 +94,17 @@ export function OperationDialog({
           ...(operation.path === '/projects/{projectId}' && record?.id
             ? { projectId: record.id }
             : {}),
+          ...(operation.path === '/companies/{companyId}' && record?.id
+            ? { companyId: record.id }
+            : {}),
         }),
         {
           method: operation.method.toUpperCase(),
           body: purchasePosting
             ? { expectedTotal: String(record?.total), expectedUpdatedAt: record?.updatedAt }
-            : body,
+            : operation.method === 'post' && operation.path === '/projects'
+              ? { ...body, companyId: usePreferences.getState().companyId }
+              : body,
           idempotencyKey: hasIdempotency ? key : undefined,
         },
       ),

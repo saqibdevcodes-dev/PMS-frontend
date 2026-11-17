@@ -45,6 +45,19 @@ export type Resource = {
 };
 export const resources: Resource[] = [
   {
+    slug: 'companies',
+    label: 'Companies',
+    singular: 'company',
+    api: 'companies',
+    icon: Landmark,
+    group: 'Workspace',
+    global: true,
+    views: true,
+    permission: 'projects.read',
+    description: 'Manage property companies, branding and their projects.',
+    columns: ['name', 'code', 'address', 'phone', 'active', 'createdAt'],
+  },
+  {
     slug: 'accounting-periods',
     label: 'Accounting periods',
     singular: 'accounting period',
@@ -64,6 +77,7 @@ export const resources: Resource[] = [
     icon: Building2,
     group: 'Workspace',
     global: true,
+    views: true,
     permission: 'projects.read',
     description: 'Create and manage your property developments.',
     columns: ['name', 'location', 'features', 'paymentRules', 'regionalSettings', 'createdAt'],
@@ -88,6 +102,7 @@ export const resources: Resource[] = [
     icon: Users,
     group: 'Sales & customers',
     permission: 'customers.read',
+    views: true,
     description: 'Manage customer photos, contact details and computerized allotment files.',
     columns: ['name', 'bookings', 'paymentStatus', 'email', 'phone', 'identityLast4', 'createdAt'],
   },
@@ -406,7 +421,7 @@ export const specialNav = [
     group: 'Workspace',
     permission: 'reports.read',
   },
-  { slug: 'my-work', label: 'My work', icon: ListTodo, group: 'Workspace', permission: '' },
+  // { slug: 'my-work', label: 'My work', icon: ListTodo, group: 'Workspace', permission: '' },
   {
     slug: 'documents',
     label: 'Documents',
@@ -438,6 +453,7 @@ export const specialNav = [
   },
 ];
 export const primarySlugs = new Set([
+  'companies',
   'projects',
   'inventory',
   'customers',
@@ -511,11 +527,14 @@ export function actionsFor(resource: Resource, record?: Row) {
         (record
           ? resource.slug === 'projects'
             ? op.path === '/projects/{projectId}'
-            : op.path.startsWith(path + '/{id}')
+            : resource.slug === 'companies'
+              ? op.path === '/companies/{companyId}'
+              : op.path.startsWith(path + '/{id}')
           : op.path === path ||
-            (op.path.startsWith(path + '/') &&
-              !op.path.slice(path.length).includes('{id}') &&
-              !op.path.slice(path.length).includes('{projectId}'))),
+          (op.path.startsWith(path + '/') &&
+            !op.path.slice(path.length).includes('{id}') &&
+            !op.path.slice(path.length).includes('{companyId}') &&
+            !op.path.slice(path.length).includes('{projectId}'))),
     )
     .filter(
       (op) =>

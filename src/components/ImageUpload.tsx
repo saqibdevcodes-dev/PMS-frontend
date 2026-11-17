@@ -107,7 +107,7 @@ export function ImageUpload({
     setError(undefined);
     if (
       !(
-        purpose === 'PROJECT_LOGO'
+        ['PROJECT_LOGO', 'COMPANY_LOGO'].includes(purpose)
           ? ['image/jpeg', 'image/png']
           : ['image/jpeg', 'image/png', 'image/webp']
       ).includes(file.type) ||
@@ -115,7 +115,7 @@ export function ImageUpload({
     ) {
       setError(
         new Error(
-          purpose === 'PROJECT_LOGO'
+          ['PROJECT_LOGO', 'COMPANY_LOGO'].includes(purpose)
             ? t('Choose a PNG or JPEG logo up to 5 MiB.')
             : t('Choose a JPEG, PNG or WebP image up to 5 MiB.'),
         ),
@@ -133,7 +133,7 @@ export function ImageUpload({
       body.append('file', file);
       if (uploadPath === '/images') {
         body.append('purpose', purpose);
-        if (!['PROJECT', 'PROJECT_LOGO', 'USER'].includes(purpose))
+        if (!['PROJECT', 'PROJECT_LOGO', 'COMPANY_LOGO', 'USER'].includes(purpose))
           body.append('projectId', projectId);
       }
       const result = await api<{ id: string }>(uploadPath, { method: 'POST', body });
@@ -226,7 +226,7 @@ export function ImageUpload({
               {t('Drop your image here, or')} <strong>{t('browse')}</strong>
             </span>
             <small id={inputId + '-help'}>
-              {purpose === 'PROJECT_LOGO'
+              {['PROJECT_LOGO', 'COMPANY_LOGO'].includes(purpose)
                 ? t('PNG or JPEG. Maximum 5 MiB. Use a logo suitable for a white page.')
                 : t('JPEG, PNG or WebP. Maximum 5 MiB.')}
             </small>

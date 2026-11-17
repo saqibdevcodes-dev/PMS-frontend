@@ -9,12 +9,12 @@ import { Button, ErrorState } from '../../components/ui';
 import { useUnsavedChanges } from '../../hooks/use-unsaved';
 import { toast } from 'sonner';
 
-export function ProjectBranding({
-  projectId,
+export function CompanyBranding({
+  companyId,
   name,
   initialLogo,
 }: {
-  projectId: string;
+  companyId: string;
   name: string;
   initialLogo: string | null;
 }) {
@@ -26,29 +26,29 @@ export function ProjectBranding({
   useUnsavedChanges(dirty);
   const save = useMutation({
     mutationFn: () =>
-      api(`/projects/${projectId}`, { method: 'PATCH', body: { logoId: logo || null } }),
+      api(`/companies/${companyId}`, { method: 'PATCH', body: { logoId: logo || null } }),
     onSuccess: () => {
       setSaved(logo);
-      toast.success(t('Project logo saved'));
+      toast.success(t('Company logo saved'));
       void queryClient.invalidateQueries();
     },
   });
   return (
     <section className="panel project-branding-card">
       <div className="project-branding-header">
-        <h2>{t('Project branding')}</h2>
+        <h2>{t('Company branding')}</h2>
         <p>
-          {t('Use this logo on project receipts, vouchers, statements and generated documents.')}
+          {t('Use this logo on every project receipt, voucher, statement and generated document.')}
         </p>
       </div>
       <div className="project-branding-grid">
         <div className="project-branding-upload">
           <ImageUpload
             key={uploadKey}
-            purpose="PROJECT_LOGO"
+            purpose="COMPANY_LOGO"
             value={logo}
             onChange={setLogo}
-            label={t('Project logo')}
+            label={t('Company logo')}
             disabled={save.isPending}
             onBusy={setBusy}
             minHeight={160}
@@ -61,7 +61,7 @@ export function ProjectBranding({
             <div className="project-branding-meta">
               <strong className="project-branding-name">{name}</strong>
               <span className="project-branding-hint">
-                {t('The Etihad logo is used when no project logo is selected.')}
+                {t('The default logo is used when no company logo is selected.')}
               </span>
             </div>
           </div>
@@ -80,7 +80,7 @@ export function ProjectBranding({
           {t('Cancel')}
         </Button>
         <Button disabled={!dirty || busy} busy={save.isPending} onClick={() => save.mutate()}>
-          {t('Save project logo')}
+          {t('Save company logo')}
         </Button>
       </footer>
     </section>

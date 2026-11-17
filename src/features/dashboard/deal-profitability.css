@@ -3,11 +3,12 @@
    ========================================================================== */
 
 .deal-profitability-panel {
-  margin-top: 24px;
-  border-radius: 14px;
-  background: var(--surface);
+  margin-top: 0;
+  margin-bottom: 28px;
+  border-radius: 12px;
+  background: var(--panel);
   border: 1px solid var(--border);
-  box-shadow: var(--shadow);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
   overflow: hidden;
 }
 
@@ -16,39 +17,39 @@
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  padding: 22px 24px 16px;
+  padding: 18px 22px 14px;
   border-bottom: 1px solid var(--border);
 }
 
 .deal-header-title-box {
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 12px;
 }
 
 .deal-header-icon {
   display: grid;
   place-items: center;
-  flex: 0 0 42px;
-  height: 42px;
-  border-radius: 11px;
-  color: var(--badge-green-text);
-  background: var(--badge-green-bg);
-  border: 1px solid var(--badge-green-border);
+  flex: 0 0 38px;
+  height: 38px;
+  border-radius: 8px;
+  color: var(--primary);
+  background: var(--subtle);
+  border: 1px solid var(--border);
 }
 
 .deal-profitability-header h2 {
-  font-size: 16px;
-  font-weight: 700;
+  font-size: 15px;
+  font-weight: 600;
   color: var(--text);
   margin: 0;
   letter-spacing: -0.2px;
 }
 
 .deal-profitability-header p {
-  font-size: 11.5px;
+  font-size: 11px;
   color: var(--muted);
-  margin: 3px 0 0;
+  margin: 2px 0 0;
   line-height: 1.4;
 }
 
@@ -64,8 +65,8 @@
 .deal-kpi-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 16px;
-  padding: 20px 24px;
+  gap: 14px;
+  padding: 16px 20px;
   background: var(--subtle);
   border-bottom: 1px solid var(--border);
 }
@@ -85,18 +86,17 @@
 .deal-kpi-card {
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  padding: 16px 18px;
-  background: var(--surface);
+  gap: 5px;
+  padding: 14px 16px;
+  background: var(--panel);
   border: 1px solid var(--border);
-  border-radius: 12px;
-  box-shadow: var(--shadow);
+  border-radius: 10px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
   transition: all 0.15s ease;
 }
 
 .deal-kpi-card:hover {
   border-color: var(--primary);
-  box-shadow: 0 4px 12px color-mix(in srgb, var(--primary) 15%, transparent);
 }
 
 .deal-kpi-label {
@@ -525,17 +525,21 @@
 }
 
 @media (max-width: 700px) {
+
   .deal-profitability-header,
   .deal-table-controls {
     flex-direction: column;
     align-items: stretch;
   }
+
   .deal-header-actions {
     flex-wrap: wrap;
   }
+
   .deal-filter-tabs {
     flex-wrap: wrap;
   }
+
   .deal-search-box {
     min-width: 0;
     width: 100%;

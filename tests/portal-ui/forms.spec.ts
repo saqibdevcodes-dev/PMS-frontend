@@ -9,6 +9,16 @@ async function selectRecord(scope: Page | Locator, label: string, value: string)
   await chooseOption(scope.getByLabel(label, { exact: true }), value);
 }
 const id = (n: number) => `00000000-0000-4000-8000-${String(n).padStart(12, '0')}`;
+const company = {
+  id: id(8),
+  name: 'Etihad Property Holdings',
+  code: 'CMP-000001',
+  logoId: null,
+  address: 'Lahore',
+  phone: '',
+  email: '',
+  active: true,
+};
 const project = {
   id: id(1),
   name: 'Garden Homes',
@@ -22,6 +32,7 @@ const project = {
   _count: { units: 1, plans: 0 },
   currency: 'PKR',
   timezone: 'Asia/Karachi',
+  companyId: company.id,
 };
 const customer = { id: id(2), name: 'Ahmed Buyer', reference: 'CUST-001', phone: '03001234567' };
 const unit = {
@@ -77,6 +88,7 @@ async function setup(
     ...project,
     ...(options.gallery ? { photoId: id(60), photoIds: [60, 61, 62, 63, 64].map(id) } : {}),
   };
+  let currentCompany = { ...company };
   let currentUnit = {
     ...unit,
     ...(options.gallery ? { photoId: id(65), photoIds: [65, 66, 67, 68, 69].map(id) } : {}),
@@ -139,7 +151,8 @@ async function setup(
             'settings.manage',
           ]),
         ].filter((permission) => admin || permission !== 'settings.manage'),
-        projects: [{ projectId: project.id }],
+        projects: [{ projectId: project.id, project: { companyId: company.id } }],
+        companies: [{ companyId: company.id, role: 'OWNER' }],
       };
     else if (path === '/images' && isWrite) {
       uploadCount++;
@@ -161,7 +174,12 @@ async function setup(
         expiresIn: 120,
         name: 'proof.png',
       };
-    else if (path === '/projects')
+    else if (path === '/companies')
+      data = isWrite ? { id: id(89), ...writes.at(-1)?.body } : list([currentCompany]);
+    else if (path === '/companies/' + company.id) {
+      if (isWrite) currentCompany = { ...currentCompany, ...writes.at(-1)?.body };
+      data = currentCompany;
+    } else if (path === '/projects')
       data = isWrite ? { id: id(90), ...writes.at(-1)?.body } : list([currentProject]);
     else if (path === '/projects/' + project.id) {
       if (isWrite) {
@@ -453,59 +471,75 @@ for (const width of [1280, 390])
     await expect(page.getByRole('button', { name: 'Print voucher', exact: true })).toBeVisible();
   });
 
-test('project branding is available on creation and saves a separate logo', async ({ page }) => {
+test('company branding is created once and new projects use the selected company', async ({
+  page,
+}) => {
   const { writes } = await setup(page);
+  await page.goto('/companies');
+  await page.getByRole('button', { name: 'Add company', exact: true }).click();
+  const companyDialog = page.getByRole('dialog', { name: 'Add company', exact: true });
+  await companyDialog.getByRole('textbox', { name: /^Name/ }).fill('Garden Holdings');
+  await companyDialog.getByLabel('Company logo', { exact: true }).setInputFiles(photo);
+  await expect(companyDialog.getByRole('img', { name: 'Company logo', exact: true })).toBeVisible();
+  expect(writes.find((write) => write.path === '/images')?.raw).toContain('COMPANY_LOGO');
+  await companyDialog.getByRole('button', { name: /Review changes|Continue/ }).click();
+  await companyDialog.getByRole('button', { name: 'Confirm & submit', exact: true }).click();
+  await expect
+    .poll(() => writes.find((write) => write.path === '/companies')?.body.logoId)
+    .toBe(id(20));
+
   await page.goto('/projects');
   await page.getByRole('button', { name: 'Add project', exact: true }).click();
   const d = page.getByRole('dialog', { name: 'Add project', exact: true });
   await d.getByRole('textbox', { name: /^Name/ }).fill('Garden Extension');
   await d.getByRole('textbox', { name: /^Location/ }).fill('Lahore');
-  await d.getByLabel('Project logo', { exact: true }).setInputFiles(photo);
-  await expect(d.getByRole('img', { name: 'Project logo', exact: true })).toBeVisible();
-  expect(writes.find((w) => w.path === '/images')?.raw).toContain('PROJECT_LOGO');
+  await expect(d.getByLabel('Project logo', { exact: true })).toHaveCount(0);
   await d.getByRole('button', { name: /Review changes|Continue/ }).click();
   await d.getByRole('button', { name: 'Confirm & submit', exact: true }).click();
-  await expect.poll(() => writes.find((w) => w.path === '/projects')?.body.logoId).toBe(id(20));
+  await expect
+    .poll(() => writes.find((w) => w.path === '/projects')?.body.companyId)
+    .toBe(company.id);
+  expect(writes.find((w) => w.path === '/projects')?.body).not.toHaveProperty('logoId');
 });
 for (const width of [1280, 390])
-  test(`project branding settings replace, cancel and remove a logo at ${width}px`, async ({
+  test(`company branding settings replace, cancel and remove a logo at ${width}px`, async ({
     page,
   }) => {
     const { writes } = await setup(page);
     await page.setViewportSize({ width, height: 900 });
     await page.goto('/settings');
     const card = page.locator('.project-branding-card');
-    await expect(card.getByRole('heading', { name: 'Project branding' })).toBeVisible();
-    await card.getByLabel('Project logo', { exact: true }).setInputFiles(photo);
-    await card.getByRole('button', { name: 'Save project logo' }).click();
+    await expect(card.getByRole('heading', { name: 'Company branding' })).toBeVisible();
+    await card.getByLabel('Company logo', { exact: true }).setInputFiles(photo);
+    await card.getByRole('button', { name: 'Save company logo' }).click();
     await expect
-      .poll(() => writes.filter((w) => w.path === '/projects/' + project.id).at(-1)?.body.logoId)
+      .poll(() => writes.filter((w) => w.path === '/companies/' + company.id).at(-1)?.body.logoId)
       .toBe(id(20));
-    await expect(card.getByRole('button', { name: 'Save project logo' })).toBeDisabled();
+    await expect(card.getByRole('button', { name: 'Save company logo' })).toBeDisabled();
     await card
-      .getByLabel('Project logo', { exact: true })
+      .getByLabel('Company logo', { exact: true })
       .setInputFiles({ ...photo, name: 'replacement.png' });
     await card.getByRole('button', { name: 'Cancel', exact: true }).click();
-    await expect(card.getByRole('button', { name: 'Save project logo' })).toBeDisabled();
+    await expect(card.getByRole('button', { name: 'Save company logo' })).toBeDisabled();
     await card
-      .getByLabel('Project logo', { exact: true })
+      .getByLabel('Company logo', { exact: true })
       .setInputFiles({ ...photo, name: 'replacement.png' });
-    await card.getByRole('button', { name: 'Save project logo' }).click();
+    await card.getByRole('button', { name: 'Save company logo' }).click();
     await expect
-      .poll(() => writes.filter((w) => w.path === '/projects/' + project.id).at(-1)?.body.logoId)
+      .poll(() => writes.filter((w) => w.path === '/companies/' + company.id).at(-1)?.body.logoId)
       .toBe(id(22));
-    await expect(card.getByRole('button', { name: 'Save project logo' })).toBeDisabled();
+    await expect(card.getByRole('button', { name: 'Save company logo' })).toBeDisabled();
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(
       true,
     );
     await page.screenshot({
-      path: `test-results/portal/project-branding-${width}.png`,
+      path: `test-results/portal/company-branding-${width}.png`,
       fullPage: true,
     });
     await card.getByRole('button', { name: 'Remove photo', exact: true }).click();
-    await card.getByRole('button', { name: 'Save project logo' }).click();
+    await card.getByRole('button', { name: 'Save company logo' }).click();
     await expect
-      .poll(() => writes.filter((w) => w.path === '/projects/' + project.id).at(-1)?.body.logoId)
+      .poll(() => writes.filter((w) => w.path === '/companies/' + company.id).at(-1)?.body.logoId)
       .toBeNull();
   });
 test('project branding appears on a printable journal voucher', async ({ page }) => {
@@ -714,7 +748,7 @@ for (const width of [1280, 390]) {
   test(`portfolio groups and customer/property links work at ${width}px`, async ({ page }) => {
     const { writes, requests } = await setup(page, true, { portfolio: true, draftBooking: true });
     await page.setViewportSize({ width, height: 900 });
-    await page.goto('/inventory');
+    await page.goto('/inventory?view=table');
     const relation = page.locator('.portfolio-relation').first();
     await expect(relation).toContainText('Pending booking');
     await relation.getByRole('link', { name: customer.name }).click();
@@ -1016,7 +1050,7 @@ test('table actions flip above a viewport edge and support dark RTL menus', asyn
       JSON.stringify({ state: { language: 'ur', theme: 'dark' }, version: 0 }),
     );
   });
-  await page.goto('/inventory');
+  await page.goto('/inventory?view=table');
   const trigger = page.locator('.row-actions button[aria-haspopup="menu"]');
   await expect(trigger).toBeVisible();
   // Keep the trigger visible but leave too little room below for the full property action list.
@@ -1750,7 +1784,7 @@ for (const resource of ['project', 'property'] as const)
     page,
   }) => {
     const { writes } = await setup(page, true, { gallery: true });
-    await page.goto(resource === 'project' ? '/projects' : '/inventory');
+    await page.goto(resource === 'project' ? '/projects?view=table' : '/inventory?view=table');
     const title = resource === 'project' ? project.name : unit.number;
     await page
       .locator('.table-container')
@@ -1860,6 +1894,36 @@ for (const width of [1280, 390])
     await expect(d).toBeVisible();
   });
 
+for (const width of [1280, 390])
+  test(`company, project and property cards stay consistent at ${width}px`, async ({ page }) => {
+    await page.setViewportSize({ width, height: 950 });
+    await setup(page, true, { gallery: true });
+    for (const directory of [
+      { path: '/companies', name: company.name, slug: 'companies' },
+      { path: '/projects', name: project.name, slug: 'projects' },
+      { path: '/inventory', name: unit.number, slug: 'properties' },
+    ]) {
+      await page.goto(directory.path);
+      await expect(page.getByRole('button', { name: 'Card view' })).toHaveAttribute(
+        'aria-pressed',
+        'true',
+      );
+      const card = page.locator('.directory-card').filter({ hasText: directory.name });
+      await expect(card).toHaveCount(1);
+      await expect(
+        card.getByRole('button', { name: `View details: ${directory.name}` }),
+      ).toBeVisible();
+      expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(
+        true,
+      );
+      await page.screenshot({
+        path: `test-results/portal/${directory.slug}-cards-${width}.png`,
+        fullPage: true,
+        animations: 'disabled',
+      });
+    }
+  });
+
 for (const width of [1600, 847, 390])
   test(`project directory shows useful details without stretching rows at ${width}px`, async ({
     page,
@@ -1902,7 +1966,7 @@ for (const width of [1600, 847, 390])
     await page.route('**/api/v1/projects?*', (route) =>
       route.fulfill({ json: { success: true, data: list(records) } }),
     );
-    await page.goto('/projects');
+    await page.goto('/projects?view=table');
     const panel = page.locator('.projects-panel');
     await expect(panel.getByRole('heading', { name: 'Project directory' })).toBeVisible();
     if (width === 1600)
@@ -1966,7 +2030,7 @@ for (const width of [847, 390])
   test(`project rows and discard confirmation fit a ${width}px viewport`, async ({ page }) => {
     await page.setViewportSize({ width, height: 911 });
     await setup(page, true, { gallery: true });
-    await page.goto('/projects');
+    await page.goto('/projects?view=table');
     if (width === 847) {
       await page.getByRole('button', { name: 'Toggle color theme' }).click();
       await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');

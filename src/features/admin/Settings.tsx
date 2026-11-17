@@ -12,9 +12,10 @@ import { ProjectRequired, Unauthorized } from '../resources/ResourcePage';
 import { LanguageSelector } from '../../components/LanguageSelector';
 import { SlidersHorizontal, Percent, CalendarCheck, Pencil } from 'lucide-react';
 import { Skeleton } from '../../components/ui';
-import { ProjectBranding } from './ProjectBranding';
+import { CompanyBranding } from './ProjectBranding';
 export default function Settings() {
   useLocale();
+  const companyId = usePreferences((s) => s.companyId);
   const projectId = usePreferences((s) => s.projectId);
   const [editing, setEditing] = useState(false);
   const project = useQuery({
@@ -22,13 +23,18 @@ export default function Settings() {
     enabled: !!projectId && can('projects.update'),
     queryFn: () => api<Row>(`/projects/${projectId}`),
   });
+  const company = useQuery({
+    queryKey: ['company-settings', companyId],
+    enabled: !!companyId && can('projects.update'),
+    queryFn: () => api<Row>(`/companies/${companyId}`),
+  });
   if (!can('projects.update')) return <Unauthorized />;
   return (
     <>
       <PageHeading
         eyebrow="Administration"
-        title="Project settings"
-        description="Set simple payment rules for this project."
+        title="Workspace settings"
+        description="Manage company branding and the selected project's payment rules."
       />
       {can('settings.manage') && (
         <section className="panel language-settings">
@@ -39,12 +45,12 @@ export default function Settings() {
           <LanguageSelector />
         </section>
       )}
-      {projectId && project.data && (
-        <ProjectBranding
-          key={projectId}
-          projectId={projectId}
-          name={String(project.data.name)}
-          initialLogo={project.data.logoId ? String(project.data.logoId) : null}
+      {companyId && company.data && company.data.role !== 'MEMBER' && (
+        <CompanyBranding
+          key={companyId}
+          companyId={companyId}
+          name={String(company.data.name)}
+          initialLogo={company.data.logoId ? String(company.data.logoId) : null}
         />
       )}
       {!projectId ? (

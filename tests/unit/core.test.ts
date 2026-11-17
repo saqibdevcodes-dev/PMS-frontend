@@ -4,7 +4,7 @@ import { money } from '../../src/lib/format';
 import { parseCsv } from '../../src/lib/csv';
 import { normalize, validator } from '../../src/lib/schema';
 import { operation } from '../../src/lib/contract';
-import { allowedAction, navItems } from '../../src/features/resources/catalog';
+import { allowedAction, navItems, resources } from '../../src/features/resources/catalog';
 import { useAuth } from '../../src/stores/auth';
 import { formatPhone, isValidPhone } from '../../src/lib/phone';
 import type { User } from '../../src/lib/types';
@@ -168,5 +168,10 @@ describe('desktop security boundaries', () => {
       expect(() => externalUrl(url)).toThrow();
     expect(() => assetPath('C:\\app\\dist', '/..%2Fsecret')).toThrow();
     expect(() => assetPath('C:\\app\\dist', '/..\\secret')).toThrow();
+  });
+  it('enables card and tabular views for customers with default card view configuration', () => {
+    const customerResource = resources.find((r) => r.slug === 'customers');
+    expect(customerResource).toBeDefined();
+    expect(customerResource?.views).toBe(true);
   });
 });

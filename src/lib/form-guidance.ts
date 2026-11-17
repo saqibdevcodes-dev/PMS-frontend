@@ -1,6 +1,6 @@
 import { ownershipLabels, ownershipHelp } from './ownership';
 export const fieldLabels: Record<string, string> = {
-  logoId: 'Project logo',
+  logoId: 'Company logo',
   vendorId: 'Seller or supplier',
   fileReference: 'Purchase agreement reference',
   purchaseDate: 'Purchase date',

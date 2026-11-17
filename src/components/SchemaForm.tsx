@@ -101,6 +101,7 @@ export function SchemaField({
   const error = messageAt(form.formState.errors, name);
   const id = 'field-' + name;
   if (
+    (fieldKey === 'companyId' && guidance.path === '/projects') ||
     fieldKey === 'receivingAccountId' ||
     fieldKey === 'featureImages' ||
     (fieldKey === 'charges' && propertyForm) ||
@@ -175,7 +176,9 @@ export function SchemaField({
               onChange={field.onChange}
               purpose={
                 fieldKey === 'logoId'
-                  ? 'PROJECT_LOGO'
+                  ? guidance.path.startsWith('/companies')
+                    ? 'COMPANY_LOGO'
+                    : 'PROJECT_LOGO'
                   : fieldKey === 'proofImageId'
                     ? 'PAYMENT'
                     : imagePurpose(guidance.path)
