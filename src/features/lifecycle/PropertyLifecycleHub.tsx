@@ -253,6 +253,7 @@ export default function PropertyLifecycleHub() {
       } catch (error) {
         throw new Error(
           `Investment finalized, but listing failed: ${error instanceof Error ? error.message : 'Please try again.'}`,
+          { cause: error },
         );
       }
     },
