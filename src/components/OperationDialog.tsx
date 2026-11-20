@@ -103,7 +103,12 @@ export function OperationDialog({
           body: purchasePosting
             ? { expectedTotal: String(record?.total), expectedUpdatedAt: record?.updatedAt }
             : operation.method === 'post' && operation.path === '/projects'
-              ? { ...body, companyId: usePreferences.getState().companyId }
+              ? {
+                  ...body,
+                  ...(usePreferences.getState().companyId
+                    ? { companyId: usePreferences.getState().companyId }
+                    : {}),
+                }
               : body,
           idempotencyKey: hasIdempotency ? key : undefined,
         },

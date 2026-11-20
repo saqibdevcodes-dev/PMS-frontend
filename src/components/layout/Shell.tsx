@@ -98,11 +98,11 @@ export default function Shell() {
     queryFn: ({ signal }) =>
       api<Page>(
         '/projects' +
-        queryString({
-          limit: 100,
-          search: projectSearch,
-          companyId: preferences.companyId || undefined,
-        }),
+          queryString({
+            limit: 100,
+            search: projectSearch,
+            companyId: preferences.companyId || undefined,
+          }),
         { signal },
       ),
   });
@@ -124,9 +124,14 @@ export default function Shell() {
   const setCompany = usePreferences((s) => s.setCompany);
   const currentProjectId = usePreferences((s) => s.projectId);
   const setProject = usePreferences((s) => s.setProject);
+  const companyAssigned =
+    !currentCompanyId ||
+    (user.companies ?? []).some((company) => company.companyId === currentCompanyId);
+  const projectAssigned =
+    !currentProjectId || user.projects.some((project) => project.projectId === currentProjectId);
   useEffect(() => {
     const userCompanyIds = new Set((user?.companies ?? []).map((company) => company.companyId));
-    if (currentCompanyId && userCompanyIds.size > 0 && !userCompanyIds.has(currentCompanyId)) {
+    if (currentCompanyId && !userCompanyIds.has(currentCompanyId)) {
       setCompany('', '');
     } else if (!currentCompanyId && companies.data?.items.length) {
       const allowed =
@@ -137,7 +142,7 @@ export default function Shell() {
   }, [companies.data, currentCompanyId, setCompany, user?.companies]);
   useEffect(() => {
     const userProjectIds = new Set((user?.projects ?? []).map((p) => p.projectId));
-    if (currentProjectId && userProjectIds.size > 0 && !userProjectIds.has(currentProjectId)) {
+    if (currentProjectId && !userProjectIds.has(currentProjectId)) {
       setProject('', '');
     } else if (!currentProjectId && projects.data?.items) {
       const allowed = projects.data.items.find(
@@ -205,382 +210,382 @@ export default function Shell() {
   }
   return (
     <div className={'app-shell ' + (preferences.collapsed ? 'sidebar-collapsed' : '')}>
-        <a className="skip-link" href="#main-content">
-          {t('Skip to content')}
-        </a>
-        {mobile && (
-          <button
-            className="sidebar-scrim"
-            aria-label={t('Close navigation')}
-            onClick={() => setMobile(false)}
+      <a className="skip-link" href="#main-content">
+        {t('Skip to content')}
+      </a>
+      {mobile && (
+        <button
+          className="sidebar-scrim"
+          aria-label={t('Close navigation')}
+          onClick={() => setMobile(false)}
+        />
+      )}
+      <aside className={'sidebar ' + (mobile ? 'mobile-open' : '')}>
+        <NavLink to="/dashboard" className="brand" aria-label="Etihad Real Estate">
+          <BrandLogo background="dark" className="sidebar-logo-full" decorative />
+          <BrandLogo
+            variant="symbol"
+            background="dark"
+            className="sidebar-logo-compact"
+            decorative
           />
-        )}
-        <aside className={'sidebar ' + (mobile ? 'mobile-open' : '')}>
-          <NavLink to="/dashboard" className="brand" aria-label="Etihad Real Estate">
-            <BrandLogo background="dark" className="sidebar-logo-full" decorative />
-            <BrandLogo
-              variant="symbol"
-              background="dark"
-              className="sidebar-logo-compact"
-              decorative
-            />
-          </NavLink>
-          <SearchSelect
-            className="company-select"
-            triggerClassName="project-switcher"
-            ariaLabel={t('Switch company')}
-            value={preferences.companyId}
-            options={(companies.data?.items ?? []).map((company) => ({
-              value: company.id!,
-              label: `${company.name} · ${company.code}`,
-            }))}
-            search={companySearch}
-            onSearch={setCompanySearch}
-            searchLabel={t('Search companies')}
-            selectedLabel={preferences.companyName}
-            disabled={!can('projects.read')}
-            loading={companies.isFetching}
-            error={companies.isError}
-            onRetry={() => void companies.refetch()}
-            clearable={false}
-            onChange={(value) => {
-              const company = companies.data?.items.find((item) => item.id === value);
-              if (company) void selectCompany(company);
-            }}
-            triggerContent={
-              <>
-                <span className="project-icon">
-                  <Landmark size={17} />
-                </span>
-                <span className="project-caption">
-                  <small>{t('CURRENT COMPANY')}</small>
-                  <strong>{preferences.companyName || t('Choose a company')}</strong>
-                </span>
-              </>
-            }
-          />
-          <SearchSelect
-            className="project-select"
-            triggerClassName="project-switcher"
-            ariaLabel={t('Switch project')}
-            value={preferences.projectId}
-            options={(projects.data?.items ?? []).map((p) => ({
-              value: p.id!,
-              label: `${p.name} · ${p.code}`,
-            }))}
-            search={projectSearch}
-            onSearch={setProjectSearch}
-            searchLabel={t('Search projects')}
-            selectedLabel={preferences.projectName}
-            disabled={
-              !can('projects.read') ||
-              (Boolean(companies.data?.items.length) && !preferences.companyId)
-            }
-            loading={projects.isFetching}
-            error={projects.isError}
-            onRetry={() => void projects.refetch()}
-            clearable={false}
-            onChange={(value) => {
-              const p = projects.data?.items.find((p) => p.id === value);
-              if (p) void selectProject(p);
-            }}
-            triggerContent={
-              <>
-                <span className="project-icon">
-                  <Building2 size={17} />
-                </span>
-                <span className="project-caption">
-                  <small>{t('CURRENT PROJECT')}</small>
-                  <strong>{preferences.projectName || t('Choose a project')}</strong>
-                </span>
-              </>
-            }
-          />
-          <nav className="sidebar-nav" aria-label={t('Main navigation')}>
-            {groups.map((group) => (
-              <div className="nav-group" key={t(group)}>
-                <div className="nav-label">{t(group)}</div>
-                {sidebarItems
-                  .filter((n) => n.group === group)
-                  .map((n) => {
-                    if (n.slug === 'inventory') {
-                      return (
-                        <div className={`nav-dropdown ${propertiesOpen ? 'open' : ''}`} key={n.slug}>
-                          <button
-                            type="button"
-                            className={`nav-item nav-dropdown-trigger ${isPropertiesActive ? 'active-parent' : ''} ${propertiesOpen ? 'open' : ''}`}
-                            onClick={() => {
-                              if (preferences.collapsed) {
-                                preferences.toggleSidebar();
-                                setPropertiesOpen(true);
-                              } else {
-                                setPropertiesOpen((open) => !open);
-                              }
-                            }}
-                            title={t('Properties')}
-                            aria-expanded={propertiesOpen && !preferences.collapsed}
-                            aria-controls="properties-submenu"
-                          >
-                            <Building2 size={18} />
-                            <span>{t('Properties')}</span>
-                            <ChevronDown size={14} className="nav-chevron" />
-                          </button>
-                          {propertiesOpen && !preferences.collapsed && (
-                            <div className="nav-sub-menu" id="properties-submenu">
-                              {propertyNavigation.map((item) => (
-                                <NavLink
-                                  key={item.slug}
-                                  to={'/' + item.slug}
-                                  onClick={() => setMobile(false)}
-                                  className={({ isActive }) =>
-                                    'nav-sub-item ' + (isActive ? 'active' : '')
-                                  }
-                                >
-                                  <item.icon size={14} />
-                                  <span>
-                                    {t(item.slug === 'inventory' ? 'All properties' : item.label)}
-                                  </span>
-                                </NavLink>
-                              ))}
-                            </div>
-                          )}
-                        </div>
-                      );
-                    }
-                    if (n.slug === 'customers') {
-                      return (
-                        <div className={`nav-dropdown ${membersOpen ? 'open' : ''}`} key={n.slug}>
-                          <button
-                            type="button"
-                            className={`nav-item nav-dropdown-trigger ${isMembersActive ? 'active-parent' : ''} ${membersOpen ? 'open' : ''}`}
-                            onClick={() => {
-                              if (preferences.collapsed) {
-                                preferences.toggleSidebar();
-                                setMembersOpen(true);
-                              } else {
-                                setMembersOpen((prev) => !prev);
-                              }
-                            }}
-                            title={t(n.label)}
-                            aria-expanded={membersOpen}
-                          >
-                            <n.icon size={18} />
-                            <span>{t(n.label)}</span>
-                            <ChevronDown size={14} className="nav-chevron" />
-                          </button>
-                          {membersOpen && !preferences.collapsed && (
-                            <div className="nav-sub-menu">
-                              <NavLink
-                                to="/members/register"
-                                onClick={() => setMobile(false)}
-                                className={({ isActive }) =>
-                                  'nav-sub-item ' + (isActive ? 'active' : '')
-                                }
-                              >
-                                <UserPlus size={14} />
-                                <span>{t('Customer registration')}</span>
-                              </NavLink>
-                              <NavLink
-                                to="/customers"
-                                end
-                                onClick={() => setMobile(false)}
-                                className={({ isActive }) =>
-                                  'nav-sub-item ' +
-                                  (isActive ||
-                                    (location.pathname === '/customers' &&
-                                      !location.pathname.includes('/register') &&
-                                      !location.pathname.includes('/ledgers') &&
-                                      !location.pathname.includes('/qr'))
-                                    ? 'active'
-                                    : '')
-                                }
-                              >
-                                <Users size={14} />
-                                <span>{t('All customers')}</span>
-                              </NavLink>
-                              <NavLink
-                                to="/members/ledgers"
-                                onClick={() => setMobile(false)}
-                                className={({ isActive }) =>
-                                  'nav-sub-item ' + (isActive ? 'active' : '')
-                                }
-                              >
-                                <FileSpreadsheet size={14} />
-                                <span>{t('Customer ledgers')}</span>
-                              </NavLink>
-                              <NavLink
-                                to="/members/qr"
-                                onClick={() => setMobile(false)}
-                                className={({ isActive }) =>
-                                  'nav-sub-item ' + (isActive ? 'active' : '')
-                                }
-                              >
-                                <QrCode size={14} />
-                                <span>{t('Customer QR codes')}</span>
-                              </NavLink>
-                            </div>
-                          )}
-                        </div>
-                      );
-                    }
-
-                    return (
-                      <NavLink
-                        key={n.slug}
-                        to={'/' + n.slug}
-                        onClick={() => setMobile(false)}
-                        title={t(n.label)}
-                        className={({ isActive }) => 'nav-item ' + (isActive ? 'active' : '')}
-                      >
-                        <n.icon size={18} />
-                        <span>{t(n.label)}</span>
-                      </NavLink>
-                    );
-                  })}
-              </div>
-            ))}
-          </nav>
-          <div className="sidebar-bottom">
-            <div className="workspace-note">
-              <span className="live-dot" />
-              <span>{t('Connected to your portfolio')}</span>
-              <ArrowUpRight size={14} />
-            </div>
-            <button
-              className="user-switcher"
-              onClick={() => {
-                navigate('/profile');
-                setMobile(false);
-              }}
-            >
-              <span className="avatar">{user.name.slice(0, 1).toUpperCase()}</span>
-              <span>
-                <strong>{user.name}</strong>
-                <small>{t('My account & sessions')}</small>
+        </NavLink>
+        <SearchSelect
+          className="company-select"
+          triggerClassName="project-switcher"
+          ariaLabel={t('Switch company')}
+          value={preferences.companyId}
+          options={(companies.data?.items ?? []).map((company) => ({
+            value: company.id!,
+            label: `${company.name} · ${company.code}`,
+          }))}
+          search={companySearch}
+          onSearch={setCompanySearch}
+          searchLabel={t('Search companies')}
+          selectedLabel={preferences.companyName}
+          disabled={!can('projects.read')}
+          loading={companies.isFetching}
+          error={companies.isError}
+          onRetry={() => void companies.refetch()}
+          clearable={false}
+          onChange={(value) => {
+            const company = companies.data?.items.find((item) => item.id === value);
+            if (company) void selectCompany(company);
+          }}
+          triggerContent={
+            <>
+              <span className="project-icon">
+                <Landmark size={17} />
               </span>
-              <ChevronDown size={14} />
-            </button>
+              <span className="project-caption">
+                <small>{t('CURRENT COMPANY')}</small>
+                <strong>{preferences.companyName || t('Choose a company')}</strong>
+              </span>
+            </>
+          }
+        />
+        <SearchSelect
+          className="project-select"
+          triggerClassName="project-switcher"
+          ariaLabel={t('Switch project')}
+          value={preferences.projectId}
+          options={(projects.data?.items ?? []).map((p) => ({
+            value: p.id!,
+            label: `${p.name} · ${p.code}`,
+          }))}
+          search={projectSearch}
+          onSearch={setProjectSearch}
+          searchLabel={t('Search projects')}
+          selectedLabel={preferences.projectName}
+          disabled={
+            !can('projects.read') ||
+            (Boolean(companies.data?.items.length) && !preferences.companyId)
+          }
+          loading={projects.isFetching}
+          error={projects.isError}
+          onRetry={() => void projects.refetch()}
+          clearable={false}
+          onChange={(value) => {
+            const p = projects.data?.items.find((p) => p.id === value);
+            if (p) void selectProject(p);
+          }}
+          triggerContent={
+            <>
+              <span className="project-icon">
+                <Building2 size={17} />
+              </span>
+              <span className="project-caption">
+                <small>{t('CURRENT PROJECT')}</small>
+                <strong>{preferences.projectName || t('Choose a project')}</strong>
+              </span>
+            </>
+          }
+        />
+        <nav className="sidebar-nav" aria-label={t('Main navigation')}>
+          {groups.map((group) => (
+            <div className="nav-group" key={t(group)}>
+              <div className="nav-label">{t(group)}</div>
+              {sidebarItems
+                .filter((n) => n.group === group)
+                .map((n) => {
+                  if (n.slug === 'inventory') {
+                    return (
+                      <div className={`nav-dropdown ${propertiesOpen ? 'open' : ''}`} key={n.slug}>
+                        <button
+                          type="button"
+                          className={`nav-item nav-dropdown-trigger ${isPropertiesActive ? 'active-parent' : ''} ${propertiesOpen ? 'open' : ''}`}
+                          onClick={() => {
+                            if (preferences.collapsed) {
+                              preferences.toggleSidebar();
+                              setPropertiesOpen(true);
+                            } else {
+                              setPropertiesOpen((open) => !open);
+                            }
+                          }}
+                          title={t('Properties')}
+                          aria-expanded={propertiesOpen && !preferences.collapsed}
+                          aria-controls="properties-submenu"
+                        >
+                          <Building2 size={18} />
+                          <span>{t('Properties')}</span>
+                          <ChevronDown size={14} className="nav-chevron" />
+                        </button>
+                        {propertiesOpen && !preferences.collapsed && (
+                          <div className="nav-sub-menu" id="properties-submenu">
+                            {propertyNavigation.map((item) => (
+                              <NavLink
+                                key={item.slug}
+                                to={'/' + item.slug}
+                                onClick={() => setMobile(false)}
+                                className={({ isActive }) =>
+                                  'nav-sub-item ' + (isActive ? 'active' : '')
+                                }
+                              >
+                                <item.icon size={14} />
+                                <span>
+                                  {t(item.slug === 'inventory' ? 'All properties' : item.label)}
+                                </span>
+                              </NavLink>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  }
+                  if (n.slug === 'customers') {
+                    return (
+                      <div className={`nav-dropdown ${membersOpen ? 'open' : ''}`} key={n.slug}>
+                        <button
+                          type="button"
+                          className={`nav-item nav-dropdown-trigger ${isMembersActive ? 'active-parent' : ''} ${membersOpen ? 'open' : ''}`}
+                          onClick={() => {
+                            if (preferences.collapsed) {
+                              preferences.toggleSidebar();
+                              setMembersOpen(true);
+                            } else {
+                              setMembersOpen((prev) => !prev);
+                            }
+                          }}
+                          title={t(n.label)}
+                          aria-expanded={membersOpen}
+                        >
+                          <n.icon size={18} />
+                          <span>{t(n.label)}</span>
+                          <ChevronDown size={14} className="nav-chevron" />
+                        </button>
+                        {membersOpen && !preferences.collapsed && (
+                          <div className="nav-sub-menu">
+                            <NavLink
+                              to="/members/register"
+                              onClick={() => setMobile(false)}
+                              className={({ isActive }) =>
+                                'nav-sub-item ' + (isActive ? 'active' : '')
+                              }
+                            >
+                              <UserPlus size={14} />
+                              <span>{t('Customer registration')}</span>
+                            </NavLink>
+                            <NavLink
+                              to="/customers"
+                              end
+                              onClick={() => setMobile(false)}
+                              className={({ isActive }) =>
+                                'nav-sub-item ' +
+                                (isActive ||
+                                (location.pathname === '/customers' &&
+                                  !location.pathname.includes('/register') &&
+                                  !location.pathname.includes('/ledgers') &&
+                                  !location.pathname.includes('/qr'))
+                                  ? 'active'
+                                  : '')
+                              }
+                            >
+                              <Users size={14} />
+                              <span>{t('All customers')}</span>
+                            </NavLink>
+                            <NavLink
+                              to="/members/ledgers"
+                              onClick={() => setMobile(false)}
+                              className={({ isActive }) =>
+                                'nav-sub-item ' + (isActive ? 'active' : '')
+                              }
+                            >
+                              <FileSpreadsheet size={14} />
+                              <span>{t('Customer ledgers')}</span>
+                            </NavLink>
+                            <NavLink
+                              to="/members/qr"
+                              onClick={() => setMobile(false)}
+                              className={({ isActive }) =>
+                                'nav-sub-item ' + (isActive ? 'active' : '')
+                              }
+                            >
+                              <QrCode size={14} />
+                              <span>{t('Customer QR codes')}</span>
+                            </NavLink>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  }
+
+                  return (
+                    <NavLink
+                      key={n.slug}
+                      to={'/' + n.slug}
+                      onClick={() => setMobile(false)}
+                      title={t(n.label)}
+                      className={({ isActive }) => 'nav-item ' + (isActive ? 'active' : '')}
+                    >
+                      <n.icon size={18} />
+                      <span>{t(n.label)}</span>
+                    </NavLink>
+                  );
+                })}
+            </div>
+          ))}
+        </nav>
+        <div className="sidebar-bottom">
+          <div className="workspace-note">
+            <span className="live-dot" />
+            <span>{t('Connected to your portfolio')}</span>
+            <ArrowUpRight size={14} />
           </div>
-        </aside>
+          <button
+            className="user-switcher"
+            onClick={() => {
+              navigate('/profile');
+              setMobile(false);
+            }}
+          >
+            <span className="avatar">{user.name.slice(0, 1).toUpperCase()}</span>
+            <span>
+              <strong>{user.name}</strong>
+              <small>{t('My account & sessions')}</small>
+            </span>
+            <ChevronDown size={14} />
+          </button>
+        </div>
+      </aside>
       <div className="app-main">
         <header className="topbar">
-              <div className="topbar-context">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="mobile-menu"
-                  aria-label={t('Open navigation')}
-                  onClick={() => setMobile(true)}
-                >
-                  <Menu size={20} />
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="desktop-collapse"
-                  aria-label={t('Toggle sidebar')}
-                  onClick={preferences.toggleSidebar}
-                >
-                  <ChevronsLeft size={18} />
-                </Button>
-                <span className="breadcrumb">
-                  {t('Workspace')} <span>/</span> <strong>{t(currentLabel)}</strong>
-                </span>
-              </div>
-              <div className="topbar-actions">
-                {can('settings.manage') && <LanguageSelector />}
-                <button className="global-search" onClick={() => setSearch(true)}>
-                  <Search size={16} />
-                  <span>{t('Search anything…')}</span>
-                  <kbd>⌘ K</kbd>
-                </button>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  aria-label={t('Toggle color theme')}
-                  onClick={() => preferences.setTheme(preferences.theme === 'dark' ? 'light' : 'dark')}
-                >
-                  {preferences.theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="notification-button"
-                  aria-label={t('Notifications, {0} unread', { '0': unread })}
-                  onClick={() => navigate('/notifications')}
-                >
-                  <Bell size={18} />
-                  {unread > 0 && <span />}
-                </Button>
-                <Button size="small" onClick={() => setQuick(true)}>
-                  <Plus size={16} />
-                  <span className="create-label">{t('Create')}</span>
-                </Button>
-              </div>
-            </header>
-            {!online && (
-              <div className="offline-banner" role="status">
-                <WifiOff size={17} />
-                {t("You're offline. Reconnect before making changes.")}
-              </div>
-            )}
-            <main id="main-content" className="workspace">
-              <Outlet key={preferences.projectId} />
-            </main>
-            <footer className="workspace-footer">
-              <span>
-                etihadrealestate <span> / </span> v1.0
-              </span>
-              <span>
-                <span className={online ? 'live-dot' : 'offline-dot'} />
-                {online ? t('Online workspace') : t('Offline')}
-              </span>
-            </footer>
+          <div className="topbar-context">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="mobile-menu"
+              aria-label={t('Open navigation')}
+              onClick={() => setMobile(true)}
+            >
+              <Menu size={20} />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="desktop-collapse"
+              aria-label={t('Toggle sidebar')}
+              onClick={preferences.toggleSidebar}
+            >
+              <ChevronsLeft size={18} />
+            </Button>
+            <span className="breadcrumb">
+              {t('Workspace')} <span>/</span> <strong>{t(currentLabel)}</strong>
+            </span>
           </div>
-          <CommandPalette open={search} onClose={() => setSearch(false)} />
-          <Modal
-            open={quick}
-            onOpenChange={setQuick}
-            title={t('Start something new')}
-            description={t('Actions available to you in this workspace.')}
-          >
-            <div className="quick-grid">
-              {resources
-                .filter(
-                  (r) =>
-                    ['projects', 'customers', 'inventory', 'collections'].includes(r.slug) &&
-                    (r.global || preferences.projectId),
-                )
-                .flatMap((r) =>
-                  actionsFor(r)
-                    .filter((op) => op.path === resourcePath(r))
-                    .map((op) => (
-                      <button
-                        key={op.id}
-                        onClick={() => {
-                          setQuick(false);
-                          setAction({ operation: op, title: actionTitle(op, r) });
-                        }}
-                      >
-                        <r.icon size={22} />
-                        <strong>{t(actionTitle(op, r))}</strong>
-                      </button>
-                    )),
-                )}
-              {can('bookings.create') && preferences.projectId && (
-                <button
-                  onClick={() => {
-                    setQuick(false);
-                    navigate('/bookings/new');
-                  }}
-                >
-                  <Plus size={22} />
-                  <strong>{t('New booking')}</strong>
-                </button>
-              )}
-            </div>
-          </Modal>
-          {action && <OperationDialog {...action} onClose={() => setAction(null)} />}
+          <div className="topbar-actions">
+            {can('settings.manage') && <LanguageSelector />}
+            <button className="global-search" onClick={() => setSearch(true)}>
+              <Search size={16} />
+              <span>{t('Search anything…')}</span>
+              <kbd>⌘ K</kbd>
+            </button>
+            <Button
+              variant="ghost"
+              size="icon"
+              aria-label={t('Toggle color theme')}
+              onClick={() => preferences.setTheme(preferences.theme === 'dark' ? 'light' : 'dark')}
+            >
+              {preferences.theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="notification-button"
+              aria-label={t('Notifications, {0} unread', { '0': unread })}
+              onClick={() => navigate('/notifications')}
+            >
+              <Bell size={18} />
+              {unread > 0 && <span />}
+            </Button>
+            <Button size="small" onClick={() => setQuick(true)}>
+              <Plus size={16} />
+              <span className="create-label">{t('Create')}</span>
+            </Button>
+          </div>
+        </header>
+        {!online && (
+          <div className="offline-banner" role="status">
+            <WifiOff size={17} />
+            {t("You're offline. Reconnect before making changes.")}
+          </div>
+        )}
+        <main id="main-content" className="workspace">
+          {companyAssigned && projectAssigned && <Outlet key={preferences.projectId} />}
+        </main>
+        <footer className="workspace-footer">
+          <span>
+            etihadrealestate <span> / </span> v1.0
+          </span>
+          <span>
+            <span className={online ? 'live-dot' : 'offline-dot'} />
+            {online ? t('Online workspace') : t('Offline')}
+          </span>
+        </footer>
+      </div>
+      <CommandPalette open={search} onClose={() => setSearch(false)} />
+      <Modal
+        open={quick}
+        onOpenChange={setQuick}
+        title={t('Start something new')}
+        description={t('Actions available to you in this workspace.')}
+      >
+        <div className="quick-grid">
+          {resources
+            .filter(
+              (r) =>
+                ['projects', 'customers', 'inventory', 'collections'].includes(r.slug) &&
+                (r.global || preferences.projectId),
+            )
+            .flatMap((r) =>
+              actionsFor(r)
+                .filter((op) => op.path === resourcePath(r))
+                .map((op) => (
+                  <button
+                    key={op.id}
+                    onClick={() => {
+                      setQuick(false);
+                      setAction({ operation: op, title: actionTitle(op, r) });
+                    }}
+                  >
+                    <r.icon size={22} />
+                    <strong>{t(actionTitle(op, r))}</strong>
+                  </button>
+                )),
+            )}
+          {can('bookings.create') && preferences.projectId && (
+            <button
+              onClick={() => {
+                setQuick(false);
+                navigate('/bookings/new');
+              }}
+            >
+              <Plus size={22} />
+              <strong>{t('New booking')}</strong>
+            </button>
+          )}
         </div>
-        );
+      </Modal>
+      {action && <OperationDialog {...action} onClose={() => setAction(null)} />}
+    </div>
+  );
 }
