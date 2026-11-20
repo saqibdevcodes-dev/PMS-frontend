@@ -2,6 +2,7 @@ import { can } from '../../stores/auth';
 import { ProjectRequired, Unauthorized } from '../resources/ResourcePage';
 import { MoneyInput } from '../../components/MoneyInput';
 import { Money } from '../../components/Money';
+import Decimal from 'decimal.js';
 import { useState, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
@@ -132,6 +133,8 @@ export default function PropertyLifecycleHub() {
   const [editingPurchase, setEditingPurchase] = useState<LifecycleDeal | null>(null);
   const [listingDeal, setListingDeal] = useState<LifecycleDeal | null>(null);
   const [askingPriceInput, setAskingPriceInput] = useState('');
+  const [finalizingDeal, setFinalizingDeal] = useState<LifecycleDeal | null>(null);
+  const [finalAskingPrice, setFinalAskingPrice] = useState('');
   const [inspectDeal, setInspectDeal] = useState<LifecycleDeal | null>(null);
   const [voucherIdToPrint, setVoucherIdToPrint] = useState<string | null>(null);
 
@@ -226,31 +229,46 @@ export default function PropertyLifecycleHub() {
 
   // Mutation: Post / Finalize Investment (Step 3)
   const finalizeInvestmentMutation = useMutation({
-    mutationFn: async (deal: LifecycleDeal) => {
+    mutationFn: async ({ deal, askingPrice }: { deal: LifecycleDeal; askingPrice: string }) => {
       // Fetch full purchase record for expected total & updated at
       const purchase = await api<{ id: string; total: string; updatedAt: string }>(
         `/projects/${projectId}/property-purchases/${deal.id}`,
       );
-      if (purchase.total !== deal.totalCost)
+      if (!new Decimal(purchase.total).eq(deal.totalCost))
         throw new Error(
           'Purchase costs changed. Refresh the lifecycle and review the current amount before finalizing.',
         );
-      return api(`/projects/${projectId}/property-purchases/${deal.id}/post`, {
+      await api(`/projects/${projectId}/property-purchases/${deal.id}/post`, {
         method: 'POST',
         body: {
-          expectedTotal: deal.totalCost,
+          expectedTotal: purchase.total,
           expectedUpdatedAt: purchase.updatedAt,
         },
       });
+      try {
+        return await api(`/projects/${projectId}/property-purchases/${deal.id}/list-for-sale`, {
+          method: 'POST',
+          body: { askingPrice },
+        });
+      } catch (error) {
+        throw new Error(
+          `Investment finalized, but listing failed: ${error instanceof Error ? error.message : 'Please try again.'}`,
+        );
+      }
     },
     onSuccess: () => {
-      toast.success('Property investment & all expenses finalized! Cost basis is now locked.');
-      queryClient.invalidateQueries({ queryKey: ['deal-profitability', projectId] });
-      queryClient.invalidateQueries({ queryKey: ['property-purchases', projectId] });
+      toast.success('Investment finalized and property listed for sale.');
+      setFinalizingDeal(null);
+      setFinalAskingPrice('');
     },
     onError: (err: unknown) => {
-      const msg = err instanceof ApiError ? err.message : 'Failed to finalize property investment';
+      const msg = err instanceof Error ? err.message : 'Failed to finalize property investment';
       toast.error(msg);
+    },
+    onSettled: () => {
+      void queryClient.invalidateQueries({ queryKey: ['deal-profitability', projectId] });
+      void queryClient.invalidateQueries({ queryKey: ['property-purchases', projectId] });
+      void queryClient.invalidateQueries({ queryKey: ['resource'] });
     },
   });
 
@@ -726,10 +744,15 @@ export default function PropertyLifecycleHub() {
                                   size="small"
                                   busy={
                                     finalizeInvestmentMutation.isPending &&
-                                    finalizeInvestmentMutation.variables?.id === deal.id
+                                    finalizeInvestmentMutation.variables?.deal.id === deal.id
                                   }
-                                  disabled={finalizeInvestmentMutation.isPending}
-                                  onClick={() => finalizeInvestmentMutation.mutate(deal)}
+                                  disabled={
+                                    !can('inventory.create') || finalizeInvestmentMutation.isPending
+                                  }
+                                  onClick={() => {
+                                    setFinalizingDeal(deal);
+                                    setFinalAskingPrice('');
+                                  }}
                                 >
                                   <Lock size={13} />
                                   {t('Finalize investment')}
@@ -808,6 +831,69 @@ export default function PropertyLifecycleHub() {
           </>
         )}
       </div>
+
+      {finalizingDeal && (
+        <Modal
+          className="lifecycle-dialog"
+          open
+          onOpenChange={(open) =>
+            !open && !finalizeInvestmentMutation.isPending && setFinalizingDeal(null)
+          }
+          title={`${t('Finalize investment')} — ${finalizingDeal.title}`}
+          description={t(
+            'Review the investment cost and enter an asking price to list this property for sale.',
+          )}
+        >
+          <div className="modal-body dialog-flow-body">
+            <div className="calc-box-highlight">
+              <div>
+                <strong>{t('Total investment cost')}</strong>
+                <div>
+                  <Money value={finalizingDeal.totalCost} currency={currency} />
+                </div>
+              </div>
+            </div>
+            <div className="form-field">
+              <label htmlFor="lifecycle-final-asking-price">
+                {t('Asking price')} ({currency}) *
+              </label>
+              <MoneyInput
+                id="lifecycle-final-asking-price"
+                value={finalAskingPrice}
+                onValueChange={setFinalAskingPrice}
+                placeholder="e.g. 15000000"
+              />
+            </div>
+            <div className="dialog-actions">
+              <Button
+                variant="secondary"
+                disabled={finalizeInvestmentMutation.isPending}
+                onClick={() => setFinalizingDeal(null)}
+              >
+                {t('Cancel')}
+              </Button>
+              <Button
+                variant="primary"
+                busy={finalizeInvestmentMutation.isPending}
+                disabled={
+                  !finalAskingPrice ||
+                  !Number.isFinite(Number(finalAskingPrice)) ||
+                  Number(finalAskingPrice) <= 0 ||
+                  finalizeInvestmentMutation.isPending
+                }
+                onClick={() =>
+                  finalizeInvestmentMutation.mutate({
+                    deal: finalizingDeal,
+                    askingPrice: finalAskingPrice,
+                  })
+                }
+              >
+                {t('Finalize and list for sale')}
+              </Button>
+            </div>
+          </div>
+        </Modal>
+      )}
 
       {/* Step 4: Move Property to Selling (Asking Price Dialog) */}
       {listingDeal && (
