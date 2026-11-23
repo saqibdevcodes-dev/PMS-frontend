@@ -3,7 +3,6 @@ dist/
 release/
 test-results/
 playwright-report/
-.env*
 !.env.example
 !.env.production.example
 !.env.development.example
@@ -24,3 +23,4 @@ branch_structure.json
 temp_auto_push.bat
 temp_interactive_push.bat
 .gitignore
+config.bat
