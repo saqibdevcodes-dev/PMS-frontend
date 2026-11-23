@@ -116,9 +116,8 @@ export const resources: Resource[] = [
     permission: 'bookings.read',
     description: 'Create bookings and track their payment status.',
     columns: [
-      'reference',
-      'customer',
       'unit',
+      'customer',
       'paymentType',
       'total',
       'paid',
@@ -126,6 +125,7 @@ export const resources: Resource[] = [
       'nextDue',
       'status',
       'createdAt',
+      'reference',
     ],
   },
   {
@@ -348,7 +348,6 @@ export const resources: Resource[] = [
     description:
       'Record property acquisitions for resale or development, review costs and post seller obligations.',
     columns: [
-      'reference',
       'title',
       'unit',
       'vendor',
@@ -357,6 +356,7 @@ export const resources: Resource[] = [
       'otherCosts',
       'total',
       'status',
+      'reference',
     ],
   },
   {
@@ -452,6 +452,7 @@ export const specialNav = [
     permission: '',
   },
 ];
+// Keep the property-purchases resource for the lifecycle workflow, but omit its standalone page.
 export const primarySlugs = new Set([
   'companies',
   'projects',
@@ -466,7 +467,6 @@ export const primarySlugs = new Set([
   'journals',
   'accounting-periods',
   'vendors',
-  'property-purchases',
   'expenses',
   'users',
 ]);
@@ -531,10 +531,10 @@ export function actionsFor(resource: Resource, record?: Row) {
               ? op.path === '/companies/{companyId}'
               : op.path.startsWith(path + '/{id}')
           : op.path === path ||
-          (op.path.startsWith(path + '/') &&
-            !op.path.slice(path.length).includes('{id}') &&
-            !op.path.slice(path.length).includes('{companyId}') &&
-            !op.path.slice(path.length).includes('{projectId}'))),
+            (op.path.startsWith(path + '/') &&
+              !op.path.slice(path.length).includes('{id}') &&
+              !op.path.slice(path.length).includes('{companyId}') &&
+              !op.path.slice(path.length).includes('{projectId}'))),
     )
     .filter(
       (op) =>

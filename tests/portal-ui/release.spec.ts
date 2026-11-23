@@ -132,7 +132,8 @@ async function setup(page: Page, draft = false) {
   });
   return writes;
 }
-test('Void purchase opens the reversal form and never the edit wizard', async ({ page }) => {
+// These actions belong to the temporarily hidden standalone purchase page.
+test.skip('Void purchase opens the reversal form and never the edit wizard', async ({ page }) => {
   await setup(page);
   await page.goto('/property-purchases');
   await page.getByRole('button', { name: 'Actions for PUR-AUDIT' }).click();
@@ -142,7 +143,7 @@ test('Void purchase opens the reversal form and never the edit wizard', async ({
   await expect(page.getByRole('dialog').getByLabel(/Reason/)).toBeVisible();
 });
 
-test('List for sale has its own named asking-price form and submits the listing operation', async ({
+test.skip('List for sale has its own named asking-price form and submits the listing operation', async ({
   page,
 }) => {
   const writes = await setup(page);

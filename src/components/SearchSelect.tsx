@@ -13,7 +13,14 @@ import { createPortal } from 'react-dom';
 import { Check, ChevronDown, Search } from 'lucide-react';
 import { t, useLocale } from '../lib/i18n';
 
-export type Option = { value: string; label: string; sublabel?: string; group?: string };
+export type Option = {
+  value: string;
+  label: string;
+  sublabel?: string;
+  group?: string;
+  status?: string;
+  disabled?: boolean;
+};
 export function SearchSelect({
   id,
   value,
@@ -80,12 +87,18 @@ export function SearchSelect({
   const input = useRef<HTMLInputElement>(null);
   const listId = useId();
   const selected = options.find((option) => option.value === value);
+  const firstEnabled = () =>
+    Math.max(
+      0,
+      options.findIndex((option) => !option.disabled),
+    );
   useImperativeHandle(forwardedRef, () => trigger.current!, []);
   function close() {
     setOpen(false);
     trigger.current?.focus({ preventScroll: true });
   }
   function choose(option: Option) {
+    if (option.disabled) return;
     onChange(option.value);
     close();
   }
@@ -112,15 +125,16 @@ export function SearchSelect({
       const below = Math.min(innerHeight, modal?.bottom ?? innerHeight) - rect.bottom - 12;
       const above = rect.top - Math.max(0, modal?.top ?? 0) - 12;
       const up = below < 230 && above > below;
+      const boundaryLeft = Math.max(12, (modal?.left ?? 0) + 12);
+      const boundaryRight = Math.min(innerWidth - 12, (modal?.right ?? innerWidth) - 12);
       const width = Math.min(
         Math.max(180, rect.width),
-        innerWidth - 24,
-        modal ? modal.width - 24 : Infinity,
+        Math.max(100, boundaryRight - boundaryLeft),
       );
       const rtl = document.documentElement.dir === 'rtl';
       const left = Math.max(
-        12,
-        Math.min(rtl ? rect.right - width : rect.left, innerWidth - width - 12),
+        boundaryLeft,
+        Math.min(rtl ? rect.right - width : rect.left, boundaryRight - width),
       );
       setPlacement({
         up,
@@ -190,14 +204,14 @@ export function SearchSelect({
         disabled={disabled}
         onClick={() => {
           onSearch('');
-          setActive(0);
+          setActive(firstEnabled());
           setOpen(!open);
         }}
         onKeyDown={(event) => {
           if (['ArrowDown', 'ArrowUp'].includes(event.key)) {
             event.preventDefault();
             onSearch('');
-            setActive(0);
+            setActive(firstEnabled());
             setOpen(true);
           }
         }}
@@ -231,16 +245,18 @@ export function SearchSelect({
               }
               if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
                 event.preventDefault();
-                setActive((index) =>
-                  Math.max(
-                    0,
-                    Math.min(options.length - 1, index + (event.key === 'ArrowDown' ? 1 : -1)),
-                  ),
-                );
+                setActive((index) => {
+                  const direction = event.key === 'ArrowDown' ? 1 : -1;
+                  let next = index + direction;
+                  while (next >= 0 && next < options.length && options[next]?.disabled)
+                    next += direction;
+                  return next >= 0 && next < options.length ? next : index;
+                });
               }
               if (event.key === 'Enter' && event.target === input.current) {
                 event.preventDefault();
-                if (!loading && !error && options[active]) choose(options[active]);
+                if (!loading && !error && options[active] && !options[active].disabled)
+                  choose(options[active]);
               }
               if (event.key === 'Tab') {
                 setOpen(false);
@@ -292,8 +308,10 @@ export function SearchSelect({
                       role="option"
                       data-value={option.value}
                       aria-selected={option.value === value}
+                      aria-disabled={option.disabled || undefined}
+                      disabled={option.disabled}
                       data-active={index === active}
-                      onMouseMove={() => setActive(index)}
+                      onMouseMove={() => !option.disabled && setActive(index)}
                       onClick={() => choose(option)}
                     >
                       <div className="select-option-content">
@@ -302,7 +320,12 @@ export function SearchSelect({
                           <small className="select-option-sublabel">{option.sublabel}</small>
                         )}
                       </div>
-                      {option.value === value && <Check size={15} style={{ flexShrink: 0, marginLeft: 8 }} />}
+                      {option.status && (
+                        <span className="select-option-status">{option.status}</span>
+                      )}
+                      {option.value === value && (
+                        <Check size={15} style={{ flexShrink: 0, marginLeft: 8 }} />
+                      )}
                     </button>
                   </Fragment>
                 ))

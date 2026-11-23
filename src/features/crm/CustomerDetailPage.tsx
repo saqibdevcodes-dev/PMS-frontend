@@ -31,11 +31,12 @@ import { errorMessage } from '../../lib/error-messages';
 import { can } from '../../stores/auth';
 import { usePreferences } from '../../stores/preferences';
 import { Button, Badge, Skeleton, ErrorState } from '../../components/ui';
-import { QRCode } from '../../components/QRCode';
 import { RecordImage } from '../../components/ImageUpload';
+import { CustomerPassCard, customerPassIdentity } from './CustomerPassCard';
 import { OperationDialog } from '../../components/OperationDialog';
 import { PropertyFileModal } from '../bookings/PropertyFileModal';
 import { DocumentUploadModal } from '../../components/DocumentUploadModal';
+import { DocumentEditModal } from '../../components/DocumentEditModal';
 import { exportAndDownloadReport } from '../../lib/export-download';
 import CustomerAccess from '../portal/CustomerAccess';
 import { CustomerStatement, type AccountStatement } from '../reports/CustomerStatement';
@@ -45,6 +46,11 @@ import './customer-detail.css';
 
 interface CustomerDetail {
   id: string;
+  reference?: string | null;
+  project?: {
+    name: string;
+    company?: { name: string; logoId?: string | null } | null;
+  } | null;
   name: string;
   fatherName?: string | null;
   phone?: string | null;
@@ -66,7 +72,8 @@ interface CustomerDetail {
   }>;
   owners?: Array<{
     id: string;
-    current: boolean;
+    current?: boolean;
+    validTo?: string | null;
     booking: {
       id: string;
       reference: string;
@@ -104,6 +111,7 @@ export default function CustomerDetailPage() {
 
   // Default to Overview & Bookings tab as requested
   const [activeTab, setActiveTab] = useState<'overview' | 'statement' | 'documents'>('overview');
+  const [editingDocument, setEditingDocument] = useState<Row | null>(null);
 
   // Statement Filters
   const [fromDate, setFromDate] = useState('');
@@ -198,7 +206,9 @@ export default function CustomerDetailPage() {
   });
 
   const customer = customerQuery.data;
-  const verificationUrl = useVerificationLink({ customer: customer?.id ?? '' });
+  const verificationUrl = useVerificationLink({
+    customer: customer?.reference || customer?.id || '',
+  });
 
   const handleRevealIdentity = async () => {
     if (!id || !projectId) return;
@@ -256,9 +266,8 @@ export default function CustomerDetailPage() {
     );
   }
 
-  const customerCode = customer.id.toUpperCase().startsWith('MEM-')
-    ? customer.id
-    : `MEM-${customer.id.slice(0, 8).toUpperCase()}`;
+  const passIdentity = customerPassIdentity(customer);
+  const customerCode = passIdentity.code;
 
   const editOp = operations.find(
     (o) => o.path === '/projects/{projectId}/customers/{id}' && o.method === 'patch',
@@ -548,8 +557,14 @@ export default function CustomerDetailPage() {
                   <span>{customer.createdAt ? date(customer.createdAt) : '—'}</span>
                 </div>
                 <div className="customer-field">
-                  <label>{t('Allotment pass')}</label>
-                  <span>{t('Verified property owner')}</span>
+                  <label>{t('Pass type')}</label>
+                  <span>
+                    {t(
+                      passIdentity.ownsProperty
+                        ? 'Official Customer Allotment Pass'
+                        : 'Customer Registration Pass',
+                    )}
+                  </span>
                 </div>
               </div>
             </section>
@@ -691,9 +706,12 @@ export default function CustomerDetailPage() {
                         <div
                           style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}
                         >
-                          <strong style={{ fontSize: 15 }}>{bkg.reference}</strong>
+                          <strong style={{ fontSize: 15 }}>
+                            {bkg.unit ? `${t('Property')} ${bkg.unit.number}` : bkg.reference}
+                          </strong>
                           <Badge value={bkg.status} />
                         </div>
+                        {bkg.unit && <small className="record-id">{bkg.reference}</small>}
                         <div style={{ fontSize: 13, color: 'var(--muted)' }}>
                           {bkg.unit ? (
                             <>
@@ -760,42 +778,7 @@ export default function CustomerDetailPage() {
 
           {/* Right Column: Official Member Pass & QR Code */}
           <div className="customer-id-card-wrapper" id="member-qrcode">
-            <div className="customer-id-card" id="printable-customer-badge">
-              <div className="id-card-header">
-                <span className="org-name">{t('Real Estate Property Management')}</span>
-                <span className="card-type">{t('Official Customer Allotment Pass')}</span>
-              </div>
-
-              <div className="id-card-photo">
-                {customer.photoId ? (
-                  <RecordImage id={customer.photoId} alt={customer.name} />
-                ) : (
-                  <span>{customer.name.charAt(0).toUpperCase()}</span>
-                )}
-              </div>
-
-              <h2 className="id-card-name">{customer.name}</h2>
-              <div className="id-card-role">
-                {t(
-                  ['INSTALLMENTS', 'FULLY_PAID'].includes(customer.paymentStatus ?? '')
-                    ? 'Authorized Property Owner'
-                    : 'Registered customer',
-                )}
-              </div>
-
-              <div className="id-card-code">{customerCode}</div>
-
-              {/* Generated Standalone Vector QR Code */}
-              <div className="id-card-qr-box">
-                <QRCode value={verificationUrl} size={150} color="#064e3b" bgColor="#ffffff" />
-                <span>{t('Scan to verify registration')}</span>
-              </div>
-
-              <div className="id-card-footer">
-                <CheckCircle2 size={14} color="#34d399" />
-                <span>{t('Verified property owner')}</span>
-              </div>
-            </div>
+            <CustomerPassCard customer={customer} verificationUrl={verificationUrl} />
 
             <div className="customer-id-actions">
               <Button variant="secondary" onClick={handlePrintBadge} disabled={!verificationUrl}>
@@ -803,7 +786,7 @@ export default function CustomerDetailPage() {
                 {t('Print customer pass')}
               </Button>
               <Button asChild variant="primary">
-                <Link to={`/verify?customer=${customer.id}`} target="_blank">
+                <Link to={`/verify?customer=${encodeURIComponent(customerCode)}`} target="_blank">
                   <ExternalLink size={15} />
                   {t('Verify online')}
                 </Link>
@@ -1043,6 +1026,15 @@ export default function CustomerDetailPage() {
                       </div>
 
                       <div style={{ display: 'flex', gap: 4 }}>
+                        {can('documents.manage') && can('customers.view_sensitive') && (
+                          <Button
+                            variant="ghost"
+                            title={t('Edit document')}
+                            onClick={() => setEditingDocument(doc)}
+                          >
+                            <Pencil size={15} />
+                          </Button>
+                        )}
                         <Button
                           variant="ghost"
                           title={t('Download')}
@@ -1051,7 +1043,7 @@ export default function CustomerDetailPage() {
                         >
                           <Download size={15} />
                         </Button>
-                        {can('documents.manage') && (
+                        {can('documents.manage') && can('customers.view_sensitive') && (
                           <Button
                             variant="ghost"
                             title={t('Delete document')}
@@ -1087,6 +1079,16 @@ export default function CustomerDetailPage() {
           void queryClient.invalidateQueries({ queryKey: ['customer-documents', projectId, id] });
         }}
       />
+      {editingDocument && projectId && (
+        <DocumentEditModal
+          projectId={projectId}
+          document={{ id: String(editingDocument.id), name: String(editingDocument.name) }}
+          onClose={() => setEditingDocument(null)}
+          onSuccess={() =>
+            void queryClient.invalidateQueries({ queryKey: ['customer-documents', projectId, id] })
+          }
+        />
+      )}
 
       {/* Operation / Edit Modal */}
       {action && (

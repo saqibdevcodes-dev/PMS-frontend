@@ -452,6 +452,60 @@
   background: var(--badge-green-bg);
   border-color: var(--badge-green-border);
 }
+.lifecycle-dialog .cost-basis-card {
+  display: grid;
+  gap: 12px;
+  min-width: 0;
+}
+.lifecycle-dialog .cost-basis-heading,
+.lifecycle-dialog .cost-basis-breakdown > div {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-width: 0;
+}
+.lifecycle-dialog .cost-basis-label {
+  color: var(--muted);
+  font-size: 11px;
+  text-transform: uppercase;
+}
+.lifecycle-dialog .cost-basis-heading .badge {
+  flex: 0 0 auto;
+}
+.lifecycle-dialog .cost-basis-total {
+  font-size: 20px;
+  line-height: 1.2;
+  font-variant-numeric: tabular-nums;
+}
+.lifecycle-dialog .cost-basis-breakdown {
+  display: grid;
+  gap: 6px;
+  padding-top: 10px;
+  border-top: 1px solid var(--border);
+  color: var(--muted);
+  font-size: 12px;
+}
+.lifecycle-dialog .cost-basis-breakdown strong {
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.lifecycle-dialog .projected-profit-value {
+  font-size: 16px;
+  font-weight: 750;
+  line-height: 1.4;
+  font-variant-numeric: tabular-nums;
+}
+@container modal (max-width: 420px) {
+  .lifecycle-dialog .cost-basis-heading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+  .lifecycle-dialog .cost-basis-breakdown > div {
+    flex-wrap: wrap;
+  }
+}
 .lifecycle-dialog .expense-items-table {
   width: 100%;
   border-collapse: collapse;

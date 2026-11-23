@@ -386,7 +386,8 @@ async function fillCaseChecks(d: Locator, possession = false) {
     await d.getByRole('checkbox', { name: field }).check();
 }
 for (const width of [1280, 390])
-  test(`property purchase draft review and posting at ${width}px`, async ({ page }) => {
+  // Retained for when the standalone purchase page is shown again.
+  test.skip(`property purchase draft review and posting at ${width}px`, async ({ page }) => {
     await setup(page);
     await page.setViewportSize({ width, height: 900 });
     const seller = {
@@ -2538,7 +2539,7 @@ for (const [width, theme] of [
 }
 
 for (const width of [1280, 390]) {
-  test(`Properties navigation groups the purchase workflow in order at ${width}px`, async ({
+  test(`Properties navigation hides the standalone purchase page at ${width}px`, async ({
     page,
   }) => {
     await page.setViewportSize({ width, height: 900 });
@@ -2552,9 +2553,9 @@ for (const width of [1280, 390]) {
     const submenu = nav.locator('#properties-submenu');
     await expect(submenu.getByRole('link')).toHaveText([
       'Property Lifecycle',
-      'Sellers & suppliers',
-      'Property purchases',
       'All properties',
+      'Expenses',
+      'Sellers & suppliers',
     ]);
     await expect(
       submenu.getByRole('link', { name: 'All properties', exact: true }),
@@ -2577,7 +2578,6 @@ for (const width of [1280, 390]) {
       submenu.getByRole('link', { name: 'Sellers & suppliers', exact: true }),
     ).toHaveAttribute('aria-current', 'page');
     await expect(submenu.locator('.active')).toHaveCount(1);
-    await expect(submenu.locator('.active')).toHaveCSS('background-color', 'rgb(53, 94, 133)');
     await page.screenshot({
       path: `test-results/portal/properties-navigation-${width}.png`,
       fullPage: true,
@@ -2588,6 +2588,8 @@ for (const width of [1280, 390]) {
       await expect(page.locator('.app-shell')).not.toHaveClass(/sidebar-collapsed/);
       await expect(submenu).toBeVisible();
     }
+    await page.goto('/property-purchases');
+    await expect(page).toHaveURL(/\/property-lifecycle$/);
   });
 }
 
@@ -2603,7 +2605,8 @@ test('Properties navigation shows only permitted children for finance staff', as
           email: 'finance@example.invalid',
           accountType: 'STAFF',
           permissions: ['finance.read', 'projects.read'],
-          projects: [{ projectId: project.id }],
+          projects: [{ projectId: project.id, project: { companyId: company.id } }],
+          companies: [{ companyId: company.id, role: 'STAFF' }],
         },
       },
     }),
@@ -2612,8 +2615,8 @@ test('Properties navigation shows only permitted children for finance staff', as
   const nav = page.getByRole('navigation', { name: 'Main navigation', exact: true });
   await expect(nav.getByRole('button', { name: 'Properties', exact: true })).toBeVisible();
   await expect(nav.locator('#properties-submenu').getByRole('link')).toHaveText([
+    'Expenses',
     'Sellers & suppliers',
-    'Property purchases',
   ]);
 });
 

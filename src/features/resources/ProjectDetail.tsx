@@ -35,6 +35,7 @@ import { DataTable, DisplayValue } from '../../components/DataTable';
 import { OperationDialog } from '../../components/OperationDialog';
 import './project-detail.css';
 import { ProjectLogo } from '../../components/ProjectLogo';
+import { PlotCapacityNotice } from '../../components/PlotCapacityNotice';
 
 export function ProjectDetail({ record, onClose }: { record: Row; onClose: () => void }) {
   useLocale();
@@ -349,6 +350,7 @@ export function ProjectDetail({ record, onClose }: { record: Row; onClose: () =>
                 )}
                 {(step === 2 || step === 3) && (
                   <div className="project-inventory-content">
+                    {step === 2 && <PlotCapacityNotice projectId={String(record.id)} />}
                     {step === 3 && (
                       <div className="project-payment-options">
                         <section className="project-info-card">

@@ -17,6 +17,7 @@ type PublicVerification = {
   name?: string;
   status?: string;
   projectName?: string;
+  companyName?: string;
   propertyNumber?: string;
   propertyType?: string;
   verifiedAt?: string;
@@ -48,6 +49,7 @@ export default function VerificationPage() {
   const result = query.data;
   const fields: [string, string | undefined][] = [
     ['Registration code', result?.reference || result?.customerCode || result?.employeeCode],
+    ['Company', result?.companyName],
     ['Project', result?.projectName],
     ['Property', result?.propertyNumber],
     ['Property type', result?.propertyType ? humanize(result.propertyType) : undefined],
@@ -58,7 +60,11 @@ export default function VerificationPage() {
     <div className="portal-auth-layout">
       <div className="portal-auth-card" style={{ maxWidth: 640 }}>
         <header className="portal-auth-header">
-          <BrandLogo variant="full" className="portal-auth-logo" />
+          {kind === 'customer' && result?.valid && result.companyName ? (
+            <strong className="verification-company-name">{result.companyName}</strong>
+          ) : (
+            <BrandLogo variant="full" className="portal-auth-logo" />
+          )}
           <h1>{t('Official registration verification')}</h1>
           <p>
             {t(

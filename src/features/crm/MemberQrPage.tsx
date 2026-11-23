@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
 import { useCustomerDirectory } from '../../hooks/use-customer-directory';
 import { useVerificationLink } from '../../lib/verification-link';
@@ -12,18 +12,17 @@ import {
   CreditCard,
   UserPlus,
   ArrowRight,
-  ShieldCheck,
 } from 'lucide-react';
 import { t, useLocale } from '../../lib/i18n';
 import { can } from '../../stores/auth';
 import { asRows } from '../../lib/types';
 import { Button, EmptyState, ErrorState, PageHeading, Skeleton } from '../../components/ui';
-import { QRCode } from '../../components/QRCode';
 import { RecordImage } from '../../components/ImageUpload';
+import { CustomerPassCard, type PassCustomer } from './CustomerPassCard';
 import './customer-detail.css';
 import './member-qr.css';
 
-interface CustomerItem {
+interface CustomerItem extends PassCustomer {
   id: string;
   name: string;
   phone?: string | null;
@@ -31,7 +30,6 @@ interface CustomerItem {
   identity?: string | null;
   identityLast4?: string | null;
   photoId?: string | null;
-  paymentStatus?: string | null;
 }
 
 export default function MemberQrPage() {
@@ -44,23 +42,20 @@ export default function MemberQrPage() {
   const {
     query: membersQuery,
     selected: selectedQuery,
+    effectiveSelectedId,
     page,
     setPage,
   } = useCustomerDirectory(activeParamId, search);
   const allMembers = asRows(membersQuery.data) as unknown as CustomerItem[];
 
   const filteredMembers = allMembers;
-  const selectedMember = useMemo(
-    () =>
-      activeParamId
-        ? selectedQuery.data?.id === activeParamId
-          ? (selectedQuery.data as unknown as CustomerItem)
-          : null
-        : (filteredMembers[0] ?? null),
-    [activeParamId, selectedQuery.data, filteredMembers],
-  );
-  const ownsProperty = ['INSTALLMENTS', 'FULLY_PAID'].includes(selectedMember?.paymentStatus ?? '');
-  const verificationUrl = useVerificationLink({ customer: selectedMember?.id ?? '' });
+  const selectedMember =
+    selectedQuery.data?.id === effectiveSelectedId
+      ? (selectedQuery.data as unknown as CustomerItem)
+      : null;
+  const verificationUrl = useVerificationLink({
+    customer: selectedMember?.reference || selectedMember?.id || '',
+  });
 
   const selectMember = (id: string) => {
     setParams(
@@ -82,16 +77,12 @@ export default function MemberQrPage() {
     }, 500);
   };
 
-  const selectedCode = selectedMember ? 'MEM-' + selectedMember.id.slice(0, 8).toUpperCase() : '';
-
   return (
     <div className="customer-detail-page mqr-page">
       <PageHeading
         eyebrow={t('Customers')}
         title={t('Customer QR codes')}
-        description={t(
-          'Official digital allotment passes and verification QR codes for all customers',
-        )}
+        description={t('Customer registration and allotment passes with verification QR codes')}
         actions={
           <>
             {can('customers.create') && (
@@ -167,7 +158,7 @@ export default function MemberQrPage() {
             <div className="mqr-member-list" aria-label={t('Customers')}>
               {filteredMembers.map((m) => {
                 const isSelected = selectedMember?.id === m.id;
-                const mCode = 'MEM-' + m.id.slice(0, 8).toUpperCase();
+                const mCode = m.reference || 'MEM-' + m.id.slice(0, 8).toUpperCase();
                 return (
                   <button
                     key={m.id}
@@ -237,46 +228,17 @@ export default function MemberQrPage() {
 
         {/* Right Column: Member Pass & QR Code Card */}
         <div className="mqr-pass-panel" aria-live="polite">
-          {activeParamId && selectedQuery.isError ? (
+          {effectiveSelectedId && selectedQuery.isError ? (
             <ErrorState error={selectedQuery.error} retry={() => void selectedQuery.refetch()} />
           ) : selectedQuery.isFetching ? (
             <Skeleton rows={4} />
           ) : selectedMember && !membersQuery.isError ? (
             <div className="customer-id-card-wrapper" id="member-qrcode">
-              <div className="customer-id-card" id="printable-customer-badge">
-                <div className="id-card-header">
-                  <span className="org-name">{t('Real Estate Property Management')}</span>
-                  <span className="card-type">{t('Official Customer Allotment Pass')}</span>
-                </div>
-
-                <div className="id-card-photo">
-                  {selectedMember.photoId ? (
-                    <RecordImage id={selectedMember.photoId} alt={selectedMember.name} />
-                  ) : (
-                    <span>{selectedMember.name.charAt(0).toUpperCase()}</span>
-                  )}
-                </div>
-
-                <h2 className="id-card-name">{selectedMember.name}</h2>
-                <div className="id-card-role">
-                  {t(ownsProperty ? 'Authorized Property Owner' : 'Registered customer')}
-                </div>
-
-                <div className="id-card-code">{selectedCode}</div>
-
-                {/* Generated Standalone Vector QR Code */}
-                <div className="id-card-qr-box">
-                  <QRCode value={verificationUrl} size={160} color="#064e3b" bgColor="#ffffff" />
-                  <span>{t('Scan to verify registration')}</span>
-                </div>
-
-                <div className="id-card-footer">
-                  <ShieldCheck size={14} />
-                  <span>
-                    {t(ownsProperty ? 'Verified property owner' : 'Customer registration')}
-                  </span>
-                </div>
-              </div>
+              <CustomerPassCard
+                customer={selectedMember}
+                verificationUrl={verificationUrl}
+                qrSize={160}
+              />
 
               {/* Pass Actions */}
               <div className="customer-id-actions">
@@ -298,9 +260,7 @@ export default function MemberQrPage() {
                 {t('No customer selected')}
               </h4>
               <p style={{ margin: '8px 0 0', fontSize: 13, color: 'var(--muted)' }}>
-                {t(
-                  'Select a customer from the directory to view and print their QR allotment pass',
-                )}
+                {t('Select a customer to view and print their registration or allotment pass')}
               </p>
             </div>
           )}

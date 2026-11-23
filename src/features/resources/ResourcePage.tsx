@@ -21,6 +21,7 @@ import {
   Pencil,
   CheckCircle2,
   FileText,
+  Printer,
 } from 'lucide-react';
 import { resources, resourcePath, actionsFor, actionTitle } from './catalog';
 import { operations, projectRoot, resolvePath } from '../../lib/contract';
@@ -38,6 +39,7 @@ import { OperationDialog } from '../../components/OperationDialog';
 import RecordDetail from './RecordDetail';
 import { PropertyPurchaseWizard } from './PropertyPurchaseWizard';
 import { JournalVoucher } from './JournalVoucher';
+import { OwnershipCasePrint, type OwnershipCaseKind } from './OwnershipCasePrint';
 import { DeleteWithPasswordModal } from '../../components/DeleteWithPasswordModal';
 import { UnassignPropertyModal } from '../bookings/UnassignPropertyModal';
 import { CustomerGroups, PaymentStatus, PortfolioLinks } from './Portfolio';
@@ -79,10 +81,10 @@ export function Unauthorized() {
     />
   );
 }
-function bookingCell(key: string, record: Row) {
+function bookingCell(key: string, record: Row, openBooking: () => void) {
+  if (key === 'reference') return String(record.reference ?? '—');
   if (key === 'customer' || key === 'unit') {
     const item = row(record[key]);
-    const href = key === 'customer' ? '/customers/' : '/inventory?record=';
     const label = String(item.name ?? item.number ?? '—');
     const details =
       key === 'customer'
@@ -90,8 +92,19 @@ function bookingCell(key: string, record: Row) {
         : [item.size, item.measurementUnit, item.phase, item.block].filter(Boolean).join(' · ');
     return (
       <div className="booking-table-identity">
-        {item.id && can(key === 'customer' ? 'customers.read' : 'inventory.read') ? (
-          <Link to={href + item.id} onClick={(e) => e.stopPropagation()}>
+        {key === 'unit' ? (
+          <button
+            type="button"
+            className="record-link"
+            onClick={(event) => {
+              event.stopPropagation();
+              openBooking();
+            }}
+          >
+            {label}
+          </button>
+        ) : item.id && can('customers.read') ? (
+          <Link to={'/customers/' + item.id} onClick={(e) => e.stopPropagation()}>
             {label}
           </Link>
         ) : (
@@ -135,6 +148,10 @@ export default function ResourcePage({ slug }: { slug: string }) {
   } | null>(null);
   const [detail, setDetail] = useState<Row | null>(null);
   const [voucherJournalId, setVoucherJournalId] = useState<string | null>(null);
+  const [printOwnership, setPrintOwnership] = useState<{
+    kind: OwnershipCaseKind;
+    id: string;
+  } | null>(null);
   const [unassignRecord, setUnassignRecord] = useState<Row | null>(null);
   const [deleteRecord, setDeleteRecord] = useState<Row | null>(null);
   const path = resource.report ? projectRoot + '/reports' : resourcePath(resource);
@@ -245,6 +262,17 @@ export default function ResourcePage({ slug }: { slug: string }) {
       slug === 'property-purchases' ? allowed.find((op) => op.method === 'patch') : undefined;
     return (
       <div className="row-actions">
+        {(slug === 'transfers' || slug === 'possessions') &&
+          ['PENDING', 'COMPLETED'].includes(String(record.status)) &&
+          Boolean(record.id) && (
+            <Button
+              size="small"
+              variant="secondary"
+              onClick={() => setPrintOwnership({ kind: slug, id: String(record.id) })}
+            >
+              <Printer size={13} /> {t('Print customer copy')}
+            </Button>
+          )}
         {verify && (
           <Button
             size="small"
@@ -363,10 +391,7 @@ export default function ResourcePage({ slug }: { slug: string }) {
         )}
         {(allowed.some(
           (op) =>
-            op !== showInlineEdit &&
-            op !== verify &&
-            op !== postPurchase &&
-            op !== editPurchase,
+            op !== showInlineEdit && op !== verify && op !== postPurchase && op !== editPurchase,
         ) ||
           slug === 'inventory' ||
           slug === 'bookings' ||
@@ -430,7 +455,11 @@ export default function ResourcePage({ slug }: { slug: string }) {
                       }
                     >
                       {op.method === 'patch' && (
-                        <Pencil size={13} aria-hidden style={{ marginInlineEnd: 6, verticalAlign: 'middle' }} />
+                        <Pencil
+                          size={13}
+                          aria-hidden
+                          style={{ marginInlineEnd: 6, verticalAlign: 'middle' }}
+                        />
                       )}
                       {t(actionTitle(op, resource))}
                     </DropdownMenu.Item>
@@ -440,7 +469,11 @@ export default function ResourcePage({ slug }: { slug: string }) {
                     className="actions-menu-item"
                     onSelect={() => navigate(`/customers/${record.id}`)}
                   >
-                    <ArrowUpRight size={13} aria-hidden style={{ marginInlineEnd: 6, verticalAlign: 'middle' }} />
+                    <ArrowUpRight
+                      size={13}
+                      aria-hidden
+                      style={{ marginInlineEnd: 6, verticalAlign: 'middle' }}
+                    />
                     {t('View customer')}
                   </DropdownMenu.Item>
                 )}
@@ -740,7 +773,7 @@ export default function ResourcePage({ slug }: { slug: string }) {
             )}
             renderCell={(key, record) =>
               slug === 'bookings' ? (
-                bookingCell(key, record)
+                bookingCell(key, record, () => setDetail(record))
               ) : slug === 'projects' ? (
                 projectCell(key, record)
               ) : slug === 'property-purchases' ? (
@@ -830,6 +863,22 @@ export default function ResourcePage({ slug }: { slug: string }) {
             {...action}
             onClose={() => setAction(null)}
             onSuccess={(res) => {
+              if (slug === 'transfers' || slug === 'possessions') {
+                const response = row(res);
+                const created = row(slug === 'transfers' ? response.transfer : response.possession);
+                const caseId = created.id ?? response.id;
+                if (
+                  caseId &&
+                  (action.operation.path === resourcePath(resource) ||
+                    action.operation.path.endsWith(
+                      slug === 'transfers' ? '/complete' : '/handover',
+                    ))
+                ) {
+                  setAction(null);
+                  setPrintOwnership({ kind: slug, id: String(caseId) });
+                  return;
+                }
+              }
               const createdId = (res as { id?: string })?.id;
               if (slug === 'customers' && createdId) {
                 setAction(null);
@@ -843,6 +892,13 @@ export default function ResourcePage({ slug }: { slug: string }) {
         ))}
       {voucherJournalId && (
         <JournalVoucher id={voucherJournalId} onClose={() => setVoucherJournalId(null)} />
+      )}
+      {printOwnership && (
+        <OwnershipCasePrint
+          kind={printOwnership.kind}
+          id={printOwnership.id}
+          onClose={() => setPrintOwnership(null)}
+        />
       )}
       {unassignRecord && (
         <UnassignPropertyModal
@@ -873,7 +929,7 @@ export default function ResourcePage({ slug }: { slug: string }) {
           itemName={
             slug === 'inventory'
               ? String(deleteRecord.number ?? deleteRecord.id)
-              : String(deleteRecord.reference ?? deleteRecord.id)
+              : labelOf(deleteRecord)
           }
           apiPath={
             slug === 'inventory'

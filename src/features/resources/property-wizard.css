@@ -32,6 +32,18 @@
   gap: 24px;
 }
 
+.pw-property-form {
+  padding: 20px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface);
+}
+
+.pw-property-form > p {
+  margin: 0 0 18px;
+  line-height: 1.5;
+}
+
 .pw-grid-2 {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -318,6 +330,26 @@
 .pw-select:focus {
   border-color: var(--primary);
   box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 20%, transparent);
+}
+.pw-unit-picker {
+  width: 100%;
+}
+.pw-unit-trigger {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  text-align: start;
+}
+.pw-unit-trigger > span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.pw-unit-trigger > svg {
+  flex: none;
 }
 
 /* --------------------------------------------------------------------------

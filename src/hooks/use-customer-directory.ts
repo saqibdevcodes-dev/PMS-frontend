@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { api, queryString } from '../lib/api';
-import type { Page, Row } from '../lib/types';
+import { asRows, type Page, type Row } from '../lib/types';
 import { usePreferences } from '../stores/preferences';
 import { can } from '../stores/auth';
 
@@ -26,10 +26,12 @@ export function useCustomerDirectory(selectedId: string, search = '') {
         { signal },
       ),
   });
+  const effectiveSelectedId = selectedId || String(asRows(query.data)[0]?.id ?? '');
   const selected = useQuery({
-    queryKey: ['selected-customer', projectId, selectedId],
-    enabled: Boolean(projectId && selectedId && can('customers.read')),
-    queryFn: ({ signal }) => api<Row>(`/projects/${projectId}/customers/${selectedId}`, { signal }),
+    queryKey: ['selected-customer', projectId, effectiveSelectedId],
+    enabled: Boolean(projectId && effectiveSelectedId && can('customers.read')),
+    queryFn: ({ signal }) =>
+      api<Row>(`/projects/${projectId}/customers/${effectiveSelectedId}`, { signal }),
   });
-  return { query, selected, page, setPage };
+  return { query, selected, effectiveSelectedId, page, setPage };
 }

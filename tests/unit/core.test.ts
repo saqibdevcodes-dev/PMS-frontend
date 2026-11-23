@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { createRequire } from 'node:module';
-import { money } from '../../src/lib/format';
+import { bookingIdentity, labelOf, money, purchaseIdentity } from '../../src/lib/format';
+import { formatRelationOption } from '../../src/components/RelationSelect';
 import { parseCsv } from '../../src/lib/csv';
 import { normalize, validator } from '../../src/lib/schema';
 import { operation } from '../../src/lib/contract';
@@ -20,6 +21,70 @@ beforeEach(() => {
   vi.restoreAllMocks();
 });
 describe('exact values and contract-driven validation', () => {
+  it('keeps the booking reference after the management columns', () => {
+    const bookingColumns = resources.find((resource) => resource.slug === 'bookings')!.columns;
+    expect(bookingColumns[0]).toBe('unit');
+    expect(bookingColumns.at(-1)).toBe('reference');
+  });
+  it('accepts a broker name and exact brokerage fee on booking creation', () => {
+    const schema = operation('post', '/projects/{projectId}/bookings').body!;
+    const body = {
+      customerId: 'aaaaaaaa-aaaa-4aaa-aaaa-aaaaaaaaaaaa',
+      unitId: 'bbbbbbbb-bbbb-4bbb-bbbb-bbbbbbbbbbbb',
+      paymentType: 'FULL_PAYMENT',
+      brokerName: 'Sale broker',
+      brokerageFee: '125.50',
+      sellingExpenseItems: [{ name: 'Advertising', amount: '24.75' }],
+    };
+    expect(validator(schema).safeParse(body).success).toBe(true);
+    expect(validator(schema).safeParse({ ...body, brokerageFee: '125.501' }).success).toBe(false);
+    expect(
+      validator(schema).safeParse({
+        ...body,
+        sellingExpenseItems: [{ name: 'Advertising', amount: '0.001' }],
+      }).success,
+    ).toBe(false);
+  });
+  it('keeps the purchase reference after property and seller details', () => {
+    const columns = resources.find((resource) => resource.slug === 'property-purchases')!.columns;
+    expect(columns[0]).toBe('title');
+    expect(columns.indexOf('vendor')).toBeLessThan(columns.indexOf('reference'));
+    expect(columns.at(-1)).toBe('reference');
+  });
+  it('uses the Add property fields for a new lifecycle purchase', () => {
+    const property = operation('post', '/projects/{projectId}/units').body;
+    const purchase = operation('post', '/projects/{projectId}/property-purchases').body;
+    expect(purchase?.properties?.unit?.properties).toEqual(property?.properties);
+    expect(purchase?.properties?.unit?.required).toEqual(property?.required);
+  });
+  it('identifies a property purchase by property and seller', () => {
+    const purchase = {
+      reference: 'PUR-00000003',
+      title: 'Commercial plot 117-B',
+      vendor: { name: 'Land seller' },
+    };
+    expect(purchaseIdentity(purchase)).toEqual({
+      title: 'Commercial plot 117-B — Seller: Land seller',
+      reference: 'PUR-00000003',
+    });
+    expect(labelOf(purchase)).toBe('Commercial plot 117-B — Seller: Land seller');
+  });
+  it('identifies bookings by property and customer while retaining the reference', () => {
+    const booking = {
+      reference: 'BKG-00000001',
+      unit: { number: 'Land-78' },
+      customer: { name: 'Hamza Shahzad' },
+    };
+    expect(bookingIdentity(booking)).toEqual({
+      title: 'Land-78 — Hamza Shahzad',
+      reference: 'BKG-00000001',
+    });
+    expect(labelOf(booking)).toBe('Land-78 — Hamza Shahzad');
+    expect(formatRelationOption(booking, 'bookingId')).toMatchObject({
+      label: 'Property Land-78 — Hamza Shahzad',
+    });
+    expect(bookingIdentity({ reference: 'RCT-00000001' })).toBeNull();
+  });
   it('formats decimal strings without losing cents or large integer precision', () => {
     expect(money('9007199254740993.25', 'PKR')).toBe('PKR 9,007,199,254,740,993.25');
     expect(money('0.10', 'USD')).toBe('USD 0.10');

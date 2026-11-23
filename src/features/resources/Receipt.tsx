@@ -4,6 +4,7 @@ import { t, useLocale } from '../../lib/i18n';
 import { useQuery } from '@tanstack/react-query';
 import { Printer } from 'lucide-react';
 import { ProjectLogo } from '../../components/ProjectLogo';
+import { SignatureFooter } from '../../components/SignatureFooter';
 import { toast } from 'sonner';
 import { api } from '../../lib/api';
 import { row, type Row } from '../../lib/types';
@@ -77,6 +78,9 @@ export function Receipt({ id, onClose }: { id: string; onClose: () => void }) {
                 )}
               </p>
             )}
+            <SignatureFooter
+              labels={['Customer signature', 'Received by', 'Authorized Approval']}
+            />
             <Button
               onClick={() =>
                 void Promise.resolve(print()).catch((e: Error) => toast.error(errorMessage(e)))

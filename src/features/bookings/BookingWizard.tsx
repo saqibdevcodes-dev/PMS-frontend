@@ -5,7 +5,15 @@ import { useEffect, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import Decimal from 'decimal.js';
-import { CheckCircle2, Building2, UserRound, ArrowRight, ShieldCheck } from 'lucide-react';
+import {
+  CheckCircle2,
+  Building2,
+  UserRound,
+  ArrowRight,
+  ShieldCheck,
+  Plus,
+  Trash2,
+} from 'lucide-react';
 import { RecordImage } from '../../components/ImageUpload';
 import { api } from '../../lib/api';
 import { queryClient } from '../../lib/query';
@@ -20,6 +28,15 @@ import { operation, projectRoot } from '../../lib/contract';
 import { ProjectRequired, Unauthorized } from '../resources/ResourcePage';
 import { useUnsavedChanges } from '../../hooks/use-unsaved';
 import { PaymentFields, initialTerms, previewPlan, type Terms } from './PaymentFields';
+import { SellingExpenses, type SellingExpenseItem } from '../../components/SellingExpenses';
+
+const SELLING_EXPENSE_PRESETS = [
+  'Advertising & marketing',
+  'Legal & sale documentation',
+  'Property inspection',
+  'Transfer processing',
+  'Client travel',
+];
 
 export default function BookingWizard() {
   useLocale();
@@ -38,6 +55,9 @@ export default function BookingWizard() {
   const [sellingPrice, setSellingPrice] = useState('');
   const [applyDiscount, setApplyDiscount] = useState(false);
   const [discount, setDiscount] = useState('');
+  const [brokerName, setBrokerName] = useState('');
+  const [brokerageFee, setBrokerageFee] = useState('');
+  const [sellingExpenseItems, setSellingExpenseItems] = useState<SellingExpenseItem[]>([]);
   const [terms, setTerms] = useState<Terms>(initialTerms);
   const [created, setCreated] = useState<Row>();
   const [error, setError] = useState<unknown>();
@@ -54,6 +74,9 @@ export default function BookingWizard() {
     setSellingPrice('');
     setDiscount('');
     setApplyDiscount(false);
+    setBrokerName('');
+    setBrokerageFee('');
+    setSellingExpenseItems([]);
     setTerms(initialTerms());
     setCreated(undefined);
     setError(undefined);
@@ -67,6 +90,27 @@ export default function BookingWizard() {
   useUnsavedChanges(Boolean((customer.id || unit.id) && !created));
   const price = new Decimal(sellingPrice || 0);
   const effectiveDiscount = new Decimal(applyDiscount ? discount || 0 : 0);
+  const brokerFee = new Decimal(brokerageFee || 0);
+  const sellingExpensesTotal = sellingExpenseItems.reduce(
+    (sum, item) => sum.plus(/^\d+(\.\d{1,2})?$/.test(item.amount) ? item.amount : 0),
+    new Decimal(0),
+  );
+  const validSellingExpenses = sellingExpenseItems.every(
+    (item) =>
+      item.name.trim() &&
+      /^(0|[1-9]\d{0,15})(\.\d{1,2})?$/.test(item.amount) &&
+      new Decimal(item.amount).gt(0),
+  );
+  function addSellingExpense(name = '') {
+    setSellingExpenseItems((items) =>
+      items.length >= 100 ? items : [...items, { id: crypto.randomUUID(), name, amount: '' }],
+    );
+  }
+  function updateSellingExpense(id: string, change: Partial<SellingExpenseItem>) {
+    setSellingExpenseItems((items) =>
+      items.map((item) => (item.id === id ? { ...item, ...change } : item)),
+    );
+  }
   const total = price.plus(String(unit.charges ?? 0)).minus(effectiveDiscount);
   const minimum = total
     .mul(String(project.data?.downPaymentPercent ?? 20))
@@ -81,6 +125,13 @@ export default function BookingWizard() {
           unitId: unit.id,
           sellingPrice: price.toFixed(2),
           discount: effectiveDiscount.toFixed(2),
+          brokerName: brokerName.trim() || undefined,
+          brokerageFee: brokerFee.toFixed(2),
+          sellingExpenseItems: sellingExpenseItems.map((item) => ({
+            id: item.id,
+            name: item.name.trim(),
+            amount: new Decimal(item.amount).toFixed(2),
+          })),
           confirm: can('bookings.approve'),
           paymentType: terms.paymentType,
           ...(terms.paymentType === 'INSTALLMENTS' ? terms : {}),
@@ -105,6 +156,10 @@ export default function BookingWizard() {
       return setError(
         new Error('Enter a positive price and a discount that does not exceed the selling price.'),
       );
+    if (step === 1 && brokerFee.gt(0) && !brokerName.trim())
+      return setError(new Error('Enter the broker name when a brokerage fee is set.'));
+    if (step === 1 && !validSellingExpenses)
+      return setError(new Error('Enter a name and positive amount for every selling expense.'));
     if (step === 2 && terms.paymentType === 'INSTALLMENTS') {
       const down = new Decimal(terms.downPayment || 0);
       const rows = previewPlan(total, terms);
@@ -145,6 +200,28 @@ export default function BookingWizard() {
             <dt>{t('Payment Type')}</dt>
             <dd>{terms.paymentType === 'FULL_PAYMENT' ? 'Full Payment' : 'Installment Plan'}</dd>
           </div>
+          {brokerName.trim() && (
+            <div>
+              <dt>{t('Broker')}</dt>
+              <dd>{brokerName.trim()}</dd>
+            </div>
+          )}
+          {brokerFee.gt(0) && (
+            <div>
+              <dt>{t('Brokerage fee')}</dt>
+              <dd>
+                <Money value={brokerFee} />
+              </dd>
+            </div>
+          )}
+          {sellingExpensesTotal.gt(0) && (
+            <div>
+              <dt>{t('Selling expenses')}</dt>
+              <dd>
+                <Money value={sellingExpensesTotal} />
+              </dd>
+            </div>
+          )}
         </dl>
         <p>
           {created.status === 'CONFIRMED'
@@ -316,6 +393,112 @@ export default function BookingWizard() {
                       />
                     </label>
                   )}
+                  <label className="form-field">
+                    {t('Broker name (optional)')}
+                    <input
+                      type="text"
+                      maxLength={200}
+                      value={brokerName}
+                      onChange={(event) => setBrokerName(event.target.value)}
+                      placeholder={t('Name of the broker who found the buyer')}
+                    />
+                  </label>
+                  <label className="form-field">
+                    {t('Brokerage fee')}
+                    <MoneyInput
+                      min="0"
+                      step="0.01"
+                      value={brokerageFee}
+                      onValueChange={setBrokerageFee}
+                    />
+                  </label>
+                  <small className="form-full">
+                    {t(
+                      'Brokerage is a selling cost paid by the business. It does not change the amount payable by the customer.',
+                    )}
+                  </small>
+                  <section
+                    className="booking-selling-expenses form-full"
+                    aria-label={t('Selling expenses')}
+                  >
+                    <div className="booking-selling-expenses-header">
+                      <div>
+                        <strong>{t('Selling expenses')}</strong>
+                        <small>
+                          {t('Record costs paid by the business while selling this property.')}
+                        </small>
+                      </div>
+                      <Button
+                        variant="secondary"
+                        size="small"
+                        disabled={sellingExpenseItems.length >= 100}
+                        onClick={() => addSellingExpense()}
+                      >
+                        <Plus size={14} /> {t('Add custom expense')}
+                      </Button>
+                    </div>
+                    <div className="booking-expense-presets">
+                      <small>{t('Quick Presets')}</small>
+                      {SELLING_EXPENSE_PRESETS.map((preset) => (
+                        <button
+                          key={preset}
+                          type="button"
+                          disabled={sellingExpenseItems.length >= 100}
+                          onClick={() => addSellingExpense(preset)}
+                        >
+                          + {t(preset)}
+                        </button>
+                      ))}
+                    </div>
+                    {sellingExpenseItems.map((item, index) => (
+                      <div className="booking-expense-row" key={item.id}>
+                        <label>
+                          <span>
+                            {t('Expense name')} {index + 1}
+                          </span>
+                          <input
+                            value={item.name}
+                            maxLength={200}
+                            onChange={(event) =>
+                              updateSellingExpense(item.id!, { name: event.target.value })
+                            }
+                          />
+                        </label>
+                        <label>
+                          <span>{t('Amount')}</span>
+                          <MoneyInput
+                            value={item.amount}
+                            min="0.01"
+                            step="0.01"
+                            onValueChange={(amount) => updateSellingExpense(item.id!, { amount })}
+                          />
+                        </label>
+                        <button
+                          type="button"
+                          className="booking-expense-remove"
+                          aria-label={t('Remove expense')}
+                          onClick={() =>
+                            setSellingExpenseItems((items) =>
+                              items.filter((row) => row.id !== item.id),
+                            )
+                          }
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                      </div>
+                    ))}
+                    <div className="booking-expense-total">
+                      <span>{t('Selling expense subtotal')}</span>
+                      <strong>
+                        <Money value={sellingExpensesTotal} />
+                      </strong>
+                    </div>
+                    <small>
+                      {t(
+                        'Selling expenses reduce profit and do not change the customer payment amount.',
+                      )}
+                    </small>
+                  </section>
                   <p className="form-full">
                     Total payable:{' '}
                     <strong>
@@ -345,6 +528,11 @@ export default function BookingWizard() {
                       'Selling price': moneyWithWords(price),
                       Fees: moneyWithWords(unit.charges),
                       Discount: moneyWithWords(effectiveDiscount),
+                      ...(brokerName.trim() ? { Broker: brokerName.trim() } : {}),
+                      ...(brokerFee.gt(0) ? { 'Brokerage fee': moneyWithWords(brokerFee) } : {}),
+                      ...(sellingExpensesTotal.gt(0)
+                        ? { 'Selling expenses': moneyWithWords(sellingExpensesTotal) }
+                        : {}),
                       'Total payable': moneyWithWords(total),
                       'Payment type':
                         terms.paymentType === 'FULL_PAYMENT' ? 'Full Payment' : 'Installment Plan',
@@ -362,6 +550,12 @@ export default function BookingWizard() {
                       </div>
                     ))}
                   </dl>
+                  {sellingExpenseItems.length > 0 && (
+                    <SellingExpenses
+                      items={sellingExpenseItems}
+                      total={sellingExpensesTotal.toFixed(2)}
+                    />
+                  )}
                 </div>
               )}
             </div>
@@ -430,6 +624,28 @@ export default function BookingWizard() {
                   <dt>{t('Discount')}</dt>
                   <dd>
                     −<Money value={effectiveDiscount} />
+                  </dd>
+                </div>
+              )}
+              {brokerName.trim() && (
+                <div>
+                  <dt>{t('Broker')}</dt>
+                  <dd>{brokerName.trim()}</dd>
+                </div>
+              )}
+              {brokerFee.gt(0) && (
+                <div>
+                  <dt>{t('Brokerage fee')}</dt>
+                  <dd>
+                    <Money value={brokerFee} />
+                  </dd>
+                </div>
+              )}
+              {sellingExpensesTotal.gt(0) && (
+                <div>
+                  <dt>{t('Selling expenses')}</dt>
+                  <dd>
+                    <Money value={sellingExpensesTotal} />
                   </dd>
                 </div>
               )}

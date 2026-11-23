@@ -13,6 +13,7 @@ import { logout } from '../../hooks/use-auth';
 import { PageHeading, Button, ErrorState } from '../../components/ui';
 import { DataTable } from '../../components/DataTable';
 import { OperationDialog } from '../../components/OperationDialog';
+import { SignatureFooter } from '../../components/SignatureFooter';
 import {
   platform,
   enablePush,
@@ -230,6 +231,7 @@ export default function Profile({
           )}
         </section>
       )}
+      <SignatureFooter printOnly />
       {action && (
         <OperationDialog
           {...action}

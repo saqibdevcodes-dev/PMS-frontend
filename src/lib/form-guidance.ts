@@ -21,6 +21,9 @@ export const fieldLabels: Record<string, string> = {
   type: 'Property type',
   typeDetails: 'Other property type',
   size: 'Property area',
+  plannedPlotCount: 'Planned plots',
+  plannedPlotArea: 'Total plot area',
+  plotAreaUnit: 'Plot area unit',
   measurementUnit: 'Area unit',
   features: 'Property features',
   featureImages: 'Feature photos',
@@ -53,6 +56,7 @@ export const fieldLabels: Record<string, string> = {
   phone: 'Phone number',
   secondaryPhone: 'Secondary phone',
   email: 'Email address',
+  portalAccessEnabled: 'Enable customer portal access',
 };
 export const fieldHelp: Record<string, [string, string]> = {
   ...ownershipHelp,
@@ -81,6 +85,14 @@ export const fieldHelp: Record<string, [string, string]> = {
     'e.g. 5',
     'Enter the area as a number, then choose its unit. For example: 5 marla or 1,200 square feet.',
   ],
+  plannedPlotCount: [
+    'e.g. 100',
+    'Enter the total number of residential and commercial plots planned for this project.',
+  ],
+  plannedPlotArea: [
+    'e.g. 500',
+    'Enter the combined area of all planned plots. Plot properties must use this area unit.',
+  ],
   measurementUnit: [
     'Choose an area unit',
     'This describes how the property area is measured; it is not a price.',
@@ -96,6 +108,10 @@ export const fieldHelp: Record<string, [string, string]> = {
   phone: ['e.g. 0300-1234567', 'Include the mobile phone number so the person can be contacted.'],
   secondaryPhone: ['e.g. 0300-1234567', 'Alternative contact number for urgent communications.'],
   email: ['e.g. name@example.com', 'Use an email address that belongs to this person.'],
+  portalAccessEnabled: [
+    '',
+    'When enabled, the customer can sign in and receives system emails. An email address is required.',
+  ],
   address: ['e.g. House 12, Street 4, Lahore', 'Enter the house, street, city and country.'],
   notes: [
     'Add useful details about this enquiry',

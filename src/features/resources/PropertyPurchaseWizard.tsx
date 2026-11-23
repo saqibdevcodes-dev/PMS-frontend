@@ -3,7 +3,7 @@ import { exactMoney, moneyPayload } from '../../lib/exact-money';
 import { useUnsavedChanges, confirmDiscard } from '../../hooks/use-unsaved';
 import { MoneyInput } from '../../components/MoneyInput';
 import { Money } from '../../components/Money';
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useId } from 'react';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import {
   Building2,
@@ -21,8 +21,12 @@ import {
 import { toast } from 'sonner';
 import { can } from '../../stores/auth';
 import { api, ApiError } from '../../lib/api';
+import { operation, projectRoot } from '../../lib/contract';
 import { usePreferences } from '../../stores/preferences';
 import { t, useLocale } from '../../lib/i18n';
+import { SchemaForm } from '../../components/SchemaForm';
+import { SearchSelect } from '../../components/SearchSelect';
+import { humanize } from '../../lib/format';
 
 import { Button, Modal, ErrorState, Skeleton } from '../../components/ui';
 import type { Row, Operation } from '../../lib/types';
@@ -34,6 +38,8 @@ export type ExpenseItem = {
   category: string;
   amount: string;
 };
+
+const propertySchema = operation('post', projectRoot + '/units').body!;
 
 const EXPENSE_PRESETS = [
   'Civil & Structural Work',
@@ -52,8 +58,11 @@ type PurchaseProps = {
 };
 export function PropertyPurchaseWizard(props: PurchaseProps) {
   const projectId = usePreferences((state) => state.projectId);
+  // An edit must start from a fresh server snapshot. A cached detail can mount the
+  // stateful editor before its background refresh and leave old expense fields in place.
+  const openKey = useId();
   const full = useQuery({
-    queryKey: ['purchase-edit-record', projectId, props.record?.id],
+    queryKey: ['purchase-edit-record', projectId, props.record?.id, openKey],
     enabled: Boolean(props.record?.id && projectId),
     queryFn: ({ signal }) =>
       api<Row>(`/projects/${projectId}/property-purchases/${props.record!.id}`, { signal }),
@@ -63,7 +72,7 @@ export function PropertyPurchaseWizard(props: PurchaseProps) {
       <Modal
         open
         onOpenChange={(open) => !open && props.onClose()}
-        title="Edit Property Purchase Draft"
+        title="Edit property purchase"
       >
         <div className="modal-body">
           {full.isError ? (
@@ -94,10 +103,11 @@ function PurchaseEditor({
   onClose: () => void;
   onSuccess?: () => void;
 }) {
-  useLocale();
+  const locale = useLocale();
   const projectId = usePreferences((s) => s.projectId);
   const currency = usePreferences((s) => s.currency) || 'PKR';
   const isEdit = Boolean(record?.id);
+  const isPosted = record?.status === 'POSTED';
 
   // Wizard Step: 1 = Property, 2 = Price & Parties, 3 = Expenses & Finalize
   const [step, setStep] = useState<1 | 2 | 3>(1);
@@ -105,15 +115,12 @@ function PurchaseEditor({
   // Form State - Step 1
   const initialUnitId = record ? String(record.unitId ?? (record.unit as Row)?.id ?? '') : '';
   const [propertyMode, setPropertyMode] = useState<'inventory' | 'custom'>(() =>
-    record
-      ? initialUnitId
-        ? 'inventory'
-        : 'custom'
-      : can('inventory.read')
-        ? 'inventory'
-        : 'custom',
+    record ? (initialUnitId ? 'inventory' : 'custom') : 'custom',
   );
   const [selectedUnitId, setSelectedUnitId] = useState<string>(initialUnitId);
+  const [unitSearch, setUnitSearch] = useState('');
+  const [newProperty, setNewProperty] = useState<Row | null>(null);
+  const [propertyConfirmed, setPropertyConfirmed] = useState(false);
   const [title, setTitle] = useState(() => (record?.title ? String(record.title) : ''));
   const [location, setLocation] = useState(() => (record?.location ? String(record.location) : ''));
   const [fileReference, setFileReference] = useState(() =>
@@ -161,7 +168,7 @@ function PurchaseEditor({
   const [notes, setNotes] = useState(() => (record?.notes ? String(record.notes) : ''));
 
   // Calculate base other costs (excluding renovation expenses)
-  const baseOtherCosts = useMemo(() => {
+  const initialBaseOtherCosts = useMemo(() => {
     if (!record) return '0';
     const totalOther = exactMoney(record.otherCosts);
     const initialExpSum = initialExpenses.reduce(
@@ -170,6 +177,7 @@ function PurchaseEditor({
     );
     return totalOther.minus(initialExpSum).toFixed(2);
   }, [record, initialExpenses]);
+  const [baseOtherCosts, setBaseOtherCosts] = useState(initialBaseOtherCosts);
 
   // Fetch Units for this project
   const unitsQuery = useQuery({
@@ -213,10 +221,50 @@ function PurchaseEditor({
 
   const availableUnits = useMemo(() => unitsQuery.data ?? [], [unitsQuery.data]);
   const sellerVendors = useMemo(() => vendorsQuery.data ?? [], [vendorsQuery.data]);
+  const selectedUnit = availableUnits.find((unit) => String(unit.id) === selectedUnitId);
+  const unitSelectable = (unit: Row) =>
+    (isEdit && String(unit.id) === initialUnitId) ||
+    (!purchasedUnitsMap.has(String(unit.id)) && String(unit.status) === 'AVAILABLE');
+  const unitOptions = useMemo(() => {
+    const search = unitSearch.trim().toLocaleLowerCase();
+    return availableUnits
+      .map((unit) => {
+        const purchased = purchasedUnitsMap.get(String(unit.id));
+        const status = t(humanize(String(unit.status ?? '')));
+        const type = t(humanize(String(unit.type ?? '')));
+        const details = [
+          unit.size ? `${unit.size} ${unit.measurementUnit ?? ''}` : '',
+          unit.block ? `${t('Block')} ${unit.block}` : '',
+          purchased ? `${t('Already purchased')}: ${purchased.reference}` : '',
+        ]
+          .filter(Boolean)
+          .join(' · ');
+        const disabled =
+          !(isEdit && String(unit.id) === initialUnitId) &&
+          (Boolean(purchased) || String(unit.status) !== 'AVAILABLE');
+        return {
+          value: String(unit.id),
+          label: `${String(unit.number ?? '')} — ${type}`,
+          sublabel: details,
+          status,
+          disabled,
+          group: t(disabled ? 'Unavailable properties' : 'Available properties'),
+        };
+      })
+      .sort(
+        (a, b) =>
+          Number(a.disabled) - Number(b.disabled) ||
+          a.label.localeCompare(b.label, locale, { numeric: true }),
+      )
+      .filter((option) =>
+        `${option.label} ${option.sublabel} ${option.status}`.toLocaleLowerCase().includes(search),
+      );
+  }, [availableUnits, purchasedUnitsMap, unitSearch, locale, isEdit, initialUnitId]);
 
   // When a unit is chosen from inventory, auto-fill property title and location
   function handleSelectUnit(unitId: string) {
-    if (purchasedUnitsMap.has(unitId)) {
+    const selected = availableUnits.find((item) => String(item.id) === unitId);
+    if (unitId && (!selected || !unitSelectable(selected))) {
       toast.error(
         t(
           'This property has already been acquired in another purchase and cannot be selected again.',
@@ -225,7 +273,7 @@ function PurchaseEditor({
       return;
     }
     setSelectedUnitId(unitId);
-    const u = availableUnits.find((item) => String(item.id) === unitId);
+    const u = selected;
     if (u) {
       const unitNum = String(u.number ?? '');
       const unitType = String(u.type ?? '');
@@ -306,6 +354,7 @@ function PurchaseEditor({
   const currentDraft = JSON.stringify({
     propertyMode,
     selectedUnitId,
+    newProperty,
     title,
     location,
     fileReference,
@@ -315,6 +364,7 @@ function PurchaseEditor({
     brokerage,
     taxes,
     legalFees,
+    baseOtherCosts,
     notes,
     expenseItems,
     hasRenovation,
@@ -327,27 +377,36 @@ function PurchaseEditor({
 
   // Validation
   const isStep1Valid = Boolean(
-    (propertyMode === 'custom' || (selectedUnitId && !purchasedUnitsMap.has(selectedUnitId))) &&
-    title.trim().length >= 2 &&
-    location.trim().length >= 2 &&
-    fileReference.trim().length >= 2 &&
-    purchaseDate,
+    propertyMode === 'custom'
+      ? isEdit || (newProperty && propertyConfirmed)
+      : selectedUnitId &&
+          ((isEdit && selectedUnitId === initialUnitId) ||
+            Boolean(selectedUnit && unitSelectable(selectedUnit))),
   );
 
   const isStep2Valid = Boolean(
+    title.trim().length >= 2 &&
+    location.trim().length >= 2 &&
+    fileReference.trim().length >= 2 &&
+    purchaseDate &&
     vendorId &&
     numPrice.isFinite() &&
     numPrice.gt(0) &&
     numBrokerage.gte(0) &&
     numTaxes.gte(0) &&
-    numLegal.gte(0),
+    numLegal.gte(0) &&
+    numBaseOther.gte(0),
   );
+  const isStep3Valid =
+    !hasRenovation ||
+    expenseItems.every((item) => item.name.trim() && exactMoney(item.amount).gt(0));
 
   // Submit Draft Acquisition
   const submitMutation = useMutation({
     mutationFn: async () => {
       const payload = {
         unitId: propertyMode === 'inventory' && selectedUnitId ? selectedUnitId : null,
+        ...(!isEdit && propertyMode === 'custom' && newProperty ? { unit: newProperty } : {}),
         dealerId: initialDealerId || null,
         vendorId,
         title: title.trim(),
@@ -372,6 +431,20 @@ function PurchaseEditor({
         notes: notes.trim(),
       };
 
+      if (isPosted && record?.id) {
+        return api(`/projects/${projectId}/property-purchases/${record.id}/expenses`, {
+          method: 'PATCH',
+          body: {
+            taxes: payload.taxes,
+            legalFees: payload.legalFees,
+            brokerage: payload.brokerage,
+            otherCosts: payload.otherCosts,
+            expenseItems: payload.expenseItems,
+            notes: payload.notes,
+            expectedUpdatedAt: String(record.updatedAt),
+          },
+        });
+      }
       if (isEdit && record?.id) {
         return api(`/projects/${projectId}/property-purchases/${record.id}`, {
           method: 'PATCH',
@@ -386,7 +459,9 @@ function PurchaseEditor({
     },
     onSuccess: () => {
       toast.success(
-        isEdit
+        isPosted
+          ? t('Property expenses updated')
+          : isEdit
           ? t('Property acquisition draft updated successfully')
           : t('Property acquisition draft saved successfully'),
       );
@@ -404,9 +479,11 @@ function PurchaseEditor({
       open
       onOpenChange={(open) => !open && onClose()}
       beforeClose={async () => !submitMutation.isPending && (!dirty || (await confirmDiscard()))}
-      title={isEdit ? t('Edit Property Purchase Draft') : t('New Property Purchase')}
+      title={isPosted ? t('Edit property purchase') : isEdit ? t('Edit Property Purchase Draft') : t('New Property Purchase')}
       description={
-        isEdit
+        isPosted
+          ? t('Update expenses until the property reaches Sold & closed. Posted changes create an accounting adjustment.')
+          : isEdit
           ? t('Review and update property details, prices, dealer fees & renovation expenses')
           : t(
               'Step-by-step acquisition workflow: property selection, price, dealer fee & building expenses',
@@ -418,7 +495,14 @@ function PurchaseEditor({
         {/* Modern Stepper Navigation */}
         <div className="pw-stepper">
           {/* Step 1 */}
-          <button type="button" className="pw-step-item" onClick={() => setStep(1)}>
+          <button
+            type="button"
+            className="pw-step-item"
+            onClick={() => {
+              if (step > 1 && propertyMode === 'custom' && !isEdit) setPropertyConfirmed(false);
+              setStep(1);
+            }}
+          >
             <div
               className={`pw-step-badge ${
                 step === 1 ? 'active' : step > 1 ? 'completed' : 'pending'
@@ -449,8 +533,8 @@ function PurchaseEditor({
               {step > 2 ? <Check size={16} /> : 2}
             </div>
             <div>
-              <div className="pw-step-text-title">{t('2. Price & Parties')}</div>
-              <div className="pw-step-text-sub">{t('Seller, price & costs')}</div>
+              <div className="pw-step-text-title">{t('2. Purchase details')}</div>
+              <div className="pw-step-text-sub">{t('Agreement, seller & costs')}</div>
             </div>
           </button>
 
@@ -476,11 +560,16 @@ function PurchaseEditor({
             ==================================================================== */}
         {step === 1 && (
           <div className="pw-step-body">
+            {isPosted && (
+              <p className="muted">
+                {t('Posted property and seller details are locked. Review them here, then continue to edit costs.')}
+              </p>
+            )}
             {/* Visual Choice Cards */}
             <div className="pw-choice-grid">
               <div
                 className={`pw-choice-card ${propertyMode === 'inventory' ? 'selected' : ''}`}
-                onClick={() => can('inventory.read') && setPropertyMode('inventory')}
+                onClick={() => !isPosted && can('inventory.read') && setPropertyMode('inventory')}
               >
                 <div className="pw-choice-header">
                   <div className="pw-choice-icon">
@@ -502,7 +591,7 @@ function PurchaseEditor({
 
               <div
                 className={`pw-choice-card ${propertyMode === 'custom' ? 'selected' : ''}`}
-                onClick={() => setPropertyMode('custom')}
+                onClick={() => !isPosted && setPropertyMode('custom')}
               >
                 <div className="pw-choice-header">
                   <div className="pw-choice-icon">
@@ -514,10 +603,14 @@ function PurchaseEditor({
                     </span>
                   )}
                 </div>
-                <div className="pw-choice-title">{t('Custom / Unlisted Land Parcel')}</div>
+                <div className="pw-choice-title">
+                  {t(isEdit ? 'Custom / Unlisted Land Parcel' : 'Add New Property')}
+                </div>
                 <div className="pw-choice-desc">
                   {t(
-                    'Acquire external raw land, bulk acreage or unlisted parcel for future plotting.',
+                    isEdit
+                      ? 'Acquire external raw land, bulk acreage or unlisted parcel for future plotting.'
+                      : 'Enter the same property details used in Add property, then record its acquisition.',
                   )}
                 </div>
               </div>
@@ -530,43 +623,75 @@ function PurchaseEditor({
                   <span>{t('Choose Property from Inventory')}</span>
                   <span className="pw-req">*</span>
                 </label>
-                <select
-                  className="pw-select"
+                <SearchSelect
                   value={selectedUnitId}
-                  onChange={(e) => handleSelectUnit(e.target.value)}
-                >
-                  <option value="">{t('-- Choose Property / Unit --')}</option>
-                  {availableUnits.map((u) => {
-                    const uId = String(u.id);
-                    const purchased = purchasedUnitsMap.get(uId);
-                    const isPurchased = Boolean(purchased);
-                    const num = String(u.number ?? '');
-                    const typ = String(u.type ?? '');
-                    const sz = u.size
-                      ? `(${String(u.size)} ${String(u.measurementUnit ?? '')})`
-                      : '';
-                    const blk = u.block ? `[Block ${String(u.block)}]` : '';
-                    const st = String(u.status ?? '');
-                    return (
-                      <option key={uId} value={uId} disabled={isPurchased}>
-                        {isPurchased
-                          ? `${num} — ${typ} [ALREADY PURCHASED: ${purchased?.reference || 'Acquired'}]`
-                          : `${num} — ${typ} ${sz} ${blk} (${st})`.trim()}
-                      </option>
-                    );
-                  })}
-                </select>
+                  onChange={handleSelectUnit}
+                  disabled={isPosted}
+                  options={unitOptions}
+                  search={unitSearch}
+                  onSearch={setUnitSearch}
+                  placeholder={t('-- Choose Property / Unit --')}
+                  searchLabel={t('Search properties')}
+                  ariaLabel={t('Choose Property from Inventory')}
+                  triggerClassName="pw-select pw-unit-trigger"
+                  className="pw-unit-picker"
+                  selectedLabel={
+                    selectedUnit
+                      ? `${String(selectedUnit.number)} — ${t(humanize(String(selectedUnit.type)))}`
+                      : undefined
+                  }
+                  loading={unitsQuery.isLoading || purchasesQuery.isLoading}
+                  error={unitsQuery.isError || purchasesQuery.isError}
+                  onRetry={() => {
+                    void unitsQuery.refetch();
+                    void purchasesQuery.refetch();
+                  }}
+                  clearable={false}
+                />
                 {availableUnits.length === 0 && (
                   <div style={{ fontSize: 12, color: 'var(--muted)', marginTop: 4 }}>
-                    {t(
-                      'No units found in project. Switch to "Custom / Unlisted Land Parcel" above if not yet added.',
-                    )}
+                    {t('No properties found in this project. Choose Add New Property above.')}
                   </div>
                 )}
               </div>
             )}
 
-            {/* Title & Location Inputs */}
+            {propertyMode === 'custom' && !isEdit && (
+              <div className="pw-property-form">
+                <p className="muted">
+                  {t(
+                    'The property price is an initial value. Set the asking price when you finalize and list it for sale.',
+                  )}
+                </p>
+                <SchemaForm
+                  schema={propertySchema}
+                  operationPath={projectRoot + '/units'}
+                  initial={newProperty ?? undefined}
+                  label="Continue to purchase details"
+                  footerNote="Property details will be saved with the purchase draft."
+                  onSubmit={(values) => {
+                    setNewProperty(values);
+                    setPropertyConfirmed(true);
+                    setTitle(String(values.number ?? ''));
+                    setLocation(
+                      [values.phase, values.block, values.sector, values.tower, values.floor]
+                        .filter(Boolean)
+                        .join(', '),
+                    );
+                    setStep(2);
+                  }}
+                />
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* ====================================================================
+            STEP 2: PURCHASE DETAILS, PRICE & SELLER
+            ==================================================================== */}
+        {step === 2 && (
+          <div className="pw-step-body">
+            {/* Purchase title, location, agreement and date */}
             <div className="pw-grid-2">
               <div className="pw-form-group">
                 <label className="pw-label">
@@ -578,6 +703,7 @@ function PurchaseEditor({
                   placeholder={t('e.g. Plot 42, Block B or 10-Kanal Commercial Land')}
                   aria-label={t('Property Title / Description')}
                   value={title}
+                  disabled={isPosted}
                   onChange={(e) => setTitle(e.target.value)}
                 />
               </div>
@@ -592,6 +718,7 @@ function PurchaseEditor({
                   placeholder={t('e.g. Main Boulevard, Sector C or GT Road Khasra 412')}
                   aria-label={t('Location / Site Details')}
                   value={location}
+                  disabled={isPosted}
                   onChange={(e) => setLocation(e.target.value)}
                 />
               </div>
@@ -609,6 +736,7 @@ function PurchaseEditor({
                   placeholder={t('e.g. AGR-2026-LND-01 or FILE-889')}
                   aria-label={t('Agreement / File Reference')}
                   value={fileReference}
+                  disabled={isPosted}
                   onChange={(e) => setFileReference(e.target.value)}
                 />
                 <span style={{ fontSize: 11.5, color: 'var(--muted)', marginTop: 2 }}>
@@ -626,18 +754,11 @@ function PurchaseEditor({
                   className="pw-input"
                   aria-label={t('Acquisition Date')}
                   value={purchaseDate}
+                  disabled={isPosted}
                   onChange={(e) => setPurchaseDate(e.target.value)}
                 />
               </div>
             </div>
-          </div>
-        )}
-
-        {/* ====================================================================
-            STEP 2: PRICE, SELLER & DEALER
-            ==================================================================== */}
-        {step === 2 && (
-          <div className="pw-step-body">
             {/* Seller Selection with Smooth In-line Quick Add */}
             <div className="pw-form-group">
               <div
@@ -647,7 +768,7 @@ function PurchaseEditor({
                   <span>{t('Seller / Landowner')}</span>
                   <span className="pw-req">*</span>
                 </label>
-                {!showQuickAddSeller && (
+                {!isPosted && !showQuickAddSeller && (
                   <button
                     type="button"
                     onClick={() => setShowQuickAddSeller(true)}
@@ -739,6 +860,7 @@ function PurchaseEditor({
                   className="pw-select"
                   aria-label={t('Seller / Landowner')}
                   value={vendorId}
+                  disabled={isPosted}
                   onChange={(e) => setVendorId(e.target.value)}
                 >
                   <option value="">{t('-- Choose Seller / Landowner --')}</option>
@@ -766,6 +888,7 @@ function PurchaseEditor({
                   placeholder="0.00"
                   id="purchase-price"
                   value={price}
+                  disabled={isPosted}
                   onValueChange={setPrice}
                 />
               </div>
@@ -835,6 +958,17 @@ function PurchaseEditor({
             ==================================================================== */}
         {step === 3 && (
           <div className="pw-step-body">
+            <div className="pw-form-group">
+              <label className="pw-label" htmlFor="purchase-other-costs">
+                {t('Other direct acquisition costs')} ({currency})
+              </label>
+              <MoneyInput
+                id="purchase-other-costs"
+                className="pw-input"
+                value={baseOtherCosts}
+                onValueChange={setBaseOtherCosts}
+              />
+            </div>
             {/* The Choice Banner */}
             <div className="pw-choice-grid">
               <div
@@ -1005,6 +1139,12 @@ function PurchaseEditor({
               </div>
             )}
 
+            {!isStep3Valid && (
+              <p role="alert" className="field-error">
+                {t('Enter a description and an amount above zero for each expense item.')}
+              </p>
+            )}
+
             {/* Notes */}
             <div className="pw-form-group">
               <label className="pw-label">
@@ -1040,7 +1180,14 @@ function PurchaseEditor({
         <div className="pw-footer">
           <div>
             {step > 1 ? (
-              <Button variant="secondary" onClick={() => setStep((s) => (s - 1) as 1 | 2)}>
+              <Button
+                variant="secondary"
+                onClick={() => {
+                  if (step === 2 && propertyMode === 'custom' && !isEdit)
+                    setPropertyConfirmed(false);
+                  setStep((s) => (s - 1) as 1 | 2);
+                }}
+              >
                 <ArrowLeft size={15} style={{ marginRight: 6 }} />
                 {t('Back')}
               </Button>
@@ -1055,7 +1202,7 @@ function PurchaseEditor({
           </div>
 
           <div>
-            {step < 3 ? (
+            {step === 1 && propertyMode === 'custom' && !isEdit ? null : step < 3 ? (
               <Button
                 variant="primary"
                 disabled={step === 1 ? !isStep1Valid : !isStep2Valid}
@@ -1067,7 +1214,7 @@ function PurchaseEditor({
             ) : (
               <Button
                 variant="primary"
-                disabled={submitMutation.isPending || !isStep1Valid || !isStep2Valid}
+                disabled={submitMutation.isPending || !isStep1Valid || !isStep2Valid || !isStep3Valid}
                 onClick={() => submitMutation.mutate()}
               >
                 <CheckCircle2 size={16} style={{ marginRight: 6 }} />
@@ -1075,8 +1222,10 @@ function PurchaseEditor({
                   ? isEdit
                     ? t('Updating...')
                     : t('Saving...')
-                  : isEdit
-                    ? t('Update Draft Acquisition')
+                  : isPosted
+                    ? t('Save expenses')
+                    : isEdit
+                      ? t('Update Draft Acquisition')
                     : t('Save Draft Acquisition')}
               </Button>
             )}

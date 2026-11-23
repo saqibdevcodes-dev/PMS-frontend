@@ -19,9 +19,9 @@ npm ci
 npm run dev
 ```
 
-`npm run dev` and `npm run dev:local` select `.env.development`, with `VITE_API_BASE_URL=http://localhost:4000/api/v1`. Copy `.env.development.example` if the file does not exist. Browser API requests now show port **4000**, while the frontend remains on **3000**. Restart Vite after changing environment files or switching modes.
+`npm run dev` and `npm run dev:local` select `.env.development`, with `VITE_API_BASE_URL=/api/v1`. Copy `.env.development.example` if the file does not exist. Browser API requests use port **3000** and Vite proxies them to the local backend at `127.0.0.1:4000`. Restart Vite after changing environment files or switching modes.
 
-Use `npm run dev:production` to select `.env.production` and the hosted backend. In that mode, `VITE_API_BASE_URL=/api/v1` uses Vite's proxy with `PMS_BACKEND_URL=https://api.etihadrealestate.tech`. No backend is started by these frontend commands. Open the frontend using **localhost** and include `http://localhost:3000` in the local backend's `TRUSTED_ORIGINS` for direct requests and cookie sessions. Do not put passwords, signing keys or backend secrets in `VITE_*` variables; they are public build settings.
+Use `npm run dev:production` to select `.env.production` and the hosted backend. In that mode, `VITE_API_BASE_URL=/api/v1` uses Vite's proxy with `PMS_BACKEND_URL=https://api.etihadrealestate.tech`. No backend is started by these frontend commands. Open the frontend using **localhost** and include `http://localhost:3000` in the local backend's `TRUSTED_ORIGINS` for browser login. Do not put passwords, signing keys or backend secrets in `VITE_*` variables; they are public build settings.
 
 ## Features
 

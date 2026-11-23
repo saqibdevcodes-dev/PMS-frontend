@@ -18,6 +18,7 @@ import {
   FileUp,
   Download,
   Trash2,
+  Pencil,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { api } from '../../lib/api';
@@ -31,6 +32,8 @@ import { QRCode } from '../../components/QRCode';
 import { RecordImage } from '../../components/ImageUpload';
 import { OperationDialog } from '../../components/OperationDialog';
 import { DocumentUploadModal } from '../../components/DocumentUploadModal';
+import { DocumentEditModal } from '../../components/DocumentEditModal';
+import { SignatureFooter } from '../../components/SignatureFooter';
 import { saveFile } from '../../platform/adapter';
 import type { Operation, Row } from '../../lib/types';
 import './employee-detail.css';
@@ -87,6 +90,7 @@ export default function EmployeeDetailPage() {
 
   // Modals
   const [uploadDocOpen, setUploadDocOpen] = useState(false);
+  const [editingDocument, setEditingDocument] = useState<UserDocument | null>(null);
 
   // Role / Access Dialog
   const [action, setAction] = useState<{
@@ -130,7 +134,6 @@ export default function EmployeeDetailPage() {
     },
     onError: (e) => toast.error(errorMessage(e)),
   });
-
 
   const deleteDocMutation = useMutation({
     mutationFn: (docId: string) =>
@@ -532,6 +535,7 @@ export default function EmployeeDetailPage() {
                 <CheckCircle2 size={14} color="#38bdf8" />
                 <span>{t('Authorized System User')}</span>
               </div>
+              <SignatureFooter printOnly labels={['Employee signature', 'Authorized Approval']} />
             </div>
 
             <div className="id-card-actions">
@@ -568,7 +572,9 @@ export default function EmployeeDetailPage() {
             {documentsQuery.isLoading ? (
               <Skeleton rows={4} />
             ) : docList.length === 0 ? (
-              <div style={{ textAlign: 'center', padding: '40px 20px', color: 'var(--text-muted)' }}>
+              <div
+                style={{ textAlign: 'center', padding: '40px 20px', color: 'var(--text-muted)' }}
+              >
                 <FileText size={40} style={{ opacity: 0.3, marginBottom: 12 }} />
                 <h4 style={{ margin: '0 0 6px', color: 'var(--text)' }}>
                   {t('No documents uploaded for this system user.')}
@@ -611,6 +617,14 @@ export default function EmployeeDetailPage() {
                         <Button
                           variant="ghost"
                           size="icon"
+                          title={t('Edit document')}
+                          onClick={() => setEditingDocument(doc)}
+                        >
+                          <Pencil size={15} />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
                           title={t('Download')}
                           busy={downloadDocMutation.isPending}
                           onClick={() => downloadDocMutation.mutate(doc)}
@@ -623,7 +637,9 @@ export default function EmployeeDetailPage() {
                           title={t('Delete')}
                           disabled={deleteDocMutation.isPending}
                           onClick={() => {
-                            if (window.confirm(t('Are you sure you want to delete this document?'))) {
+                            if (
+                              window.confirm(t('Are you sure you want to delete this document?'))
+                            ) {
                               deleteDocMutation.mutate(doc.id);
                             }
                           }}
@@ -651,6 +667,16 @@ export default function EmployeeDetailPage() {
           void queryClient.invalidateQueries({ queryKey: ['employee-documents', id] });
         }}
       />
+      {editingDocument && (
+        <DocumentEditModal
+          projectId={editingDocument.projectId}
+          document={editingDocument}
+          onClose={() => setEditingDocument(null)}
+          onSuccess={() =>
+            void queryClient.invalidateQueries({ queryKey: ['employee-documents', id] })
+          }
+        />
+      )}
 
       {/* Operation / Access Modal */}
       {action && (

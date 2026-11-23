@@ -21,6 +21,7 @@ export default function CustomerAccess({
     queryFn: () =>
       api<{
         status: string;
+        portalAccessEnabled: boolean;
         email: string | null;
         expiresAt: string | null;
         canResendCredentials?: boolean;
@@ -72,6 +73,13 @@ export default function CustomerAccess({
             {query.data?.email ?? t('Add a member email address first.')}{' '}
             <Badge value={query.data?.status} />
           </p>
+          {query.data?.portalAccessEnabled === false && (
+            <small>
+              {t(
+                'Portal access is disabled. Enable it in Edit customer to allow sign-in and notifications.',
+              )}
+            </small>
+          )}
           {query.data?.status === 'PENDING' && (
             <small>
               {t('Invitation expires')} {date(query.data.expiresAt)}
@@ -95,16 +103,17 @@ export default function CustomerAccess({
                 {query.data?.status === 'PENDING' ? t('Resend invitation') : t('Invite member')}
               </Button>
             )}
-            {['ACTIVE', 'DISABLED', 'PENDING'].includes(query.data?.status ?? '') && (
-              <Button
-                size="small"
-                variant="danger"
-                disabled={mutation.isPending}
-                onClick={() => setConfirm(true)}
-              >
-                {t('Revoke access')}
-              </Button>
-            )}
+            {query.data?.portalAccessEnabled !== false &&
+              ['ACTIVE', 'DISABLED', 'PENDING'].includes(query.data?.status ?? '') && (
+                <Button
+                  size="small"
+                  variant="danger"
+                  disabled={mutation.isPending}
+                  onClick={() => setConfirm(true)}
+                >
+                  {t('Revoke access')}
+                </Button>
+              )}
           </div>
           {query.data?.canResendCredentials && (
             <small>

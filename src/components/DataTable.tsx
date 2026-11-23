@@ -11,7 +11,7 @@ import {
 } from '@tanstack/react-table';
 import { Building2, Columns3, ChevronLeft, ChevronRight, ArrowUpRight, Copy } from 'lucide-react';
 import { toast } from 'sonner';
-import { date, humanize, labelOf, moneyFields } from '../lib/format';
+import { bookingIdentity, date, humanize, labelOf, moneyFields } from '../lib/format';
 import { type Row, asRows, row } from '../lib/types';
 import { RecordImage } from './ImageUpload';
 import { Select } from './Select';
@@ -169,7 +169,22 @@ export function DataTable({
                     : humanize(key),
               cell: ({ row: r, getValue }) =>
                 renderCell?.(key, r.original) ??
-                (imageIdentity === key ? (
+                ((key === 'reference' || key === 'bookingReference') &&
+                /^BKG-/i.test(String(getValue() ?? '')) &&
+                bookingIdentity(r.original) &&
+                bookingIdentity(r.original)?.title !== getValue() ? (
+                  <div className="booking-identity-cell">
+                    {onRow && index === 0 ? (
+                      <button className="record-link" onClick={() => onRow(r.original)}>
+                        {bookingIdentity(r.original)?.title}
+                        <ArrowUpRight size={13} />
+                      </button>
+                    ) : (
+                      <strong>{bookingIdentity(r.original)?.title}</strong>
+                    )}
+                    <small>{String(getValue())}</small>
+                  </div>
+                ) : imageIdentity === key ? (
                   <div className="resource-identity">
                     <span className="resource-thumbnail" aria-hidden="true">
                       <RecordImage

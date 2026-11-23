@@ -1640,6 +1640,27 @@
           "default": "Asia/Karachi",
           "type": "string"
         },
+        "plannedPlotCount": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 1000000
+        },
+        "plannedPlotArea": {
+          "type": "string",
+          "pattern": "^(0|[1-9]\\d{0,15})(\\.\\d{1,2})?$"
+        },
+        "plotAreaUnit": {
+          "type": "string",
+          "enum": [
+            "marla",
+            "kanal",
+            "sq ft",
+            "sq yd",
+            "sq m",
+            "acre",
+            "hectare"
+          ]
+        },
         "ndcValidityDays": {
           "default": 30,
           "type": "integer",
@@ -1747,6 +1768,27 @@
         "timezone": {
           "type": "string"
         },
+        "plannedPlotCount": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 1000000
+        },
+        "plannedPlotArea": {
+          "type": "string",
+          "pattern": "^(0|[1-9]\\d{0,15})(\\.\\d{1,2})?$"
+        },
+        "plotAreaUnit": {
+          "type": "string",
+          "enum": [
+            "marla",
+            "kanal",
+            "sq ft",
+            "sq yd",
+            "sq m",
+            "acre",
+            "hectare"
+          ]
+        },
         "ndcValidityDays": {
           "type": "integer",
           "minimum": 1,
@@ -1773,6 +1815,26 @@
     "path": "/projects/{projectId}",
     "method": "get",
     "summary": "Project overview and setup progress",
+    "permission": "projects.read",
+    "public": false,
+    "parameters": [
+      {
+        "name": "projectId",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        }
+      }
+    ],
+    "multipart": false
+  },
+  {
+    "id": "get__projects__projectId_plot_capacity",
+    "path": "/projects/{projectId}/plot-capacity",
+    "method": "get",
+    "summary": "Project plot count and area remaining",
     "permission": "projects.read",
     "public": false,
     "parameters": [
@@ -3255,7 +3317,7 @@
     "id": "post__projects__projectId_customers",
     "path": "/projects/{projectId}/customers",
     "method": "post",
-    "summary": "Create a customer and email automatically generated portal login credentials",
+    "summary": "Create a customer with optional portal access",
     "permission": "customers.create",
     "public": false,
     "body": {
@@ -3296,9 +3358,16 @@
           ]
         },
         "email": {
-          "type": "string",
-          "format": "email",
-          "pattern": "^(?:[A-Za-z0-9_'+\\-]+\\.)*[A-Za-z0-9_'+\\-]*[A-Za-z0-9_+-]@(?:[A-Za-z0-9][A-Za-z0-9\\-]*\\.)+[A-Za-z]{2,}$"
+          "anyOf": [
+            {
+              "type": "string",
+              "format": "email",
+              "pattern": "^(?:[A-Za-z0-9_'+\\-]+\\.)*[A-Za-z0-9_'+\\-]*[A-Za-z0-9_+-]@(?:[A-Za-z0-9][A-Za-z0-9\\-]*\\.)+[A-Za-z]{2,}$"
+            },
+            {
+              "type": "null"
+            }
+          ]
         },
         "address": {
           "anyOf": [
@@ -3340,12 +3409,15 @@
         "communicationConsent": {
           "default": false,
           "type": "boolean"
+        },
+        "portalAccessEnabled": {
+          "default": true,
+          "type": "boolean"
         }
       },
       "required": [
         "name",
         "phone",
-        "email",
         "identity"
       ],
       "additionalProperties": false
@@ -3540,7 +3612,7 @@
     "id": "patch__projects__projectId_customers__id",
     "path": "/projects/{projectId}/customers/{id}",
     "method": "patch",
-    "summary": "Update non-identity customer contact details",
+    "summary": "Update customer contact details and portal access",
     "permission": "customers.update",
     "public": false,
     "body": {
@@ -3625,6 +3697,10 @@
         },
         "communicationConsent": {
           "default": false,
+          "type": "boolean"
+        },
+        "portalAccessEnabled": {
+          "default": true,
           "type": "boolean"
         }
       },
@@ -4061,6 +4137,45 @@
           "type": "string",
           "format": "uuid",
           "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+        },
+        "brokerName": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "brokerageFee": {
+          "default": "0",
+          "type": "string",
+          "pattern": "^(0|[1-9]\\d{0,15})(\\.\\d{1,2})?$"
+        },
+        "sellingExpenseItems": {
+          "default": [],
+          "maxItems": 100,
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "format": "uuid",
+                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+              },
+              "name": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 200
+              },
+              "amount": {
+                "type": "string",
+                "pattern": "^(0|[1-9]\\d{0,15})(\\.\\d{1,2})?$"
+              }
+            },
+            "required": [
+              "name",
+              "amount"
+            ],
+            "additionalProperties": false
+          }
         },
         "sellingPrice": {
           "type": "string",
@@ -4837,6 +4952,35 @@
       ],
       "additionalProperties": false
     },
+    "parameters": [
+      {
+        "name": "projectId",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        }
+      },
+      {
+        "name": "id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        }
+      }
+    ],
+    "multipart": false
+  },
+  {
+    "id": "get__projects__projectId_installments__id_receipts",
+    "path": "/projects/{projectId}/installments/{id}/receipts",
+    "method": "get",
+    "summary": "Receipts for a scheduled installment",
+    "permission": "payments.read",
+    "public": false,
     "parameters": [
       {
         "name": "projectId",
@@ -6771,6 +6915,133 @@
           "default": "",
           "type": "string",
           "maxLength": 2000
+        },
+        "unit": {
+          "type": "object",
+          "properties": {
+            "number": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 100
+            },
+            "type": {
+              "type": "string",
+              "enum": [
+                "RESIDENTIAL_PLOT",
+                "COMMERCIAL_PLOT",
+                "APARTMENT",
+                "SHOP",
+                "OFFICE",
+                "OTHER"
+              ]
+            },
+            "typeDetails": {
+              "type": "string",
+              "minLength": 2,
+              "maxLength": 100
+            },
+            "photoId": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+            },
+            "photoIds": {
+              "maxItems": 20,
+              "type": "array",
+              "items": {
+                "type": "string",
+                "format": "uuid",
+                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+              }
+            },
+            "featureImages": {
+              "default": [],
+              "maxItems": 30,
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "feature": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 100
+                  },
+                  "imageId": {
+                    "type": "string",
+                    "format": "uuid",
+                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                  }
+                },
+                "required": [
+                  "feature",
+                  "imageId"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "phase": {
+              "type": "string",
+              "maxLength": 100
+            },
+            "block": {
+              "type": "string",
+              "maxLength": 100
+            },
+            "tower": {
+              "type": "string",
+              "maxLength": 100
+            },
+            "sector": {
+              "type": "string",
+              "maxLength": 100
+            },
+            "floor": {
+              "type": "string",
+              "maxLength": 100
+            },
+            "size": {
+              "type": "string",
+              "pattern": "^(0|[1-9]\\d{0,15})(\\.\\d{1,2})?$"
+            },
+            "measurementUnit": {
+              "type": "string",
+              "enum": [
+                "marla",
+                "kanal",
+                "sq ft",
+                "sq yd",
+                "sq m",
+                "acre",
+                "hectare"
+              ]
+            },
+            "features": {
+              "default": [],
+              "maxItems": 30,
+              "type": "array",
+              "items": {
+                "type": "string",
+                "maxLength": 100
+              }
+            },
+            "price": {
+              "type": "string",
+              "pattern": "^(0|[1-9]\\d{0,15})(\\.\\d{1,2})?$"
+            },
+            "charges": {
+              "default": "0",
+              "type": "string",
+              "pattern": "^(0|[1-9]\\d{0,15})(\\.\\d{1,2})?$"
+            }
+          },
+          "required": [
+            "number",
+            "type",
+            "size",
+            "measurementUnit",
+            "price"
+          ],
+          "additionalProperties": false
         }
       },
       "required": [
@@ -6980,7 +7251,7 @@
     "id": "patch__projects__projectId_property_purchases__id_expenses",
     "path": "/projects/{projectId}/property-purchases/{id}/expenses",
     "method": "patch",
-    "summary": "Save itemized property expenses while the acquisition remains a draft",
+    "summary": "Edit property acquisition expenses until the sale is confirmed",
     "permission": "finance.post",
     "public": false,
     "body": {
@@ -7016,9 +7287,30 @@
             ]
           }
         },
+        "taxes": {
+          "type": "string",
+          "pattern": "^(0|[1-9]\\d{0,15})(\\.\\d{1,2})?$"
+        },
+        "legalFees": {
+          "type": "string",
+          "pattern": "^(0|[1-9]\\d{0,15})(\\.\\d{1,2})?$"
+        },
+        "brokerage": {
+          "type": "string",
+          "pattern": "^(0|[1-9]\\d{0,15})(\\.\\d{1,2})?$"
+        },
+        "otherCosts": {
+          "type": "string",
+          "pattern": "^(0|[1-9]\\d{0,15})(\\.\\d{1,2})?$"
+        },
         "notes": {
           "type": "string",
           "maxLength": 2000
+        },
+        "expectedUpdatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
         }
       },
       "additionalProperties": false
@@ -9349,6 +9641,51 @@
     "multipart": false
   },
   {
+    "id": "patch__projects__projectId_documents__id",
+    "path": "/projects/{projectId}/documents/{id}",
+    "method": "patch",
+    "summary": "Edit a document name",
+    "permission": "documents.manage",
+    "public": false,
+    "body": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 180,
+          "pattern": "^[^\\\\/\\x00-\\x1f]+$"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "additionalProperties": false
+    },
+    "parameters": [
+      {
+        "name": "projectId",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        }
+      },
+      {
+        "name": "id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        }
+      }
+    ],
+    "multipart": false
+  },
+  {
     "id": "delete__projects__projectId_documents__id",
     "path": "/projects/{projectId}/documents/{id}",
     "method": "delete",
@@ -9376,6 +9713,56 @@
       }
     ],
     "multipart": false
+  },
+  {
+    "id": "post__projects__projectId_documents__id_file",
+    "path": "/projects/{projectId}/documents/{id}/file",
+    "method": "post",
+    "summary": "Replace an uploaded document file",
+    "permission": "documents.manage",
+    "public": false,
+    "body": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 180,
+          "pattern": "^[^\\\\/\\x00-\\x1f]+$"
+        },
+        "file": {
+          "type": "string",
+          "format": "binary"
+        }
+      },
+      "required": [
+        "name",
+        "file"
+      ],
+      "additionalProperties": false
+    },
+    "parameters": [
+      {
+        "name": "projectId",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        }
+      },
+      {
+        "name": "id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        }
+      }
+    ],
+    "multipart": true
   },
   {
     "id": "get__users__id_documents",

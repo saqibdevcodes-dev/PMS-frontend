@@ -80,9 +80,42 @@ export function calendarDay(value: Date, timezone = usePreferences.getState().ti
     .join('-');
 }
 export const shortId = (id: unknown) => (typeof id === 'string' ? t('Selected record') : '—');
+export function bookingIdentity(record: Record<string, unknown>) {
+  const reference =
+    [record.bookingReference, record.reference]
+      .map((value) => String(value ?? ''))
+      .find((value) => /^BKG-/i.test(value)) ?? '';
+  if (!/^BKG-/i.test(reference)) return null;
+  const unit =
+    record.unit && typeof record.unit === 'object' ? (record.unit as Record<string, unknown>) : {};
+  const customer =
+    record.customer && typeof record.customer === 'object'
+      ? (record.customer as Record<string, unknown>)
+      : {};
+  const property = String(unit.number ?? record.propertyNumber ?? record.unitNumber ?? '').trim();
+  const customerName = String(customer.name ?? record.customerName ?? '').trim();
+  const title = [property, customerName].filter(Boolean).join(' — ');
+  return { title: title || reference, reference };
+}
+export function purchaseIdentity(record: Record<string, unknown>) {
+  const reference = String(record.reference ?? '');
+  if (!/^PUR-/i.test(reference)) return null;
+  const unit =
+    record.unit && typeof record.unit === 'object' ? (record.unit as Record<string, unknown>) : {};
+  const vendor =
+    record.vendor && typeof record.vendor === 'object'
+      ? (record.vendor as Record<string, unknown>)
+      : {};
+  const property = String(record.title ?? unit.number ?? '').trim();
+  const seller = String(vendor.name ?? record.sellerName ?? '').trim();
+  const title = [property, seller ? `${t('Seller')}: ${seller}` : ''].filter(Boolean).join(' — ');
+  return { title: title || reference, reference };
+}
 export const labelOf = (record: Record<string, unknown>) =>
   String(
     record.name ??
+      bookingIdentity(record)?.title ??
+      purchaseIdentity(record)?.title ??
       record.reference ??
       record.number ??
       record.title ??
@@ -93,4 +126,4 @@ export const labelOf = (record: Record<string, unknown>) =>
       t('Record'),
   );
 export const moneyFields =
-  /^(price|basePrice|sellingPrice|buyPrice|salePrice|listedPrice|listPrice|askingPrice|taxes|legalFees|brokerage|otherCosts|charges|amount|expectedAmount|expectedTotal|total|totalCost|totalBuyPrice|totalExpenses|totalInvestedCost|totalSalesRevenue|totalRealizedProfit|totalNetProfit|discount|deduction|customDeduction|customRefundAmount|refundable|refundAmount|debit|credit|balance|openingBalance|closingBalance|paid|outstanding|overdue|collected|unallocated|advanceCredit|downPayment|netSales|verifiedCollections|commission|promiseAmount|netIncome|assets|liabilities|equity)$/i;
+  /^(price|basePrice|sellingPrice|buyPrice|salePrice|listedPrice|listPrice|askingPrice|taxes|legalFees|brokerage|brokerageFee|sellingExpensesTotal|sellingCosts|otherCosts|charges|amount|expectedAmount|expectedTotal|total|totalCost|totalDealCost|totalBuyPrice|totalExpenses|totalInvestedCost|totalSalesRevenue|totalRealizedProfit|totalNetProfit|discount|deduction|customDeduction|customRefundAmount|refundable|refundAmount|debit|credit|balance|openingBalance|closingBalance|paid|outstanding|overdue|collected|unallocated|advanceCredit|downPayment|netSales|verifiedCollections|commission|promiseAmount|netIncome|assets|liabilities|equity)$/i;

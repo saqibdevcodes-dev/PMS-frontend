@@ -3,6 +3,7 @@ import { useVerificationLink } from '../../lib/verification-link';
 import { Info } from 'lucide-react';
 import { ProjectLogo } from '../../components/ProjectLogo';
 import { QRCode } from '../../components/QRCode';
+import { SignatureFooter } from '../../components/SignatureFooter';
 import { date, humanize } from '../../lib/format';
 import { t } from '../../lib/i18n';
 import './statement.css';
@@ -203,6 +204,7 @@ export function CustomerStatement({ statement: s }: { statement: AccountStatemen
           </div>
         </section>
       ))}
+      <SignatureFooter labels={['Customer signature', 'Authorized Project Officer']} />
       <footer className="statement-footer">
         <strong>{t('Questions about your statement?')}</strong>
         <p>{t('Contact the property office with your customer or booking reference.')}</p>

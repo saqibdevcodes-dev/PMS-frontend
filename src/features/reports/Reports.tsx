@@ -165,6 +165,20 @@ export default function Reports() {
         (k) => !['projectId', 'createdBy', 'receivedBy', 'requestedBy'].includes(k),
       )
     : [];
+  if (
+    rows.some((record) => /^BKG-/i.test(String(record.bookingReference ?? record.reference ?? '')))
+  ) {
+    const leading = ['propertyNumber', 'unitNumber', 'customerName'];
+    keys.sort((a, b) => {
+      const rank = (key: string) =>
+        leading.includes(key)
+          ? leading.indexOf(key)
+          : key === 'reference' || key === 'bookingReference'
+            ? leading.length
+            : leading.length + 1;
+      return rank(a) - rank(b);
+    });
+  }
   return (
     <>
       <PageHeading

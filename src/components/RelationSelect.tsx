@@ -6,7 +6,7 @@ import { api, queryString } from '../lib/api';
 import { operations, projectRoot, resolvePath, supportsQuery } from '../lib/contract';
 import { asRows, row, type Row, type Page } from '../lib/types';
 import { roleDescriptions, fieldLabels } from '../lib/form-guidance';
-import { labelOf, humanize, moneyWithWords } from '../lib/format';
+import { bookingIdentity, labelOf, humanize, moneyWithWords } from '../lib/format';
 import { usePreferences } from '../stores/preferences';
 import { can } from '../stores/auth';
 import { Button } from './ui';
@@ -16,7 +16,7 @@ export function formatRelationOption(
   record: Row,
   name: string,
 ): { label: string; sublabel?: string } {
-  if (name === 'bookingId' || (record.reference && (record.customer || record.unit))) {
+  if (name === 'bookingId' || bookingIdentity(record)) {
     const customer = (
       record.customer && typeof record.customer === 'object' ? record.customer : {}
     ) as Record<string, unknown>;
@@ -34,15 +34,11 @@ export function formatRelationOption(
     const phone = customer.phone ? String(customer.phone) : '';
     const status = record.status ? humanize(String(record.status)) : '';
 
-    let label = ref;
-    if (custDisplay) {
-      label += ` — ${custDisplay}`;
-    }
-    if (unitNum) {
-      label += ` · ${t('Unit')} ${unitNum}`;
-    }
+    const label =
+      [unitNum ? `${t('Property')} ${unitNum}` : '', custDisplay].filter(Boolean).join(' — ') ||
+      ref;
 
-    const subParts: string[] = [];
+    const subParts: string[] = [ref];
     if (custName) {
       subParts.push(
         `${t('Member')}: ${custName}${customer.reference ? ` (${String(customer.reference)})` : ''}`,

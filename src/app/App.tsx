@@ -100,6 +100,8 @@ function AppRoutes() {
           <Route index element={<Navigate to="/dashboard" replace />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/property-lifecycle" element={<PropertyLifecycleHub />} />
+          {/* The standalone purchase page is hidden; acquisition remains in Property Lifecycle. */}
+          <Route path="/property-purchases" element={<Navigate to="/property-lifecycle" replace />} />
           <Route path="/expenses" element={<PropertyExpensesPage />} />
           <Route path="/bookings/new" element={<BookingWizard />} />
           <Route path="/payment-plans" element={<PaymentPlans />} />
@@ -113,7 +115,7 @@ function AppRoutes() {
           <Route path="/members/qr" element={<MemberQrPage />} />
           <Route path="/customers/qr" element={<MemberQrPage />} />
           {resources
-            .filter((r) => !['payment-plans', 'expenses'].includes(r.slug))
+            .filter((r) => !['payment-plans', 'expenses', 'property-purchases'].includes(r.slug))
             .map((r) => (
               <Route
                 path={'/' + r.slug}

@@ -5,8 +5,8 @@ import { Link, useSearchParams } from 'react-router-dom';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import Decimal from 'decimal.js';
 import { api } from '../../lib/api';
-import { asRows, row, type Row } from '../../lib/types';
-import { date, humanize } from '../../lib/format';
+import { asRows, row, type Page, type Row } from '../../lib/types';
+import { bookingIdentity, date, humanize } from '../../lib/format';
 import { usePreferences } from '../../stores/preferences';
 import { can } from '../../stores/auth';
 import { queryClient } from '../../lib/query';
@@ -14,11 +14,20 @@ import { RelationSelect } from '../../components/RelationSelect';
 import { Select } from '../../components/Select';
 import { DataTable } from '../../components/DataTable';
 import { Button, PageHeading, ErrorState, Skeleton, EmptyState, Badge } from '../../components/ui';
-import { Wallet, CalendarRange, CircleCheck, ArrowUpRight, ShieldCheck } from 'lucide-react';
+import {
+  Wallet,
+  CalendarRange,
+  CircleCheck,
+  ArrowUpRight,
+  ShieldCheck,
+  Printer,
+} from 'lucide-react';
 import { ProjectRequired, Unauthorized } from '../resources/ResourcePage';
 import { previewPlan, initialTerms } from './PaymentFields';
 import { useUnsavedChanges } from '../../hooks/use-unsaved';
 import CollectInstallment from './CollectInstallment';
+import { PaymentPlanPrint } from './PaymentPlanPrint';
+import { Receipt } from '../resources/Receipt';
 
 export default function PaymentPlans() {
   const projectId = usePreferences((s) => s.projectId);
@@ -32,6 +41,8 @@ function PaymentPlanWorkspace() {
   const [params, setParams] = useSearchParams();
   const bookingId = params.get('booking') ?? '';
   const [collect, setCollect] = useState<Row | null>(null);
+  const [printTarget, setPrintTarget] = useState<Row | 'schedule' | null>(null);
+  const [receiptId, setReceiptId] = useState<string | null>(null);
   const [count, setCount] = useState(12),
     [interval, setInterval] = useState('1'),
     [first, setFirst] = useState(initialTerms().firstInstallmentDate),
@@ -42,6 +53,12 @@ function PaymentPlanWorkspace() {
     queryKey: ['payment-plan-booking', projectId, bookingId],
     enabled: !!projectId && !!bookingId && can('bookings.read'),
     queryFn: () => api<Row>(`/projects/${projectId}/bookings/${bookingId}`),
+  });
+  const payments = useQuery({
+    queryKey: ['payment-plan-receipts', projectId, bookingId],
+    enabled: !!projectId && !!bookingId && can('payments.read'),
+    queryFn: ({ signal }) =>
+      api<Page>(`/projects/${projectId}/payments?bookingId=${bookingId}&limit=100`, { signal }),
   });
   const position = row(booking.data?.position),
     installments = asRows(position.installments);
@@ -138,7 +155,8 @@ function PaymentPlanWorkspace() {
                       ? t('Full Payment')
                       : t('Installment Plan')}
                   </span>
-                  <h2>{String(booking.data.reference)}</h2>
+                  <h2>{bookingIdentity(booking.data)?.title ?? String(booking.data.reference)}</h2>
+                  <small className="record-id">{String(booking.data.reference)}</small>
                   <p>
                     <strong>{String(row(booking.data.customer).name)}</strong>
                     {row(booking.data.customer).fatherName
@@ -206,27 +224,58 @@ function PaymentPlanWorkspace() {
                       {t('Verified payments update this schedule automatically.')}
                     </p>
                   </div>
+                  <Button
+                    variant="secondary"
+                    size="small"
+                    onClick={() => setPrintTarget('schedule')}
+                  >
+                    <Printer size={15} /> {t('Print payment plan')}
+                  </Button>
                 </header>
                 <DataTable
                   data={installments}
                   columns={['label', 'dueDate', 'amount', 'paid', 'outstanding']}
                   controls={false}
-                  actions={(item) =>
-                    Number(item.outstanding) <= 0 ? (
-                      <Badge value="PAID" />
-                    ) : item.id === nextDue?.id &&
-                      booking.data?.status === 'CONFIRMED' &&
-                      can('payments.create') ? (
-                      <Button size="small" onClick={() => setCollect(item)}>
-                        {t('Receive installment')}
+                  actions={(item) => (
+                    <div className="payment-row-actions">
+                      {Number(item.outstanding) <= 0 ? (
+                        <Badge value="PAID" />
+                      ) : item.id === nextDue?.id &&
+                        booking.data?.status === 'CONFIRMED' &&
+                        can('payments.create') ? (
+                        <Button size="small" onClick={() => setCollect(item)}>
+                          {t('Receive installment')}
+                        </Button>
+                      ) : (
+                        <small className="muted">{t('Earlier installment first')}</small>
+                      )}
+                      <Button variant="secondary" size="small" onClick={() => setPrintTarget(item)}>
+                        <Printer size={14} /> {t('Print installment')}
                       </Button>
-                    ) : (
-                      <small className="muted">{t('Earlier installment first')}</small>
-                    )
-                  }
+                    </div>
+                  )}
                 />
                 {can('payments.read') && (
                   <footer className="payment-schedule-footer">
+                    {asRows(payments.data).filter((payment) => row(payment.receipt).id).length >
+                      0 && (
+                      <div className="payment-plan-receipt-list">
+                        <strong>{t('Issued receipts')}</strong>
+                        {asRows(payments.data)
+                          .filter((payment) => row(payment.receipt).id)
+                          .map((payment) => (
+                            <Button
+                              key={String(payment.id)}
+                              variant="secondary"
+                              size="small"
+                              onClick={() => setReceiptId(String(row(payment.receipt).id))}
+                            >
+                              <Printer size={14} /> {String(row(payment.receipt).reference)} ·{' '}
+                              {date(payment.paidAt)} · <Money value={payment.amount} />
+                            </Button>
+                          ))}
+                      </div>
+                    )}
                     <Button asChild variant="secondary">
                       <Link to={'/collections?bookingId=' + bookingId}>
                         {t('Record & view payments')}
@@ -390,6 +439,14 @@ function PaymentPlanWorkspace() {
           onClose={() => setCollect(null)}
         />
       )}
+      {booking.data && printTarget && (
+        <PaymentPlanPrint
+          booking={booking.data}
+          installment={printTarget === 'schedule' ? null : printTarget}
+          onClose={() => setPrintTarget(null)}
+        />
+      )}
+      {receiptId && <Receipt id={receiptId} onClose={() => setReceiptId(null)} />}
     </>
   );
 }

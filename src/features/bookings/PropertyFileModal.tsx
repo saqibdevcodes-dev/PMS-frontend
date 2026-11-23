@@ -3,6 +3,7 @@ import { Money } from '../../components/Money';
 import { t, useLocale } from '../../lib/i18n';
 import { useQuery } from '@tanstack/react-query';
 import { Printer, ShieldCheck, X } from 'lucide-react';
+import { SignatureFooter } from '../../components/SignatureFooter';
 import { api } from '../../lib/api';
 import { usePreferences } from '../../stores/preferences';
 import { asRows, row, type Row } from '../../lib/types';
@@ -254,10 +255,7 @@ export function PropertyFileModal({
                 </p>
                 <small>{t('Generated on {0}', { '0': new Date().toLocaleDateString() })}</small>
               </div>
-              <div className="signatures">
-                <div className="sig-line">{t('Allottee Signature')}</div>
-                <div className="sig-line">{t('Authorized Project Officer')}</div>
-              </div>
+              <SignatureFooter labels={['Allottee Signature', 'Authorized Project Officer']} />
             </div>
           </div>
         )}

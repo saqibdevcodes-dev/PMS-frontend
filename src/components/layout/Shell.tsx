@@ -42,7 +42,6 @@ import { SearchSelect } from '../SearchSelect';
 const propertySlugs = [
   'property-lifecycle',
   'inventory',
-  'property-purchases',
   'expenses',
   'vendors',
 ];

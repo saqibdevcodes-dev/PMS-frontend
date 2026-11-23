@@ -2,6 +2,7 @@ import { can } from '../../stores/auth';
 import { ProjectRequired, Unauthorized } from '../resources/ResourcePage';
 import { MoneyInput } from '../../components/MoneyInput';
 import { Money } from '../../components/Money';
+import { SellingExpenses, type SellingExpenseItem } from '../../components/SellingExpenses';
 import Decimal from 'decimal.js';
 import { useState, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -28,7 +29,7 @@ import { toast } from 'sonner';
 import { api, ApiError } from '../../lib/api';
 import { usePreferences } from '../../stores/preferences';
 import { t, useLocale } from '../../lib/i18n';
-import { date, moneyWithWords } from '../../lib/format';
+import { date, money, moneyWithWords } from '../../lib/format';
 import {
   Button,
   Modal,
@@ -74,6 +75,9 @@ interface LifecycleDeal {
     total: string;
   };
   totalCost: string;
+  totalDealCost?: string;
+  sellingBrokerage?: string;
+  sellingExpenses?: { total: string; items: SellingExpenseItem[] };
   unit: {
     id: string;
     number: string;
@@ -809,6 +813,16 @@ export default function PropertyLifecycleHub() {
                                 {t('View booking')}
                               </Button>
                             )}
+                            {!isSold && !isDraft && can('finance.post') && (
+                              <Button
+                                size="small"
+                                variant="secondary"
+                                onClick={() => setEditingPurchase(deal)}
+                              >
+                                <Receipt size={13} />
+                                {t('Edit purchase & costs')}
+                              </Button>
+                            )}
                             <Button
                               size="small"
                               variant="ghost"
@@ -906,22 +920,22 @@ export default function PropertyLifecycleHub() {
           description={`Unit ${listingDeal.unit?.number || ''} — Set the expected selling price (asking price) to make this property active in selling inventory.`}
         >
           <div className="modal-body dialog-flow-body">
-            <div className="calc-box-highlight">
-              <div>
-                <div
-                  style={{ fontSize: '11px', color: 'var(--muted)', textTransform: 'uppercase' }}
-                >
-                  Total Finalized Cost Basis
-                </div>
-                <div style={{ fontSize: '16px', fontWeight: 700, color: 'var(--text)' }}>
-                  <Money value={listingDeal.totalCost} currency={currency} />
-                </div>
-                <small style={{ color: 'var(--muted)' }}>
-                  Buy Price: <Money value={listingDeal.buyPrice} currency={currency} /> + Expenses:{' '}
-                  <Money value={listingDeal.expenses.total} currency={currency} />
-                </small>
+            <div className="calc-box-highlight cost-basis-card">
+              <div className="cost-basis-heading">
+                <span className="cost-basis-label">Total finalized cost basis</span>
+                <Badge value="Investment Finalized" />
               </div>
-              <Badge value="Investment Finalized" />
+              <strong className="cost-basis-total">{money(listingDeal.totalCost, currency)}</strong>
+              <div className="cost-basis-breakdown">
+                <div>
+                  <span>Buy price</span>
+                  <strong>{money(listingDeal.buyPrice, currency)}</strong>
+                </div>
+                <div>
+                  <span>Expenses</span>
+                  <strong>{money(listingDeal.expenses.total, currency)}</strong>
+                </div>
+              </div>
             </div>
 
             <div className="form-field">
@@ -952,9 +966,8 @@ export default function PropertyLifecycleHub() {
                     Projected Profit Margin
                   </div>
                   <div
+                    className="projected-profit-value"
                     style={{
-                      fontSize: '15px',
-                      fontWeight: 750,
                       color:
                         Number(askingPriceInput) >= Number(listingDeal.totalCost)
                           ? 'var(--success)'
@@ -962,10 +975,10 @@ export default function PropertyLifecycleHub() {
                     }}
                   >
                     {Number(askingPriceInput) >= Number(listingDeal.totalCost) ? '+' : ''}
-                    <Money
-                      value={String(Number(askingPriceInput) - Number(listingDeal.totalCost))}
-                      currency={currency}
-                    />{' '}
+                    {money(
+                      new Decimal(askingPriceInput).minus(listingDeal.totalCost).toFixed(2),
+                      currency,
+                    )}{' '}
                     (
                     {(
                       ((Number(askingPriceInput) - Number(listingDeal.totalCost)) /
@@ -1015,14 +1028,15 @@ export default function PropertyLifecycleHub() {
         />
       )}
 
-      {/* Step 3: Edit Expenses & Purchase Draft */}
+      {/* Use the same three-step form for draft and posted purchases. */}
       {editingPurchase && (
         <PropertyPurchaseWizard
           record={{ id: editingPurchase.id }}
           onClose={() => setEditingPurchase(null)}
           onSuccess={() => {
             setEditingPurchase(null);
-            refetch();
+            void queryClient.invalidateQueries({ queryKey: ['deal-profitability', projectId] });
+            void queryClient.invalidateQueries({ queryKey: ['resource'] });
           }}
         />
       )}
@@ -1203,6 +1217,11 @@ export default function PropertyLifecycleHub() {
             </div>
 
             {/* P&L Statement */}
+            <SellingExpenses
+              items={inspectDeal.sellingExpenses?.items ?? []}
+              total={inspectDeal.sellingExpenses?.total ?? '0'}
+              currency={currency}
+            />
             <div className="deal-pnl-summary-box">
               <h4 style={{ margin: '0 0 10px', fontSize: '13px', fontWeight: 700 }}>
                 Comprehensive Profit & Loss Waterfall
@@ -1228,6 +1247,33 @@ export default function PropertyLifecycleHub() {
                   <Money value={inspectDeal.totalCost} currency={currency} />
                 </strong>
               </div>
+
+              {Number(inspectDeal.sellingBrokerage ?? 0) > 0 && (
+                <div className="deal-pnl-row">
+                  <span>{t('Sales brokerage fee')}</span>
+                  <strong>
+                    +<Money value={inspectDeal.sellingBrokerage} currency={currency} />
+                  </strong>
+                </div>
+              )}
+
+              {Number(inspectDeal.sellingExpenses?.total ?? 0) > 0 && (
+                <div className="deal-pnl-row">
+                  <span>{t('Selling expenses')}</span>
+                  <strong>
+                    +<Money value={inspectDeal.sellingExpenses?.total} currency={currency} />
+                  </strong>
+                </div>
+              )}
+
+              {Number(inspectDeal.totalDealCost ?? 0) > Number(inspectDeal.totalCost) && (
+                <div className="deal-pnl-row">
+                  <span>{t('Total deal cost')}</span>
+                  <strong>
+                    <Money value={inspectDeal.totalDealCost} currency={currency} />
+                  </strong>
+                </div>
+              )}
 
               <div className="deal-pnl-row">
                 <span>3. Expected Asking Price (Listed)</span>
@@ -1282,6 +1328,19 @@ export default function PropertyLifecycleHub() {
 
             {/* Action Bar */}
             <div className="dialog-actions">
+              {inspectDeal.dealStatus !== 'SOLD' && can('finance.post') && (
+                <Button
+                  variant="secondary"
+                  size="small"
+                  onClick={() => {
+                    setEditingPurchase(inspectDeal);
+                    setInspectDeal(null);
+                  }}
+                >
+                  <Receipt size={13} />
+                  {t('Edit purchase & costs')}
+                </Button>
+              )}
               {inspectDeal.buyer?.bookingId && (
                 <Button
                   variant="secondary"
@@ -1296,17 +1355,6 @@ export default function PropertyLifecycleHub() {
                 </Button>
               )}
 
-              <Button
-                variant="primary"
-                size="small"
-                onClick={() => {
-                  navigate(`/property-purchases?record=${inspectDeal.id}`);
-                  setInspectDeal(null);
-                }}
-              >
-                <Eye size={13} />
-                <span>View Full Purchase Record</span>
-              </Button>
             </div>
           </div>
         </Modal>

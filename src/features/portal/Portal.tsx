@@ -1,4 +1,5 @@
 import { Money } from '../../components/Money';
+import { SignatureFooter } from '../../components/SignatureFooter';
 import { errorMessage } from '../../lib/error-messages';
 import { t, useLocale } from '../../lib/i18n';
 import { useState, type ReactNode } from 'react';
@@ -537,9 +538,11 @@ function BookingLink({ booking }: { booking: PortalBooking }) {
   useLocale();
   return (
     <Link to={'/portal/bookings/' + booking.id}>
-      <strong>{booking.reference}</strong>
+      <strong>
+        {t('Unit')} {booking.unit.number}
+      </strong>
       <small>
-        {booking.unit.project.name} {t('· Unit')} {booking.unit.number}
+        {booking.unit.project.name} · {booking.reference}
       </small>
     </Link>
   );
@@ -697,6 +700,9 @@ function Payments({ bookingId }: { bookingId?: string }) {
                 {t('This receipt was reversed and is not evidence of a cleared payment.')}
               </p>
             )}
+            <SignatureFooter
+              labels={['Customer signature', 'Received by', 'Authorized Approval']}
+            />
             <Button
               onClick={() =>
                 void Promise.resolve(print()).catch((e: Error) => toast.error(errorMessage(e)))

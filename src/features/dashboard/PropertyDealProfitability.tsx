@@ -1,4 +1,6 @@
 import { Money } from '../../components/Money';
+import { SellingExpenses, type SellingExpenseItem } from '../../components/SellingExpenses';
+import { t } from '../../lib/i18n';
 import { useState, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
@@ -56,6 +58,9 @@ interface DealItem {
     items?: DealExpenseItem[];
   };
   totalCost: string;
+  totalDealCost?: string;
+  sellingBrokerage?: string;
+  sellingExpenses?: { total: string; items: SellingExpenseItem[] };
   unit?: {
     id: string;
     number: string;
@@ -186,9 +191,9 @@ export function PropertyDealProfitability() {
             <span>Full P&L Report</span>
           </Button>
 
-          <Button variant="primary" size="small" onClick={() => navigate('/property-purchases')}>
+          <Button variant="primary" size="small" onClick={() => navigate('/property-lifecycle')}>
             <Building2 size={14} />
-            <span>Manage Purchases</span>
+            <span>Property Lifecycle</span>
           </Button>
         </div>
       </div>
@@ -793,6 +798,11 @@ export function PropertyDealProfitability() {
             </div>
 
             {/* P&L Statement Waterfall */}
+            <SellingExpenses
+              items={inspectDeal.sellingExpenses?.items ?? []}
+              total={inspectDeal.sellingExpenses?.total ?? '0'}
+              currency={currency}
+            />
             <div className="deal-pnl-summary-box">
               <h4
                 style={{
@@ -825,6 +835,33 @@ export function PropertyDealProfitability() {
                   <Money value={inspectDeal.totalCost} currency={currency} />
                 </strong>
               </div>
+
+              {Number(inspectDeal.sellingBrokerage ?? 0) > 0 && (
+                <div className="deal-pnl-row">
+                  <span>{t('Sales brokerage fee')}</span>
+                  <strong>
+                    +<Money value={inspectDeal.sellingBrokerage} currency={currency} />
+                  </strong>
+                </div>
+              )}
+
+              {Number(inspectDeal.sellingExpenses?.total ?? 0) > 0 && (
+                <div className="deal-pnl-row">
+                  <span>{t('Selling expenses')}</span>
+                  <strong>
+                    +<Money value={inspectDeal.sellingExpenses?.total} currency={currency} />
+                  </strong>
+                </div>
+              )}
+
+              {Number(inspectDeal.totalDealCost ?? 0) > Number(inspectDeal.totalCost) && (
+                <div className="deal-pnl-row">
+                  <span>{t('Total deal cost')}</span>
+                  <strong>
+                    <Money value={inspectDeal.totalDealCost} currency={currency} />
+                  </strong>
+                </div>
+              )}
 
               <div className="deal-pnl-row" style={{ marginTop: '8px' }}>
                 <span>3. Buyer Resale Sale Price</span>
@@ -886,12 +923,12 @@ export function PropertyDealProfitability() {
                 variant="primary"
                 size="small"
                 onClick={() => {
-                  navigate(`/property-purchases?record=${inspectDeal.id}`);
+                  navigate('/property-lifecycle');
                   setInspectDeal(null);
                 }}
               >
                 <Eye size={13} />
-                <span>View Full Acquisition Record</span>
+                <span>View Property Lifecycle</span>
               </Button>
             </div>
           </div>

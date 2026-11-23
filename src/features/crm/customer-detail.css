@@ -194,6 +194,19 @@
   color: var(--muted);
 }
 
+.customer-id-card .id-card-header .pass-company-logo {
+  width: 42px;
+  height: 42px;
+  object-fit: contain;
+  border-radius: 6px;
+}
+
+.customer-id-card .id-card-header .card-project {
+  font-size: 11px;
+  color: var(--muted);
+  overflow-wrap: anywhere;
+}
+
 .customer-id-card .id-card-photo {
   width: 90px;
   height: 90px;

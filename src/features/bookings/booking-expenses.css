@@ -1,0 +1,117 @@
+.booking-selling-expenses,
+.selling-expenses-detail {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 16px;
+  background: var(--subtle);
+}
+
+.booking-selling-expenses-header,
+.booking-expense-total,
+.selling-expenses-detail-total {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.booking-selling-expenses-header > div {
+  display: grid;
+  gap: 4px;
+}
+
+.booking-selling-expenses small {
+  color: var(--muted);
+}
+
+.booking-expense-presets {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 16px 0;
+}
+
+.booking-expense-presets button {
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--text);
+  padding: 5px 9px;
+  cursor: pointer;
+}
+
+.booking-expense-row {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr) auto;
+  align-items: start;
+  gap: 10px;
+  margin: 10px 0;
+}
+
+.booking-expense-row label {
+  display: grid;
+  min-width: 0;
+  gap: 5px;
+  font-size: 12px;
+}
+
+.booking-expense-row input {
+  width: 100%;
+}
+
+.booking-expense-remove {
+  margin-top: 25px;
+  border: 0;
+  background: transparent;
+  color: var(--danger);
+  cursor: pointer;
+}
+
+.booking-expense-total,
+.selling-expenses-detail-total {
+  border-top: 1px solid var(--border);
+  padding-top: 10px;
+  margin-top: 12px;
+}
+
+.selling-expenses-detail {
+  margin: 18px 0;
+}
+
+.selling-expenses-detail h4 {
+  margin: 0 0 8px;
+}
+
+.selling-expenses-detail ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.selling-expenses-detail li {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 7px 0;
+}
+
+@media (max-width: 600px) {
+  .booking-selling-expenses-header {
+    align-items: start;
+    flex-direction: column;
+  }
+
+  .booking-expense-row {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .booking-expense-row label:nth-child(2) {
+    grid-column: 1;
+  }
+
+  .booking-expense-remove {
+    grid-column: 2;
+    grid-row: 1;
+  }
+}

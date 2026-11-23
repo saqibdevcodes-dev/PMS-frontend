@@ -1,0 +1,48 @@
+.plot-capacity-notice {
+  grid-column: 1 / -1;
+  display: grid;
+  gap: 12px;
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--subtle);
+}
+
+.plot-capacity-notice > strong {
+  font-size: 14px;
+}
+
+.plot-capacity-values {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.plot-capacity-values > div {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+}
+
+.plot-capacity-values span,
+.plot-capacity-notice small,
+.plot-capacity-notice p {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.plot-capacity-values b {
+  font-size: 18px;
+  overflow-wrap: anywhere;
+}
+
+.plot-capacity-notice p {
+  margin: 0;
+  line-height: 1.5;
+}
+
+@media (max-width: 500px) {
+  .plot-capacity-values {
+    grid-template-columns: 1fr;
+  }
+}

@@ -3,7 +3,7 @@ import { t, useLocale } from '../../lib/i18n';
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
-import { ArrowUpRight, FileText, RotateCcw, Trash2 } from 'lucide-react';
+import { ArrowUpRight, FileText, Printer, RotateCcw, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { api } from '../../lib/api';
 import { errorMessage } from '../../lib/error-messages';
@@ -17,6 +17,7 @@ import { Button, Modal, Skeleton, ErrorState } from '../../components/ui';
 import { DataTable, DisplayValue } from '../../components/DataTable';
 import { Receipt } from './Receipt';
 import { JournalVoucher } from './JournalVoucher';
+import { OwnershipCasePrint, type OwnershipCaseKind } from './OwnershipCasePrint';
 import { OperationDialog } from '../../components/OperationDialog';
 import CustomerAccess from '../portal/CustomerAccess';
 import { PortfolioLinks, PaymentStatus } from './Portfolio';
@@ -25,7 +26,12 @@ import { PropertyFileModal } from '../bookings/PropertyFileModal';
 import { PropertyPurchaseWizard } from './PropertyPurchaseWizard';
 import { DeleteWithPasswordModal } from '../../components/DeleteWithPasswordModal';
 import { UnassignPropertyModal } from '../bookings/UnassignPropertyModal';
-import { PropertyFinancialSummary, SupplierStatement } from './AccountingSummaries';
+import {
+  PropertyFinancialSummary,
+  PropertySellingCosts,
+  SupplierStatement,
+} from './AccountingSummaries';
+import { SellingExpenses, type SellingExpenseItem } from '../../components/SellingExpenses';
 import '../portal/portal.css';
 const hidden = new Set([
   'id',
@@ -53,6 +59,8 @@ const hidden = new Set([
   'createdTransaction',
   'bookings',
   'paymentStatus',
+  'sellingExpenseItems',
+  'sellingExpensesTotal',
 ]);
 export default function RecordDetail({
   resource,
@@ -68,6 +76,7 @@ export default function RecordDetail({
   const [tab, setTab] = useState('overview');
   const [receipt, setReceipt] = useState(false);
   const [voucher, setVoucher] = useState(false);
+  const [printOwnership, setPrintOwnership] = useState(false);
   const [propertyFile, setPropertyFile] = useState(false);
   const [unassignOpen, setUnassignOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
@@ -88,6 +97,11 @@ export default function RecordDetail({
     queryFn: ({ signal }) => api<Row>(resolvePath(path, { id: record.id! }), { signal }),
   });
   const detail = query.data ?? record;
+  const detailReference =
+    resource.slug === 'bookings' || resource.slug === 'property-purchases'
+      ? String(detail.reference ?? '')
+      : '';
+  const detailTitle = labelOf(detail);
   const photos = Array.isArray(detail.photoIds)
     ? detail.photoIds
     : detail.photoId && ['projects', 'inventory'].includes(resource.slug)
@@ -103,8 +117,8 @@ export default function RecordDetail({
       <Modal
         open
         onOpenChange={(v) => !v && onClose()}
-        title={labelOf(detail)}
-        description={t('{resource} / Record details', { resource: t(resource.label) })}
+        title={detailTitle}
+        description={`${t('{resource} / Record details', { resource: t(resource.label) })}${detailReference && detailTitle !== detailReference ? ` · ${detailReference}` : ''}`}
         wide
       >
         <div className="record-detail">
@@ -118,9 +132,19 @@ export default function RecordDetail({
               <resource.icon size={23} />
             </span>
             <div>
-              <h3>{labelOf(detail)}</h3>
+              <h3>{detailTitle}</h3>
+              {detailReference && detailTitle !== detailReference && (
+                <small className="record-id">{detailReference}</small>
+              )}
             </div>
             <div className="detail-actions">
+              {(resource.slug === 'transfers' || resource.slug === 'possessions') &&
+                ['PENDING', 'COMPLETED'].includes(String(detail.status)) &&
+                Boolean(record.id) && (
+                  <Button size="small" variant="secondary" onClick={() => setPrintOwnership(true)}>
+                    <Printer size={14} /> {t('Print customer copy')}
+                  </Button>
+                )}
               {(resource.slug === 'journals' ||
                 (resource.slug === 'property-purchases' && Boolean(detail.journalId))) &&
                 can('finance.read') && (
@@ -294,6 +318,12 @@ export default function RecordDetail({
                     ([k, v]) =>
                       !(k === 'photoId' && photos.length) &&
                       !hidden.has(k) &&
+                      !(
+                        resource.slug === 'bookings' &&
+                        k === 'brokerageFee' &&
+                        !detail.brokerName &&
+                        Number(v) === 0
+                      ) &&
                       (!/Id$/.test(k) || /photoId|proofImageId/.test(k)) &&
                       v !== null &&
                       k !== 'expenseItems' &&
@@ -317,6 +347,18 @@ export default function RecordDetail({
                     </div>
                   ))}
               </dl>
+              {resource.slug === 'bookings' && Array.isArray(detail.sellingExpenseItems) && (
+                <SellingExpenses
+                  items={detail.sellingExpenseItems as SellingExpenseItem[]}
+                  total={String(detail.sellingExpensesTotal ?? '0')}
+                />
+              )}
+              {resource.slug === 'inventory' &&
+                can('finance.read') &&
+                ['BOOKED', 'SOLD', 'TRANSFER_PENDING', 'POSSESSION_READY', 'POSSESSED'].includes(
+                  String(detail.status),
+                ) &&
+                record.id && <PropertySellingCosts unitId={String(record.id)} />}
               {resource.slug === 'property-purchases' &&
                 Array.isArray(detail.expenseItems) &&
                 detail.expenseItems.length > 0 && (
@@ -552,6 +594,13 @@ export default function RecordDetail({
           onClose={() => setVoucher(false)}
         />
       )}
+      {printOwnership && record.id && (
+        <OwnershipCasePrint
+          kind={resource.slug as OwnershipCaseKind}
+          id={String(record.id)}
+          onClose={() => setPrintOwnership(false)}
+        />
+      )}
       {propertyFile && record.id && (
         <PropertyFileModal bookingId={String(record.id)} onClose={() => setPropertyFile(false)} />
       )}
@@ -575,6 +624,11 @@ export default function RecordDetail({
             {...action}
             onClose={() => setAction(null)}
             onSuccess={() => {
+              if (
+                (resource.slug === 'transfers' && action.operation.path.endsWith('/complete')) ||
+                (resource.slug === 'possessions' && action.operation.path.endsWith('/handover'))
+              )
+                setPrintOwnership(true);
               setAction(null);
               if (hasDetail) void query.refetch();
             }}
@@ -611,9 +665,7 @@ export default function RecordDetail({
           title={resource.slug === 'inventory' ? t('Delete property') : t('Delete booking')}
           itemType={resource.slug === 'inventory' ? 'property' : 'booking'}
           itemName={
-            resource.slug === 'inventory'
-              ? String(detail.number ?? detail.id)
-              : String(detail.reference ?? detail.id)
+            resource.slug === 'inventory' ? String(detail.number ?? detail.id) : detailTitle
           }
           apiPath={
             resource.slug === 'inventory'

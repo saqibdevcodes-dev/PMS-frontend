@@ -3,7 +3,7 @@ import { t, useLocale } from '../../lib/i18n';
 import { useState } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
 import { useQuery, useMutation } from '@tanstack/react-query';
-import { Download, FileText, Image, Upload } from 'lucide-react';
+import { Download, FileText, Image, Pencil, Trash2, Upload } from 'lucide-react';
 import { toast } from 'sonner';
 import { api } from '../../lib/api';
 import { usePreferences } from '../../stores/preferences';
@@ -13,6 +13,7 @@ import { date } from '../../lib/format';
 import { saveFile } from '../../platform/adapter';
 import { Button, PageHeading, ErrorState, EmptyState, Skeleton } from '../../components/ui';
 import { DocumentUploadModal } from '../../components/DocumentUploadModal';
+import { DocumentEditModal } from '../../components/DocumentEditModal';
 import { ProjectRequired, Unauthorized } from '../resources/ResourcePage';
 export default function Documents() {
   useLocale();
@@ -20,6 +21,7 @@ export default function Documents() {
   const [params] = useSearchParams();
   const [page, setPage] = useState(1);
   const [uploading, setUploading] = useState(false);
+  const [editing, setEditing] = useState<Row | null>(null);
   const customerId = params.get('customerId') ?? '';
   const bookingId = params.get('bookingId') ?? '';
   const suffix = new URLSearchParams({
@@ -53,6 +55,14 @@ export default function Documents() {
       }),
     onSuccess: () => {
       toast.success(t('Customer sharing updated'));
+      void query.refetch();
+    },
+    onError: (e: Error) => toast.error(errorMessage(e)),
+  });
+  const remove = useMutation({
+    mutationFn: (r: Row) => api(`/projects/${projectId}/documents/${r.id}`, { method: 'DELETE' }),
+    onSuccess: () => {
+      toast.success(t('Document deleted'));
       void query.refetch();
     },
     onError: (e: Error) => toast.error(errorMessage(e)),
@@ -152,6 +162,24 @@ export default function Documents() {
                   <Download size={14} />
                   {t('Secure download')}
                 </Button>
+                {can('documents.manage') && (!r.customerId || can('customers.view_sensitive')) && (
+                  <div className="document-card-actions">
+                    <Button variant="secondary" size="small" onClick={() => setEditing(r)}>
+                      <Pencil size={14} /> {t('Edit document')}
+                    </Button>
+                    <Button
+                      variant="danger"
+                      size="small"
+                      busy={remove.isPending && remove.variables?.id === r.id}
+                      onClick={() => {
+                        if (window.confirm(t('Are you sure you want to delete this document?')))
+                          remove.mutate(r);
+                      }}
+                    >
+                      <Trash2 size={14} /> {t('Delete document')}
+                    </Button>
+                  </div>
+                )}
               </div>
             </div>
           ))}
@@ -182,6 +210,14 @@ export default function Documents() {
         bookingId={bookingId}
         onSuccess={() => void query.refetch()}
       />
+      {editing && (
+        <DocumentEditModal
+          projectId={projectId}
+          document={{ id: String(editing.id), name: String(editing.name) }}
+          onClose={() => setEditing(null)}
+          onSuccess={() => void query.refetch()}
+        />
+      )}
     </>
   );
 }

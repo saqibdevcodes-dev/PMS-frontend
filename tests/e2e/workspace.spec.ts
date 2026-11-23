@@ -247,7 +247,8 @@ test('limited users cannot see write actions or open financial workspaces', asyn
   await expect(page.getByText(/Your role does not have access/)).toBeVisible();
 });
 
-test('acquisition draft edits retain notes, post investment, list inventory and reverse safely', async ({
+// Retained for when the standalone purchase page is shown again.
+test.skip('acquisition draft edits retain notes, post investment, list inventory and reverse safely', async ({
   page,
 }) => {
   test.setTimeout(120000);

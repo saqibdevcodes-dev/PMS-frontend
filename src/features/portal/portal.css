@@ -605,3 +605,9 @@
     padding: 25px;
   }
 }
+.verification-company-name {
+  display: block;
+  color: var(--primary);
+  font-size: 18px;
+  overflow-wrap: anywhere;
+}

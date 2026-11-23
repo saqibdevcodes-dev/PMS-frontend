@@ -29,6 +29,7 @@ import { currencies, timezones } from '../lib/project-options';
 import { verificationErrors } from '../lib/ownership';
 import { formatPhone, isValidPhone } from '../lib/phone';
 import { OwnershipGuide } from './OwnershipVerification';
+import { PlotCapacityNotice } from './PlotCapacityNotice';
 const Guidance = createContext({ path: '', uploading: (_key: string, _busy: boolean) => {} });
 function messageAt(errors: FieldErrors, path: string) {
   let current: unknown = errors;
@@ -98,6 +99,10 @@ export function SchemaField({
   const propertyType = form.watch('type');
   const clearanceStatus = form.watch('verification.clearanceStatus');
   const identityType = form.watch('identityType') ?? 'CNIC';
+  const portalEmailRequired =
+    fieldKey === 'email' &&
+    /\/customers(?:\/|$)/.test(guidance.path) &&
+    form.watch('portalAccessEnabled') !== false;
   const error = messageAt(form.formState.errors, name);
   const id = 'field-' + name;
   if (
@@ -106,6 +111,7 @@ export function SchemaField({
     fieldKey === 'featureImages' ||
     (fieldKey === 'charges' && propertyForm) ||
     (fieldKey === 'measurementUnit' && propertyForm) ||
+    (fieldKey === 'plotAreaUnit' && guidance.path.startsWith('/projects')) ||
     (name.startsWith('verification.') &&
       (((fieldKey === 'clearanceReference' || fieldKey === 'clearanceValidUntil') &&
         clearanceStatus !== 'VERIFIED') ||
@@ -159,6 +165,56 @@ export function SchemaField({
         {(error || messageAt(form.formState.errors, unitName)) && (
           <p className="field-error" role="alert">
             {error ?? messageAt(form.formState.errors, unitName)}
+          </p>
+        )}
+      </div>
+    );
+  }
+  if (fieldKey === 'plannedPlotArea' && guidance.path.startsWith('/projects')) {
+    const areaUnitName = parts.slice(0, -1).concat('plotAreaUnit').join('.');
+    return (
+      <div className="form-field">
+        <label htmlFor={id}>
+          {fieldLabel}
+          {required && <span className="required"> *</span>}
+        </label>
+        <div className="area-input">
+          <Controller
+            name={name}
+            control={form.control}
+            render={({ field }) => (
+              <input
+                {...field}
+                id={id}
+                value={String(field.value ?? '')}
+                inputMode="decimal"
+                placeholder={t('e.g. 500')}
+                aria-invalid={!!error}
+                disabled={disabled}
+              />
+            )}
+          />
+          <Controller
+            name={areaUnitName}
+            control={form.control}
+            render={({ field }) => (
+              <Select
+                value={String(field.value ?? '')}
+                onChange={field.onChange}
+                aria-label={t('Area unit')}
+                disabled={disabled}
+                placeholder={t('Area unit')}
+                options={['marla', 'kanal', 'sq ft', 'sq yd', 'sq m', 'acre', 'hectare'].map(
+                  (value) => ({ value, label: humanize(value) }),
+                )}
+              />
+            )}
+          />
+        </div>
+        {hint && <small>{t(hint[1])}</small>}
+        {(error || messageAt(form.formState.errors, areaUnitName)) && (
+          <p className="field-error" role="alert">
+            {error ?? messageAt(form.formState.errors, areaUnitName)}
           </p>
         )}
       </div>
@@ -335,7 +391,7 @@ export function SchemaField({
     >
       <label htmlFor={id}>
         {fieldLabel}
-        {required && <span className="required"> *</span>}
+        {(required || portalEmailRequired) && <span className="required"> *</span>}
       </label>
       <Controller
         name={name}
@@ -575,6 +631,7 @@ export function SchemaForm({
   error,
   entityId,
   label = 'Review changes',
+  footerNote = 'Changes are saved after server confirmation.',
   locked = false,
   operationPath = '',
 }: {
@@ -586,11 +643,15 @@ export function SchemaForm({
   error?: unknown;
   entityId?: string;
   label?: string;
+  footerNote?: string;
   locked?: boolean;
 }) {
   useLocale();
   const [uploads, setUploads] = useState<Record<string, boolean>>({});
   const customerCreate = operationPath.endsWith('/customers') && !!schema.properties?.identity;
+  const customerForm =
+    /\/customers(?:\/\{id\})?$/.test(operationPath) &&
+    Boolean(schema.properties?.portalAccessEnabled);
   const baseSchema: JsonSchema = schema.properties?.photoIds
     ? {
         ...schema,
@@ -599,7 +660,20 @@ export function SchemaForm({
         ),
       }
     : schema;
-  const formSchema = baseSchema;
+  const formSchema: JsonSchema =
+    operationPath === '/projects'
+      ? {
+          ...baseSchema,
+          required: [
+            ...new Set([
+              ...(baseSchema.required ?? []),
+              'plannedPlotCount',
+              'plannedPlotArea',
+              'plotAreaUnit',
+            ]),
+          ],
+        }
+      : baseSchema;
   const uploading = Object.values(uploads).some(Boolean);
   const [attemptError, setAttemptError] = useState<unknown>();
   const resolver = zodResolver(
@@ -612,6 +686,8 @@ export function SchemaForm({
     resolver,
     defaultValues: {
       ...(defaults(formSchema) as Row),
+      ...(operationPath === '/projects' ? { plotAreaUnit: 'marla' } : {}),
+      ...(customerForm ? { portalAccessEnabled: true } : {}),
       ...initial,
       ...(schema.properties?.photoIds
         ? {
@@ -673,6 +749,13 @@ export function SchemaForm({
               });
               return;
             }
+            if (customerForm && v.portalAccessEnabled !== false && !String(v.email ?? '').trim()) {
+              form.setError('email', {
+                message: t('Email is required when customer portal access is enabled.'),
+              });
+              form.setFocus('email');
+              return;
+            }
             if (/\/units(?:\/|$)/.test(operationPath) && v.type === 'OTHER' && !v.typeDetails) {
               form.setError('typeDetails', { message: t('Describe the property type.') });
               return;
@@ -712,6 +795,7 @@ export function SchemaForm({
           noValidate
         >
           <div className="form-grid">
+            {operationPath.endsWith('/units') && <PlotCapacityNotice />}
             {operationPath.includes('/property-purchases') && <PurchaseCostSummary />}
             {Object.entries(formSchema.properties ?? {})
               .filter(([key]) => !customerCreate || !['password', 'confirmPassword'].includes(key))
@@ -720,12 +804,12 @@ export function SchemaForm({
                   key={key}
                   name={key}
                   schema={field}
-                  required={schema.required?.includes(key)}
+                  required={formSchema.required?.includes(key)}
                   entityId={entityId}
                   disabled={busy || locked || uploading}
                 />
               ))}
-            {customerCreate && (
+            {customerCreate && form.watch('portalAccessEnabled') !== false && (
               <fieldset className="form-section">
                 <legend>{t('Member portal login')}</legend>
                 <p className="muted">
@@ -738,7 +822,7 @@ export function SchemaForm({
           </div>
           {error || attemptError ? <ErrorState error={error ?? attemptError} /> : null}
           <footer className="form-footer">
-            <span>{t('Changes are saved after server confirmation.')}</span>
+            <span>{t(footerNote)}</span>
             <Button type="submit" busy={busy || uploading} disabled={locked}>
               {t(label)}
             </Button>

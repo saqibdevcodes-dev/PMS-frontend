@@ -10,6 +10,7 @@ import { t, useLocale } from '../../lib/i18n';
 import { print } from '../../platform/adapter';
 import { usePreferences } from '../../stores/preferences';
 import { ProjectLogo } from '../../components/ProjectLogo';
+import { SignatureFooter } from '../../components/SignatureFooter';
 import { Modal, Button, ErrorState, Skeleton } from '../../components/ui';
 import './journal-voucher.css';
 
@@ -161,18 +162,7 @@ export function JournalVoucher({ id, onClose }: { id: string; onClose: () => voi
                 </table>
               </div>
 
-              {/* Signatures for physical printing & audit compliance */}
-              <div className="voucher-signatures">
-                <div className="voucher-signature-box">
-                  <span>{t('Prepared by')}</span>
-                </div>
-                <div className="voucher-signature-box">
-                  <span>{t('Verified / Checked by')}</span>
-                </div>
-                <div className="voucher-signature-box">
-                  <span>{t('Authorized Approval')}</span>
-                </div>
-              </div>
+              <SignatureFooter />
 
               {/* Footer Actions */}
               <div className="voucher-footer-actions">

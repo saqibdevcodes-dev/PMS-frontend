@@ -14,10 +14,10 @@ The backend migration `202610060001_customer_photo` and matching API/worker rele
 
 ## Environment selection
 
-`npm run dev` and `npm run dev:local` load `.env.development`. The frontend runs on port 3000 and calls the backend on port 4000 directly:
+`npm run dev` and `npm run dev:local` load `.env.development`. The frontend runs on port 3000 and proxies browser API requests to the backend on `127.0.0.1:4000`:
 
 ```dotenv
-VITE_API_BASE_URL=http://localhost:4000/api/v1
+VITE_API_BASE_URL=/api/v1
 PMS_BACKEND_URL=http://127.0.0.1:4000
 VITE_NATIVE_API_URL=http://localhost:4000/api/v1
 ```
@@ -32,7 +32,7 @@ VITE_API_BASE_URL=/api/v1
 VITE_NATIVE_API_URL=https://api.etihadrealestate.tech/api/v1
 ```
 
-In production development mode, Vite forwards relative `/api/v1` calls to `PMS_BACKEND_URL`; the browser's network tab shows `localhost:3000/api/v1` because that is the frontend proxy address. The actual backend in that mode is the hosted API. Local mode uses the direct port-4000 URL instead.
+In both development modes, Vite forwards relative `/api/v1` calls to `PMS_BACKEND_URL`; the browser's network tab shows `localhost:3000/api/v1`. Local mode targets the Docker backend, while production development mode targets the hosted API.
 
 For the deployed static website, the existing [production workflow](production-deployment.md) supplies `VITE_API_BASE_URL=https://api.etihadrealestate.tech/api/v1` at build time. The browser calls that URL directly. Vite environment values are compiled into the application, so an environment edit requires a rebuild and redeployment. Secrets must never be stored in `VITE_*` values.
 

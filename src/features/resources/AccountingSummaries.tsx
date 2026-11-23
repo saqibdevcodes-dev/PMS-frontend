@@ -6,6 +6,7 @@ import { Money } from '../../components/Money';
 import { DataTable } from '../../components/DataTable';
 import { ErrorState, EmptyState, Skeleton } from '../../components/ui';
 import { humanize } from '../../lib/format';
+import { SellingExpenses, type SellingExpenseItem } from '../../components/SellingExpenses';
 
 function FinancialCards({ values }: { values: Row }) {
   return (
@@ -84,9 +85,20 @@ export function PropertyFinancialSummary({ unitId }: { unitId: string }) {
           <FinancialCards
             values={{
               saleAmount: sale.saleAmount,
+              brokerageFee: sale.brokerageFee,
+              sellingExpensesTotal: sale.sellingExpensesTotal,
               received: sale.received,
               outstandingReceivable: sale.outstanding,
             }}
+          />
+          {Boolean(sale.brokerName) && (
+            <p>
+              {humanize('brokerName')}: {String(sale.brokerName)}
+            </p>
+          )}
+          <SellingExpenses
+            items={asRows(sale.sellingExpenseItems) as SellingExpenseItem[]}
+            total={String(sale.sellingExpensesTotal ?? '0')}
           />
           <DataTable
             data={asRows(sale.payments)}
@@ -98,6 +110,34 @@ export function PropertyFinancialSummary({ unitId }: { unitId: string }) {
       <h4>Profitability</h4>
       <FinancialCards values={profitability} />
     </div>
+  );
+}
+
+export function PropertySellingCosts({ unitId }: { unitId: string }) {
+  const projectId = usePreferences((state) => state.projectId);
+  const query = useQuery({
+    queryKey: ['property-financial-summary', projectId, unitId],
+    enabled: Boolean(projectId && unitId),
+    queryFn: ({ signal }) =>
+      api<Row>(`/projects/${projectId}/units/${unitId}/financial-summary`, { signal }),
+  });
+  if (!query.data) return null;
+  const sale = row(row(query.data).sale);
+  const items = asRows(sale.sellingExpenseItems) as SellingExpenseItem[];
+  if (!items.length && Number(sale.brokerageFee ?? 0) === 0) return null;
+  return (
+    <section className="detail-section">
+      <h4>{humanize('sellingCosts')}</h4>
+      {Boolean(sale.brokerName) && (
+        <p>
+          {humanize('brokerName')}: {String(sale.brokerName)}
+        </p>
+      )}
+      {Number(sale.brokerageFee ?? 0) > 0 && (
+        <FinancialCards values={{ brokerageFee: sale.brokerageFee }} />
+      )}
+      <SellingExpenses items={items} total={String(sale.sellingExpensesTotal ?? '0')} />
+    </section>
   );
 }
 
