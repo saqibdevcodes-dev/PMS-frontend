@@ -39,12 +39,7 @@ import { OperationDialog } from '../OperationDialog';
 import { LanguageSelector } from '../LanguageSelector';
 import { BrandLogo } from '../BrandLogo';
 import { SearchSelect } from '../SearchSelect';
-const propertySlugs = [
-  'property-lifecycle',
-  'inventory',
-  'expenses',
-  'vendors',
-];
+const propertySlugs = ['property-lifecycle', 'inventory', 'expenses', 'vendors'];
 export default function Shell() {
   useLocale();
   const user = useAuth((s) => s.user)!;
@@ -52,6 +47,7 @@ export default function Shell() {
   const location = useLocation();
   const navigate = useNavigate();
   const [mobile, setMobile] = useState(false);
+  const sidebarCollapsed = preferences.collapsed && !mobile;
   const [search, setSearch] = useState(false);
   const [companySearch, setCompanySearch] = useState('');
   const [projectSearch, setProjectSearch] = useState('');
@@ -208,7 +204,7 @@ export default function Shell() {
     setMobile(false);
   }
   return (
-    <div className={'app-shell ' + (preferences.collapsed ? 'sidebar-collapsed' : '')}>
+    <div className={'app-shell ' + (sidebarCollapsed ? 'sidebar-collapsed' : '')}>
       <a className="skip-link" href="#main-content">
         {t('Skip to content')}
       </a>
@@ -221,85 +217,82 @@ export default function Shell() {
       )}
       <aside className={'sidebar ' + (mobile ? 'mobile-open' : '')}>
         <NavLink to="/dashboard" className="brand" aria-label="Etihad Real Estate">
-          <BrandLogo background="dark" className="sidebar-logo-full" decorative />
-          <BrandLogo
-            variant="symbol"
-            background="dark"
-            className="sidebar-logo-compact"
-            decorative
-          />
+          <BrandLogo className="sidebar-logo-full" decorative />
+          <BrandLogo variant="symbol" className="sidebar-logo-compact" decorative />
         </NavLink>
-        <SearchSelect
-          className="company-select"
-          triggerClassName="project-switcher"
-          ariaLabel={t('Switch company')}
-          value={preferences.companyId}
-          options={(companies.data?.items ?? []).map((company) => ({
-            value: company.id!,
-            label: `${company.name} · ${company.code}`,
-          }))}
-          search={companySearch}
-          onSearch={setCompanySearch}
-          searchLabel={t('Search companies')}
-          selectedLabel={preferences.companyName}
-          disabled={!can('projects.read')}
-          loading={companies.isFetching}
-          error={companies.isError}
-          onRetry={() => void companies.refetch()}
-          clearable={false}
-          onChange={(value) => {
-            const company = companies.data?.items.find((item) => item.id === value);
-            if (company) void selectCompany(company);
-          }}
-          triggerContent={
-            <>
-              <span className="project-icon">
-                <Landmark size={17} />
-              </span>
-              <span className="project-caption">
-                <small>{t('CURRENT COMPANY')}</small>
-                <strong>{preferences.companyName || t('Choose a company')}</strong>
-              </span>
-            </>
-          }
-        />
-        <SearchSelect
-          className="project-select"
-          triggerClassName="project-switcher"
-          ariaLabel={t('Switch project')}
-          value={preferences.projectId}
-          options={(projects.data?.items ?? []).map((p) => ({
-            value: p.id!,
-            label: `${p.name} · ${p.code}`,
-          }))}
-          search={projectSearch}
-          onSearch={setProjectSearch}
-          searchLabel={t('Search projects')}
-          selectedLabel={preferences.projectName}
-          disabled={
-            !can('projects.read') ||
-            (Boolean(companies.data?.items.length) && !preferences.companyId)
-          }
-          loading={projects.isFetching}
-          error={projects.isError}
-          onRetry={() => void projects.refetch()}
-          clearable={false}
-          onChange={(value) => {
-            const p = projects.data?.items.find((p) => p.id === value);
-            if (p) void selectProject(p);
-          }}
-          triggerContent={
-            <>
-              <span className="project-icon">
-                <Building2 size={17} />
-              </span>
-              <span className="project-caption">
-                <small>{t('CURRENT PROJECT')}</small>
-                <strong>{preferences.projectName || t('Choose a project')}</strong>
-              </span>
-            </>
-          }
-        />
+        <div className="workspace-switchers">
+          <SearchSelect
+            className="company-select"
+            triggerClassName="project-switcher"
+            ariaLabel={t('Switch company')}
+            value={preferences.companyId}
+            options={(companies.data?.items ?? []).map((company) => ({
+              value: company.id!,
+              label: String(company.name),
+            }))}
+            search={companySearch}
+            onSearch={setCompanySearch}
+            searchLabel={t('Search companies')}
+            selectedLabel={preferences.companyName}
+            disabled={!can('projects.read')}
+            loading={companies.isFetching}
+            error={companies.isError}
+            onRetry={() => void companies.refetch()}
+            clearable={false}
+            onChange={(value) => {
+              const company = companies.data?.items.find((item) => item.id === value);
+              if (company) void selectCompany(company);
+            }}
+            triggerContent={
+              <>
+                <span className="project-icon">
+                  <Landmark size={17} />
+                </span>
+                <span className="project-caption">
+                  <small>{t('Company')}</small>
+                  <strong>{preferences.companyName || t('Choose a company')}</strong>
+                </span>
+              </>
+            }
+          />
+          <SearchSelect
+            className="project-select"
+            triggerClassName="project-switcher"
+            ariaLabel={t('Switch project')}
+            value={preferences.projectId}
+            options={(projects.data?.items ?? []).map((p) => ({
+              value: p.id!,
+              label: String(p.name),
+            }))}
+            search={projectSearch}
+            onSearch={setProjectSearch}
+            searchLabel={t('Search projects')}
+            selectedLabel={preferences.projectName}
+            disabled={
+              !can('projects.read') ||
+              (Boolean(companies.data?.items.length) && !preferences.companyId)
+            }
+            loading={projects.isFetching}
+            error={projects.isError}
+            onRetry={() => void projects.refetch()}
+            clearable={false}
+            onChange={(value) => {
+              const p = projects.data?.items.find((p) => p.id === value);
+              if (p) void selectProject(p);
+            }}
+            triggerContent={
+              <>
+                <span className="project-icon">
+                  <Building2 size={17} />
+                </span>
+                <span className="project-caption">
+                  <small>{t('Project')}</small>
+                  <strong>{preferences.projectName || t('Choose a project')}</strong>
+                </span>
+              </>
+            }
+          />
+        </div>
         <nav className="sidebar-nav" aria-label={t('Main navigation')}>
           {groups.map((group) => (
             <div className="nav-group" key={t(group)}>
@@ -314,7 +307,7 @@ export default function Shell() {
                           type="button"
                           className={`nav-item nav-dropdown-trigger ${isPropertiesActive ? 'active-parent' : ''} ${propertiesOpen ? 'open' : ''}`}
                           onClick={() => {
-                            if (preferences.collapsed) {
+                            if (sidebarCollapsed) {
                               preferences.toggleSidebar();
                               setPropertiesOpen(true);
                             } else {
@@ -322,14 +315,14 @@ export default function Shell() {
                             }
                           }}
                           title={t('Properties')}
-                          aria-expanded={propertiesOpen && !preferences.collapsed}
+                          aria-expanded={propertiesOpen && !sidebarCollapsed}
                           aria-controls="properties-submenu"
                         >
                           <Building2 size={18} />
                           <span>{t('Properties')}</span>
                           <ChevronDown size={14} className="nav-chevron" />
                         </button>
-                        {propertiesOpen && !preferences.collapsed && (
+                        {propertiesOpen && !sidebarCollapsed && (
                           <div className="nav-sub-menu" id="properties-submenu">
                             {propertyNavigation.map((item) => (
                               <NavLink
@@ -358,7 +351,7 @@ export default function Shell() {
                           type="button"
                           className={`nav-item nav-dropdown-trigger ${isMembersActive ? 'active-parent' : ''} ${membersOpen ? 'open' : ''}`}
                           onClick={() => {
-                            if (preferences.collapsed) {
+                            if (sidebarCollapsed) {
                               preferences.toggleSidebar();
                               setMembersOpen(true);
                             } else {
@@ -366,13 +359,13 @@ export default function Shell() {
                             }
                           }}
                           title={t(n.label)}
-                          aria-expanded={membersOpen}
+                          aria-expanded={membersOpen && !sidebarCollapsed}
                         >
                           <n.icon size={18} />
                           <span>{t(n.label)}</span>
                           <ChevronDown size={14} className="nav-chevron" />
                         </button>
-                        {membersOpen && !preferences.collapsed && (
+                        {membersOpen && !sidebarCollapsed && (
                           <div className="nav-sub-menu">
                             <NavLink
                               to="/members/register"

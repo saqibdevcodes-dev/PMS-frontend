@@ -34,6 +34,8 @@ export function BrandLogo({
         <img
           className="brand-logo-dark"
           src={art.dark.src}
+          width={art.dark.width}
+          height={art.dark.height}
           alt=""
           loading="eager"
           draggable={false}
@@ -42,6 +44,8 @@ export function BrandLogo({
         <img
           className="brand-logo-light"
           src={art.light.src}
+          width={art.light.width}
+          height={art.light.height}
           alt=""
           loading="eager"
           draggable={false}
@@ -51,6 +55,8 @@ export function BrandLogo({
           <img
             className="brand-logo-light"
             src={art.light.src}
+            width={art.light.width}
+            height={art.light.height}
             alt=""
             loading="eager"
             draggable={false}
@@ -58,6 +64,8 @@ export function BrandLogo({
           <img
             className="brand-logo-dark"
             src={art.dark.src}
+            width={art.dark.width}
+            height={art.dark.height}
             alt=""
             loading="eager"
             draggable={false}

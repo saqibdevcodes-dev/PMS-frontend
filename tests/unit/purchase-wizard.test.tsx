@@ -12,6 +12,99 @@ afterEach(() => {
   useAuth.getState().clear();
 });
 
+it.each(['empty state', 'dropdown'])(
+  'opens the full Add property form from the inventory %s',
+  async (entry) => {
+    const projectId = 'aaaaaaaa-aaaa-4aaa-aaaa-aaaaaaaaaaaa';
+    usePreferences.getState().setProject(projectId, 'Test project');
+    useAuth.getState().setUser({ permissions: ['inventory.read', 'finance.read'] } as User);
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(
+        async () =>
+          new Response(
+            JSON.stringify({
+              success: true,
+              data: { items: [], pagination: { page: 1, limit: 100, total: 0, totalPages: 1 } },
+            }),
+          ),
+      ),
+    );
+    render(
+      <QueryClientProvider
+        client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}
+      >
+        <PropertyPurchaseWizard onClose={() => {}} />
+      </QueryClientProvider>,
+    );
+    fireEvent.click(screen.getByText('Select from Project Inventory'));
+    await screen.findByText('No properties are available for purchase in this project.');
+    if (entry === 'dropdown') {
+      fireEvent.click(screen.getByRole('combobox', { name: 'Choose Property from Inventory' }));
+      fireEvent.click(screen.getAllByRole('button', { name: 'Add New Property' }).at(-1)!);
+    } else {
+      fireEvent.click(screen.getByRole('button', { name: 'Add New Property' }));
+    }
+    for (const label of [
+      'Property number',
+      'Property area',
+      'Property price',
+      'Phase',
+      'Block',
+      'Sector',
+      'Tower',
+      'Floor',
+    ]) {
+      expect(screen.getByLabelText(new RegExp(label))).toBeDefined();
+    }
+    expect(screen.getByText('Property photos')).toBeDefined();
+    expect(screen.getByText('Property features')).toBeDefined();
+    expect(screen.getByRole('combobox', { name: 'Choose a feature' })).toBeDefined();
+    fireEvent.click(screen.getByRole('combobox', { name: /Property type/ }));
+    expect(screen.getAllByRole('option').map((option) => option.textContent)).toEqual([
+      'Residential plot',
+      'Commercial plot',
+      'Apartment',
+      'Shop',
+      'Office',
+      'Other',
+    ]);
+    fireEvent.click(screen.getByRole('option', { name: 'Other' }));
+    expect(screen.getByLabelText('Other property type')).toBeDefined();
+    fireEvent.click(screen.getByRole('combobox', { name: 'Area unit' }));
+    expect(screen.getAllByRole('option').map((option) => option.textContent)).toEqual([
+      'Marla',
+      'Kanal',
+      'Sq ft',
+      'Sq yd',
+      'Sq m',
+      'Acre',
+      'Hectare',
+    ]);
+    fireEvent.click(screen.getByRole('option', { name: 'Marla' }));
+    for (const [label, value] of [
+      ['Property number', 'LC-42'],
+      ['Other property type', 'Warehouse'],
+      ['Property area', '5'],
+      ['Property price', '650000'],
+      ['Phase', 'Phase 2'],
+      ['Block', 'C'],
+      ['Sector', 'East'],
+      ['Tower', 'One'],
+      ['Floor', 'Ground'],
+    ]) {
+      fireEvent.change(screen.getByLabelText(new RegExp(label!)), { target: { value } });
+    }
+    fireEvent.click(screen.getByRole('button', { name: 'Continue to purchase details' }));
+    expect(await screen.findByDisplayValue('LC-42')).toBeDefined();
+    expect(screen.getByDisplayValue('Phase 2, C, East, One, Ground')).toBeDefined();
+    fireEvent.click(screen.getByRole('button', { name: 'Back' }));
+    expect(screen.getByDisplayValue('Warehouse')).toBeDefined();
+    expect(screen.getByDisplayValue('LC-42')).toBeDefined();
+    expect(screen.getByRole('combobox', { name: 'Area unit' }).textContent).toContain('Marla');
+  },
+);
+
 it('loads saved draft expenses from the server before opening the edit form', async () => {
   const projectId = 'aaaaaaaa-aaaa-4aaa-aaaa-aaaaaaaaaaaa';
   const purchaseId = 'bbbbbbbb-bbbb-4bbb-bbbb-bbbbbbbbbbbb';
@@ -91,16 +184,19 @@ it('edits posted expenses in the three-step form without changing locked purchas
     notes: 'Posted purchase',
   };
   const fetcher = vi.fn(async (url: string, init?: RequestInit) => {
-    const data = init?.method === 'PATCH'
-      ? purchase
-      : url.endsWith(`/property-purchases/${purchaseId}`)
+    const data =
+      init?.method === 'PATCH'
         ? purchase
-        : { items: [], pagination: { page: 1, limit: 100, total: 0, totalPages: 1 } };
+        : url.endsWith(`/property-purchases/${purchaseId}`)
+          ? purchase
+          : { items: [], pagination: { page: 1, limit: 100, total: 0, totalPages: 1 } };
     return new Response(JSON.stringify({ success: true, data }));
   });
   vi.stubGlobal('fetch', fetcher);
   render(
-    <QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}>
+    <QueryClientProvider
+      client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}
+    >
       <PropertyPurchaseWizard record={{ id: purchaseId }} onClose={() => {}} />
     </QueryClientProvider>,
   );
@@ -111,8 +207,9 @@ it('edits posted expenses in the three-step form without changing locked purchas
   expect(screen.getByDisplayValue('Roof repairs')).toBeDefined();
   fireEvent.click(screen.getByRole('button', { name: 'Save expenses' }));
   await waitFor(() => {
-    const call = fetcher.mock.calls.find(([url, init]) =>
-      url.endsWith(`/property-purchases/${purchaseId}/expenses`) && init?.method === 'PATCH',
+    const call = fetcher.mock.calls.find(
+      ([url, init]) =>
+        url.endsWith(`/property-purchases/${purchaseId}/expenses`) && init?.method === 'PATCH',
     );
     expect(call).toBeDefined();
     const payload = JSON.parse(String(call?.[1]?.body));

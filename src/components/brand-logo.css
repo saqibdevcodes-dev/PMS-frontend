@@ -26,37 +26,37 @@
 
 :root[data-theme='dark'] .brand-logo--theme .brand-logo-light,
 [data-theme='dark'] .brand-logo--theme .brand-logo-light {
-  display: none !important;
+  display: none;
 }
 :root[data-theme='dark'] .brand-logo--theme .brand-logo-dark,
 [data-theme='dark'] .brand-logo--theme .brand-logo-dark {
-  display: block !important;
+  display: block;
 }
 
 .brand-logo--dark .brand-logo-light {
-  display: none !important;
+  display: none;
 }
 .brand-logo--dark .brand-logo-dark {
-  display: block !important;
+  display: block;
 }
 
 .brand-logo--light .brand-logo-light {
-  display: block !important;
+  display: block;
 }
 .brand-logo--light .brand-logo-dark {
-  display: none !important;
+  display: none;
 }
 
 /* Common Brand Logo Classes */
 .sidebar-logo-full {
-  width: 172px;
+  width: 164px;
   max-width: 100%;
   display: inline-flex;
 }
 
 .sidebar-logo-full img {
-  max-height: 46px;
-  width: auto;
+  max-height: none;
+  width: 100%;
 }
 
 .sidebar-logo-compact {
@@ -71,11 +71,11 @@
 }
 
 .sidebar-collapsed .sidebar-logo-full {
-  display: none !important;
+  display: none;
 }
 
 .sidebar-collapsed .sidebar-logo-compact {
-  display: inline-flex !important;
+  display: inline-flex;
 }
 
 .dashboard-emblem {
@@ -145,4 +145,3 @@
   height: 100%;
   object-fit: contain;
 }
-

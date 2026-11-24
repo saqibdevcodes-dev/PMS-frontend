@@ -44,6 +44,14 @@
   line-height: 1.5;
 }
 
+.pw-empty-inventory {
+  margin-top: 12px;
+}
+
+.pw-empty-inventory p {
+  margin: 0 0 8px;
+}
+
 .pw-grid-2 {
   display: grid;
   grid-template-columns: 1fr 1fr;

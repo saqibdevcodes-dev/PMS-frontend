@@ -65,7 +65,7 @@ export function PlotCapacityNotice({ projectId: explicitProjectId }: { projectId
       {plan.unmatchedPlotCount ? (
         <p>
           {t(
-            '{0} existing plots use another area unit. Update them to see the accurate area left.',
+            '{0} existing plots use another area unit or have no measured area. You can save project changes. In Properties, enter each plot’s actual area in the project area unit before adding more plots. Existing property areas are kept as recorded.',
             {
               '0': plan.unmatchedPlotCount,
             },

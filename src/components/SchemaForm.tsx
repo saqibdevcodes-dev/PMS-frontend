@@ -796,6 +796,9 @@ export function SchemaForm({
         >
           <div className="form-grid">
             {operationPath.endsWith('/units') && <PlotCapacityNotice />}
+            {operationPath === '/projects/{projectId}' && entityId && (
+              <PlotCapacityNotice projectId={String(entityId)} />
+            )}
             {operationPath.includes('/property-purchases') && <PurchaseCostSummary />}
             {Object.entries(formSchema.properties ?? {})
               .filter(([key]) => !customerCreate || !['password', 'confirmPassword'].includes(key))

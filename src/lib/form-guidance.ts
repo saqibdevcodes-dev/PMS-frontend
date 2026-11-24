@@ -91,7 +91,7 @@ export const fieldHelp: Record<string, [string, string]> = {
   ],
   plannedPlotArea: [
     'e.g. 500',
-    'Enter the combined area of all planned plots. Plot properties must use this area unit.',
+    'Enter the combined area of all planned plots. Existing property areas stay unchanged. Correct any plots using another unit in Properties before adding more plots.',
   ],
   measurementUnit: [
     'Choose an area unit',

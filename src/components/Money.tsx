@@ -8,16 +8,18 @@ export function Money({
   currency,
   compact = false,
   showCurrency = true,
+  showWords = true,
 }: {
   value: unknown;
   currency?: string;
   compact?: boolean;
   showCurrency?: boolean;
+  showWords?: boolean;
 }) {
   useLocale();
   const projectCurrency = usePreferences((state) => state.currency);
   const code = currency ?? projectCurrency;
-  const words = amountInWords(value ?? 0, code);
+  const words = showWords ? amountInWords(value ?? 0, code) : '';
   return (
     <span className="amount-display">
       <span className="amount-number">

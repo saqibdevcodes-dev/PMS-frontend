@@ -69,11 +69,7 @@ export function PropertyPurchaseWizard(props: PurchaseProps) {
   });
   if (props.record?.id && !full.data)
     return (
-      <Modal
-        open
-        onOpenChange={(open) => !open && props.onClose()}
-        title="Edit property purchase"
-      >
+      <Modal open onOpenChange={(open) => !open && props.onClose()} title="Edit property purchase">
         <div className="modal-body">
           {full.isError ? (
             <ErrorState error={full.error} retry={() => void full.refetch()} />
@@ -462,8 +458,8 @@ function PurchaseEditor({
         isPosted
           ? t('Property expenses updated')
           : isEdit
-          ? t('Property acquisition draft updated successfully')
-          : t('Property acquisition draft saved successfully'),
+            ? t('Property acquisition draft updated successfully')
+            : t('Property acquisition draft saved successfully'),
       );
       onSuccess?.();
       onClose();
@@ -479,15 +475,23 @@ function PurchaseEditor({
       open
       onOpenChange={(open) => !open && onClose()}
       beforeClose={async () => !submitMutation.isPending && (!dirty || (await confirmDiscard()))}
-      title={isPosted ? t('Edit property purchase') : isEdit ? t('Edit Property Purchase Draft') : t('New Property Purchase')}
+      title={
+        isPosted
+          ? t('Edit property purchase')
+          : isEdit
+            ? t('Edit Property Purchase Draft')
+            : t('New Property Purchase')
+      }
       description={
         isPosted
-          ? t('Update expenses until the property reaches Sold & closed. Posted changes create an accounting adjustment.')
-          : isEdit
-          ? t('Review and update property details, prices, dealer fees & renovation expenses')
-          : t(
-              'Step-by-step acquisition workflow: property selection, price, dealer fee & building expenses',
+          ? t(
+              'Update expenses until the property reaches Sold & closed. Posted changes create an accounting adjustment.',
             )
+          : isEdit
+            ? t('Review and update property details, prices, dealer fees & renovation expenses')
+            : t(
+                'Step-by-step acquisition workflow: property selection, price, dealer fee & building expenses',
+              )
       }
       wide
     >
@@ -562,7 +566,9 @@ function PurchaseEditor({
           <div className="pw-step-body">
             {isPosted && (
               <p className="muted">
-                {t('Posted property and seller details are locked. Review them here, then continue to edit costs.')}
+                {t(
+                  'Posted property and seller details are locked. Review them here, then continue to edit costs.',
+                )}
               </p>
             )}
             {/* Visual Choice Cards */}
@@ -647,12 +653,39 @@ function PurchaseEditor({
                     void purchasesQuery.refetch();
                   }}
                   clearable={false}
+                  footer={
+                    !isEdit && (
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        onClick={() => setPropertyMode('custom')}
+                      >
+                        <Plus size={14} />
+                        {t('Add New Property')}
+                      </Button>
+                    )
+                  }
                 />
-                {availableUnits.length === 0 && (
-                  <div style={{ fontSize: 12, color: 'var(--muted)', marginTop: 4 }}>
-                    {t('No properties found in this project. Choose Add New Property above.')}
-                  </div>
-                )}
+                {!isEdit &&
+                  !unitsQuery.isLoading &&
+                  !unitsQuery.isError &&
+                  !purchasesQuery.isLoading &&
+                  !purchasesQuery.isError &&
+                  !availableUnits.some(unitSelectable) && (
+                    <div className="pw-empty-inventory">
+                      <p className="muted">
+                        {t('No properties are available for purchase in this project.')}
+                      </p>
+                      <Button
+                        type="button"
+                        variant="secondary"
+                        onClick={() => setPropertyMode('custom')}
+                      >
+                        <Plus size={14} />
+                        {t('Add New Property')}
+                      </Button>
+                    </div>
+                  )}
               </div>
             )}
 
@@ -1214,7 +1247,9 @@ function PurchaseEditor({
             ) : (
               <Button
                 variant="primary"
-                disabled={submitMutation.isPending || !isStep1Valid || !isStep2Valid || !isStep3Valid}
+                disabled={
+                  submitMutation.isPending || !isStep1Valid || !isStep2Valid || !isStep3Valid
+                }
                 onClick={() => submitMutation.mutate()}
               >
                 <CheckCircle2 size={16} style={{ marginRight: 6 }} />
@@ -1226,7 +1261,7 @@ function PurchaseEditor({
                     ? t('Save expenses')
                     : isEdit
                       ? t('Update Draft Acquisition')
-                    : t('Save Draft Acquisition')}
+                      : t('Save Draft Acquisition')}
               </Button>
             )}
           </div>

@@ -19,6 +19,7 @@ import { DataTable } from './DataTable';
 import { asRows } from '../lib/types';
 import { VerificationSummary, OwnershipParties } from './OwnershipVerification';
 import { usePreferences } from '../stores/preferences';
+import { PlotCapacityNotice } from './PlotCapacityNotice';
 export function OperationDialog({
   operation,
   title,
@@ -277,6 +278,9 @@ export function OperationDialog({
                     )}
                 </dl>
               </>
+            )}
+            {operation.path === '/projects/{projectId}' && record?.id && (
+              <PlotCapacityNotice projectId={String(record.id)} />
             )}
             {mutation.error && <ErrorState error={mutation.error} />}
             <div className="form-footer">

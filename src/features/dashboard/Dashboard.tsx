@@ -318,25 +318,25 @@ export default function Dashboard() {
 
             <button
               type="button"
-              className="secondary-kpi-chip chip-alert"
+              className="secondary-kpi-chip secondary-kpi-chip--amount chip-alert"
               onClick={() => setDrilldown('receivables')}
             >
               <span>{t('Overdue Installments')}:</span>
-              <strong>
-                {String(s.overdueInstallments ?? 0)} (
-                <Money value={s.overdue} currency={currency} />)
+              <strong className="secondary-kpi-detail">
+                <span className="secondary-kpi-count">{String(s.overdueInstallments ?? 0)}</span>
+                <Money value={s.overdue} currency={currency} showWords={false} />
               </strong>
             </button>
 
             <button
               type="button"
-              className="secondary-kpi-chip"
+              className="secondary-kpi-chip secondary-kpi-chip--amount"
               onClick={() => navigate('/installments')}
             >
               <span>{t('Upcoming Obligations')}:</span>
-              <strong>
-                {String(s.upcomingInstallments ?? 0)} (
-                <Money value={s.upcomingAmount} currency={currency} />)
+              <strong className="secondary-kpi-detail">
+                <span className="secondary-kpi-count">{String(s.upcomingInstallments ?? 0)}</span>
+                <Money value={s.upcomingAmount} currency={currency} showWords={false} />
               </strong>
             </button>
 
